@@ -1,0 +1,127 @@
+<div class="space-y-5">
+
+  @if (media360Error()) {
+    <div class="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-xs text-red-700">
+      {{ media360Error() }}
+    </div>
+  }
+
+  <!-- Hidden file input for replace flow -->
+  <input
+    #media360Input
+    type="file"
+    accept=".zip,application/zip,video/mp4"
+    class="hidden"
+    (change)="on360FileChange($event)"
+  />
+
+  @if (media360Loading()) {
+    <p class="text-xs text-slate-400 py-4 text-center">Loading 360° asset…</p>
+  } @else if (media360Uploading()) {
+    <!-- Upload in progress -->
+    <div class="bg-white rounded-xl border border-slate-200 p-6 flex flex-col items-center gap-3">
+      <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+      </svg>
+      <div class="w-full max-w-sm bg-slate-200 rounded-full h-2 overflow-hidden">
+        <div
+          class="h-2 rounded-full bg-blue-500 transition-all duration-300"
+          [style.width.%]="media360UploadPct()"
+        ></div>
+      </div>
+      <p class="text-sm font-medium text-slate-700">Uploading 360° asset… {{ media360UploadPct() }}%</p>
+    </div>
+  } @else if (!media360()) {
+    <!-- Drop zone — no existing asset -->
+    <div
+      class="bg-white rounded-xl border-2 border-dashed border-slate-300 p-8 text-center cursor-pointer transition-colors hover:border-blue-600 hover:bg-blue-50"
+      role="button"
+      aria-label="360° asset upload zone"
+      (click)="media360Input.click()"
+      (dragover)="on360DragOver($event)"
+      (dragleave)="on360DragLeave($event)"
+      (drop)="on360Drop($event)"
+    >
+      <div class="flex flex-col items-center gap-3">
+        <div class="w-12 h-12 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-slate-700">Drop 360° asset here, or click to select</p>
+          <p class="text-xs text-slate-400 mt-1">
+            <span class="font-mono bg-slate-100 rounded px-1 py-0.5">.zip</span> of sequential frames
+            &nbsp;or&nbsp;
+            <span class="font-mono bg-slate-100 rounded px-1 py-0.5">.mp4</span> video
+            &nbsp;&middot;&nbsp; max 250 MB
+          </p>
+        </div>
+        <button
+          type="button"
+          class="px-4 py-2 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >Choose file</button>
+      </div>
+    </div>
+  } @else {
+    <!-- Existing 360° asset -->
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-slate-800">360° asset</p>
+            <div class="flex items-center gap-2 mt-0.5">
+              @if (media360()!.frameCount) {
+                <span class="inline-flex items-center rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold px-2 py-0.5">
+                  {{ media360()!.frameCount }} frames
+                </span>
+              }
+              @if (media360()!.bytes) {
+                <span class="text-xs text-slate-400">{{ formatBytes(media360()!.bytes) }}</span>
+              }
+            </div>
+          </div>
+        </div>
+        <div *adminRole="writeRoles" class="flex items-center gap-2">
+          <button
+            type="button"
+            (click)="replace360(media360Input)"
+            class="px-3 py-1.5 rounded-md border border-slate-300 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+          >Replace</button>
+          <button
+            type="button"
+            (click)="remove360()"
+            class="px-3 py-1.5 rounded-md border border-red-200 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors"
+          >Remove</button>
+        </div>
+      </div>
+      <!-- Preview placeholder -->
+      <div class="relative bg-gradient-to-br from-slate-100 to-slate-200" style="aspect-ratio: 16/9;">
+        <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+          <div class="w-16 h-16 rounded-full bg-white/70 border border-slate-300 flex items-center justify-center shadow-sm">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+            </svg>
+          </div>
+          <p class="text-sm font-medium text-slate-600 text-center px-6">Pannellum viewer will render the uploaded frames in the storefront VDP</p>
+        </div>
+        @if (media360()!.frameCount) {
+          <div class="absolute top-3 right-3">
+            <span class="inline-flex items-center gap-1 rounded-lg bg-white/90 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+              <svg class="w-3 h-3 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              {{ media360()!.frameCount }} frames
+            </span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>

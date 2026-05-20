@@ -1,0 +1,26 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "lib": ["es2022"],
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "declarationMap": false,
+    "declaration": false,
+    "composite": false,
+    "strict": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@behbehani-cpo/shared-types": ["../../libs/shared/types/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"],
+  "references": [
+    {
+      "path": "../shared/types"
+    }
+  ]
+}

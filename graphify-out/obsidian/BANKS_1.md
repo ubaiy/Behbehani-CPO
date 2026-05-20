@@ -1,0 +1,17 @@
+---
+source_file: "mockups/web/sprint-3/behbehani-motors/car-market/project/lib/wf-finance.jsx"
+type: "code"
+community: "Community 235"
+location: "L3"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_235
+---
+
+# BANKS
+
+## Connections
+- [[wf-finance.jsx]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_235

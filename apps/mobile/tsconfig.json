@@ -1,0 +1,43 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-native",
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "target": "esnext",
+    "lib": [
+      "es2022"
+    ],
+    "noEmit": true,
+    "emitDeclarationOnly": false,
+    "declarationMap": false,
+    "declaration": false,
+    "composite": false,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "paths": {
+      "@behbehani-cpo/shared-types": [
+        "../../libs/shared/types/src/index.ts"
+      ],
+      "@behbehani-cpo/data-access-mobile": [
+        "../../libs/data-access-mobile/src/index.ts"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.d.ts",
+    "expo-env.d.ts",
+    ".expo/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "references": [
+    {
+      "path": "../../libs/shared/types"
+    }
+  ]
+}

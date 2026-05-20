@@ -1,0 +1,528 @@
+/* Behbehani Motors — Mobile responsiveness pass
+   Layered on top of all other stylesheets. Loaded LAST so its rules win.
+   Two breakpoints: tablet (<=820px) and phone (<=480px). */
+
+/* ============================================================
+   TABLET (<= 820px) — tighten generous desktop spacing
+   ============================================================ */
+/* Fix: header drawer is conditionally rendered in JSX but base CSS has
+   display:none + only .hdr-drawer.open shows it — that class is never set.
+   The mere presence in DOM means it should show. */
+.hdr-drawer { display: block; }
+
+/* ============================================================
+   Sell callout — keep "Sell your car" badge tight (don't let
+   the flex column stretch the inline-flex badge to full width)
+   ============================================================ */
+.sell-callout-body .badge { align-self: flex-start; }
+
+/* ============================================================
+   Sign-in: 3-col social grid (Google / Apple / Facebook)
+   ============================================================ */
+.auth-socials.auth-socials-3 { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.auth-socials.auth-socials-3 .auth-social {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 10px 6px;
+  font-weight: 600; font-size: 13px;
+  border-radius: var(--r);
+}
+.auth-socials.auth-socials-3 .auth-social svg { flex-shrink: 0; }
+
+@media (max-width: 380px) {
+  /* On very narrow screens, drop the text labels so the 3 icons still fit */
+  .auth-socials.auth-socials-3 .auth-social span { display: none; }
+  .auth-socials.auth-socials-3 .auth-social { padding: 12px 6px; }
+}
+
+/* ============================================================
+   Range slider — fix label overflow (labels were escaping the
+   fixed 32px-tall .rng box and colliding with the next element)
+   ============================================================ */
+.rng { height: auto !important; padding-bottom: 6px; }
+.rng-track,
+.rng input[type=range] { /* keep absolute positioning aligned to top */ top: 13px; }
+.rng input[type=range] { top: 0; }
+.rng-labels { margin-top: 24px !important; padding-top: 18px; }
+
+/* Give a touch more breathing room between the slider's labels
+   and the quick-pick pills / helper text directly underneath. */
+.fp-quick-row { margin-top: 6px !important; }
+.fp-hint { margin-top: 6px !important; }
+
+/* ============================================================
+   Brand logo (Morad Yousuf Behbehani — image asset)
+   ============================================================ */
+.hdr-brand { padding: 4px 8px; }
+.hdr-logo-img {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+}
+.ftr-logo { margin-bottom: 16px; }
+.ftr-logo-img {
+  display: block;
+  height: 56px;
+  width: auto;
+  max-width: 240px;
+  object-fit: contain;
+  /* Logo is dark blue; on the dark footer background, invert to white */
+  filter: brightness(0) invert(1);
+}
+.modal-brand-img {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+}
+
+@media (max-width: 720px) {
+  .hdr-logo-img { height: 36px; max-width: 160px; }
+}
+@media (max-width: 480px) {
+  .hdr-logo-img { height: 32px; max-width: 140px; }
+  .ftr-logo-img { height: 48px; }
+}
+@media (max-width: 360px) {
+  .hdr-logo-img { height: 28px; max-width: 120px; }
+}
+
+/* ============================================================
+   HERO SLIDER — banner carousel (desktop + mobile)
+   ============================================================ */
+.hero-slider { outline: none; }
+.hero-slider:focus-visible { outline: 2px solid var(--royal-400); outline-offset: -4px; }
+
+.hero-slides {
+  position: relative;
+  width: 100%;
+}
+.hero-slide {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-slide.is-entering {
+  animation: heroSlideIn .55s cubic-bezier(.4, 0, .2, 1) both;
+}
+@keyframes heroSlideIn {
+  0%   { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.hero-slide .hero-content { width: 100%; }
+
+/* RTL: flip the track direction so "next" still feels right */
+[dir="rtl"] .hero-slides-track { direction: rtl; }
+
+/* Controls row: prev arrow · dots · next arrow */
+.hero-slider-controls {
+  display: flex; align-items: center; justify-content: center;
+  gap: 18px;
+  margin: 8px auto 28px;
+}
+.hero-slider-arrow {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #fff; border: 1px solid var(--line);
+  cursor: pointer; color: var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: var(--sh-sm);
+  transition: all .15s;
+}
+.hero-slider-arrow:hover {
+  border-color: var(--royal); color: var(--royal);
+  transform: translateY(-1px); box-shadow: var(--sh);
+}
+.hero-slider-arrow:focus-visible { outline: 2px solid var(--royal); outline-offset: 2px; }
+
+.hero-slider-dots {
+  display: flex; align-items: center; gap: 8px;
+}
+.hero-slider-dot {
+  background: transparent; border: 0; padding: 6px 2px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.hero-slider-dot:focus-visible { outline: 2px solid var(--royal); outline-offset: 2px; border-radius: 4px; }
+.hero-slider-dot-bar {
+  display: block;
+  height: 4px; width: 24px; border-radius: 4px;
+  background: var(--line);
+  transition: background .25s, width .35s ease;
+}
+.hero-slider-dot:hover .hero-slider-dot-bar { background: var(--royal-100); }
+.hero-slider-dot.is-on .hero-slider-dot-bar {
+  background: var(--royal);
+  width: 44px;
+}
+
+/* RTL — flip arrow directions visually */
+[dir="rtl"] .hero-slider-arrow svg { transform: scaleX(-1); }
+
+/* Mobile tuning */
+@media (max-width: 720px) {
+  .hero-slider-controls { gap: 12px; margin: 4px auto 20px; }
+  .hero-slider-arrow { width: 38px; height: 38px; }
+  .hero-slider-dot-bar { width: 18px; }
+  .hero-slider-dot.is-on .hero-slider-dot-bar { width: 32px; }
+}
+@media (max-width: 480px) {
+  /* On phones, hide the side arrows — swipe + dots are enough */
+  .hero-slider-arrow { display: none; }
+}
+
+@media (max-width: 820px) {
+  /* Global rhythm */
+  .container { padding: 0 16px; }
+  .section { padding: 48px 0; }
+  .section-head { margin-bottom: 24px; }
+  .section-title { font-size: clamp(24px, 5vw, 32px); }
+  .section-sub { font-size: 14px; margin-top: 6px; }
+  h1 { font-size: clamp(28px, 6vw, 40px); }
+  h2 { font-size: clamp(22px, 4.5vw, 30px); }
+
+  /* Header — tighten chrome */
+  .hdr-inner { padding: 10px 16px; gap: 8px; grid-template-columns: auto 1fr auto; }
+  .hdr-actions { gap: 0; }
+  .hdr-action { padding: 8px; }
+  .hdr-acct { padding: 8px 10px; }
+  .hdr-drawer { padding: 8px 16px 16px; }
+  .hdr-drawer-link { padding: 14px 4px; }
+  .hdr-brand-1 { font-size: 15px; }
+  .hdr-brand-2 { font-size: 9px; letter-spacing: 0.16em; }
+
+  /* Hero — much less padding, contained stats */
+  .hero { padding: 32px 0 40px; }
+  .hero-blob-1, .hero-blob-2, .hero-blob-3 { transform: scale(0.6); opacity: 0.5; }
+  .hero-dot { display: none; }
+  .hero-eyebrow { margin-bottom: 18px; padding: 6px 12px; font-size: 12px; }
+  .hero-title { font-size: clamp(32px, 8vw, 48px) !important; line-height: 1.08; }
+  .hero-sub { font-size: 15px; margin: 16px auto 24px; }
+  .hero-cta-row { margin-bottom: 28px; gap: 10px; }
+  .hero-cta-row .btn { flex: 1 1 auto; min-width: 0; }
+  .hero-trust-row { gap: 8px; }
+  .hero-trust-chip { padding: 6px 12px; font-size: 12px; }
+  .hero-stats-row {
+    margin-top: 40px;
+    padding-top: 28px;
+    gap: 16px 12px;
+  }
+  .hero-stat-num { font-size: clamp(24px, 6vw, 32px); }
+  .hero-stat-label { font-size: 12px; margin-top: 4px; }
+
+  /* Featured section */
+  .feat-section { padding: 40px 0; }
+  .feat-head { margin-bottom: 18px; }
+  .feat-tabs { margin-bottom: 18px; }
+
+  /* Trust strip — give 5 items room to breathe */
+  .trust-strip { padding: 16px 0; }
+  .trust-strip-inner { gap: 14px 16px; }
+  .trust-strip-icon { width: 36px; height: 36px; }
+  .trust-strip-title { font-size: 13px; }
+  .trust-strip-sub { font-size: 11px; }
+
+  /* Card sizing */
+  .car-card { border-radius: 16px; }
+  .car-card-title { font-size: 16px; }
+  .car-card-price { font-size: 18px; }
+  .car-card-body { padding: 12px 14px 14px; }
+  .car-card-specs { gap: 8px 12px; margin-bottom: 12px; }
+
+  /* Browse */
+  .browse-head { padding: 16px 0; }
+  .browse-body { padding: 16px 16px 40px; gap: 16px; }
+  .browse-toolbar { gap: 8px; margin-bottom: 12px; }
+  .browse-toolbar-l, .browse-toolbar-r { flex-wrap: wrap; width: 100%; }
+  .browse-toolbar-l { gap: 8px; }
+  .browse-toolbar-r { justify-content: space-between; }
+  .browse-input { min-width: 0; flex: 1; }
+  .filter-mobile-btn { flex-shrink: 0; }
+
+  /* Sell callout */
+  .sell-callout-body { padding: 24px; }
+  .sell-callout-body h2 { font-size: 24px; }
+  .sell-callout-img { min-height: 160px; }
+  .sell-path { padding: 14px 16px; gap: 12px; }
+  .sell-path-icon { width: 36px; height: 36px; }
+  .sell-path h3 { font-size: 14px; }
+  .sell-path p { font-size: 12px; }
+
+  /* How it works */
+  .how-step { padding: 20px; }
+
+  /* Why-bm */
+  .why-bm-card { padding: 22px 20px; }
+
+  /* Hero featured rail (used in legacy hero) */
+  .hero-form, .hero-form.sell, .hero-form.finance {
+    border-radius: 14px;
+  }
+
+  /* Footer */
+  .ftr { padding-top: 40px; margin-top: 40px; }
+  .ftr-top { padding: 0 16px 32px; gap: 24px; }
+  .ftr-cols { gap: 20px 24px; }
+  .ftr-bot { padding: 16px; gap: 10px; }
+
+  /* Modals — full-screen-ish on small viewports */
+  .modal-bg { padding: 12px; align-items: flex-end; }
+  .modal { padding: 24px 20px; border-radius: 16px; max-height: calc(100vh - 24px); overflow-y: auto; }
+  .modal h2 { font-size: 22px; }
+  .search-bg { align-items: flex-start; padding: 12px; padding-top: 24px; }
+  .search-dialog { border-radius: 14px; }
+  .search-input { padding: 14px 16px; }
+
+  /* Hero stats row sub-1080 — fall to 2 cols */
+  .hero-stats-row { grid-template-columns: repeat(2, 1fr); }
+
+  /* ========= VDP ========= */
+  .vdp-top { padding: 16px; }
+  .vdp-title-row { gap: 12px; margin-top: 8px; }
+  .vdp-title-row h1 { font-size: 24px; }
+  .vdp-title-actions { width: 100%; flex-wrap: wrap; }
+  .vdp-title-actions .vdp-icon-btn { flex: 1 1 auto; justify-content: center; }
+  .vdp-quick { font-size: 13px; }
+  .vdp-grid { padding: 0 16px; gap: 16px; }
+  .vdp-main > section { padding: 20px; border-radius: 14px; margin-bottom: 12px; }
+  .vdp-main > section > h2 { font-size: 19px; margin-bottom: 12px; }
+  .vdp-gallery-nav button { width: 36px; height: 36px; }
+  .vdp-gallery-nav { padding: 0 8px; }
+  .vdp-thumb { width: 64px; height: 44px; }
+  .vdp-inspect > header { flex-wrap: wrap; gap: 12px !important; }
+  .vdp-inspect-score { text-align: left; }
+  .vdp-inspect-pct { font-size: 26px; }
+  .vdp-finance > header { padding: 18px 20px; }
+  .vdp-finance > header h2 { font-size: 19px; }
+  .vdp-finance-controls { padding: 18px 20px; gap: 18px; }
+  .vdp-finance-result { padding: 22px 20px; }
+  .vdp-finance-mono { font-size: 36px; }
+
+  /* Sticky bottom CTA */
+  .vdp-sticky { padding: 10px 14px; }
+  .vdp-sticky-price { font-size: 18px; }
+
+  /* ========= Sell / Wizard / Finance ========= */
+  .sell-hero, .finance-hero, .services-hero, .dealers-hero { padding: 40px 0; }
+  .sell-hero h1, .finance-hero h1, .services-hero h1, .dealers-hero h1 { font-size: 28px; }
+  .sell-hero p, .finance-hero p, .services-hero p, .dealers-hero p { font-size: 15px; }
+  .sell-card { padding: 22px 20px; }
+  .sell-card h2 { font-size: 19px; }
+
+  .iv-head { padding: 22px 0; }
+  .iv-head h1 { font-size: 24px; margin: 8px 0 16px; }
+  .iv-body { padding: 20px 16px; gap: 20px; }
+  .iv-form { padding: 22px 18px; }
+  .iv-aside { padding: 20px; position: static; }
+  .iv-stepper { gap: 12px; }
+  .iv-step strong { font-size: 13px; }
+
+  .wizard-header-inner { padding: 10px 14px; gap: 10px; }
+  .wizard-title { font-size: 13px; }
+  .wizard-title span { display: block; margin-left: 0; }
+  .wizard-hold { padding: 5px 10px; font-size: 11px; }
+  .wizard-body { padding: 20px 14px; gap: 18px; }
+  .wizard-main { padding: 22px 18px; border-radius: 14px; }
+  .wizard-step-head { margin-bottom: 18px; padding-bottom: 14px; }
+  .wizard-foot { padding-top: 18px; margin-top: 18px; flex-wrap: wrap; }
+  .wizard-foot > button { flex: 1 1 auto; }
+
+  .reserve-deposit { padding: 12px 16px 40px; }
+  .reserve-deposit-features { grid-template-columns: 1fr; gap: 10px; margin-bottom: 24px; }
+  .reserve-aside { padding: 16px; position: static; }
+
+  .pay-method { padding: 14px; gap: 10px; }
+  .pay-method-logo { width: 44px; height: 28px; }
+
+  .finance-grid { gap: 18px; }
+  .finance-controls { padding: 20px; position: static; gap: 16px; }
+  .bank-offer { padding: 16px; }
+  .bank-offer-l { gap: 12px; }
+  .bank-offer-logo { width: 48px; height: 48px; font-size: 14px; }
+  .bank-offer-mid { gap: 12px; }
+  .bank-offer-mid strong { font-size: 17px; }
+
+  /* Services / Dealers */
+  .vendor-card-body { padding: 14px; }
+  .dealer-card-body { padding: 32px 16px 16px; }
+  .dealer-card-logo { width: 56px; height: 56px; left: 16px; bottom: -20px; }
+  .dealer-card-body h3 { font-size: 17px; }
+
+  /* Account */
+  .account { padding: 16px; padding-bottom: 40px; }
+  .account-head { padding: 16px 0; gap: 12px; margin-bottom: 16px; }
+  .account-avatar { width: 48px; height: 48px; font-size: 19px; }
+  .account-section { padding: 18px; border-radius: 14px; }
+
+  /* Self-service sell */
+  .self-wrap { padding: 16px; padding-bottom: 40px; }
+  .self-form { padding: 22px 18px; }
+  .self-stepper { gap: 12px; padding: 12px 14px; }
+  .self-review-card { grid-template-columns: 1fr; padding: 14px; }
+  .self-review-img { aspect-ratio: 16/9; }
+
+  /* Concierge */
+  .concierge { padding: 16px; padding-bottom: 40px; }
+  .conc-form { padding: 22px 18px; position: static; }
+  .conc-fees-row { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   PHONE (<= 480px) — squeeze the last bit
+   ============================================================ */
+@media (max-width: 480px) {
+  /* Even tighter chrome */
+  .container { padding: 0 14px; }
+  .section { padding: 36px 0; }
+
+  /* Header: drop globe-text + locale text label */
+  .hdr-action .hdr-locale { display: none; }
+  .hdr-inner { padding: 8px 14px; }
+  .hdr-brand { padding: 4px; margin-left: -4px; gap: 8px; }
+  .hdr-logo svg { width: 24px; height: 24px; }
+  .hdr-acct { padding: 7px 10px; }
+  .hdr-action { padding: 7px; }
+
+  /* Hero */
+  .hero { padding: 24px 0 32px; }
+  .hero-content { padding: 0 4px; }
+  .hero-title { font-size: clamp(28px, 9vw, 38px) !important; }
+  .hero-sub { font-size: 14px; margin: 14px auto 20px; }
+  .hero-cta-row { flex-direction: column; gap: 8px; margin-bottom: 24px; }
+  .hero-cta-row .btn { width: 100%; }
+  .hero-eyebrow { font-size: 11px; padding: 5px 10px; margin-bottom: 14px; }
+  .hero-trust-chip { padding: 5px 10px; font-size: 11px; }
+  .hero-trust-chip strong { font-size: 12px; }
+  .hero-stats-row { margin-top: 32px; padding-top: 24px; gap: 16px 8px; }
+  .hero-stat-num { font-size: 24px; }
+
+  /* Section heads stack vertically */
+  .section-head { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .section-eyebrow { font-size: 11px; }
+  .feat-head { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .feat-head h2 { font-size: 22px; }
+
+  /* Hero/feat search — already 1 column at <=720, but tighten paddings */
+  .hero-search-field { padding: 10px 14px; }
+  .hero-search-cta { padding: 12px; font-size: 13px; }
+  .hero-search { border-radius: 14px; }
+
+  /* Trust strip — single column with bigger icons */
+  .trust-strip-inner { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* Footer columns to single column */
+  .ftr-cols { grid-template-columns: 1fr 1fr; gap: 24px 16px; }
+  .ftr-cols h4 { font-size: 13px; margin-bottom: 12px; }
+  .ftr-bot { font-size: 12px; flex-direction: column; align-items: flex-start; }
+  .ftr-legal { gap: 12px; }
+
+  /* Brand grid 3 cols at <=820; squeeze to 3 still works at <=480 */
+  .brand-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .brand-tile { padding: 16px 8px; border-radius: 16px; }
+  .brand-tile-mark { width: 56px; height: 56px; padding: 10px; }
+  .brand-tile-name { font-size: 12px; }
+  .brand-tile-count { font-size: 11px; }
+
+  /* Body grid */
+  .body-tile { padding: 12px 6px; }
+  .body-tile-svg { width: 56px; height: 30px; }
+  .body-tile span { font-size: 12px; }
+
+  /* Services */
+  .service-tile { padding: 16px 12px; }
+  .service-tile-icon { width: 40px; height: 40px; }
+
+  /* Price brackets */
+  .price-tile { padding: 18px 20px; }
+  .price-tile-label { font-size: 15px; }
+
+  /* Sell callout body */
+  .sell-callout-body { padding: 20px; }
+  .sell-callout-body h2 { font-size: 21px; }
+
+  /* How-step */
+  .how-step { padding: 18px; }
+  .how-step h3 { font-size: 18px; }
+
+  /* Testimonials */
+  .testimonial { padding: 20px; }
+
+  /* Why-bm-card */
+  .why-bm-card { padding: 20px 18px; border-radius: 16px; }
+  .why-bm-card h3 { font-size: 16px; }
+  .why-bm-card p { font-size: 13px; }
+  .why-bm-icon { width: 44px; height: 44px; border-radius: 12px; margin-bottom: 14px; }
+
+  /* Cards */
+  .car-card-title { font-size: 15px; }
+  .car-card-price { font-size: 17px; }
+
+  /* Browse */
+  .browse-head { padding: 14px 0; }
+  .browse-head h1 { font-size: 24px; }
+  .browse-sub { font-size: 13px; }
+  .browse-body { padding: 14px 14px 32px; }
+  .breadcrumb { font-size: 12px; flex-wrap: wrap; }
+  .filter-drawer { width: 100%; max-width: 100%; padding: 12px; }
+  .pager { gap: 8px; padding: 24px 0; }
+  .pager > button { padding: 7px 11px; font-size: 13px; }
+  .pager > button span { display: none; }
+  .pager-pages button { width: 32px; height: 32px; font-size: 13px; }
+
+  /* VDP */
+  .vdp-top { padding: 12px 14px; }
+  .vdp-title-row h1 { font-size: 21px; }
+  .vdp-grid { padding: 0 14px; }
+  .vdp-main > section { padding: 18px; }
+  .vdp-pricing { padding: 18px; }
+  .vdp-price { font-size: 30px; }
+  .vdp-finance-mono { font-size: 32px; }
+  .vdp-thumb { width: 56px; height: 38px; }
+
+  /* Sell hero spacing */
+  .sell-hero, .finance-hero, .services-hero, .dealers-hero { padding: 32px 0; }
+  .sell-hero h1, .finance-hero h1, .services-hero h1, .dealers-hero h1 { font-size: 24px; }
+
+  /* Wizard */
+  .wizard-header-inner { padding: 10px 12px; gap: 8px; }
+  .wizard-back span { display: none; }
+  .wizard-title { font-size: 12px; line-height: 1.3; }
+  .wizard-hold strong { font-size: 12px; }
+  .wizard-body { padding: 16px 12px; }
+  .wizard-main { padding: 18px 14px; }
+  .reserve-deposit { padding: 8px 14px 32px; }
+  .reserve-aside { padding: 14px; }
+
+  /* Modal */
+  .modal { padding: 20px 16px; border-radius: 14px; }
+  .modal h2 { font-size: 20px; }
+  .modal-sub { font-size: 13px; margin-bottom: 18px; }
+  .field input, .field select { padding: 10px 12px; font-size: 14px; }
+  .phone-prefix { padding: 10px 12px; }
+
+  /* Account */
+  .account-section { padding: 16px; }
+  .account-head { flex-wrap: wrap; }
+  .order-card { padding: 14px; }
+
+  /* IV/Sell — even tighter */
+  .iv-form { padding: 18px 14px; }
+  .iv-offer-card { padding: 28px 22px; }
+  .iv-offer-value { font-size: 44px; }
+  .conc-form { padding: 18px 14px; }
+  .self-form { padding: 18px 14px; }
+
+  /* Toast */
+  .toast { font-size: 13px; padding: 10px 14px; bottom: 16px; }
+}
+
+/* ============================================================
+   Tiny phones (<= 360px) — last-ditch squeeze
+   ============================================================ */
+@media (max-width: 360px) {
+  .hdr-acct span { display: none; }
+  .hdr-acct { padding: 8px; width: 36px; justify-content: center; }
+  .brand-grid { grid-template-columns: repeat(2, 1fr); }
+  .body-grid { grid-template-columns: repeat(2, 1fr); }
+}

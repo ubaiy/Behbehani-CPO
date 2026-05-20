@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behbehani CPO · Design System — Confirmation Modal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    /* Pattern doc styles */
+    .spec-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: #475569;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 500;
+    }
+    .spec-pill strong {
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    /* Fake backdrop for each variant preview */
+    .variant-backdrop {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .variant-backdrop::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.38);
+      border-radius: 12px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Fake page content rows behind each modal */
+    .fake-page-row {
+      height: 10px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.25);
+      margin-bottom: 6px;
+    }
+
+    /* The modal card itself inside the preview */
+    .modal-card {
+      position: relative;
+      z-index: 1;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px -12px rgba(0,0,0,0.38), 0 8px 24px -6px rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+
+    /* Focus ring annotation */
+    .annotation {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 8px;
+    }
+    .annotation-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #94a3b8;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    /* Spinner animation */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .spinner-red {
+      border-color: rgba(255,255,255,0.35);
+      border-top-color: white;
+    }
+
+    /* Code block */
+    .code-block {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+      font-size: 12px;
+      line-height: 1.75;
+      color: #e2e8f0;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .code-kw  { color: #93c5fd; }
+    .code-fn  { color: #6ee7b7; }
+    .code-str { color: #fde68a; }
+    .code-cm  { color: #64748b; font-style: italic; }
+    .code-op  { color: #f9a8d4; }
+    .code-ty  { color: #c4b5fd; }
+
+    /* Section divider */
+    .section-divider {
+      border: none;
+      border-top: 2px solid #e2e8f0;
+      margin: 40px 0;
+    }
+
+    /* Variant label strip */
+    .variant-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .variant-label-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Behavior table */
+    .beh-table td, .beh-table th {
+      padding: 10px 14px;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    .beh-table th {
+      font-weight: 600;
+      color: #475569;
+      background: #f8fafc;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .beh-table tr:not(:last-child) td {
+      border-bottom: 1px solid #f1f5f9;
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-100 font-sans antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="w-60 flex-shrink-0 bg-slate-900 flex flex-col h-full">
+    <div class="flex items-center gap-2.5 px-4 py-4 border-b border-slate-800">
+      <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.5L3 4.5v5c0 4.14 2.97 8.01 7 8.96 4.03-.95 7-4.82 7-8.96v-5L10 1.5zm-1 10.5H7V6h2v6zm2 0h-1V6h1a2 2 0 010 4h-1v1.5H11V12z" clip-rule="evenodd"/></svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold tracking-widest text-brand-400 uppercase leading-none">Behbehani CPO</p>
+        <p class="text-xs text-slate-500 leading-tight mt-0.5">Back Office</p>
+      </div>
+    </div>
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-2 py-3 space-y-5">
+      <div>
+        <a href="../sprint-1/02-shell.html" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+          <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+      </div>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Inventory</p>
+        <div class="space-y-0.5">
+          <a href="../sprint-1/03-vehicles-list.html" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Listings
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Pricing Rules</a>
+        </div>
+      </div>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Design System</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium bg-brand-700 text-white">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Confirmation Modal
+          </a>
+        </div>
+      </div>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Admin</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>Audit Log</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</a>
+        </div>
+      </div>
+    </nav>
+    <div class="border-t border-slate-800 px-3 py-3">
+      <div class="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-slate-800 cursor-pointer transition-colors">
+        <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0"><span class="text-xs font-bold text-white">FM</span></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-slate-200 truncate">Fatima Al-Mutawa</p>
+          <p class="text-xs text-slate-500 truncate">Operations Manager</p>
+        </div>
+        <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════ MAIN COLUMN ═══════════ -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 gap-4">
+      <div class="flex items-center gap-3">
+        <!-- Pattern doc breadcrumb in topbar -->
+        <nav class="flex items-center gap-1.5 text-sm text-slate-500">
+          <span class="text-slate-400">Design System</span>
+          <svg class="w-3 h-3 text-slate-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <span class="font-medium text-slate-800">Confirmation Modal</span>
+        </nav>
+        <span class="inline-flex items-center rounded-full border border-brand-200 bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700">Sprint 2</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="relative p-2 rounded-md text-slate-500 hover:bg-slate-100 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+        </button>
+        <span class="hidden lg:inline-flex items-center rounded-full border bg-blue-50 border-blue-200 px-2.5 py-0.5 text-xs font-medium text-blue-700">Staging</span>
+        <button class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100 transition-colors">
+          <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center"><span class="text-xs font-bold text-white">FM</span></div>
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- SCROLLABLE CONTENT -->
+    <main class="flex-1 overflow-y-auto bg-slate-50">
+
+      <!-- ═══════════════════════════════════════════
+           PATTERN DOCUMENTATION HEADER STRIP
+      ════════════════════════════════════════════ -->
+      <div class="bg-white border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-8 py-6">
+          <div class="flex items-start justify-between gap-6">
+            <div>
+              <div class="flex items-center gap-2.5 mb-2">
+                <span class="inline-flex items-center rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">Pattern docs</span>
+                <span class="text-slate-300 text-xs">·</span>
+                <span class="text-xs text-slate-400">Components / Overlays</span>
+              </div>
+              <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Confirmation Modal</h1>
+              <p class="text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
+                Used for all destructive or irreversible admin actions. Replaces <code class="font-mono text-xs bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 text-slate-700">window.confirm</code> and follows the existing <code class="font-mono text-xs bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 text-slate-700">StageTransitionModal</code> styling. Implemented with the native <code class="font-mono text-xs bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 text-slate-700">&lt;dialog&gt;</code> element — no <code class="font-mono text-xs bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 text-slate-700">@angular/animations</code> dependency required.
+              </p>
+            </div>
+            <div class="flex-shrink-0 text-right">
+              <p class="text-xs text-slate-400 mb-1">Last updated</p>
+              <p class="text-sm font-medium text-slate-700">14 May 2026</p>
+              <p class="text-xs text-slate-400 mt-0.5">Sprint 2 · v1.0</p>
+            </div>
+          </div>
+
+          <!-- Specs strip -->
+          <div class="flex flex-wrap items-center gap-2 mt-5 pt-5 border-t border-slate-100">
+            <span class="spec-pill"><strong>Backdrop:</strong> slate-900 / 40% opacity</span>
+            <span class="spec-pill"><strong>Border radius:</strong> rounded-xl (12px)</span>
+            <span class="spec-pill"><strong>Max width:</strong> 28rem (sm)</span>
+            <span class="spec-pill"><strong>Shadow:</strong> shadow-2xl</span>
+            <span class="spec-pill"><strong>Focus trap:</strong> yes — TAB cycles within modal</span>
+            <span class="spec-pill"><strong>ESC:</strong> dismisses = cancel</span>
+            <span class="spec-pill"><strong>Backdrop click:</strong> dismisses = cancel</span>
+            <span class="spec-pill"><strong>Returns:</strong> Promise&lt;'confirm' | 'cancel'&gt;</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-8 py-10 space-y-14">
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 2 — THREE VARIANTS
+        ════════════════════════════════════════════ -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex-shrink-0">2</span>
+            <h2 class="text-lg font-semibold text-slate-800">Variants</h2>
+            <span class="text-xs text-slate-400 ml-1">All three shown as "open" for side-by-side comparison</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-5 items-start">
+
+            <!-- ── VARIANT A: Standard confirm ── -->
+            <div>
+              <div class="variant-label">
+                <span class="variant-label-dot bg-brand-500"></span>
+                Variant A — Standard confirm
+              </div>
+              <div class="variant-backdrop">
+                <!-- Fake dimmed page content -->
+                <div class="mb-4 space-y-1.5 px-1">
+                  <div class="fake-page-row w-3/4"></div>
+                  <div class="fake-page-row w-full"></div>
+                  <div class="fake-page-row w-1/2"></div>
+                </div>
+
+                <!-- Modal card -->
+                <div class="modal-card">
+                  <div class="p-6">
+                    <!-- Title row with brand-50 info icon -->
+                    <div class="flex items-start gap-3 mb-3">
+                      <div class="w-8 h-8 rounded-lg bg-brand-50 border border-brand-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      </div>
+                      <div>
+                        <h3 class="text-base font-semibold text-slate-800 leading-snug">Revert listing to draft?</h3>
+                      </div>
+                    </div>
+                    <!-- Body -->
+                    <p class="text-sm text-slate-600 leading-relaxed mb-5">
+                      This will remove the listing from public view. You can publish it again afterward.
+                    </p>
+                    <!-- Buttons -->
+                    <div class="flex items-center justify-end gap-2.5">
+                      <button class="px-4 py-2 rounded-md border border-slate-300 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1">
+                        Cancel
+                      </button>
+                      <button class="px-4 py-2 rounded-md bg-brand-600 text-sm font-semibold text-white hover:bg-brand-700 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1">
+                        Revert to draft
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Fake content rows below modal (simulating page behind) -->
+                <div class="mt-4 space-y-1.5 px-1">
+                  <div class="fake-page-row w-full"></div>
+                  <div class="fake-page-row w-2/3"></div>
+                </div>
+              </div>
+              <!-- Accessibility annotations -->
+              <div class="mt-3 space-y-1.5 px-1">
+                <div class="annotation">
+                  <span class="annotation-dot"></span>
+                  <span>Info icon uses <strong>brand-50</strong> tint — signals reversible action</span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot"></span>
+                  <span>Primary button = <strong>brand-600</strong>; no red used for standard actions</span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot"></span>
+                  <span>Focus ring: <strong>ring-2 ring-brand-500 ring-offset-1</strong> on both buttons</span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot bg-blue-400"></span>
+                  <span class="text-brand-600 font-medium">ESC / backdrop click = Cancel</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── VARIANT B: Destructive confirm ── -->
+            <div>
+              <div class="variant-label">
+                <span class="variant-label-dot bg-red-500"></span>
+                Variant B — Destructive confirm
+              </div>
+              <div class="variant-backdrop">
+                <!-- Fake page content -->
+                <div class="mb-4 space-y-1.5 px-1">
+                  <div class="fake-page-row w-full"></div>
+                  <div class="fake-page-row w-5/6"></div>
+                  <div class="fake-page-row w-2/3"></div>
+                </div>
+
+                <!-- Modal card -->
+                <div class="modal-card">
+                  <div class="p-6">
+                    <!-- Title row with red icon -->
+                    <div class="flex items-start gap-3 mb-3">
+                      <div class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                      </div>
+                      <div>
+                        <h3 class="text-base font-semibold text-slate-800 leading-snug">Archive 2022 Toyota Camry?</h3>
+                        <p class="text-xs font-mono text-slate-400 mt-0.5">VIN ••••••AB1234</p>
+                      </div>
+                    </div>
+                    <!-- Body -->
+                    <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                      Archived vehicles are removed from inventory listings and the storefront. Audit history is preserved. You can restore from the Archive view.
+                    </p>
+                    <!-- Warning block (red-50, no border) -->
+                    <div class="rounded-md bg-red-50 px-3 py-2.5 mb-4">
+                      <p class="text-xs font-medium text-red-700 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                        This action is logged in the audit trail.
+                      </p>
+                    </div>
+                    <!-- Typed confirmation input -->
+                    <div class="mb-5">
+                      <label class="block text-xs font-medium text-slate-600 mb-1">
+                        Type <code class="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-1 rounded">ARCHIVE</code> to confirm
+                      </label>
+                      <input type="text" value="ARCHIVE" readonly
+                        class="w-full rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm font-mono font-semibold text-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1 tracking-widest"/>
+                    </div>
+                    <!-- Buttons -->
+                    <div class="flex items-center justify-end gap-2.5">
+                      <button class="px-4 py-2 rounded-md border border-slate-300 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1">
+                        Cancel
+                      </button>
+                      <!-- confirm enabled because typed value matches -->
+                      <button class="px-4 py-2 rounded-md bg-red-600 text-sm font-semibold text-white hover:bg-red-700 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
+                        Archive vehicle
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 space-y-1.5 px-1">
+                  <div class="fake-page-row w-3/4"></div>
+                  <div class="fake-page-row w-1/2"></div>
+                </div>
+              </div>
+              <!-- Annotations -->
+              <div class="mt-3 space-y-1.5 px-1">
+                <div class="annotation">
+                  <span class="annotation-dot bg-red-400"></span>
+                  <span>Icon uses <strong>red-50</strong> tint; confirm button = <strong>red-600</strong></span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot"></span>
+                  <span>Warning callout: <strong>red-50 bg</strong>, <strong>red-700</strong> text, no border — subtle but visible</span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot"></span>
+                  <span>Typed input: confirm button <strong>disabled</strong> until value === 'ARCHIVE' exactly</span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot bg-red-400"></span>
+                  <span class="text-red-600 font-medium">Confirm button enabled here — value matches</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── VARIANT C: Delete (severe) ── -->
+            <div>
+              <div class="variant-label">
+                <span class="variant-label-dot bg-red-700"></span>
+                Variant C — Delete (severe destructive)
+              </div>
+              <div class="variant-backdrop">
+                <!-- Fake page content -->
+                <div class="mb-4 space-y-1.5 px-1">
+                  <div class="fake-page-row w-2/3"></div>
+                  <div class="fake-page-row w-full"></div>
+                  <div class="fake-page-row w-3/4"></div>
+                </div>
+
+                <!-- Modal card -->
+                <div class="modal-card">
+                  <!-- Red top accent stripe -->
+                  <div class="h-1 w-full bg-gradient-to-r from-red-600 to-red-700"></div>
+                  <div class="p-6">
+                    <!-- Title row -->
+                    <div class="flex items-start gap-3 mb-3">
+                      <div class="w-8 h-8 rounded-lg bg-red-100 border border-red-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-4 h-4 text-red-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      </div>
+                      <div>
+                        <h3 class="text-base font-semibold text-slate-800 leading-snug">Delete 'Mid-cycle' pricing tier?</h3>
+                      </div>
+                    </div>
+                    <!-- Body -->
+                    <p class="text-sm text-slate-600 leading-relaxed mb-3">
+                      This tier is currently applied to 8 listings. Deleting it will not roll back discounts already applied, but no future runs will use this rule.
+                    </p>
+                    <!-- Cannot-be-undone callout -->
+                    <div class="rounded-md bg-red-50 px-3 py-3 mb-5 flex items-start gap-2">
+                      <svg class="w-4 h-4 text-red-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                      <p class="text-xs font-semibold text-red-700">This action cannot be undone.</p>
+                    </div>
+                    <!-- Buttons -->
+                    <div class="flex items-center justify-end gap-2.5">
+                      <button class="px-4 py-2 rounded-md border border-slate-300 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1">
+                        Cancel
+                      </button>
+                      <!-- red-700 — slightly darker than variant B -->
+                      <button class="px-4 py-2 rounded-md bg-red-700 text-sm font-semibold text-white hover:bg-red-800 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
+                        Delete tier
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 space-y-1.5 px-1">
+                  <div class="fake-page-row w-full"></div>
+                  <div class="fake-page-row w-1/3"></div>
+                </div>
+              </div>
+              <!-- Annotations -->
+              <div class="mt-3 space-y-1.5 px-1">
+                <div class="annotation">
+                  <span class="annotation-dot bg-red-700"></span>
+                  <span>Red accent stripe at modal top — signals maximum severity</span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot"></span>
+                  <span>Icon uses <strong>red-100</strong> tint (stronger than variant B); button = <strong>red-700</strong></span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot"></span>
+                  <span>Callout includes triangle warning icon for unambiguous severity signal</span>
+                </div>
+                <div class="annotation">
+                  <span class="annotation-dot bg-red-700"></span>
+                  <span class="text-red-700 font-medium">No typed confirm — delete is immediate on click</span>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- end 3-col grid -->
+
+          <!-- Variant comparison legend -->
+          <div class="mt-8 bg-white rounded-xl border border-slate-200 p-5">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Variant decision guide</h3>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+              <div class="flex items-start gap-3">
+                <div class="w-3 h-3 rounded-full bg-brand-500 flex-shrink-0 mt-1.5"></div>
+                <div>
+                  <p class="font-semibold text-slate-700 mb-0.5">Standard — <code class="text-xs font-mono text-slate-500">variant: 'confirm'</code></p>
+                  <p class="text-xs text-slate-500 leading-relaxed">Reversible or low-risk actions. Stage transitions, revert to draft, unpublish. Uses <strong>brand-600</strong> confirm button.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-3 h-3 rounded-full bg-red-500 flex-shrink-0 mt-1.5"></div>
+                <div>
+                  <p class="font-semibold text-slate-700 mb-0.5">Destructive — <code class="text-xs font-mono text-slate-500">variant: 'destructive'</code></p>
+                  <p class="text-xs text-slate-500 leading-relaxed">High-impact but restorable actions. Archive, bulk remove, suspend. Optional <strong>requireTyped</strong> string. Uses <strong>red-600</strong> confirm button.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-3 h-3 rounded-full bg-red-700 flex-shrink-0 mt-1.5"></div>
+                <div>
+                  <p class="font-semibold text-slate-700 mb-0.5">Delete — <code class="text-xs font-mono text-slate-500">variant: 'delete'</code></p>
+                  <p class="text-xs text-slate-500 leading-relaxed">Permanent, unrecoverable deletions. Pricing tiers with active listings, user records. Uses <strong>red-700</strong> confirm button.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 3 — BEHAVIOR ANNOTATIONS
+        ════════════════════════════════════════════ -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex-shrink-0">3</span>
+            <h2 class="text-lg font-semibold text-slate-800">Behavior &amp; Interaction</h2>
+          </div>
+
+          <div class="grid grid-cols-2 gap-5">
+
+            <!-- Behavior table -->
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <table class="w-full beh-table">
+                <thead>
+                  <tr>
+                    <th class="text-left">Trigger</th>
+                    <th class="text-left">Behavior</th>
+                  </tr>
+                </thead>
+                <tbody class="text-slate-700">
+                  <tr>
+                    <td class="font-medium text-slate-800 whitespace-nowrap">
+                      <kbd class="inline-flex items-center rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-600">TAB</kbd>
+                    </td>
+                    <td class="text-slate-600">Cycles focus between Cancel and Confirm only. Focus is trapped inside the modal — page content behind is unreachable until modal closes.</td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium text-slate-800 whitespace-nowrap">
+                      <kbd class="inline-flex items-center rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-600">ESC</kbd>
+                    </td>
+                    <td class="text-slate-600">Resolves the promise with <code class="text-xs font-mono bg-slate-100 px-1 rounded">'cancel'</code>. Equivalent to clicking Cancel. Native <code class="text-xs font-mono bg-slate-100 px-1 rounded">&lt;dialog&gt;</code> fires <code class="text-xs font-mono bg-slate-100 px-1 rounded">cancel</code> event automatically.</td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium text-slate-800 whitespace-nowrap">
+                      <kbd class="inline-flex items-center rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-600">ENTER</kbd>
+                    </td>
+                    <td class="text-slate-600">Activates whichever button currently holds focus. Initial focus is set on <em>Cancel</em> to prevent accidental confirmation on rapid keyboard use.</td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium text-slate-800 whitespace-nowrap">Backdrop click</td>
+                    <td class="text-slate-600">Click outside the modal card resolves with <code class="text-xs font-mono bg-slate-100 px-1 rounded">'cancel'</code>. Detected via <code class="text-xs font-mono bg-slate-100 px-1 rounded">pointerdown</code> on <code class="text-xs font-mono bg-slate-100 px-1 rounded">&lt;dialog&gt;</code> itself (not on the inner card).</td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium text-slate-800 whitespace-nowrap">After confirm</td>
+                    <td class="text-slate-600">Confirm button label is replaced by a spinner (<span class="inline-flex items-center gap-1 text-xs"><span class="inline-block w-3 h-3 border-2 border-slate-300 border-t-slate-600 rounded-full align-middle" style="animation: spin 0.65s linear infinite"></span> <em>loading</em></span>) until the promise resolves or rejects. Both buttons are disabled during this state.</td>
+                  </tr>
+                  <tr>
+                    <td class="font-medium text-slate-800 whitespace-nowrap">Telemetry</td>
+                    <td class="text-slate-600">Every confirmed action fires an audit log entry: <code class="text-xs font-mono bg-slate-100 px-1 rounded">admin_action: confirm_&lt;key&gt;</code> where <code class="text-xs font-mono bg-slate-100 px-1 rounded">key</code> is the caller-supplied action key (e.g. <code class="text-xs font-mono bg-slate-100 px-1 rounded">archive_vehicle</code>, <code class="text-xs font-mono bg-slate-100 px-1 rounded">delete_pricing_tier</code>).</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Loading states illustrated -->
+            <div class="space-y-4">
+              <div class="bg-white rounded-xl border border-slate-200 p-5">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Loading state — standard (button disabled)</p>
+                <!-- Inline mock of a loading confirm button -->
+                <div class="flex items-center justify-end gap-2.5 py-1">
+                  <button disabled class="px-4 py-2 rounded-md border border-slate-200 text-sm font-medium text-slate-400 bg-white cursor-not-allowed opacity-60">
+                    Cancel
+                  </button>
+                  <button disabled class="px-4 py-2 rounded-md bg-brand-500 text-sm font-semibold text-white cursor-not-allowed opacity-80 flex items-center gap-2">
+                    <span class="spinner"></span>
+                    Reverting&hellip;
+                  </button>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-xl border border-slate-200 p-5">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Loading state — destructive (button disabled)</p>
+                <div class="flex items-center justify-end gap-2.5 py-1">
+                  <button disabled class="px-4 py-2 rounded-md border border-slate-200 text-sm font-medium text-slate-400 bg-white cursor-not-allowed opacity-60">
+                    Cancel
+                  </button>
+                  <button disabled class="px-4 py-2 rounded-md bg-red-500 text-sm font-semibold text-white cursor-not-allowed opacity-80 flex items-center gap-2">
+                    <span class="spinner spinner-red"></span>
+                    Archiving&hellip;
+                  </button>
+                </div>
+              </div>
+
+              <div class="bg-white rounded-xl border border-slate-200 p-5">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Typed confirmation — disabled state (value empty)</p>
+                <div class="mb-3">
+                  <label class="block text-xs font-medium text-slate-600 mb-1">Type <code class="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-1 rounded">ARCHIVE</code> to confirm</label>
+                  <input type="text" placeholder="Type here…" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-mono text-slate-400 bg-white focus:outline-none focus:ring-2 focus:ring-red-300 placeholder-slate-300" readonly />
+                </div>
+                <div class="flex items-center justify-end gap-2.5">
+                  <button class="px-4 py-2 rounded-md border border-slate-300 text-sm font-medium text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1">Cancel</button>
+                  <!-- confirm disabled when field is empty -->
+                  <button disabled class="px-4 py-2 rounded-md bg-red-300 text-sm font-semibold text-white cursor-not-allowed opacity-60">
+                    Archive vehicle
+                  </button>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">Confirm button enabled only when input value matches the required string exactly (case-sensitive).</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <hr class="section-divider" />
+
+        <!-- ═══════════════════════════════════════════
+             SECTION 4 — USAGE EXAMPLES
+        ════════════════════════════════════════════ -->
+        <section>
+          <div class="flex items-center gap-3 mb-6">
+            <span class="flex items-center justify-center w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex-shrink-0">4</span>
+            <h2 class="text-lg font-semibold text-slate-800">Usage Examples</h2>
+            <span class="text-xs text-slate-400 ml-1">Illustrative API signatures — not compiled Angular code</span>
+          </div>
+
+          <div class="space-y-5">
+
+            <!-- Example 1: Standard confirm -->
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <div class="flex items-center gap-2.5 px-5 py-3 border-b border-slate-100 bg-slate-50">
+                <span class="variant-label-dot bg-brand-500" style="width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;"></span>
+                <span class="text-xs font-semibold text-slate-600">Variant A — Standard confirm (stage transition / revert to draft)</span>
+              </div>
+              <pre class="code-block rounded-none rounded-b-xl"><span class="code-cm">// Inject the service, call .open(), await the result</span>
+<span class="code-kw">const</span> result <span class="code-op">=</span> <span class="code-kw">await</span> <span class="code-kw">this</span>.confirm.<span class="code-fn">open</span>({
+  title:        <span class="code-str">'Revert listing to draft?'</span>,
+  body:         <span class="code-str">'This will remove the listing from public view. You can publish it again afterward.'</span>,
+  confirmLabel: <span class="code-str">'Revert to draft'</span>,
+  variant:      <span class="code-str">'confirm'</span>,          <span class="code-cm">// brand-600 confirm button, info icon</span>
+  actionKey:    <span class="code-str">'revert_to_draft'</span>,  <span class="code-cm">// used for audit log: admin_action: confirm_revert_to_draft</span>
+});
+
+<span class="code-kw">if</span> (result <span class="code-op">===</span> <span class="code-str">'confirm'</span>) {
+  <span class="code-kw">await</span> <span class="code-kw">this</span>.listingService.<span class="code-fn">revertToDraft</span>(listingId);
+}</pre>
+            </div>
+
+            <!-- Example 2: Destructive with typed confirm -->
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <div class="flex items-center gap-2.5 px-5 py-3 border-b border-slate-100 bg-slate-50">
+                <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;background:#ef4444;"></span>
+                <span class="text-xs font-semibold text-slate-600">Variant B — Destructive confirm with typed confirmation (archive vehicle)</span>
+              </div>
+              <pre class="code-block rounded-none rounded-b-xl"><span class="code-cm">// requireTyped forces the user to type the string before confirming</span>
+<span class="code-kw">const</span> result <span class="code-op">=</span> <span class="code-kw">await</span> <span class="code-kw">this</span>.confirm.<span class="code-fn">open</span>({
+  title:         <span class="code-str">`Archive ${vehicle.year} ${vehicle.make} ${vehicle.model}?`</span>,
+  subtitle:      <span class="code-str">`VIN ••••••${vehicle.vinSuffix}`</span>,  <span class="code-cm">// rendered below title in small mono text</span>
+  body:          <span class="code-str">'Archived vehicles are removed from inventory listings and the storefront.'</span>
+               <span class="code-op">+</span> <span class="code-str">' Audit history is preserved. You can restore from the Archive view.'</span>,
+  warningNote:   <span class="code-str">'This action is logged in the audit trail.'</span>,
+  confirmLabel:  <span class="code-str">'Archive vehicle'</span>,
+  variant:       <span class="code-str">'destructive'</span>,     <span class="code-cm">// red-600 confirm button</span>
+  requireTyped:  <span class="code-str">'ARCHIVE'</span>,         <span class="code-cm">// confirm button disabled until user types this exactly</span>
+  actionKey:     <span class="code-str">'archive_vehicle'</span>,
+});
+
+<span class="code-kw">if</span> (result <span class="code-op">===</span> <span class="code-str">'confirm'</span>) {
+  <span class="code-kw">await</span> <span class="code-kw">this</span>.vehicleService.<span class="code-fn">archive</span>(vehicle.id);
+}</pre>
+            </div>
+
+            <!-- Example 3: Delete (severe) -->
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+              <div class="flex items-center gap-2.5 px-5 py-3 border-b border-slate-100 bg-slate-50">
+                <span style="width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;background:#b91c1c;"></span>
+                <span class="text-xs font-semibold text-slate-600">Variant C — Delete severe (pricing tier with active listings)</span>
+              </div>
+              <pre class="code-block rounded-none rounded-b-xl"><span class="code-cm">// 'delete' variant renders a red top stripe and uses red-700 button</span>
+<span class="code-kw">const</span> result <span class="code-op">=</span> <span class="code-kw">await</span> <span class="code-kw">this</span>.confirm.<span class="code-fn">open</span>({
+  title:        <span class="code-str">`Delete '${tier.name}' pricing tier?`</span>,
+  body:         <span class="code-str">`This tier is currently applied to ${tier.listingCount} listings.`</span>
+              <span class="code-op">+</span> <span class="code-str">' Deleting it will not roll back discounts already applied,'</span>
+              <span class="code-op">+</span> <span class="code-str">' but no future runs will use this rule.'</span>,
+  callout:      <span class="code-str">'This action cannot be undone.'</span>,  <span class="code-cm">// renders triangle-warn callout in red-50</span>
+  confirmLabel: <span class="code-str">'Delete tier'</span>,
+  variant:      <span class="code-str">'delete'</span>,              <span class="code-cm">// red-700 button + red accent stripe at top</span>
+  actionKey:    <span class="code-str">'delete_pricing_tier'</span>,
+});
+
+<span class="code-kw">if</span> (result <span class="code-op">===</span> <span class="code-str">'confirm'</span>) {
+  <span class="code-kw">await</span> <span class="code-kw">this</span>.pricingService.<span class="code-fn">deleteTier</span>(tier.id);
+}</pre>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Bottom padding spacer -->
+        <div class="h-8"></div>
+
+      </div><!-- end max-w wrapper -->
+    </main>
+
+  </div><!-- end main column -->
+</div><!-- end flex wrapper -->
+
+<script>
+  /* Keep spinners animating (CSS animation already handles it — no JS needed for spin).
+     This block is intentionally minimal; the real Angular service
+     will drive open/close/loading state via the ConfirmService. */
+</script>
+
+</body>
+</html>

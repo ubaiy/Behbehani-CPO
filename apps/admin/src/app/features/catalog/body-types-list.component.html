@@ -1,0 +1,175 @@
+<div class="p-6 max-w-7xl mx-auto">
+
+  <div class="flex items-start justify-between mb-5 gap-4">
+    <div>
+      <h1 class="text-xl font-semibold text-slate-800">Body Types</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Vehicle body classification (Sedan, SUV, …) — drives the body-type dropdown in listing creation and the customer browse facet.</p>
+    </div>
+    <button *adminRole="writeRoles" type="button" (click)="startCreate()"
+            class="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      Add body type
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-4 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-64">
+      <label class="block text-xs font-medium text-slate-600 mb-1">Search</label>
+      <input type="text" placeholder="Search by name or slug…"
+             [ngModel]="query()" (ngModelChange)="onQueryChange($event)"
+             class="w-full px-3 py-1.5 text-sm rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"/>
+    </div>
+    <div>
+      <label class="block text-xs font-medium text-slate-600 mb-1">Status</label>
+      <div class="flex gap-1">
+        <button class="px-2.5 py-1 rounded-full text-xs font-medium"
+                [class.bg-brand-600]="statusFilter() === 'all'" [class.text-white]="statusFilter() === 'all'"
+                [class.bg-slate-100]="statusFilter() !== 'all'" [class.text-slate-600]="statusFilter() !== 'all'"
+                (click)="setStatus('all')">All</button>
+        <button class="px-2.5 py-1 rounded-full text-xs font-medium"
+                [class.bg-brand-600]="statusFilter() === 'active'" [class.text-white]="statusFilter() === 'active'"
+                [class.bg-slate-100]="statusFilter() !== 'active'" [class.text-slate-600]="statusFilter() !== 'active'"
+                (click)="setStatus('active')">Active</button>
+        <button class="px-2.5 py-1 rounded-full text-xs font-medium"
+                [class.bg-brand-600]="statusFilter() === 'inactive'" [class.text-white]="statusFilter() === 'inactive'"
+                [class.bg-slate-100]="statusFilter() !== 'inactive'" [class.text-slate-600]="statusFilter() !== 'inactive'"
+                (click)="setStatus('inactive')">Inactive</button>
+      </div>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error() }}</div>
+  }
+
+  <p class="text-sm text-slate-500 mb-2 px-1">
+    @if (loading()) { Loading… }
+    @else {
+      Showing <span class="font-semibold text-slate-700">{{ rangeStart() }}–{{ rangeEnd() }}</span>
+      of <span class="font-semibold text-slate-700">{{ total() }}</span>
+      body type{{ total() === 1 ? '' : 's' }}
+    }
+  </p>
+
+  <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-slate-50 border-b border-slate-200">
+          <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Name (EN)</th>
+          <th class="px-3 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Name (AR)</th>
+          <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Slug</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">Listings</th>
+          <th class="px-3 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+          <th class="px-3 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide w-32">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+
+        @if (creating()) {
+          <tr class="bg-brand-50/50">
+            <td class="px-4 py-3"><input type="text" placeholder="e.g. Sedan" [ngModel]="draft().nameEn" (ngModelChange)="updateDraftName($event)" class="w-full px-2 py-1 text-sm rounded border border-slate-300"/></td>
+            <td class="px-3 py-3 text-right"><input type="text" dir="rtl" placeholder="سيدان" [ngModel]="draft().nameAr" (ngModelChange)="updateDraftNameAr($event)" class="w-full px-2 py-1 text-sm rounded border border-slate-300"/></td>
+            <td class="px-3 py-3"><input type="text" placeholder="sedan" [ngModel]="draft().slug" (ngModelChange)="updateDraftSlug($event)" class="w-full px-2 py-1 text-sm font-mono rounded border border-slate-300"/></td>
+            <td class="px-3 py-3 text-center text-xs text-slate-400">0</td>
+            <td class="px-3 py-3 text-center text-xs text-slate-400">—</td>
+            <td class="px-3 py-3 text-right">
+              <button (click)="saveCreate()" class="px-2 py-1 text-xs font-semibold rounded bg-brand-600 text-white hover:bg-brand-700">Save</button>
+              <button (click)="cancelCreate()" class="ml-1 px-2 py-1 text-xs text-slate-500 hover:text-slate-700">Cancel</button>
+            </td>
+          </tr>
+        }
+
+        @if (loading()) {
+          @for (i of [0,1,2,3]; track i) {
+            <tr class="animate-pulse">
+              <td class="px-4 py-3"><div class="h-4 bg-slate-200 rounded w-24"></div></td>
+              <td class="px-3 py-3"><div class="h-4 bg-slate-200 rounded w-16 ml-auto"></div></td>
+              <td class="px-3 py-3"><div class="h-3 bg-slate-200 rounded w-12"></div></td>
+              <td class="px-3 py-3"><div class="h-4 bg-slate-200 rounded w-6 mx-auto"></div></td>
+              <td class="px-3 py-3"><div class="h-5 bg-slate-200 rounded-full w-10 mx-auto"></div></td>
+              <td class="px-3 py-3"></td>
+            </tr>
+          }
+        } @else if (bodyTypes().length === 0 && !creating()) {
+          <tr>
+            <td colspan="6" class="px-4 py-12 text-center text-sm text-slate-400">No body types yet.</td>
+          </tr>
+        } @else {
+          @for (bt of bodyTypes(); track bt.id) {
+            <tr class="hover:bg-slate-50" [class.opacity-60]="!bt.isActive">
+              @if (editingId() === bt.id) {
+                <td class="px-4 py-3"><input type="text" [ngModel]="editDraft().nameEn" (ngModelChange)="updateEditName($event)" class="w-full px-2 py-1 text-sm rounded border border-slate-300"/></td>
+                <td class="px-3 py-3"><input type="text" dir="rtl" [ngModel]="editDraft().nameAr" (ngModelChange)="updateEditNameAr($event)" class="w-full px-2 py-1 text-sm rounded border border-slate-300"/></td>
+                <td class="px-3 py-3"><input type="text" [ngModel]="editDraft().slug" (ngModelChange)="updateEditSlug($event)" class="w-full px-2 py-1 text-sm font-mono rounded border border-slate-300"/></td>
+              } @else {
+                <td class="px-4 py-3 font-medium text-slate-800">{{ bt.nameEn }}</td>
+                <td class="px-3 py-3 text-right text-slate-700" dir="rtl">{{ bt.nameAr }}</td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500">{{ bt.slug }}</td>
+              }
+              <td class="px-3 py-3 text-center text-xs text-slate-600">{{ bt.listingCount }}</td>
+              <td class="px-3 py-3 text-center">
+                <ng-container *adminRole="writeRoles">
+                  <button type="button" role="switch" [attr.aria-checked]="bt.isActive" (click)="toggleActive(bt)"
+                          class="relative inline-flex h-5 w-9 rounded-full transition-colors"
+                          [class.bg-brand-600]="bt.isActive" [class.bg-slate-300]="!bt.isActive">
+                    <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition mt-0.5"
+                          [class.translate-x-4]="bt.isActive" [class.translate-x-0]="!bt.isActive"></span>
+                  </button>
+                </ng-container>
+              </td>
+              <td class="px-3 py-3 text-right">
+                <ng-container *adminRole="writeRoles">
+                  @if (editingId() === bt.id) {
+                    <button (click)="saveEdit(bt)" class="px-2 py-1 text-xs font-semibold rounded bg-brand-600 text-white hover:bg-brand-700">Save</button>
+                    <button (click)="cancelEdit()" class="ml-1 px-2 py-1 text-xs text-slate-500 hover:text-slate-700">Cancel</button>
+                  } @else {
+                    <button (click)="startEdit(bt)" class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                  }
+                </ng-container>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+
+    <!-- Pagination footer -->
+    <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200">
+      <div class="flex items-center gap-2">
+        <label class="text-xs text-slate-500" for="body-types-page-size">Rows per page:</label>
+        <select id="body-types-page-size"
+                class="text-xs rounded border border-slate-300 py-1 px-2 bg-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+                [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange(+$event)">
+          @for (size of pageSizes; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </div>
+      <div class="flex items-center gap-1">
+        <button type="button" aria-label="Previous page"
+                class="px-2 py-1 text-xs rounded border border-slate-300 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-40"
+                [disabled]="page() <= 1" (click)="goToPage(page() - 1)">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        @for (pg of pageNumbers(); track $index) {
+          @if (pg === -1) {
+            <span class="px-1 text-xs text-slate-400">…</span>
+          } @else {
+            <button type="button"
+                    class="px-2.5 py-1 text-xs rounded border font-semibold"
+                    [class.border-brand-600]="pg === page()" [class.bg-brand-600]="pg === page()" [class.text-white]="pg === page()"
+                    [class.border-slate-300]="pg !== page()" [class.bg-white]="pg !== page()" [class.text-slate-700]="pg !== page()" [class.hover:bg-slate-50]="pg !== page()"
+                    (click)="goToPage(pg)">{{ pg }}</button>
+          }
+        }
+        <button type="button" aria-label="Next page"
+                class="px-2 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                [disabled]="page() >= totalPages()" (click)="goToPage(page() + 1)">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

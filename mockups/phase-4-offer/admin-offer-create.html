@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Offer — Behbehani CPO Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+  <!-- Top nav shell (admin chrome) -->
+  <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-4">
+    <span class="text-sm font-bold text-brand-700 tracking-tight">Behbehani CPO</span>
+    <span class="text-slate-300">|</span>
+    <nav class="flex items-center gap-1.5 text-xs text-slate-500">
+      <a href="#" class="hover:text-slate-700">Inspections</a>
+      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      <a href="#" class="hover:text-slate-700">BMC-CON-000042</a>
+      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      <span class="text-slate-800 font-medium">Create offer</span>
+    </nav>
+    <div class="ml-auto flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-brand-700 flex items-center justify-center text-white text-xs font-bold">OM</div>
+      <span class="text-sm text-slate-700 font-medium">Ops Manager</span>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-6">
+
+    <!-- Page heading -->
+    <div class="mb-5">
+      <h1 class="text-xl font-semibold text-slate-800">Create buy offer</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Concierge inspection complete — issue a purchase offer to the customer.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+      <!-- Left / main column (spans 2) -->
+      <div class="lg:col-span-2 space-y-5">
+
+        <!-- Vehicle summary card — mirrors signoff page vehicle banner -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <div class="flex items-start gap-4">
+            <!-- Score circle: same pattern as inspection-signoff -->
+            <div class="flex-shrink-0 relative w-20 h-20">
+              <svg class="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                <!-- 92/100 → arc = 0.92 * 2πr ≈ 0.92 * 213.6 ≈ 196.5 -->
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#2563eb" stroke-width="8"
+                  stroke-dasharray="196.5 213.6" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-lg font-bold text-slate-800 leading-none">92</span>
+                <span class="text-[10px] text-slate-400 font-medium">/100</span>
+              </div>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <h2 class="text-base font-semibold text-slate-800">2022 Toyota Camry SE</h2>
+                <!-- Concierge chip — brand-100/brand-800 per inspection-labels.ts -->
+                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-brand-100 text-brand-800">Concierge</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-0.5 font-mono">BMC-CON-000042 · VIN 4T1BF1FK•••••1234</p>
+              <p class="text-xs text-slate-500 mt-0.5">58,400 km · Automatic · Silver</p>
+              <div class="mt-3 flex flex-wrap items-center gap-4 text-xs">
+                <span class="inline-flex items-center gap-1.5 text-slate-600">
+                  <span class="w-2 h-2 rounded-full bg-brand-600 flex-shrink-0"></span>
+                  <span class="font-semibold tabular-nums">63</span> Pass
+                </span>
+                <!-- Amber dot: documented palette exception for advisory -->
+                <span class="inline-flex items-center gap-1.5 text-slate-600">
+                  <span class="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0"></span>
+                  <span class="font-semibold tabular-nums">6</span> Advisory
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-slate-600">
+                  <span class="w-2 h-2 rounded-full bg-red-600 flex-shrink-0"></span>
+                  <span class="font-semibold tabular-nums">2</span> Fail
+                </span>
+                <span class="text-slate-300">·</span>
+                <span class="text-slate-500">Inspector: <span class="font-medium text-slate-700">Ahmed Al-Mutairi</span></span>
+                <span class="text-slate-300">·</span>
+                <!-- signed_off status chip: bg-slate-100 text-slate-700 per labels.ts -->
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-slate-100 text-slate-700">Signed off</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inspection result summary — section scores table -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <p class="text-sm font-semibold text-slate-700 mb-3">Inspection section scores</p>
+          <div class="divide-y divide-slate-100">
+            <!-- Each row mirrors signoff-report-summary pattern -->
+            <div class="flex items-center justify-between py-2.5 text-sm">
+              <span class="text-slate-700">Exterior</span>
+              <div class="flex items-center gap-2">
+                <div class="w-28 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-500" style="width:100%"></div>
+                </div>
+                <span class="text-xs font-semibold text-brand-700 tabular-nums w-8 text-right">100%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-2.5 text-sm">
+              <span class="text-slate-700">Interior</span>
+              <div class="flex items-center gap-2">
+                <div class="w-28 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-500" style="width:88%"></div>
+                </div>
+                <span class="text-xs font-semibold text-brand-700 tabular-nums w-8 text-right">88%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-2.5 text-sm">
+              <span class="text-slate-700">Mechanical</span>
+              <div class="flex items-center gap-2">
+                <div class="w-28 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-500" style="width:85%"></div>
+                </div>
+                <span class="text-xs font-semibold text-brand-700 tabular-nums w-8 text-right">85%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-2.5 text-sm">
+              <span class="text-slate-700">Electrical</span>
+              <div class="flex items-center gap-2">
+                <div class="w-28 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-amber-400" style="width:75%"></div>
+                </div>
+                <!-- Amber score: section has advisory items -->
+                <span class="text-xs font-semibold text-amber-700 tabular-nums w-8 text-right">75%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-2.5 text-sm">
+              <span class="text-slate-700">Tyres &amp; Brakes</span>
+              <div class="flex items-center gap-2">
+                <div class="w-28 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-red-500" style="width:67%"></div>
+                </div>
+                <!-- Red score: section has fail items -->
+                <span class="text-xs font-semibold text-red-600 tabular-nums w-8 text-right">67%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-2.5 text-sm">
+              <span class="text-slate-700">Safety &amp; Documentation</span>
+              <div class="flex items-center gap-2">
+                <div class="w-28 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-500" style="width:100%"></div>
+                </div>
+                <span class="text-xs font-semibold text-brand-700 tabular-nums w-8 text-right">100%</span>
+              </div>
+            </div>
+          </div>
+          <!-- Items needing attention (fail + advisory) — collapsed initially -->
+          <details class="mt-3">
+            <summary class="text-xs font-semibold text-brand-700 cursor-pointer hover:underline">
+              Show 8 items needing attention
+            </summary>
+            <div class="mt-2 space-y-1">
+              <div class="flex items-center gap-2 text-xs py-1.5 px-2 rounded bg-red-50/60">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-red-600 text-white">FAIL</span>
+                <span class="text-slate-700">Left front tyre tread depth</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs py-1.5 px-2 rounded bg-red-50/60">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-red-600 text-white">FAIL</span>
+                <span class="text-slate-700">Rear wiper blade</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs py-1.5 px-2 rounded">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-amber-400 text-amber-900">ADVISORY</span>
+                <span class="text-slate-700">AC cooling performance</span>
+              </div>
+              <div class="flex items-center gap-2 text-xs py-1.5 px-2 rounded">
+                <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold bg-amber-400 text-amber-900">ADVISORY</span>
+                <span class="text-slate-700">Battery voltage (borderline)</span>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <!-- Offer form card -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <p class="text-sm font-semibold text-slate-700 mb-4">Offer details</p>
+
+          <!-- Customer info strip -->
+          <div class="flex items-center gap-3 p-3 rounded-md border border-slate-200 bg-slate-50 mb-5">
+            <div class="w-9 h-9 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+              <span class="text-xs font-bold text-white">MA</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-slate-800">Mohammed Al-Sabah</p>
+              <p class="text-xs text-slate-500">+965 5555 1234 · m.alsabah@email.com</p>
+            </div>
+            <!-- Amber: awaiting state — customer has not yet received an offer -->
+            <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 flex-shrink-0">No offer yet</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <!-- Offer amount — large, prominent -->
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5" for="offer-amount">
+                Offer amount (KWD)
+                <span class="text-slate-400 font-normal ml-1">— inclusive of all fees</span>
+              </label>
+              <!-- Large input to make the amount feel significant -->
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-semibold text-slate-400 pointer-events-none">KD</span>
+                <input
+                  id="offer-amount"
+                  type="text"
+                  value="8,500"
+                  class="w-full pl-14 pr-5 py-3.5 text-2xl font-bold text-slate-800 rounded-lg border-2 border-brand-300 bg-brand-50/30 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 min-h-[56px]"
+                  placeholder="0"
+                />
+              </div>
+              <p class="text-xs text-slate-400 mt-1">Use . for decimals. Market estimate shown on the right.</p>
+            </div>
+
+            <!-- Validity window -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5" for="valid-until">
+                Valid until
+                <span class="text-slate-400 font-normal ml-1">(default +7 days)</span>
+              </label>
+              <input
+                id="valid-until"
+                type="date"
+                value="2026-05-26"
+                class="w-full px-3 py-2.5 text-sm rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 min-h-[44px] bg-white"
+              />
+            </div>
+
+            <!-- Notification toggle -->
+            <div class="flex flex-col justify-end">
+              <div class="flex items-start gap-2 p-3 rounded-md bg-brand-50 border border-brand-100">
+                <svg class="w-4 h-4 text-brand-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <p class="text-xs text-brand-800">Customer will be notified by <strong>SMS + email</strong> when this offer is sent.</p>
+              </div>
+            </div>
+
+            <!-- Internal notes -->
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-semibold text-slate-600 mb-1.5" for="internal-notes">
+                Internal notes
+                <span class="text-slate-400 font-normal ml-1">— not visible to customer</span>
+              </label>
+              <textarea
+                id="internal-notes"
+                rows="3"
+                placeholder="e.g. Priced below estimate due to tyre advisory. Owner verbally indicated KD 8,000 reserve."
+                class="w-full text-sm rounded-md border border-slate-300 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none bg-white"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right column: price suggestion panel (future hook stub) -->
+      <div class="space-y-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <div class="flex items-center gap-2 mb-3">
+            <p class="text-sm font-semibold text-slate-700">Market estimate</p>
+            <!-- Future hook badge -->
+            <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-semibold bg-slate-100 text-slate-500 uppercase tracking-wide">Beta</span>
+          </div>
+          <!-- Stub range display -->
+          <div class="text-center py-4">
+            <p class="text-xs text-slate-400 mb-2">Estimated fair range</p>
+            <p class="text-2xl font-bold text-slate-800">KD 8,200 – 8,800</p>
+            <p class="text-xs text-slate-400 mt-1">Based on similar 2022 Camry SE listings</p>
+          </div>
+          <div class="border-t border-slate-100 pt-3 mt-1 space-y-2">
+            <div class="flex justify-between text-xs text-slate-600">
+              <span>Avg. selling price</span>
+              <span class="font-medium">KD 9,150</span>
+            </div>
+            <div class="flex justify-between text-xs text-slate-600">
+              <span>Avg. days to sell</span>
+              <span class="font-medium">24 days</span>
+            </div>
+            <div class="flex justify-between text-xs text-slate-600">
+              <span>Similar active listings</span>
+              <span class="font-medium">7</span>
+            </div>
+          </div>
+          <!-- Deduction breakdown stub -->
+          <div class="mt-3 p-3 rounded-md bg-slate-50 border border-slate-100">
+            <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Suggested deductions</p>
+            <div class="space-y-1.5 text-xs text-slate-600">
+              <div class="flex justify-between">
+                <span>Tyre replacement (2x)</span>
+                <span class="text-red-600 font-medium">− KD 180</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Rear wiper blade</span>
+                <span class="text-red-600 font-medium">− KD 15</span>
+              </div>
+              <div class="flex justify-between">
+                <span>AC service (advisory)</span>
+                <span class="text-amber-700 font-medium">− KD 80 est.</span>
+              </div>
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-3 italic">Live pricing data feed not yet connected. Values are sample estimates.</p>
+        </div>
+
+        <!-- Offer summary card (live-updates preview) -->
+        <div class="bg-brand-700 rounded-xl p-5 text-white shadow-md">
+          <p class="text-xs font-semibold uppercase tracking-wide text-brand-200 mb-3">Offer preview</p>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-brand-200">Amount</span>
+              <span class="font-bold text-xl">KD 8,500</span>
+            </div>
+            <div class="flex justify-between text-brand-200">
+              <span>Valid until</span>
+              <span class="text-white font-medium">26 May 2026</span>
+            </div>
+            <div class="flex justify-between text-brand-200">
+              <span>Validity</span>
+              <span class="text-white font-medium">7 days</span>
+            </div>
+            <div class="flex justify-between text-brand-200">
+              <span>Customer</span>
+              <span class="text-white font-medium">Mohammed Al-Sabah</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sticky bottom action bar -->
+  <div class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 shadow-md z-10">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <p class="text-xs text-slate-500 hidden sm:block">
+        Offer will be sent to <strong>Mohammed Al-Sabah</strong> via SMS + email.
+      </p>
+      <div class="flex items-center gap-3 ml-auto">
+        <button type="button" class="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 min-h-[44px] transition-colors">
+          Cancel
+        </button>
+        <!-- Save draft — per admin design decision: Save Draft never publishes -->
+        <button type="button" class="rounded-md border border-brand-200 bg-brand-50 px-4 py-2 text-sm font-medium text-brand-700 hover:bg-brand-100 min-h-[44px] transition-colors">
+          Save draft
+        </button>
+        <button type="button" class="rounded-md bg-brand-600 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-700 active:scale-[0.98] min-h-[44px] transition-all shadow-sm">
+          Send offer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom padding so content doesn't hide under sticky bar -->
+  <div class="h-20"></div>
+
+</body>
+</html>

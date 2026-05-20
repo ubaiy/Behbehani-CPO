@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <title>Behbehani CPO · Back Office — Inspections Queue</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { brand: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' } },
+        fontFamily: { sans: ['Inter','system-ui','sans-serif'] },
+      } },
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="h-full bg-slate-100 font-sans antialiased text-slate-800">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- Sidebar (collapsed for brevity in the mockup; same as sprint-2.6) -->
+  <aside class="w-60 flex-shrink-0 bg-slate-900 flex flex-col h-full">
+    <div class="flex items-center gap-2.5 px-4 py-4 border-b border-slate-800">
+      <div class="w-9 h-9 rounded-lg bg-white flex items-center justify-center">
+        <svg class="w-6 h-6 text-brand-700" viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M2 38 L20 4 L38 38 Z"/><path d="M26 38 L44 12 L62 38 Z"/></svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold tracking-widest text-brand-400 uppercase leading-none">Behbehani CPO</p>
+        <p class="text-xs text-slate-500 mt-0.5">Back Office</p>
+      </div>
+    </div>
+    <nav class="flex-1 overflow-y-auto px-2 py-3 space-y-5">
+      <a class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800">Dashboard</a>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Inventory</p>
+        <div class="space-y-0.5">
+          <a class="block px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800">Listings</a>
+          <a class="block px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800">Brands &amp; Models</a>
+          <a class="block px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800">Pipeline</a>
+        </div>
+      </div>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Operations</p>
+        <div class="space-y-0.5">
+          <!-- ACTIVE — Inspections -->
+          <a class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium bg-brand-700 text-white">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Inspections
+          </a>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main column -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Topbar -->
+    <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 flex items-center px-6 gap-4">
+      <span class="text-sm font-semibold text-slate-700">Behbehani CPO · Back office</span>
+      <div class="flex-1"></div>
+      <span class="hidden lg:inline-flex items-center rounded-full border bg-blue-50 border-blue-200 px-2.5 py-0.5 text-xs font-medium text-blue-700">Staging</span>
+      <div class="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-slate-100">
+        <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center"><span class="text-xs font-bold text-white">AH</span></div>
+        <span class="text-xs text-slate-700 font-medium">Ahmed Hassan</span>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-6">
+      <div class="max-w-7xl mx-auto">
+
+        <!-- Page header -->
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <h1 class="text-xl font-semibold text-slate-800">Inspections</h1>
+            <p class="text-sm text-slate-500 mt-0.5">16 vehicles in the workflow · 5 awaiting your sign-off · 2 awaiting customer signature</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              New Concierge request
+            </button>
+            <button class="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              Start CPO inspection
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-5">
+          <div class="bg-white rounded-lg border border-slate-200 p-4">
+            <p class="text-xs font-medium text-slate-500 uppercase">Awaiting start</p>
+            <p class="text-2xl font-bold text-slate-800 tabular-nums mt-1">3</p>
+            <p class="text-xs text-slate-400 mt-1">listings in `inspection` stage with no report yet</p>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-4">
+            <p class="text-xs font-medium text-slate-500 uppercase">In progress</p>
+            <p class="text-2xl font-bold text-slate-800 tabular-nums mt-1">5</p>
+            <p class="text-xs text-slate-400 mt-1">draft reports — some items scored</p>
+          </div>
+          <div class="bg-white rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <p class="text-xs font-medium text-blue-700 uppercase">Awaiting sign-off</p>
+            <p class="text-2xl font-bold text-blue-900 tabular-nums mt-1">4</p>
+            <p class="text-xs text-blue-700 mt-1">all 40 items scored, ready to finalize</p>
+          </div>
+          <div class="bg-white rounded-lg border border-slate-200 p-4">
+            <p class="text-xs font-medium text-slate-500 uppercase">Signed off (this week)</p>
+            <p class="text-2xl font-bold text-slate-800 tabular-nums mt-1">17</p>
+            <p class="text-xs text-slate-400 mt-1">avg score 87 · 2 with advisories</p>
+          </div>
+        </div>
+
+        <!-- Filter strip -->
+        <div class="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+          <div class="flex flex-wrap items-end gap-3">
+            <div class="flex-1 min-w-64">
+              <label class="block text-xs font-medium text-slate-600 mb-1">Search</label>
+              <input type="search" placeholder="Stock #, VIN, title, customer name/mobile…" class="w-full px-3 py-1.5 text-sm rounded-md border border-slate-300 focus:ring-2 focus:ring-brand-500"/>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Inspector</label>
+              <select class="py-1.5 pl-3 pr-7 text-sm rounded-md border border-slate-300">
+                <option>Anyone</option>
+                <option selected>Me (Ahmed Hassan)</option>
+                <option>Fatma Al-Sayed</option>
+              </select>
+            </div>
+            <button class="text-sm text-slate-500 hover:text-brand-600 font-medium pb-0.5">Reset filters</button>
+          </div>
+
+          <!-- Kind filter chips (CPO / Concierge / All) -->
+          <div class="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100">
+            <span class="text-xs font-medium text-slate-500 mr-1">Kind:</span>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-brand-600 text-white">All <span class="opacity-75">· 16</span></button>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 inline-flex items-center gap-1.5">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+              CPO · 11
+            </button>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 inline-flex items-center gap-1.5">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              Concierge · 5
+            </button>
+
+            <span class="text-xs font-medium text-slate-500 ml-4 mr-1">Status:</span>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-brand-600 text-white">All</button>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Awaiting start</button>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">In progress</button>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Awaiting sign-off</button>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Awaiting customer sig.</button>
+            <button class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Signed off</button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-left">
+                <th class="px-3 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide w-20">Kind</th>
+                <th class="px-3 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Vehicle / Customer</th>
+                <th class="px-3 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">VIN</th>
+                <th class="px-3 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Inspector</th>
+                <th class="px-3 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+                <th class="px-3 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide w-40">Progress</th>
+                <th class="px-3 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide text-center">Score</th>
+                <th class="px-3 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">Last update</th>
+                <th class="px-3 py-3 w-10"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+
+              <!-- CPO Row: awaiting sign-off (highlighted) -->
+              <tr class="bg-blue-50/40 hover:bg-blue-50">
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">CPO</span></td>
+                <td class="px-3 py-3">
+                  <p class="font-medium text-slate-800 leading-tight">2023 Toyota Camry SE</p>
+                  <p class="text-xs text-slate-400 font-mono mt-0.5">#BCPO-2026-0042 · Behbehani inventory</p>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500">•••••••••••••• 109186</td>
+                <td class="px-3 py-3 text-sm text-slate-700">Ahmed Hassan</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">Awaiting sign-off</span></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-600" style="width:100%"></div></div>
+                    <span class="text-xs font-medium text-slate-600 tabular-nums">71/71</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-center"><span class="font-semibold text-slate-700 tabular-nums">92</span></td>
+                <td class="px-3 py-3 text-xs text-slate-400">2 hr ago</td>
+                <td class="px-3 py-3 text-right">
+                  <a href="03-inspection-signoff.html" class="text-xs font-semibold text-brand-600 hover:underline">Review & sign →</a>
+                </td>
+              </tr>
+
+              <!-- CONCIERGE Row: awaiting customer signature (highlighted) -->
+              <tr class="bg-blue-50/40 hover:bg-blue-50">
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-brand-100 text-brand-800">Concierge</span></td>
+                <td class="px-3 py-3">
+                  <p class="font-medium text-slate-800 leading-tight">2020 Lexus RX 350</p>
+                  <p class="text-xs text-slate-400 mt-0.5">👤 Mohammed Al-Sabah · +965 9876 5432</p>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500">•••••••••••••• 884420</td>
+                <td class="px-3 py-3 text-sm text-slate-700">Ahmed Hassan</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m0 14v1m8-9h1M3 12h1m13.66-6.66l-.71.71M6.34 17.66l-.71.71m12.02 0l-.71-.71M6.34 6.34l-.71-.71"/></svg>
+                  Awaiting customer sig.
+                </span></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-600" style="width:100%"></div></div>
+                    <span class="text-xs font-medium text-slate-600 tabular-nums">71/71</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-center"><span class="font-semibold text-slate-700 tabular-nums">85</span></td>
+                <td class="px-3 py-3 text-xs text-slate-400">Link sent 1 hr ago</td>
+                <td class="px-3 py-3 text-right"><a class="text-xs font-medium text-slate-500 hover:text-brand-600">Resend link →</a></td>
+              </tr>
+
+              <!-- CPO Row: in progress -->
+              <tr class="hover:bg-slate-50">
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">CPO</span></td>
+                <td class="px-3 py-3">
+                  <p class="font-medium text-slate-800 leading-tight">2022 Honda Civic Sport</p>
+                  <p class="text-xs text-slate-400 font-mono mt-0.5">#BCPO-2026-0043 · Behbehani inventory</p>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500">•••••••••••••• 220411</td>
+                <td class="px-3 py-3 text-sm text-slate-700">Ahmed Hassan</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">In progress</span></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-500" style="width:62%"></div></div>
+                    <span class="text-xs font-medium text-slate-600 tabular-nums">44/71</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-center"><span class="text-slate-400 text-xs">—</span></td>
+                <td class="px-3 py-3 text-xs text-slate-400">Yesterday</td>
+                <td class="px-3 py-3 text-right"><a href="02-inspection-edit.html" class="text-xs font-semibold text-brand-600 hover:underline">Resume →</a></td>
+              </tr>
+
+              <!-- CONCIERGE Row: scheduled, inspector heading to customer -->
+              <tr class="hover:bg-slate-50">
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-brand-100 text-brand-800">Concierge</span></td>
+                <td class="px-3 py-3">
+                  <p class="font-medium text-slate-800 leading-tight">2019 Nissan Patrol</p>
+                  <p class="text-xs text-slate-400 mt-0.5">👤 Layla Al-Rasheed · +965 5512 8899 · 📍 Salmiya</p>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500">•••••••••••••• 661177</td>
+                <td class="px-3 py-3 text-sm text-slate-700">Fatma Al-Sayed</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">Scheduled · today 14:00</span></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"></div>
+                    <span class="text-xs font-medium text-slate-400 tabular-nums">0/71</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-center"><span class="text-slate-400 text-xs">—</span></td>
+                <td class="px-3 py-3 text-xs text-slate-400">Booked 2 days ago</td>
+                <td class="px-3 py-3 text-right"><button class="text-xs font-semibold text-brand-600 hover:underline">Start on-site →</button></td>
+              </tr>
+
+              <!-- CPO Row: awaiting start -->
+              <tr class="hover:bg-slate-50">
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">CPO</span></td>
+                <td class="px-3 py-3">
+                  <p class="font-medium text-slate-800 leading-tight">2024 Nissan Patrol Titanium</p>
+                  <p class="text-xs text-slate-400 font-mono mt-0.5">#BCPO-2026-0044 · Behbehani inventory</p>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500">•••••••••••••• 998822</td>
+                <td class="px-3 py-3 text-sm text-slate-400 italic">Unassigned</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">Awaiting start</span></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"></div>
+                    <span class="text-xs font-medium text-slate-400 tabular-nums">0/71</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-center"><span class="text-slate-400 text-xs">—</span></td>
+                <td class="px-3 py-3 text-xs text-slate-400">2 days ago</td>
+                <td class="px-3 py-3 text-right"><button class="text-xs font-semibold text-brand-600 hover:underline">Start →</button></td>
+              </tr>
+
+              <!-- CONCIERGE Row: signed off, both signatures complete -->
+              <tr class="hover:bg-slate-50">
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-brand-100 text-brand-800">Concierge</span></td>
+                <td class="px-3 py-3">
+                  <p class="font-medium text-slate-800 leading-tight">2021 Mercedes C200</p>
+                  <p class="text-xs text-slate-400 mt-0.5">👤 Yousef Al-Khaled · +965 6677 3344</p>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500">•••••••••••••• 113355</td>
+                <td class="px-3 py-3 text-sm text-slate-700">Fatma Al-Sayed</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-700">Signed off</span></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-slate-400" style="width:100%"></div></div>
+                    <span class="text-xs font-medium text-slate-600 tabular-nums">71/71</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-center"><span class="font-semibold text-slate-700 tabular-nums">78</span></td>
+                <td class="px-3 py-3 text-xs text-slate-400">Yesterday</td>
+                <td class="px-3 py-3 text-right"><a class="text-xs font-medium text-slate-500 hover:text-brand-600">View report →</a></td>
+              </tr>
+
+              <!-- CPO Row: signed off, low score -->
+              <tr class="hover:bg-slate-50">
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">CPO</span></td>
+                <td class="px-3 py-3">
+                  <p class="font-medium text-slate-800 leading-tight">2021 Ford Explorer XLT</p>
+                  <p class="text-xs text-slate-400 font-mono mt-0.5">#BCPO-2026-0038 · Behbehani inventory</p>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500">•••••••••••••• 778890</td>
+                <td class="px-3 py-3 text-sm text-slate-700">Fatma Al-Sayed</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-700">Signed off</span></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-slate-400" style="width:100%"></div></div>
+                    <span class="text-xs font-medium text-slate-600 tabular-nums">71/71</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-center"><span class="font-semibold text-red-700 tabular-nums">62</span></td>
+                <td class="px-3 py-3 text-xs text-slate-400">5 days ago</td>
+                <td class="px-3 py-3 text-right"><a class="text-xs font-medium text-slate-500 hover:text-brand-600">View report →</a></td>
+              </tr>
+
+            </tbody>
+          </table>
+
+          <!-- Pagination footer (consistent with other admin lists) -->
+          <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200">
+            <div class="flex items-center gap-2">
+              <label class="text-xs text-slate-500">Rows per page:</label>
+              <select class="text-xs rounded border border-slate-300 py-1 px-2 bg-white"><option>25</option></select>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="px-2 py-1 text-xs rounded border border-slate-300 bg-white text-slate-500 opacity-40">‹</button>
+              <button class="px-2.5 py-1 text-xs rounded border bg-brand-600 border-brand-600 text-white font-semibold">1</button>
+              <button class="px-2.5 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 font-semibold">2</button>
+              <button class="px-2 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700">›</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-5 text-xs text-slate-400 max-w-4xl">
+          <strong>Role gating:</strong> queue is visible to <code>inspection_officer</code>, <code>operations_manager</code>, <code>general_manager</code>.
+          Write actions (Start, Resume, Sign off, New Concierge request, Resend link) are <code>inspection_officer</code>-only.
+          Other roles see read-only "View report" links.
+          <br/><br/>
+          <strong>Concierge data origin:</strong> rows with <code>kind='concierge'</code> arrive in this queue from the storefront's
+          Sell-Your-Car / Concierge flow (parallel session's scope — see [page-sell.jsx](mockups/web/sprint-3/behbehani-motors/car-market/project/bm/page-sell.jsx)),
+          OR from the admin-side "New Concierge request" button (manual entry for walk-ins / phone bookings).
+          Both paths feed the same record with <code>kind='concierge'</code> + <code>customerId</code> + vehicle snapshot fields.
+        </p>
+      </div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

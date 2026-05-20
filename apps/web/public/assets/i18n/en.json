@@ -1,0 +1,1697 @@
+{
+  "app": {
+    "name": "Behbehani Motors",
+    "company": "Morad Yousuf Behbehani",
+    "tagline": "Kuwait's trusted way to buy, sell and own.",
+    "since": "Since 1935"
+  },
+  "nav": {
+    "buy": "Buy a Car",
+    "sell": "Sell a Car",
+    "finance": "Financing",
+    "services": "Car Services",
+    "dealers": "For Dealers",
+    "browse": "Browse cars",
+    "sellYourCar": "Sell your car",
+    "howItWorks": "How it works",
+    "account": "Account",
+    "favorites": "Favorites",
+    "signIn": "Sign in",
+    "accountMenu": "Account menu",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "search": "Search",
+    "home": "Home"
+  },
+  "browse": {
+    "titleAll": "Used cars in Kuwait",
+    "titleBrand": "{{ brand }} cars in Kuwait",
+    "subline": "cars match · all KWD prices · Kuwait-wide delivery",
+    "metaDescription": "Browse Behbehani Motors inspected used cars in Kuwait — sedan, SUV, coupe and more across every major brand.",
+    "breadcrumb": "Breadcrumb",
+    "filters": "Filters",
+    "clearAll": "Clear all",
+    "clearSearch": "Clear search",
+    "close": "Close",
+    "previous": "Previous",
+    "next": "Next",
+    "pagination": "Page navigation",
+    "viewGrid": "Grid view",
+    "viewList": "List view",
+    "viewDetails": "View details",
+    "sortBy": "Sort by",
+    "searchPlaceholder": "Search make, model, year…",
+    "searchMakes": "Search makes…",
+    "noMatches": "No matches",
+    "comingSoon": "Coming soon",
+    "empty": {
+      "title": "No cars match your filters",
+      "sub": "Try widening the price range or removing a brand.",
+      "cta": "Reset filters"
+    },
+    "sections": {
+      "price": "Price",
+      "monthly": "Monthly payment",
+      "year": "Year",
+      "mileage": "Mileage",
+      "make": "Make & model",
+      "body": "Body style",
+      "transmission": "Transmission",
+      "fuel": "Fuel type",
+      "drive": "Drivetrain",
+      "cylinders": "Cylinders",
+      "color": "Exterior color",
+      "interior": "Interior color",
+      "seats": "Seats",
+      "specs": "Regional specs",
+      "features": "Features",
+      "seller": "Seller type",
+      "trust": "Trust & convenience",
+      "warranty": "Warranty"
+    },
+    "transmissions": {
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "cvt": "CVT"
+    },
+    "fuels": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "hybrid": "Hybrid",
+      "electric": "Electric"
+    },
+    "trust": {
+      "inspected": "71-pt inspected"
+    },
+    "sort": {
+      "best": "Best match",
+      "newest": "Newest first",
+      "priceAsc": "Price: low → high",
+      "priceDesc": "Price: high → low",
+      "mileageAsc": "Lowest mileage",
+      "year": "Year: newest first"
+    }
+  },
+  "auth": {
+    "signOut": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "mobile": "Mobile number",
+    "otp": "One-time code",
+    "submit": "Continue",
+    "or": "or",
+    "continue": "Continue",
+    "close": "Close",
+    "heading": "Sign in to Behbehani Motors",
+    "sub": "Save favorites, reserve cars and track deliveries.",
+    "phoneTab": "Phone",
+    "emailTab": "Email",
+    "legal": "By continuing you agree to our Terms & Privacy Policy.",
+    "otpComingSoon": "OTP sign-in is being prepared. Please check back soon.",
+    "hidePassword": "Hide password",
+    "showPassword": "Show password",
+    "continueWithGoogle": "Continue with Google",
+    "continueWithApple": "Continue with Apple",
+    "continueWithFacebook": "Continue with Facebook",
+    "oauthComingSoon": {
+      "google": "Sign in with Google is being prepared. Please use email for now.",
+      "apple": "Sign in with Apple is being prepared. Please use email for now.",
+      "facebook": "Sign in with Facebook is being prepared. Please use email for now."
+    },
+    "signIn": {
+      "v2": {
+        "heading": "Welcome back",
+        "sub": "Sign in to manage your bookings and saved cars.",
+        "tabs": {
+          "password": "Password",
+          "otp": "One-time code"
+        },
+        "mobileTab": "Mobile",
+        "emailTab": "Email",
+        "identifierPlaceholder": "Email or mobile number",
+        "mobilePlaceholder": "Mobile number",
+        "passwordLabel": "Password",
+        "passwordPlaceholder": "Password",
+        "forgot": "Forgot password?",
+        "submit": "Sign in",
+        "submitting": "Signing in…",
+        "sendCode": "Send code",
+        "sendingCode": "Sending code…",
+        "smsCaptionHint": "We'll text a 6-digit code to your mobile.",
+        "useEmailInstead": "Use email instead",
+        "useSmsInstead": "Use SMS instead",
+        "divider": "or continue with",
+        "google": "Continue with Google",
+        "googleComingSoon": "Google sign-in is coming soon",
+        "apple": {
+          "label": "Continue with Apple",
+          "comingSoonPill": "Coming soon"
+        },
+        "noAccount": "Don't have an account?",
+        "signUpLink": "Sign up"
+      }
+    },
+    "signUp": {
+      "v2": {
+        "title": "Create your account",
+        "heading": "Create your account",
+        "sub": "It takes less than a minute. We'll text a code to verify your number.",
+        "fullName": "Full name",
+        "fullNamePlaceholder": "Your full name",
+        "namePlaceholder": "Full name",
+        "mobile": "Mobile number",
+        "mobilePlaceholder": "5XXX XXXX",
+        "mobileHint": "Kuwait mobile (+965). We'll send a verification code.",
+        "email": "Email",
+        "emailPlaceholder": "you@example.com",
+        "optional": "optional",
+        "password": "Password",
+        "passwordPlaceholder": "At least 8 characters",
+        "confirmPassword": "Confirm password",
+        "confirmPasswordPlaceholder": "Re-enter password",
+        "passwordWeak": "Weak",
+        "passwordFair": "Fair",
+        "passwordGood": "Good",
+        "passwordStrong": "Strong",
+        "termsPrefix": "I agree to the",
+        "terms": "Terms",
+        "and": "and",
+        "privacy": "Privacy Policy",
+        "divider": "or continue with",
+        "submit": "Continue",
+        "submitting": "Sending code…",
+        "haveAccount": "Already have an account?",
+        "signInLink": "Sign in",
+        "signInInstead": "Sign in instead"
+      }
+    },
+    "otp": {
+      "heading": "Enter verification code",
+      "caption": "We sent a 6-digit code to {{identifier}}",
+      "expireNote": "The code expires in 5 minutes.",
+      "resendIn": "Resend in {{seconds}}s",
+      "resend": "Resend code",
+      "useChannel": "Use {{channel}} instead",
+      "errors": {
+        "incorrect": "Incorrect code. Please try again.",
+        "expired": "Code expired. Please request a new one.",
+        "locked": "Too many attempts. Please request a new code.",
+        "rateLimited": "Please wait before requesting another code.",
+        "networkError": "Connection issue. Please try again."
+      }
+    },
+  "ghostUpgrade": {
+    "title": "Welcome back!",
+    "body": "We've linked your existing booking to your new account.",
+    "cta": "View my bookings"
+  },
+  "created": {
+    "title": "Welcome to Behbehani Motors",
+    "body": "Your account is ready. Let's find your next car.",
+    "cta": "Browse cars"
+  }
+  },
+  "account": {
+    "myBookings": {
+      "shell": {
+        "metaTitle": "My bookings · Behbehani Motors",
+        "title": "My bookings",
+        "empty": "No bookings yet. Schedule an inspection to get started.",
+        "emptyCta": "Schedule inspection"
+      },
+      "metaTitle": "My bookings · Behbehani Motors",
+      "title": "My bookings",
+      "sub": "Concierge inspections you've scheduled.",
+      "tab": "My bookings",
+      "empty": {
+        "title": "No bookings yet",
+        "body": "Schedule an inspection and we'll start tracking it here.",
+        "cta": "Schedule an inspection"
+      },
+      "signInRequired": {
+        "title": "Please sign in",
+        "body": "Sign in to view your inspection bookings."
+      },
+      "statusPill": {
+        "scheduled": "Scheduled",
+        "in_progress": "In progress",
+        "inspected": "Inspected",
+        "signed_off": "Signed off",
+        "offer_sent": "Offer sent",
+        "accepted": "Accepted",
+        "declined": "Declined",
+        "cancelled": "Cancelled",
+        "expired": "Expired"
+      },
+      "latestOffer": {
+        "activeLabel": "Offer {{amount}} · expires in {{days}} days",
+        "activeLabelOne": "Offer {{amount}} · expires in 1 day",
+        "terminalAccepted": "Offer accepted · {{amount}}",
+        "terminalDeclined": "Offer declined",
+        "terminalWithdrawn": "Offer withdrawn",
+        "terminalExpired": "Offer expired",
+        "terminalCountered": "Counter offer pending"
+      },
+      "viewOfferCta": "View offer →",
+      "viewTrackerCta": "View inspection →",
+      "createdRelative": "Booked {{relative}}",
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "pageOf": "Page {{page}} of {{total}}"
+      },
+      "error": {
+        "networkTitle": "Connection issue",
+        "networkBody": "We couldn't load your bookings. Please try again.",
+        "retry": "Retry"
+      },
+      "headerDropdown": {
+        "myBookings": "My bookings",
+        "savedCars": "Saved cars",
+        "signOut": "Sign out"
+      }
+    },
+    "savedListings": {
+      "shell": {
+        "metaTitle": "Saved cars · Behbehani Motors",
+        "title": "Saved cars",
+        "empty": "No saved cars yet. Browse our inventory and tap the heart to save.",
+        "emptyCta": "Browse cars"
+      },
+      "metaTitle": "Saved cars · Behbehani Motors",
+      "title": "Saved cars",
+      "sub": "Cars you've hearted. We'll keep this list in sync across devices.",
+      "tab": "Saved cars",
+      "empty": {
+        "title": "No saved cars yet",
+        "body": "Browse our inventory and tap the heart to save.",
+        "cta": "Browse cars"
+      },
+      "signInRequired": {
+        "title": "Please sign in",
+        "body": "Sign in to view your saved cars."
+      },
+      "card": {
+        "savedAgo": "Saved {{relative}}",
+        "unsave": "Remove from saved"
+      },
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "pageOf": "Page {{page}} of {{total}}"
+      },
+      "error": {
+        "networkTitle": "Connection issue",
+        "networkBody": "We couldn't load your saved cars. Please try again.",
+        "retry": "Retry"
+      }
+    },
+    "profile": {
+      "metaTitle": "Profile · Behbehani Motors",
+      "title": "Profile",
+      "sub": "Manage your account details",
+      "tab": "Profile",
+      "signInRequired": {
+        "title": "Please sign in",
+        "body": "Sign in to manage your profile."
+      },
+      "identity": {
+        "title": "Your details",
+        "fullNameLabel": "Full name",
+        "fullNamePlaceholder": "Your full name",
+        "saveCta": "Save",
+        "savingCta": "Saving…",
+        "savedToast": "Profile updated",
+        "localeLabel": "Language preference",
+        "photoLabel": "Profile photo",
+        "uploadCta": "Upload new photo",
+        "uploadHint": "JPG or PNG, max 2 MB",
+        "removeCta": "Remove photo",
+        "uploadComingSoon": "Photo upload is coming soon"
+      },
+      "email": {
+        "title": "Email address",
+        "verifiedPill": "Verified",
+        "verifiedOn": "Verified on {{date}}",
+        "notVerifiedPill": "Not verified",
+        "verifyNowCta": "Verify now",
+        "changeCta": "Change email",
+        "newEmailLabel": "New email",
+        "newEmailPlaceholder": "you@example.com",
+        "sendCodeCta": "Send code",
+        "sendingCta": "Sending…",
+        "codeCaption": "We sent a 6-digit code to {{email}}",
+        "successToast": "Email updated",
+        "cancelCta": "Cancel"
+      },
+      "mobile": {
+        "title": "Mobile number",
+        "verifiedPill": "Verified",
+        "notVerifiedPill": "Not verified",
+        "verifyNowCta": "Verify now",
+        "changeCta": "Change mobile",
+        "newMobileLabel": "New mobile",
+        "newMobilePlaceholder": "5XXX XXXX",
+        "sendCodeCta": "Send code",
+        "sendingCta": "Sending…",
+        "codeCaption": "We sent a code to {{mobile}}",
+        "successToast": "Mobile updated"
+      },
+      "password": {
+        "title": "Password",
+        "changeCta": "Change password",
+        "setCta": "Set a password",
+        "currentLabel": "Current password",
+        "newLabel": "New password",
+        "confirmLabel": "Confirm new password",
+        "strengthWeak": "Weak",
+        "strengthFair": "Fair",
+        "strengthGood": "Good",
+        "strengthStrong": "Strong",
+        "updateCta": "Update password",
+        "updatingCta": "Updating…",
+        "successToast": "Password updated",
+        "mismatchError": "Passwords don't match",
+        "weakError": "Password is too weak — try at least 8 characters with a mix of letters, numbers, and symbols"
+      },
+      "errors": {
+        "network": "Connection issue. Please try again.",
+        "rateLimited": "Please wait before requesting another code.",
+        "incorrect": "Incorrect code. Please try again.",
+        "expired": "Code expired. Please request a new one."
+      }
+    },
+    "addresses": {
+      "metaTitle": "Addresses · Behbehani Motors",
+      "title": "Addresses",
+      "sub": "Manage delivery and pickup addresses",
+      "tab": "Addresses",
+      "addCta": "+ Add address",
+      "signInRequired": {
+        "title": "Please sign in",
+        "body": "Sign in to manage your addresses."
+      },
+      "empty": {
+        "title": "No addresses saved",
+        "body": "Add your home or office for faster bookings.",
+        "cta": "Add your first address"
+      },
+      "card": {
+        "defaultPill": "Default",
+        "editAria": "Edit address",
+        "deleteAria": "Delete address",
+        "deleteConfirm": "Delete this address?",
+        "setDefaultCta": "Set as default",
+        "mapComingSoon": "Google Maps in v1.4",
+        "blockStreetBuilding": "Block {{block}}, Street {{street}}",
+        "buildingOnly": "Building {{building}}",
+        "unitSuffix": ", {{unit}}"
+      },
+      "governorate": {
+        "capital": "Capital",
+        "hawalli": "Hawalli",
+        "ahmadi": "Ahmadi",
+        "jahra": "Jahra",
+        "farwaniya": "Farwaniya",
+        "mubarak_al_kabeer": "Mubarak Al-Kabeer"
+      },
+      "modal": {
+        "createTitle": "Add new address",
+        "editTitle": "Edit address",
+        "labelLabel": "Label",
+        "labelHome": "Home",
+        "labelOffice": "Office",
+        "labelOther": "Other",
+        "governorateLabel": "Governorate",
+        "areaLabel": "Area",
+        "blockLabel": "Block",
+        "streetLabel": "Street",
+        "buildingLabel": "Building",
+        "unitLabel": "Apartment / Floor",
+        "unitOptional": "optional",
+        "mapPlaceholder": "Tap map to set pin",
+        "mapsComingSoon": "Google Maps in v1.4",
+        "setDefaultLabel": "Set as default address",
+        "saveCta": "Save",
+        "savingCta": "Saving…",
+        "cancelCta": "Cancel",
+        "savedToast": "Address saved",
+        "deletedToast": "Address deleted",
+        "defaultSetToast": "Default address updated"
+      },
+      "errors": {
+        "network": "Connection issue. Please try again.",
+        "validation": "Please check your input and try again.",
+        "notFound": "Address not found."
+      }
+    },
+    "notifications": {
+      "metaTitle": "Notifications · Behbehani Motors",
+      "title": "Notifications",
+      "sub": "Choose how Behbehani reaches you",
+      "tab": "Notifications",
+      "saveCta": "Save changes",
+      "savingCta": "Saving…",
+      "savedToast": "Preferences saved",
+      "applyCaption": "Changes apply within 60 seconds across all devices.",
+      "signInRequired": {
+        "title": "Please sign in",
+        "body": "Sign in to manage your notification preferences."
+      },
+      "channels": {
+        "email": "Email",
+        "sms": "SMS",
+        "push": "Push"
+      },
+      "categories": {
+        "bookingUpdates": "Booking updates",
+        "listingAlerts": "Listing alerts",
+        "marketing": "Marketing",
+        "accountSecurity": "Account security"
+      },
+      "pushCaption": "Active on the mobile app",
+      "securityRequired": "Required",
+      "securityTooltip": "Security notifications can't be disabled",
+      "errors": {
+        "network": "Connection issue. Please try again.",
+        "validation": "Validation error. Please refresh and try again.",
+        "retry": "Retry"
+      }
+    },
+    "security": {
+      "metaTitle": "Security · Behbehani Motors",
+      "title": "Security",
+      "sub": "Sessions and sign-in history",
+      "tab": "Security",
+      "signInRequired": {
+        "title": "Please sign in",
+        "body": "Sign in to manage your security settings."
+      },
+      "lastSignIn": {
+        "label": "Last sign-in",
+        "relative": "{{relative}} from {{location}}",
+        "from": "from {{location}}",
+        "locationComingSoon": "Real device location coming v1.4"
+      },
+      "sessions": {
+        "title": "Active sessions",
+        "deviceCount": "{{count}} devices",
+        "thisDevice": "This device",
+        "signOutCta": "Sign out",
+        "perDeviceComingSoon": "Per-device sign-out coming v1.4",
+        "mockNote": "Showing mock sessions — live data v1.4+",
+        "versionSuffix": "(v1.4+)"
+      },
+      "signOutAll": {
+        "title": "Sign out of all devices",
+        "body": "Sign out from every device except this one. You'll stay signed in here.",
+        "confirmTitle": "Sign out of all other devices?",
+        "confirmBody": "You'll stay signed in here. Other devices will need to sign in again.",
+        "cancelCta": "Cancel",
+        "confirmCta": "Sign out all",
+        "signingOutCta": "Signing out…",
+        "successOne": "1 other device signed out",
+        "successPlural": "{{count}} other devices signed out",
+        "successZero": "No other devices were active",
+        "errorToast": "Couldn't sign out all devices. Please try again."
+      }
+    },
+    "comingSoon": {
+      "notifyMe": "Notify me when this ships",
+      "emailPlaceholder": "you@example.com",
+      "submitCta": "Notify me",
+      "submittingCta": "Subscribing…",
+      "subscribedTitle": "You're on the list!",
+      "subscribedBody": "We'll email you the moment this feature launches.",
+      "alreadySubscribedTitle": "Already subscribed",
+      "alreadySubscribedBody": "You're already on the list for this feature.",
+      "launchEstimateLabel": "Estimated launch: {{eta}}",
+      "eta": {
+        "q3_2026": "Q3 2026",
+        "q4_2026": "Q4 2026",
+        "year_2027": "2027"
+      },
+      "errors": {
+        "validation": "Please enter a valid email address.",
+        "networkError": "Connection issue. Please try again."
+      },
+      "savedSearches": {
+        "title": "Saved searches",
+        "headingComingSoon": "Saved searches is coming soon",
+        "bullet1": "Save your filters and get alerts when matching cars arrive",
+        "bullet2": "Daily or weekly email digests",
+        "bullet3": "One-tap re-run any saved search from the browse page"
+      },
+      "orders": {
+        "title": "Purchase history",
+        "headingComingSoon": "Purchase history is coming soon",
+        "bullet1": "Track every order from reservation to delivery",
+        "bullet2": "Download receipts and invoices anytime",
+        "bullet3": "Reorder accessories and services from past purchases"
+      },
+      "documents": {
+        "title": "Documents",
+        "headingComingSoon": "Document vault is coming soon",
+        "bullet1": "Inspection reports, sale contracts, insurance — all in one place",
+        "bullet2": "Secure cloud storage with signed download links",
+        "bullet3": "Share documents instantly with bank or insurer"
+      },
+      "maintenance": {
+        "title": "Maintenance pickup",
+        "headingComingSoon": "Maintenance pickup is coming soon",
+        "bullet1": "Request workshop pickup with a date, time, and address",
+        "bullet2": "Track your service in real-time from pickup to delivery",
+        "bullet3": "Approve cost estimates digitally before work starts"
+      },
+      "financing": {
+        "title": "Financing",
+        "headingComingSoon": "Financing is coming soon",
+        "bullet1": "Pre-qualify with 5+ banks in minutes",
+        "bullet2": "Compare interest rates and monthly payments side by side",
+        "bullet3": "Track your payment schedule and pay online"
+      },
+      "returns": {
+        "title": "Returns",
+        "headingComingSoon": "Returns window is coming soon",
+        "bullet1": "3-day or 300 km return window on every purchase",
+        "bullet2": "Quick inspection and refund processing",
+        "bullet3": "Bank transfer or KNET refund — your choice"
+      },
+      "reviews": {
+        "title": "Reviews & ratings",
+        "headingComingSoon": "Reviews is coming soon",
+        "bullet1": "Rate your car and the buying experience",
+        "bullet2": "Help future buyers with verified reviews",
+        "bullet3": "Browse reviews on every car listing"
+      },
+      "referrals": {
+        "title": "Referrals",
+        "headingComingSoon": "Referral program is coming soon",
+        "bullet1": "Refer friends and family with your personal code",
+        "bullet2": "Earn store credit on every qualifying purchase",
+        "bullet3": "Track your referrals and rewards in one place"
+      },
+      "eyebrow": "My Account",
+      "headingSuffix": " is coming soon",
+      "bodyText": "We're building this feature for you. Sign up to be the first to know when it's ready.",
+      "backLink": "← Back to My Account"
+    },
+    "backToHub": "← Back to My Account",
+    "documents": {
+      "metaTitle": "My Documents · Behbehani Motors",
+      "title": "My Documents",
+      "sub": "Your contracts, reports, and insurance documents — all in one place.",
+      "signInRequired": {
+        "title": "Please sign in",
+        "body": "Sign in to view your documents."
+      },
+      "filterLabel": "Filter by document type",
+      "kindAll": "All",
+      "kind": {
+        "inspection_report": "Inspection Report",
+        "sale_contract": "Sale Contract",
+        "insurance_policy": "Insurance Policy",
+        "warranty": "Warranty",
+        "invoice": "Invoice",
+        "other": "Other"
+      },
+      "openCta": "Open",
+      "empty": {
+        "title": "No documents yet",
+        "body": "Inspection reports and sale contracts will appear here once they are issued."
+      },
+      "error": {
+        "body": "Something went wrong loading your documents.",
+        "retry": "Try again"
+      },
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "pageOf": "Page {{page}} of {{total}}"
+      }
+    },
+    "hub": {
+      "metaTitle": "My Account · Behbehani Motors",
+      "greeting": "Hello, {{name}}",
+      "memberSince": "Member since {{date}}",
+      "signInRequired": {
+        "title": "Please sign in",
+        "body": "Sign in to access your account."
+      },
+      "statusBanner": {
+        "suspended": "Your account is suspended. Contact support to restore access."
+      },
+      "banner": {
+        "unverifiedEmailTitle": "Account pending verification",
+        "unverifiedEmailBody": "Verify your email address to fully activate your account.",
+        "verifyEmailCta": "Verify email"
+      },
+      "pendingActions": {
+        "label": "Needs your attention",
+        "offerTitle": "Respond to offer",
+        "offerBody": "You have an active offer waiting for your response.",
+        "offerCta": "View offer →",
+        "maintenanceTitle": "Maintenance due",
+        "maintenanceBody": "Your vehicle is due for a service pickup.",
+        "maintenanceCta": "Schedule pickup →"
+      },
+      "groups": {
+        "profileSettings": "Profile & Settings",
+        "buying": "Buying",
+        "owning": "Owning",
+        "engagement": "Engagement"
+      },
+      "tiles": {
+        "signOut": { "title": "Sign out" },
+        "profile": { "title": "Profile", "desc": "Name, photo, language" },
+        "addresses": { "title": "Addresses", "desc": "Delivery & pickup spots" },
+        "notifications": { "title": "Notifications", "desc": "Email, SMS, push" },
+        "security": { "title": "Security", "desc": "Sessions, sign-out all devices" },
+        "favorites": { "title": "Favorites", "desc": "Cars you've hearted" },
+        "savedSearches": { "title": "Saved searches", "desc": "Alerts when matches arrive" },
+        "inspections": { "title": "Inspections", "desc": "Bookings & reports" },
+        "orders": { "title": "Purchase history", "desc": "Past purchases & receipts" },
+        "documents": { "title": "Documents", "desc": "Contracts, reports, insurance" },
+        "maintenance": { "title": "Maintenance", "desc": "Pickup service & history" },
+        "financing": { "title": "Financing", "desc": "Loan status & payment schedule" },
+        "returns": { "title": "Returns", "desc": "3-day / 300 km return window" },
+        "reviews": { "title": "Reviews", "desc": "Rate cars & services" },
+        "referrals": { "title": "Referrals", "desc": "Refer a friend, earn rewards" }
+      }
+    }
+  },
+  "common": {
+    "language": "العربية",
+    "currency": "KWD",
+    "loading": "Loading…",
+    "of": "of",
+    "cars": "cars",
+    "from": "from",
+    "heart": {
+      "save": "Save car",
+      "saved": "Saved",
+      "saveSignInPrompt": "Sign in to save cars to your list"
+    }
+  },
+  "home": {
+    "title": "Behbehani Motors — Buy, Sell & Own a Car in Kuwait",
+    "metaDescription": "Kuwait's trusted online marketplace for buying, selling, financing and servicing cars. 71-point inspected. Home delivery. 3-day return.",
+    "hero": {
+      "label": "Behbehani Motors highlights",
+      "previousSlide": "Previous slide",
+      "nextSlide": "Next slide",
+      "goToSlide": "Go to slide",
+      "slides": {
+        "buy": {
+          "eyebrow": "Now serving all of Kuwait",
+          "titleA": "Sell & Buy Your Car",
+          "titleB": "For The Best Price.",
+          "sub": "Kuwait's all-in-one marketplace, connecting buyers with their dream cars and sellers with the perfect platform to showcase their offerings.",
+          "ctaPrimary": "Get Started",
+          "ctaSecondary": "Sell Your Car"
+        },
+        "inspect": {
+          "eyebrow": "Every car. 71-point inspected.",
+          "titleA": "No surprises.",
+          "titleB": "Delivered to your door.",
+          "sub": "Certified technicians inspect every car before it lists. Reserve in minutes, test-drive at home, and return within 3 days for a full refund.",
+          "ctaPrimary": "Browse inspected cars",
+          "ctaSecondary": "How it works"
+        },
+        "finance": {
+          "eyebrow": "Real bank offers, no impact on credit",
+          "titleA": "Pre-qualify with 5 banks",
+          "titleB": "In 6 minutes.",
+          "sub": "Compare APRs side-by-side, pick the best monthly payment and e-sign your contract online. No paperwork, no branch visits.",
+          "ctaPrimary": "Calculate financing",
+          "ctaSecondary": "Browse cars"
+        }
+      },
+      "trust": {
+        "inspection": "inspection",
+        "delivery": "delivery",
+        "return": "return"
+      }
+    },
+    "featured": {
+      "eyebrow": "Featured cars",
+      "title": "Find your next car",
+      "brand": "Brand",
+      "anyBrand": "Any brand",
+      "body": "Body type",
+      "anyBody": "Any body",
+      "maxBudget": "Budget",
+      "any": "Any",
+      "search": "Search",
+      "viewAll": "View all",
+      "empty": "No cars match this filter.",
+      "clear": "Clear filters",
+      "permonth": "/month"
+    },
+    "brands": {
+      "eyebrow": "Browse by brand",
+      "title": "Find your dream brand",
+      "sub": "Hand-picked inventory from the top brands sold in Kuwait."
+    },
+    "bodyTypes": {
+      "eyebrow": "Browse by body type",
+      "title": "What kind of car do you want?"
+    },
+    "prices": {
+      "eyebrow": "Browse by budget",
+      "title": "Find a car that fits.",
+      "under": "Under KWD 3,000",
+      "above": "KWD 20K and above"
+    },
+    "sell": {
+      "title": "Three ways to sell. Pick what suits you.",
+      "instant": {
+        "title": "Instant Online Valuation",
+        "sub": "60 seconds. Guaranteed offer valid for 7 days."
+      },
+      "concierge": {
+        "title": "Concierge Service",
+        "sub": "We inspect, photograph, price and sell — for you."
+      },
+      "self": {
+        "title": "Self-Service Classified",
+        "sub": "Post your own listing. Get leads in 24 hours."
+      }
+    },
+    "lowMileage": {
+      "eyebrow": "Low mileage",
+      "title": "Almost-new, gently driven."
+    },
+    "how": {
+      "eyebrow": "How it works",
+      "title": "From browse to driveway in days, not weeks.",
+      "steps": {
+        "choose": {
+          "title": "Choose",
+          "sub": "Browse 1,840+ inspected cars. Compare side-by-side."
+        },
+        "reserve": {
+          "title": "Reserve",
+          "sub": "Hold any car for 48 hours with a refundable KWD 100 deposit."
+        },
+        "finance": {
+          "title": "Finance & sign",
+          "sub": "Get bank offers and e-sign your contract online."
+        },
+        "delivered": {
+          "title": "Delivered",
+          "sub": "We deliver to your door. Track the driver in real time."
+        }
+      }
+    },
+    "services": {
+      "eyebrow": "Car services",
+      "title": "Everything your car needs, in one place.",
+      "viewAll": "View all services",
+      "items": {
+        "wash": "Wash & detailing",
+        "tint": "Tinting",
+        "renewal": "Registration renewal",
+        "tires": "Tire replacement",
+        "health": "Car health check",
+        "glass": "Glass & windshield"
+      }
+    },
+    "testimonials": {
+      "eyebrow": "Customer reviews",
+      "title": "4.8/5 from 2,400+ verified buyers.",
+      "bought": "Bought",
+      "items": {
+        "fatima": "Reserved on Friday, delivered Sunday. The inspection report saved me from a bad car my cousin recommended.",
+        "mohammad": "Bank offers in 6 minutes, all online. Picked Burgan with 4.6% APR. No paperwork.",
+        "sara": "I sold my old Audi via Concierge and bought a BMW the same week. They handled the MOI transfer too."
+      }
+    }
+  },
+  "vdp": {
+    "breadcrumb": "Breadcrumb",
+    "metaDescription": "{{ title }} — {{ price }} at Behbehani Motors. 71-point inspected, home delivery and 3-day return.",
+    "notFound": {
+      "title": "We couldn't find this car",
+      "sub": "It may have been sold or the link may be outdated.",
+      "cta": "Browse all cars"
+    },
+    "actions": {
+      "save": "Save",
+      "saved": "Saved",
+      "share": "Share"
+    },
+    "tag": {
+      "inspected": "71-pt Inspected",
+      "warranty": "Warranty included",
+      "return": "3-day return",
+      "delivery": "Home delivery"
+    },
+    "gallery": {
+      "photos": "photos",
+      "video": "Walkaround video",
+      "prev": "Previous photo",
+      "next": "Next photo",
+      "viewPhoto": "View photo"
+    },
+    "specs": {
+      "title": "Specifications"
+    },
+    "spec": {
+      "year": "Year",
+      "mileage": "Mileage",
+      "fuel": "Fuel",
+      "transmission": "Transmission",
+      "cylinders": "Cylinders",
+      "drive": "Drive",
+      "seats": "Seats",
+      "body": "Body",
+      "exterior": "Exterior",
+      "interior": "Interior",
+      "specs": "Regional specs",
+      "vin": "VIN",
+      "gcc": "GCC specs"
+    },
+    "drivetrain": {
+      "fwd": "Front-wheel",
+      "rwd": "Rear-wheel",
+      "awd": "All-wheel",
+      "four_wd": "4WD"
+    },
+    "transmission": {
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "cvt": "CVT",
+      "dct": "Dual-clutch"
+    },
+    "fuel": {
+      "petrol": "Petrol",
+      "diesel": "Diesel",
+      "hybrid": "Hybrid",
+      "electric": "Electric"
+    },
+    "features": {
+      "title": "Features & equipment",
+      "groups": {
+        "safety": "Safety",
+        "comfort": "Comfort",
+        "technology": "Technology",
+        "performance": "Performance"
+      },
+      "items": {
+        "airbags6": "6 airbags",
+        "absEbd": "ABS / EBD",
+        "laneKeep": "Lane keep assist",
+        "blindSpot": "Blind-spot monitor",
+        "adaptiveCruise": "Adaptive cruise",
+        "cam360": "360° camera",
+        "leather": "Leather seats",
+        "heatedSeats": "Heated seats",
+        "dualZoneClimate": "Dual-zone climate",
+        "sunroof": "Sunroof",
+        "powerTailgate": "Power tailgate",
+        "keylessEntry": "Keyless entry",
+        "display12": "12.3″ display",
+        "wirelessCarplay": "Wireless CarPlay",
+        "androidAuto": "Android Auto",
+        "boseSound": "Bose sound",
+        "wirelessCharging": "Wireless charging",
+        "headsUp": "Heads-up display",
+        "sportMode": "Sport mode",
+        "paddleShifters": "Paddle shifters",
+        "adaptiveSusp": "Adaptive suspension",
+        "launchControl": "Launch control",
+        "brembo": "Brembo brakes",
+        "alloy20": "20\" alloy wheels"
+      }
+    },
+    "history": {
+      "title": "Vehicle history",
+      "owners": "Previous owners",
+      "ownersHint": "Single owner since new",
+      "accidents": "Reported accidents",
+      "accidentsClean": "Clean record",
+      "accidentsMinor": "Minor only",
+      "service": "Service records",
+      "serviceHint": "Documented maintenance",
+      "serviceAvailable": "Available",
+      "serviceUnknown": "On request",
+      "title2": "Title status",
+      "titleHint": "Clean — no liens"
+    },
+    "inspection": {
+      "title": "71-point inspection report",
+      "sub": "Performed by Behbehani Motors certified technicians",
+      "overall": "Overall score",
+      "fullReportSoon": "Full 71-point breakdown coming soon."
+    },
+    "finance": {
+      "title": "Calculate your monthly payment",
+      "sub": "Real bank rates. Pre-qualify with no impact on credit.",
+      "downPayment": "Down payment",
+      "tenure": "Tenure",
+      "lender": "Lender",
+      "months": "months",
+      "years": "years",
+      "estMonthly": "Estimated monthly",
+      "month": "month",
+      "principal": "Principal",
+      "apr": "APR",
+      "interest": "Interest",
+      "totalPayable": "Total payable",
+      "disclaimer": "Indicative. Final terms subject to bank approval. CBK disclosures apply."
+    },
+    "delivery": {
+      "title": "Delivery & returns",
+      "home": {
+        "title": "Home delivery",
+        "sub": "Free Kuwait-wide. Estimated delivery in 2–3 days."
+      },
+      "return": {
+        "title": "3-day money-back return",
+        "sub": "Drive up to 300 km. Change your mind and we collect the car for a full refund."
+      },
+      "aftercare": {
+        "title": "Aftercare",
+        "sub": "90-day mechanical warranty included. Maintenance pickup from your dashboard."
+      }
+    },
+    "similar": {
+      "eyebrow": "Similar cars",
+      "title": "You might also like"
+    },
+    "price": {
+      "fair": "Fair price",
+      "or": "or",
+      "mo": "mo",
+      "fromApr": "from 4.25% APR"
+    },
+    "cta": {
+      "reserve": "Reserve for KWD 100",
+      "reserveHint": "48-hour hold · fully refundable",
+      "testDrive": "Book a test drive"
+    },
+    "seller": {
+      "name": "Behbehani Motors",
+      "certified": "Behbehani Certified",
+      "reviews": "reviews"
+    },
+    "promise": {
+      "title": "Behbehani Promise:",
+      "body": "Inspected, returnable, delivered."
+    },
+    "views": "47 people viewed this in the last 24 hours"
+  },
+  "car": {
+    "specs": {
+      "km": "km",
+      "year": "Year",
+      "transmission": "Transmission",
+      "fuel": "Fuel"
+    },
+    "badges": {
+      "inspected": "Inspected",
+      "premium": "Premium",
+      "lowMileage": "Low Mileage",
+      "priceDrop": "Price Drop",
+      "recentlyAdded": "Recently Added",
+      "selfListed": "Self-listed"
+    },
+    "addFavorite": "Add to favorites",
+    "removeFavorite": "Remove from favorites",
+    "view": "View details"
+  },
+  "sell": {
+    "metaTitle": "Sell your car in Kuwait — Behbehani Motors",
+    "metaDescription": "Choose Concierge (we handle everything) or Self-service (you stay in control). 71-point inspection, guaranteed payment and MOI transfer included.",
+    "trustPill": "Trusted by 10,000+ customers",
+    "hero": {
+      "titleA": "Sell your car",
+      "titleAccent": "the smart way.",
+      "sub": "Choose our expert full-service concierge approach, or take full control and sell it yourself. Either way — best price, no hassle.",
+      "startSelling": "Start selling",
+      "howItWorks": "How it works",
+      "stat1": "71-point inspection",
+      "stat2": "Guaranteed payment",
+      "stat3": "MOI transfer included"
+    },
+    "brands": {
+      "title": "Start with your car brand",
+      "sub": "Click your brand to begin. Don't see it? Choose 'Other'.",
+      "other": "Other",
+      "startSelling": "Start selling",
+      "dealerBundles": "Selling more than one car? See dealer bundles"
+    },
+    "how": {
+      "eyebrow": "How it works",
+      "title": "Two ways to sell your car",
+      "sub": "Pick the experience that suits you — full-service or full-control.",
+      "conciergeTab": "Concierge service",
+      "selfTab": "Self-service",
+      "recommended": "Recommended",
+      "concierge": {
+        "step1Title": "Home inspection & photoshoot",
+        "step1Sub": "Our certified technician arrives at your location for a 71-point inspection and professional photography.",
+        "step2Title": "Receive cash offers",
+        "step2Sub": "Within 24–48 hours, you'll get competitive cash offers from our network of verified buyers.",
+        "step3Title": "Get paid without waiting",
+        "step3Sub": "Accept your favourite offer and we handle payment, ownership transfer and paperwork the same day."
+      },
+      "self": {
+        "step1Title": "List your car & condition",
+        "step1Sub": "Upload photos, specs and an honest condition description. Listing goes live within 24 hours of review.",
+        "step2Title": "Handle calls & negotiate",
+        "step2Sub": "Buyers reach you through our masked-number system. Negotiate, schedule viewings, pick your price.",
+        "step3Title": "Sell directly to buyers",
+        "step3Sub": "Close the deal yourself or upgrade to Concierge midway if you'd rather not handle the closing."
+      }
+    },
+    "compare": {
+      "eyebrow": "Compare",
+      "title": "Choose the service that works for you",
+      "sub": "Side-by-side breakdown of what each option includes.",
+      "features": "Features",
+      "concierge": "Concierge",
+      "self": "Self-service",
+      "popular": "Most popular",
+      "rows": {
+        "inspection": "71-point technical inspection at home",
+        "photography": "Professional photography",
+        "cashOffer": "Cash offer within 24–48 hours",
+        "validity": "Listing validity",
+        "validityC": "Up to 90 days",
+        "validityS": "Up to 30 days",
+        "calls": "Calls & negotiations",
+        "callsC": "Handled by Behbehani",
+        "callsS": "Seller's responsibility",
+        "payment": "Payment & ownership transfer",
+        "paymentC": "Guaranteed & supported",
+        "paymentS": "Seller's responsibility",
+        "fee": "Listing fee",
+        "feeC": "0 KWD upfront",
+        "feeS": "KWD 10 / 30 days",
+        "marketing": "Marketing across our buyer network"
+      },
+      "chooseConcierge": "Choose Concierge",
+      "chooseSelf": "Choose Self-service"
+    },
+    "faq": {
+      "eyebrow": "FAQ",
+      "title": "Frequently asked questions",
+      "sub": "Everything you need to know before selling.",
+      "q1": "What options do you offer for selling my car?",
+      "a1": "We offer two flexible options: a Concierge Service where our team handles the entire selling process, and Self-Service where you maintain full control using our platform.",
+      "q2": "What are the benefits of the Concierge service?",
+      "a2": "Our experienced team handles everything: 71-point inspection at your doorstep, professional photography, smart pricing, marketing, buyer inquiries, negotiation, payment and MOI ownership transfer.",
+      "q3": "How long does it take to sell my car?",
+      "a3": "Through Concierge, the average time from inspection to closed deal is 7 days. Self-Service is typically 14–30 days depending on your asking price and demand.",
+      "q4": "What if my car has issues or damage?",
+      "a4": "No problem — we sell cars in all conditions. The inspection report will accurately reflect the condition, and pricing is adjusted accordingly.",
+      "q5": "Are there any upfront fees?",
+      "a5": "Concierge: zero upfront — we only earn a commission when your car sells. Self-Service: a small KWD 10 listing fee for 30 days of visibility.",
+      "q6": "What if my Civil ID transfer takes longer?",
+      "a6": "Most MOI ownership transfers complete the same day. If yours takes longer due to a backlog at MOI, our team keeps the file open at no extra cost until the Civil ID transfer clears."
+    },
+    "ctaBanner": {
+      "badge": "Ready when you are",
+      "title": "Ready to get the best market price for your car?",
+      "sub": "Join thousands of customers who chose the smarter way to sell.",
+      "cta": "Start selling now"
+    },
+    "reviews": {
+      "eyebrow": "Customer love",
+      "title": "What our customers say",
+      "summary": "4.9 out of 5 · 2,840+ reviews",
+      "seller": "Seller",
+      "buyer": "Buyer"
+    },
+    "help": {
+      "eyebrow": "Need help?",
+      "title": "Our expert team is ready to help you.",
+      "sub": "Reach out via WhatsApp, phone or email — whichever works best for you.",
+      "whatsapp": "WhatsApp",
+      "whatsappSub": "Get instant support",
+      "phoneSub": "9 AM – 6 PM, Sun–Sat",
+      "email": "Email us"
+    },
+    "details": {
+      "metaTitle": "Tell us about your car — Behbehani Motors",
+      "metaDescription": "A quick six-step wizard captures your car's make, model, year, trim, mileage and asking price before you choose how to sell.",
+      "header": {
+        "title": "Car details",
+        "back": "Back",
+        "exit": "Close"
+      },
+      "steps": {
+        "make": "Make",
+        "model": "Model",
+        "year": "Year",
+        "trim": "Trim",
+        "mileage": "Mileage",
+        "price": "Selling price"
+      },
+      "prompts": {
+        "make": "Select your car make",
+        "model": "Select your car model",
+        "year": "Select your car year",
+        "trim": "Select your car trim",
+        "mileage": "Enter your car mileage",
+        "price": "Set your selling price"
+      },
+      "search": {
+        "makePlaceholder": "Search for car make",
+        "modelPlaceholder": "Search for car model",
+        "empty": "No matches for \"{{ q }}\""
+      },
+      "mileage": {
+        "label": "Mileage (km)"
+      },
+      "price": {
+        "label": "Selling price (KWD)",
+        "hint": "Suggested range based on similar cars: KWD {{ from }} – KWD {{ to }}",
+        "continueCta": "Continue to selling options"
+      },
+      "priceHint": {
+        "neutral": "Enter your asking price — our valuation team will refine it after inspection."
+      },
+      "aria": {
+        "advanced": "Selected {{value}}. Moving to {{nextStep}} step."
+      },
+      "continue": "Continue"
+    },
+    "choose": {
+      "metaTitle": "Choose how to sell your car — Behbehani Motors",
+      "metaDescription": "Pick between our managed Concierge service or self-service listing — both start with our 71-point inspection.",
+      "header": {
+        "title": "Choose the best option for selling your car",
+        "back": "Back",
+        "exit": "Close"
+      },
+      "recommended": "Recommended",
+      "mostControl": "Most control",
+      "startingAt": "Starting at",
+      "concierge": {
+        "title": "Managed by Behbehani",
+        "subtitle": "Sit back and relax with our concierge service.",
+        "cta": "Sell it for me",
+        "priceLabel": "15 KWD"
+      },
+      "self": {
+        "title": "Managed by you",
+        "subtitle": "Reach buyers directly with self-service.",
+        "cta": "Continue posting",
+        "priceLabel": "7 KWD"
+      },
+      "selfService": {
+        "comingSoon": "Coming soon",
+        "notify": {
+          "label": "Notify me when available",
+          "placeholder": "your@email.com",
+          "cta": "Notify me",
+          "done": "Thanks — we'll email you when self-service launches.",
+          "invalid": "Please enter a valid email."
+        }
+      },
+      "conciergeFeatures": {
+        "inspect": "Home car inspection & photoshoot",
+        "offer": "Cash offer within 48 hours",
+        "handle": "We handle everything until car is sold",
+        "moi": "MOI ownership transfer included",
+        "network": "Marketed to verified buyers network"
+      },
+      "selfFeatures": {
+        "upload": "Upload photos & details yourself",
+        "offer": "Cash offer within 48 hours",
+        "handle": "You handle everything until car is sold",
+        "masked": "Direct buyer chat via masked number",
+        "boost": "Renew or boost listing anytime"
+      },
+      "help": {
+        "title": "Need help in selling?",
+        "sub": "Our dedicated team of experts is ready to help you.",
+        "cta": "Call back request"
+      }
+    },
+    "concierge": {
+      "metaTitle": "Schedule your inspection — Behbehani Motors",
+      "back": "Back",
+      "badge": "Concierge Service",
+      "title": "Schedule your inspection",
+      "sub": "Tell us where to come and how to reach you. Our certified inspector arrives at your address, scores 71 items and emails you a signed PDF report.",
+      "yourCar": "Your car",
+      "editCar": "Edit",
+      "stepCount": "Step {{ current }} of {{ total }}",
+      "steps": {
+        "location": "Location & when",
+        "contact": "Contact",
+        "review": "Review",
+        "locationReassurance": "Our inspector will contact you within 24 hours to confirm.",
+        "preferenceNote": "If you skip date/time, our team will call to arrange."
+      },
+      "suggestedShort": "Suggested",
+      "step1": "Your car",
+      "step2": "Where & when",
+      "step3": "Contact",
+      "review": "Review",
+      "vehicle": {
+        "title": "Tell us about your car",
+        "sub": "Don't know every detail? Skip it — our inspector confirms on-site.",
+        "brand": "Brand",
+        "brandPh": "Select brand",
+        "model": "Model",
+        "modelPh": "e.g. Camry",
+        "year": "Year",
+        "trim": "Trim (optional)",
+        "trimPh": "e.g. XLE, N-Line",
+        "mileage": "Mileage (km)",
+        "mileagePh": "e.g. 68000",
+        "vin": "VIN (optional)",
+        "vinPh": "17 characters — your inspector will verify on-site",
+        "transmission": "Transmission",
+        "specs": "Regional specs",
+        "specsGcc": "GCC",
+        "specsAmerican": "American",
+        "specsEuropean": "European",
+        "specsJapanese": "Japanese",
+        "specsOther": "Other",
+        "exteriorColor": "Exterior color",
+        "interiorColor": "Interior color",
+        "accidents": "Accident history",
+        "accidentsNone": "None",
+        "accidentsMinor": "Minor",
+        "accidentsMajor": "Major"
+      },
+      "location": {
+        "title": "Where should we come?",
+        "sub": "We come to your home or workplace anywhere in Kuwait.",
+        "address": "Full address",
+        "addressPh": "e.g. Salmiya, Block 4, Street 1, House 12",
+        "governorate": "Governorate",
+        "notes": "Access / parking notes (optional)",
+        "notesPh": "e.g. gated community, call at gate; use side entrance after 4 PM",
+        "when": "When works for you?",
+        "whenSub": "Pick a preferred date — we'll confirm the exact time within 2 hours.",
+        "date": "Preferred date",
+        "window": "Preferred window",
+        "windowMorning": "Morning · 9 AM – 12 PM",
+        "windowAfternoon": "Afternoon · 12 PM – 5 PM",
+        "windowEvening": "Evening · 5 PM – 9 PM"
+      },
+      "governorates": {
+        "capital": "Capital",
+        "hawalli": "Hawalli",
+        "farwaniya": "Farwaniya",
+        "mubarakAlKabeer": "Mubarak Al-Kabeer",
+        "ahmadi": "Ahmadi",
+        "jahra": "Jahra"
+      },
+      "contact": {
+        "title": "How can we reach you?",
+        "sub": "We'll text + email you the time confirmation and signing link.",
+        "fullName": "Full name",
+        "fullNamePh": "As on your Civil ID",
+        "mobile": "Mobile number",
+        "mobilePh": "5XXXXXXX",
+        "email": "Email (optional)",
+        "emailPh": "name@example.com",
+        "consent": "I agree to be contacted by Behbehani Motors about my inspection booking."
+      },
+      "reviewStep": {
+        "title": "Review your booking",
+        "sub": "Confirm the details below — we'll be in touch within 2 hours.",
+        "vehicleSection": "Your car",
+        "locationSection": "Inspection address",
+        "whenSection": "When",
+        "contactSection": "Contact",
+        "edit": "Edit",
+        "submit": "Confirm booking",
+        "submitting": "Submitting…",
+        "submitError": "Couldn't reach the booking service. Please try again or call us on +965 22 282 282.",
+        "endpointPending": "Booking endpoint is still being built. Please call us on +965 22 282 282."
+      },
+      "back2": "Back",
+      "continue": "Continue",
+      "validation": {
+        "required": "Required",
+        "mobile": "Enter a valid Kuwait mobile (5/6/9 + 7 digits)",
+        "email": "Enter a valid email",
+        "year": "Enter a year between 1990 and {{ max }}",
+        "mileage": "Enter a positive number",
+        "consent": "Please agree to continue"
+      },
+      "status": {
+        "metaTitle": "Your inspection booking · Behbehani Motors",
+        "back": "Back to sell",
+        "title": "Your booking",
+        "sub": "Track your Concierge inspection. We refresh this page automatically.",
+        "loading": "Fetching your booking…",
+        "bookingRefLabel": "Booking reference",
+        "vehicleLabel": "Your vehicle",
+        "mileage": "Mileage",
+        "vin": "VIN",
+        "scheduleLabel": "Preferred slot",
+        "scheduleNote": "Our team will call to confirm the exact time within 24 hours.",
+        "noPreference": "No preferred slot was set — our team will call to arrange.",
+        "inspectorLabel": "Your inspector",
+        "inspectorAssigned": "Inspector assigned — they'll be in touch.",
+        "inspectorPending": "Awaiting assignment.",
+        "inspectedAt": "Inspected at",
+        "window": {
+          "morning": "Morning (8 AM–12 PM)",
+          "afternoon": "Afternoon (12–4 PM)",
+          "evening": "Evening (4–8 PM)"
+        },
+        "pill": {
+          "draft": "Awaiting confirmation",
+          "in_progress": "Inspection in progress",
+          "awaiting_inspector_signoff": "Awaiting inspector sign-off",
+          "awaiting_customer_signature": "Awaiting your signature",
+          "signed_off": "Signed & complete",
+          "cancelled": "Cancelled"
+        },
+        "signReady": {
+          "title": "Your signing link is ready",
+          "sub": "Check your phone (SMS) or email — open the secure link to review and sign."
+        },
+        "support": "Need help?",
+        "autoRefresh": "We refresh this every 30 seconds.",
+        "terminal": {
+          "not_found": {
+            "title": "We couldn't find this booking",
+            "sub": "The reference may be mistyped, or the booking belongs to a different surface. Please double-check the link or contact us.",
+            "cta": "Back to sell"
+          },
+          "network_error": {
+            "title": "We couldn't reach the booking service",
+            "sub": "Your internet connection may be unstable. Try again in a moment, or call us if the issue persists.",
+            "cta": "Try again"
+          }
+        }
+      }
+    },
+    "conciergeSuccess": {
+      "badge": "Booking confirmed",
+      "title": "{{ name }}, your inspection is booked.",
+      "sub": "We'll WhatsApp you within 2 hours with the exact time and your inspector's name.",
+      "refLabel": "Your booking reference",
+      "saveRef": "Save this number — you can reference it on any call.",
+      "next": "What happens next?",
+      "step1": "An advisor calls or WhatsApps you within 2 hours to confirm the exact time.",
+      "step2": "Your certified inspector arrives at the address and runs the 71-point inspection (~60 min).",
+      "step3": "You receive a signed PDF report. We text you a secure link to sign on your phone.",
+      "step4": "After signing, you receive a guaranteed cash offer within 24 hours.",
+      "home": "Back to home"
+    },
+    "offer": {
+      "metaTitle": "Your offer · Behbehani Motors",
+      "loading": "Loading your offer…",
+      "vehicleLabel": "Your vehicle",
+      "bookingRefShort": "Booking ref",
+      "amountLabel": "Offer amount",
+      "amountSub": "Kuwaiti Dinars — inclusive of all fees",
+      "validUntil": "Expires in {{days}}d {{hours}}h — {{date}}",
+      "expired": "Expired",
+      "finePrint": "By accepting, you confirm you are the legal owner of the vehicle. Payment is processed within 2–3 business days after pickup.",
+      "hero": {
+        "greeting": "Hi,",
+        "title": "Here's our offer for your {{vehicle}}",
+        "sub": "After a thorough Concierge inspection, we're pleased to present the following offer.",
+        "counterPendingTitle": "Your counter is in — BMC will respond within 24 hours",
+        "historyTitle": "Your offer history",
+        "acceptedTitle": "Offer accepted — thank you!"
+      },
+      "actions": {
+        "accept": "Accept this offer — {{amount}}",
+        "counter": "Suggest a different price",
+        "decline": "Decline this offer",
+        "acceptConfirm": "Confirm: accept this offer for {{amount}}? Our team will contact you to arrange pickup and payment.",
+        "declineConfirm": "Are you sure you want to decline this offer?"
+      },
+      "adminCounter": {
+        "label": "BMC's counter to your offer",
+        "sub": "Tap Accept above to take this counter, or counter back with your own number."
+      },
+      "yourCounter": {
+        "label": "Your counter-offer",
+        "sub": "BMC will review and respond within 24 hours."
+      },
+      "accepted": {
+        "title": "Offer accepted",
+        "sub": "Our team will WhatsApp you within 24 hours to arrange pickup and payment.",
+        "amountLabel": "Final amount",
+        "stockNumberLabel": "Your vehicle is logged as ",
+        "next": {
+          "title": "What happens next",
+          "step1": "An advisor calls or WhatsApps to schedule pickup at your location.",
+          "step2": "Pickup + payment processed within 2–3 business days.",
+          "step3": "You receive a confirmation receipt by email."
+        },
+        "home": "Back to home"
+      },
+      "declined": {
+        "title": "Offer declined",
+        "sub": "Thank you for letting us know. If you change your mind, our team is one call away.",
+        "ctaSell": "Sell another car",
+        "ctaBuy": "Browse cars"
+      },
+      "terminal": {
+        "not_found": {
+          "title": "Offer not found",
+          "sub": "The link may be mistyped or no longer active. Please use the link sent to your phone or email.",
+          "cta": "Back to sell"
+        },
+        "expired": {
+          "title": "This offer has expired",
+          "sub": "Offer validity has passed. Contact our team if you'd like a fresh quote.",
+          "cta": "Call us"
+        },
+        "withdrawn": {
+          "title": "This offer is no longer active",
+          "sub": "BMC withdrew this offer. Please contact our team for next steps.",
+          "cta": "Call us"
+        },
+        "network_error": {
+          "title": "We couldn't reach the offer service",
+          "sub": "Your internet connection may be unstable. Try again in a moment, or call us if the issue persists.",
+          "cta": "Try again"
+        }
+      },
+      "errors": {
+        "alreadyResponded": "This offer has already been responded to.",
+        "invalidCounter": "Counter amount must be a positive number."
+      },
+      "counter": {
+        "metaTitle": "Counter-offer · Behbehani Motors",
+        "back": "Back to offer",
+        "title": "Tell us your number",
+        "sub": "Our offer was {{current}}. If you believe your vehicle is worth more, share your counter and we'll review it.",
+        "subLoading": "Loading the original offer…",
+        "reassurance": "Counter as many times as you need — BMC will respond to each round within 24 hours.",
+        "amountLabel": "Your asking price (KWD)",
+        "ourOfferLabel": "Our offer:",
+        "hint": "Enter your number above",
+        "notesLabel": "What's your reasoning?",
+        "optional": "optional",
+        "notesPh": "e.g. I recently serviced the transmission and replaced two tyres. The car is in excellent condition beyond what the report captures.",
+        "notesHint": "This helps our team understand your perspective and respond meaningfully.",
+        "responseTime": "BMC will review and respond within 24 hours.",
+        "submit": "Submit counter-offer",
+        "submitting": "Submitting…",
+        "cancel": "Cancel — go back",
+        "unavailable": "This offer is no longer accepting counters.",
+        "backToOffer": "Back to offer",
+        "errors": {
+          "invalidAmount": "Enter a valid positive amount in KWD."
+        }
+      }
+    },
+    "self": {
+      "title": "Post your listing",
+      "back": "Back",
+      "badge": "Self-Service",
+      "step1": "Car info",
+      "step2": "Photos",
+      "step3": "Price & description",
+      "step4": "Review",
+      "info": {
+        "title": "Tell us about your car",
+        "sub": "All fields are required unless marked optional.",
+        "brand": "Brand",
+        "model": "Model",
+        "year": "Year",
+        "trim": "Trim",
+        "mileage": "Mileage (km)",
+        "vin": "VIN",
+        "vinPh": "17 characters",
+        "body": "Body type",
+        "transmission": "Transmission",
+        "fuel": "Fuel",
+        "exteriorColor": "Exterior",
+        "interiorColor": "Interior",
+        "specs": "Regional specs"
+      },
+      "photos": {
+        "title": "Photos (at least 8)",
+        "sub": "Take photos in good light. Include front, back, sides, interior, dashboard and odometer.",
+        "addPhoto": "Add photo",
+        "remove": "Remove"
+      },
+      "pricing": {
+        "title": "Set your price",
+        "askingPrice": "Asking price (KWD)",
+        "description": "Description",
+        "descriptionPh": "Single owner. Full service history. Non-smoker.",
+        "acceptOffers": "Accept offers?",
+        "acceptYes": "Yes — buyers can negotiate",
+        "acceptNo": "No — fixed price"
+      },
+      "reviewStep": {
+        "title": "Review your listing",
+        "sub": "Listings are reviewed within 24 hours. You'll get an SMS when approved.",
+        "submit": "Submit listing",
+        "submitting": "Submitting…",
+        "pending": "Self-service listings will go live once we ship the listing API. Use Concierge for now to book an inspection."
+      }
+    },
+    "transmissions": {
+      "automatic": "Automatic",
+      "manual": "Manual",
+      "cvt": "CVT"
+    }
+  },
+  "inspectionSign": {
+    "metaTitle": "Sign your inspection report — Behbehani Motors",
+    "loading": "Loading your inspection report…",
+    "secure": "Secure signing",
+    "greeting": "Sign your inspection report",
+    "greetingSub": "Hello {{ name }} — our inspection team has completed the inspection of your vehicle. Please review and sign below.",
+    "score": {
+      "of": "/ 100",
+      "inspectedAt": "Inspected {{ date }}",
+      "inspectorLabel": "Inspector",
+      "vinMask": "VIN"
+    },
+    "sectionScores": "Section scores",
+    "sections": {
+      "exterior": "Exterior",
+      "interior": "Interior",
+      "engine_drivetrain": "Engine & Drivetrain",
+      "electrical": "Electrical",
+      "safety": "Safety",
+      "documentation": "Documentation"
+    },
+    "attention": {
+      "title": "Items needing attention",
+      "empty": "All 71 items passed — nothing needs your attention."
+    },
+    "pdf": {
+      "title": "View full inspection PDF",
+      "sub": "All 71 inspection items, photos, and notes",
+      "unavailable": "Your full report will be emailed to you after signing."
+    },
+    "signature": {
+      "title": "Your signature",
+      "sub": "Sign with your finger or stylus below.",
+      "placeholder": "Sign here",
+      "clear": "Clear",
+      "savedNote": "Captured on this device · stored securely · embedded in the final PDF.",
+      "typedName": "Type your full name",
+      "typedNamePh": "As it appears on your Civil ID",
+      "civilId": "Civil ID — last 4 digits (optional)",
+      "civilIdPh": "1234",
+      "civilIdHint": "Optional — for audit trail. Never displayed publicly.",
+      "consent1": "I confirm I am the owner of this vehicle, or authorized to represent the owner.",
+      "consent2": "I have reviewed the inspection findings and acknowledge them as accurate.",
+      "consent3": "I understand Behbehani will use this signed report to formulate a purchase offer for my vehicle.",
+      "submit": "Sign & submit",
+      "submitting": "Submitting…",
+      "submitMobile": "Sign & submit",
+      "legal": "By signing, you agree to Behbehani's Inspection Terms and Privacy Policy.",
+      "validation": {
+        "drawRequired": "Please sign in the box above.",
+        "nameRequired": "Please type your full name.",
+        "civilIdFormat": "Civil ID last 4 must be 4 digits.",
+        "consentRequired": "Please accept all three confirmations to continue."
+      }
+    },
+    "linkExpiry": "This signing link is valid until {{ date }}.",
+    "support": "Questions? Call {{ phone }} or reply to the email from {{ email }}.",
+    "states": {
+      "expired": {
+        "title": "This signing link has expired",
+        "sub": "For your security, signing links expire after 7 days. Please contact us to get a new link.",
+        "cta": "Call us"
+      },
+      "revoked": {
+        "title": "This signing link is no longer active",
+        "sub": "An updated link may have been sent. Please check your email or text messages.",
+        "cta": "Call us"
+      },
+      "signed": {
+        "title": "You've already signed this report",
+        "sub": "Thank you. A copy of the signed PDF was emailed to you.",
+        "cta": "Back to home"
+      },
+      "notFound": {
+        "title": "We couldn't find this inspection",
+        "sub": "The link may be mistyped. Please use the link sent to your phone or email.",
+        "cta": "Back to home"
+      },
+      "signedConfirm": {
+        "title": "Thank you for signing!",
+        "sub": "Your signed inspection report is on its way to your email. Our team will be in touch within 24 hours with your guaranteed cash offer.",
+        "cta": "Back to home"
+      },
+      "networkError": {
+        "title": "We couldn't reach the inspection service",
+        "sub": "Your internet connection may be unstable. Please try again in a moment, or call us if the issue persists.",
+        "cta": "Call us"
+      }
+    }
+  },
+  "footer": {
+    "tagline": "Kuwait's trusted way to buy, sell and own. Since 1935.",
+    "trust": {
+      "inspection": "71-pt inspection",
+      "return": "3-day return",
+      "delivery": "Home delivery"
+    },
+    "columns": {
+      "buy": {
+        "title": "Buy",
+        "browse": "Browse used cars",
+        "byBody": "By body type",
+        "byMonthly": "By monthly payment",
+        "compare": "Compare cars"
+      },
+      "sell": {
+        "title": "Sell",
+        "instant": "Instant valuation",
+        "concierge": "Concierge service",
+        "self": "Self-service listing",
+        "tradeIn": "Trade-in"
+      },
+      "own": {
+        "title": "Own",
+        "finance": "Financing",
+        "insurance": "Insurance",
+        "services": "Car services",
+        "maintenance": "Maintenance pickup"
+      },
+      "company": {
+        "title": "Company",
+        "how": "How it works",
+        "about": "About us",
+        "reviews": "Customer reviews",
+        "contact": "Contact",
+        "careers": "Careers"
+      }
+    },
+    "rights": "© 2026 Behbehani Motors Company. All rights reserved.",
+    "legal": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms",
+      "citra": "CITRA compliance"
+    }
+  }
+}

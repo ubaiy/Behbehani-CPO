@@ -1,0 +1,63 @@
+{
+  "app": {
+    "title": "Behbehani CPO"
+  },
+  "nav": {
+    "home": "Home",
+    "buy": "Buy",
+    "sell": "Sell",
+    "services": "Services",
+    "finance": "Finance",
+    "maintenance": "Maintenance",
+    "favorites": "Favorites",
+    "account": "Account",
+    "search": "Search",
+    "more": "More"
+  },
+  "common": {
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try Again",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "close": "Close",
+    "pageNotFound": "Page not found",
+    "goHome": "Go home"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signInSubtitle": "Welcome back to Behbehani CPO",
+    "createAccount": "Create Account",
+    "emailPlaceholder": "Email address",
+    "mobilePlaceholder": "Mobile number",
+    "passwordPlaceholder": "Password",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "register": "Create account",
+    "orSignInWith": "Or sign in with",
+    "signInWithOtp": "Sign in with OTP",
+    "signInWithGoogle": "Continue with Google",
+    "signInWithApple": "Continue with Apple",
+    "comingSoon": "Coming soon",
+    "signInDisclaimer": "By signing in you agree to our Terms and Privacy Policy.",
+    "biometricPrompt": "Authenticate to continue"
+  },
+  "listings": {
+    "title": "Available Cars",
+    "noResults": "No cars found",
+    "priceLabel": "Price",
+    "mileageLabel": "Mileage",
+    "yearLabel": "Year",
+    "badge": {
+      "featured": "Featured",
+      "inspected": "Inspected",
+      "premium": "Premium",
+      "lowMileage": "Low Mileage",
+      "recentlyAdded": "Recently Added",
+      "priceDrop": "Price Drop"
+    }
+  }
+}

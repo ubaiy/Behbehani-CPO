@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sell Concierge — Redesign v2 (mockup)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        },
+        colors: {
+          brand: {
+            50: '#EFF6FF',
+            100: '#DBEAFE',
+            200: '#BFDBFE',
+            500: '#3B82F6',
+            600: '#2563EB',
+            700: '#1D4ED8',
+            800: '#1E40AF',
+            900: '#1E3A8A',
+          },
+          ink:    '#0F172A',
+          'ink-2':'#334155',
+          'ink-3':'#475569',
+          muted:  '#64748B',
+          'muted-2':'#94A3B8',
+          line:   '#E2E8F0',
+          surface:{ soft:'#F8FAFC', cool:'#F1F5F9' },
+        },
+        boxShadow: {
+          'brand': '0 8px 24px -8px rgba(30,58,138,.18)',
+          'brand-sm': '0 2px 8px -2px rgba(30,58,138,.10)',
+        },
+        borderRadius: { 'pill': '9999px' },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color:#0F172A; background:#F8FAFC; }
+  .container-page { max-width:1200px; margin-inline:auto; padding-inline:1rem; }
+  .input { border:1px solid #E2E8F0; border-radius:0.75rem; padding:0.625rem 0.875rem; background:#fff; font-size:0.875rem; outline:none; }
+  .input:focus { border-color:#2563EB; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+  /* Pannable scrolling date strip */
+  .date-strip::-webkit-scrollbar { display:none; }
+  /* Annotation chips for mockup */
+  .annot { display:inline-block; padding:2px 8px; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:600; border-radius:4px; border:1px solid #FCD34D; }
+  .annot-new { background:#DBEAFE; color:#1E40AF; border-color:#93C5FD; }
+  /* Mock map placeholder */
+  .map-stub { background-image:
+    linear-gradient(135deg, #E0F2FE 0%, #DBEAFE 100%),
+    repeating-linear-gradient(45deg, transparent, transparent 16px, rgba(255,255,255,.4) 16px, rgba(255,255,255,.4) 17px);
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── MOCKUP NAVIGATION ───────────────────────────────────────────── -->
+<div class="sticky top-0 z-50 bg-slate-900 text-white">
+  <div class="container-page py-2 text-[12px] flex items-center justify-between gap-4">
+    <strong class="font-bold">Concierge Redesign v2 — mockup</strong>
+    <nav class="flex gap-1 flex-wrap">
+      <a href="#step1" class="px-3 py-1 rounded hover:bg-slate-700">Step 1 — Where + When</a>
+      <a href="#step2" class="px-3 py-1 rounded hover:bg-slate-700">Step 2 — Contact</a>
+      <a href="#step3" class="px-3 py-1 rounded hover:bg-slate-700">Step 3 — Review</a>
+      <a href="#tracker" class="px-3 py-1 rounded hover:bg-slate-700">Status tracker</a>
+      <a href="#tracker-signed" class="px-3 py-1 rounded hover:bg-slate-700">Tracker (signed)</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- WHAT'S NEW (annotations strip)                                       -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section class="container-page py-6">
+  <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+    <h2 class="font-display font-bold text-[15px] text-amber-900 mb-2">What changed from v1 (answers to your 4 pain points)</h2>
+    <ul class="text-[13px] text-amber-900 grid gap-1.5 sm:grid-cols-2">
+      <li><span class="annot">1</span> &nbsp; <strong>Less overwhelming</strong> — 3 steps stay, but Step 1 is split into 2 self-contained CARDS (Address + Schedule) with breathing room. Each card has its own micro-CTA so progress feels incremental.</li>
+      <li><span class="annot">2</span> &nbsp; <strong>Date + time</strong> — custom horizontal day-picker (14 days, "Today/Tomorrow" labels) replaces native input. Time-windows are large cards with icons, real hours, and "X slots left" social proof.</li>
+      <li><span class="annot">3</span> &nbsp; <strong>Trust + value</strong> — persistent badge bar across every step ("Free · 71-pt · 24h offer"). Reassurance line under each card. Brand strip at the bottom.</li>
+      <li><span class="annot">4</span> &nbsp; <strong>Address autocomplete</strong> — Google-style typeahead with debounced suggestions, "Use my current location" button, static map preview to confirm. Free-text address fallback still available.</li>
+      <li><span class="annot-new annot">+</span> &nbsp; <strong>Sticky bottom CTA</strong> on mobile — Continue / Back always reachable without scrolling.</li>
+      <li><span class="annot-new annot">+</span> &nbsp; <strong>Tracker page</strong> — timeline visualisation, big bookingRef as anchor, WhatsApp deep-link, inspector card with photo + rating, status-aware CTAs.</li>
+    </ul>
+    <p class="mt-3 text-[12px] text-amber-800 italic">Yellow tags = changes vs current production. Blue tags = entirely new elements.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- STEP 1 — WHERE + WHEN                                                -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="step1" class="border-t border-line">
+<!-- HERO -->
+<header class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
+  <div class="container-page py-8 sm:py-10">
+    <a href="#" class="inline-flex items-center gap-1 text-[13px] font-medium text-white/80 hover:text-white">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 19l-7-7 7-7"/></svg>
+      Back
+    </a>
+    <div class="mt-3 inline-flex items-center gap-2 rounded-pill bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur">
+      <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/></svg>
+      Concierge service
+    </div>
+    <h1 class="mt-4 font-display text-[clamp(28px,3.6vw,42px)] font-bold leading-tight tracking-[-0.025em] text-white">
+      Schedule your inspection
+    </h1>
+    <p class="mt-2 max-w-xl text-[14px] text-white/85 sm:text-[15px]">Three minutes. We'll come to you within 24 hours.</p>
+
+    <!-- Trust strip (NEW — persistent value reinforcement) -->
+    <div class="mt-5 flex flex-wrap gap-2 text-[12px] font-semibold">
+      <span class="inline-flex items-center gap-1.5 rounded-pill bg-white/10 px-3 py-1.5 backdrop-blur">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" class="text-emerald-300"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        Completely free
+      </span>
+      <span class="inline-flex items-center gap-1.5 rounded-pill bg-white/10 px-3 py-1.5 backdrop-blur">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" class="text-emerald-300"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+        71-point inspection at your door
+      </span>
+      <span class="inline-flex items-center gap-1.5 rounded-pill bg-white/10 px-3 py-1.5 backdrop-blur">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" class="text-emerald-300"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+        Guaranteed cash offer in 24h
+      </span>
+    </div>
+
+    <!-- Stepper -->
+    <div class="mt-6">
+      <div class="text-[12px] font-semibold text-white/70">Step 1 of 3</div>
+      <ol class="mt-2 flex flex-wrap gap-2 sm:gap-3" aria-label="Booking steps">
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl bg-white px-3 py-2 text-brand-700">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-brand-700 text-white text-[11px] font-bold">1</span>
+          <span class="text-[12px] font-semibold">Where + When</span>
+        </li>
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-white backdrop-blur-sm">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-white/20 text-[11px] font-bold">2</span>
+          <span class="text-[12px] font-semibold">Contact</span>
+        </li>
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-white backdrop-blur-sm">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-white/20 text-[11px] font-bold">3</span>
+          <span class="text-[12px] font-semibold">Review</span>
+        </li>
+      </ol>
+    </div>
+  </div>
+</header>
+
+<main class="bg-surface-soft">
+  <div class="container-page py-8 sm:py-12 max-w-3xl">
+
+    <!-- Vehicle preview (kept from v1) -->
+    <div class="mb-5 flex items-start gap-3 rounded-2xl border border-brand-100 bg-brand-50/60 p-4">
+      <span class="inline-grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-white text-brand-700 shadow-brand-sm">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+      </span>
+      <div class="min-w-0 flex-1">
+        <div class="text-[11px] font-semibold uppercase tracking-wide text-brand-700">Your car</div>
+        <div class="mt-0.5 text-[14px] font-semibold text-ink">2021 Toyota Camry · 42,000 km</div>
+      </div>
+      <a href="#" class="flex-shrink-0 text-[12px] font-semibold text-brand-700 hover:text-brand-800">Edit</a>
+    </div>
+
+    <!-- ─── CARD 1: ADDRESS (new) ─────────────────────────────────────── -->
+    <div class="rounded-3xl border border-line bg-white p-5 sm:p-7 shadow-brand-sm mb-5">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 class="font-display text-[20px] font-bold tracking-[-0.025em] text-ink">Where should we come?</h2>
+          <p class="mt-1 text-[13px] text-muted">Your inspector arrives at your address.</p>
+        </div>
+        <span class="annot">↻ redesigned</span>
+      </div>
+
+      <!-- Google-style autocomplete (NEW) -->
+      <div class="relative">
+        <div class="flex items-center gap-2 rounded-xl border-2 border-brand-200 bg-white px-4 py-3 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="text-brand-700 flex-shrink-0">
+            <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input type="text" placeholder="Search your address (Block, Street, House)" value="Block 4, Salem" class="flex-1 bg-transparent text-[14px] outline-none" />
+          <span class="annot-new annot">+ new</span>
+        </div>
+        <!-- Autocomplete dropdown (mocked open) -->
+        <div class="absolute left-0 right-0 mt-1 rounded-2xl border border-line bg-white shadow-brand z-10 overflow-hidden">
+          <button class="w-full flex items-start gap-3 px-4 py-3 hover:bg-surface-cool text-left">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="text-brand-700 mt-0.5"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+            <div class="flex-1 min-w-0">
+              <div class="text-[14px] font-semibold text-ink truncate">Block 4, Salem Al Mubarak St, House 12</div>
+              <div class="text-[12px] text-muted">Salmiya · Hawalli Governorate</div>
+            </div>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="text-muted mt-1"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <button class="w-full flex items-start gap-3 px-4 py-3 hover:bg-surface-cool text-left border-t border-line">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="text-brand-700 mt-0.5"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+            <div class="flex-1 min-w-0">
+              <div class="text-[14px] font-semibold text-ink truncate">Block 4, Street 12, Salem Al Sabah</div>
+              <div class="text-[12px] text-muted">Bayan · Hawalli Governorate</div>
+            </div>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="text-muted mt-1"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+          <div class="border-t border-line p-2 bg-surface-soft">
+            <button class="w-full flex items-center justify-center gap-2 rounded-lg bg-white border border-brand-200 px-3 py-2 text-[13px] font-semibold text-brand-700 hover:bg-brand-50">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+              Use my current location
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected address preview with map -->
+      <div class="mt-4 rounded-2xl border border-line overflow-hidden">
+        <div class="map-stub h-32 relative">
+          <!-- Map pin -->
+          <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
+            <div class="bg-brand-700 text-white rounded-full p-2 shadow-brand-sm">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+            </div>
+          </div>
+          <div class="absolute bottom-2 left-2 text-[10px] bg-white/90 backdrop-blur px-2 py-0.5 rounded text-muted">Map · OpenStreetMap</div>
+        </div>
+        <div class="p-3 bg-white flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <div class="text-[13px] font-semibold text-ink truncate">Block 4, Salem Al Mubarak St, House 12</div>
+            <div class="text-[11px] text-muted">Salmiya · Hawalli</div>
+          </div>
+          <button class="flex-shrink-0 text-[12px] font-semibold text-brand-700 hover:text-brand-800">Change</button>
+        </div>
+      </div>
+
+      <!-- Optional notes (collapsed) -->
+      <details class="mt-4 group">
+        <summary class="cursor-pointer list-none flex items-center gap-2 text-[13px] font-semibold text-brand-700 hover:text-brand-800">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" class="transition-transform group-open:rotate-90"><path d="M9 6l6 6-6 6"/></svg>
+          Add parking instructions or gate code
+          <span class="text-[11px] font-normal text-muted">(optional)</span>
+        </summary>
+        <textarea class="input mt-3 w-full min-h-[80px]" placeholder="e.g. Gated compound, call at the gate. Parking inside."></textarea>
+      </details>
+    </div>
+
+    <!-- ─── CARD 2: SCHEDULE (new) ────────────────────────────────────── -->
+    <div class="rounded-3xl border border-line bg-white p-5 sm:p-7 shadow-brand-sm mb-5">
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h2 class="font-display text-[20px] font-bold tracking-[-0.025em] text-ink">When works for you?</h2>
+          <p class="mt-1 text-[13px] text-muted">Pick a day and rough window. Our team confirms the exact time within 24h.</p>
+        </div>
+        <span class="annot">↻ redesigned</span>
+      </div>
+
+      <!-- Horizontal date strip (NEW — replaces native date picker) -->
+      <div class="-mx-2 px-2 overflow-x-auto date-strip">
+        <div class="flex gap-2 min-w-min pb-2">
+          <!-- Each day card -->
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-line bg-white px-2 py-3 hover:border-brand-300">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-emerald-700">Today</span>
+            <span class="font-display text-[20px] font-bold text-ink leading-none mt-0.5">19</span>
+            <span class="text-[10px] text-muted">May</span>
+          </button>
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-line bg-white px-2 py-3 hover:border-brand-300">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-brand-700">Tomorrow</span>
+            <span class="font-display text-[20px] font-bold text-ink leading-none mt-0.5">20</span>
+            <span class="text-[10px] text-muted">May</span>
+          </button>
+          <!-- Selected day -->
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border-2 border-brand-700 bg-brand-50 px-2 py-3 ring-2 ring-brand-200">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-brand-700">Wed</span>
+            <span class="font-display text-[20px] font-bold text-brand-900 leading-none mt-0.5">21</span>
+            <span class="text-[10px] text-brand-700">May</span>
+          </button>
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-line bg-white px-2 py-3 hover:border-brand-300">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">Thu</span>
+            <span class="font-display text-[20px] font-bold text-ink leading-none mt-0.5">22</span>
+            <span class="text-[10px] text-muted">May</span>
+          </button>
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-line bg-white px-2 py-3 hover:border-brand-300">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">Fri</span>
+            <span class="font-display text-[20px] font-bold text-ink leading-none mt-0.5">23</span>
+            <span class="text-[10px] text-muted">May</span>
+          </button>
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-line bg-white px-2 py-3 hover:border-brand-300">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">Sat</span>
+            <span class="font-display text-[20px] font-bold text-ink leading-none mt-0.5">24</span>
+            <span class="text-[10px] text-muted">May</span>
+          </button>
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-line bg-white px-2 py-3 hover:border-brand-300">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">Sun</span>
+            <span class="font-display text-[20px] font-bold text-ink leading-none mt-0.5">25</span>
+            <span class="text-[10px] text-muted">May</span>
+          </button>
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-line bg-white px-2 py-3 hover:border-brand-300">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">Mon</span>
+            <span class="font-display text-[20px] font-bold text-ink leading-none mt-0.5">26</span>
+            <span class="text-[10px] text-muted">May</span>
+          </button>
+          <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-line bg-white px-2 py-3 hover:border-brand-300">
+            <span class="text-[10px] font-semibold uppercase tracking-wider text-muted">Tue</span>
+            <span class="font-display text-[20px] font-bold text-ink leading-none mt-0.5">27</span>
+            <span class="text-[10px] text-muted">May</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Time window cards (NEW — bigger, with icons + hours + social proof) -->
+      <div class="mt-5">
+        <div class="text-[12px] font-semibold text-ink-3 mb-2">Pick a window</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button class="rounded-2xl border-2 border-line bg-white px-4 py-4 text-left hover:border-brand-300 min-h-[88px]">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-2xl">🌅</div>
+              <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">3 slots</span>
+            </div>
+            <div class="text-[14px] font-bold text-ink">Morning</div>
+            <div class="text-[11px] text-muted">8 AM – 12 PM</div>
+          </button>
+          <!-- Selected -->
+          <button class="rounded-2xl border-2 border-brand-700 bg-brand-50 px-4 py-4 text-left ring-2 ring-brand-200 min-h-[88px]">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-2xl">☀️</div>
+              <span class="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">2 slots</span>
+            </div>
+            <div class="text-[14px] font-bold text-brand-900">Afternoon</div>
+            <div class="text-[11px] text-brand-700">12 – 4 PM</div>
+          </button>
+          <button class="rounded-2xl border-2 border-line bg-white px-4 py-4 text-left hover:border-brand-300 min-h-[88px]">
+            <div class="flex items-center justify-between mb-1">
+              <div class="text-2xl">🌇</div>
+              <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">5 slots</span>
+            </div>
+            <div class="text-[14px] font-bold text-ink">Evening</div>
+            <div class="text-[11px] text-muted">4 – 8 PM</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Reassurance -->
+      <p class="mt-4 flex items-start gap-2 rounded-lg bg-brand-50 px-3 py-2 text-[12px] text-brand-800">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" class="text-brand-700 flex-shrink-0 mt-0.5"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 9V5h2v4h4v2h-4v4H9v-4H5V9h4z"/></svg>
+        Not sure yet? Skip this and our team will call to arrange.
+      </p>
+    </div>
+
+    <!-- ─── INLINE CONTINUE (mobile + desktop) ──────────────────────── -->
+    <div class="flex items-center justify-between gap-3 mt-6">
+      <a href="#" class="text-[13px] font-semibold text-brand-700 hover:text-brand-800">Save progress, finish later</a>
+      <button class="inline-flex items-center gap-2 rounded-pill bg-brand-700 px-6 py-3.5 text-[14px] font-bold text-white hover:bg-brand-800 shadow-brand">
+        Continue
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+</main>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- STEP 2 — CONTACT                                                     -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="step2" class="border-t-8 border-slate-200">
+<header class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
+  <div class="container-page py-8 sm:py-10">
+    <a href="#step1" class="inline-flex items-center gap-1 text-[13px] font-medium text-white/80 hover:text-white">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 19l-7-7 7-7"/></svg>
+      Back
+    </a>
+    <div class="mt-3 inline-flex items-center gap-2 rounded-pill bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur">Concierge service</div>
+    <h1 class="mt-4 font-display text-[clamp(28px,3.6vw,42px)] font-bold leading-tight tracking-[-0.025em] text-white">Where can we reach you?</h1>
+    <p class="mt-2 max-w-xl text-[14px] text-white/85 sm:text-[15px]">We'll WhatsApp the confirmation. We never share your number.</p>
+
+    <div class="mt-6">
+      <div class="text-[12px] font-semibold text-white/70">Step 2 of 3</div>
+      <ol class="mt-2 flex flex-wrap gap-2 sm:gap-3">
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-white backdrop-blur-sm">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-white/20 text-[11px]">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <span class="text-[12px] font-semibold">Where + When</span>
+        </li>
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl bg-white px-3 py-2 text-brand-700">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-brand-700 text-white text-[11px] font-bold">2</span>
+          <span class="text-[12px] font-semibold">Contact</span>
+        </li>
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-white backdrop-blur-sm">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-white/20 text-[11px] font-bold">3</span>
+          <span class="text-[12px] font-semibold">Review</span>
+        </li>
+      </ol>
+    </div>
+  </div>
+</header>
+
+<main class="bg-surface-soft">
+  <div class="container-page py-8 sm:py-12 max-w-3xl">
+
+    <div class="rounded-3xl border border-line bg-white p-5 sm:p-7 shadow-brand-sm">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <label class="flex flex-col gap-1.5 sm:col-span-2">
+          <span class="text-[12px] font-semibold text-ink-3">Full name *</span>
+          <input type="text" class="input" placeholder="Mohammed Al-Salem" value="Mohammed Al-Salem" />
+        </label>
+        <label class="flex flex-col gap-1.5">
+          <span class="text-[12px] font-semibold text-ink-3">Mobile *</span>
+          <div class="flex items-center rounded-xl border border-line bg-surface-soft focus-within:border-brand-500 focus-within:bg-white">
+            <span class="inline-flex h-11 items-center border-e border-line px-3 text-[13px] font-semibold text-muted">+965</span>
+            <input type="tel" inputmode="tel" class="h-11 flex-1 bg-transparent px-3 text-[14px] outline-none" placeholder="9XXX XXXX" value="9876 5432" maxlength="8" />
+          </div>
+        </label>
+        <label class="flex flex-col gap-1.5">
+          <span class="text-[12px] font-semibold text-ink-3">Email <span class="text-muted-2">(optional)</span></span>
+          <input type="email" class="input" placeholder="you@example.com" value="mohammed@example.com" />
+        </label>
+      </div>
+
+      <!-- Trust micro-strip (NEW) -->
+      <div class="mt-5 flex items-center gap-2 text-[12px] text-muted bg-emerald-50/50 rounded-lg px-3 py-2">
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" class="text-emerald-600 flex-shrink-0"><path d="M10 1a3 3 0 00-3 3v3H6a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V9a2 2 0 00-2-2h-1V4a3 3 0 00-3-3zm-1 6V4a1 1 0 112 0v3H9z"/></svg>
+        <span><strong class="text-ink-2">Private and secure.</strong> Used only to confirm your booking. We never sell or share your contact.</span>
+      </div>
+
+      <label class="mt-5 flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-surface-soft p-3 hover:bg-white">
+        <input type="checkbox" checked class="mt-1 h-4 w-4 rounded border-line text-brand-700" />
+        <span class="text-[13px] leading-relaxed text-ink-2">I agree to be contacted about my booking and to the <a href="#" class="text-brand-700 font-semibold">Terms of Service</a>.</span>
+      </label>
+    </div>
+
+    <div class="flex items-center justify-between gap-3 mt-6">
+      <a href="#step1" class="text-[13px] font-semibold text-brand-700 hover:text-brand-800">← Back</a>
+      <button class="inline-flex items-center gap-2 rounded-pill bg-brand-700 px-6 py-3.5 text-[14px] font-bold text-white hover:bg-brand-800 shadow-brand">
+        Continue to review
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+  </div>
+</main>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- STEP 3 — REVIEW                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="step3" class="border-t-8 border-slate-200">
+<header class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
+  <div class="container-page py-8 sm:py-10">
+    <a href="#step2" class="inline-flex items-center gap-1 text-[13px] font-medium text-white/80 hover:text-white">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 19l-7-7 7-7"/></svg>
+      Back
+    </a>
+    <h1 class="mt-4 font-display text-[clamp(28px,3.6vw,42px)] font-bold leading-tight tracking-[-0.025em] text-white">One last check</h1>
+    <p class="mt-2 max-w-xl text-[14px] text-white/85 sm:text-[15px]">Make sure everything looks right, then we'll send your inspector.</p>
+    <div class="mt-6">
+      <div class="text-[12px] font-semibold text-white/70">Step 3 of 3</div>
+      <ol class="mt-2 flex flex-wrap gap-2 sm:gap-3">
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-white backdrop-blur-sm">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-white/20 text-[11px]">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <span class="text-[12px] font-semibold">Where + When</span>
+        </li>
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-white backdrop-blur-sm">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-white/20 text-[11px]">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <span class="text-[12px] font-semibold">Contact</span>
+        </li>
+        <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl bg-white px-3 py-2 text-brand-700">
+          <span class="inline-grid h-6 w-6 place-items-center rounded-full bg-brand-700 text-white text-[11px] font-bold">3</span>
+          <span class="text-[12px] font-semibold">Review</span>
+        </li>
+      </ol>
+    </div>
+  </div>
+</header>
+
+<main class="bg-surface-soft">
+  <div class="container-page py-8 sm:py-12 max-w-3xl">
+
+    <!-- Promise restatement (NEW) -->
+    <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4 mb-5 flex items-start gap-3">
+      <span class="inline-grid h-9 w-9 place-items-center rounded-full bg-brand-700 text-white flex-shrink-0">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg>
+      </span>
+      <div>
+        <p class="text-[13px] font-semibold text-brand-900">When you confirm, here's what happens</p>
+        <ul class="mt-1 text-[12px] text-brand-800 space-y-0.5 list-disc pl-5">
+          <li>An advisor calls or WhatsApps within 2 hours</li>
+          <li>Inspector arrives at your address — no cost, no obligation</li>
+          <li>You get a guaranteed cash offer within 24 hours</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Review cards -->
+    <div class="space-y-3">
+      <!-- Vehicle -->
+      <div class="rounded-2xl border border-line bg-white p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="inline-grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </span>
+          <div class="min-w-0">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-muted">Your car</div>
+            <div class="text-[14px] font-semibold text-ink truncate">2021 Toyota Camry · 42,000 km</div>
+          </div>
+        </div>
+        <a href="#" class="text-[12px] font-semibold text-brand-700 hover:text-brand-800">Edit</a>
+      </div>
+
+      <!-- Location -->
+      <div class="rounded-2xl border border-line bg-white p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="inline-grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+          </span>
+          <div class="min-w-0">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-muted">Location</div>
+            <div class="text-[14px] font-semibold text-ink truncate">Block 4, Salem Al Mubarak St, House 12 · Salmiya</div>
+          </div>
+        </div>
+        <a href="#step1" class="text-[12px] font-semibold text-brand-700 hover:text-brand-800">Edit</a>
+      </div>
+
+      <!-- Schedule -->
+      <div class="rounded-2xl border border-line bg-white p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="inline-grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+          </span>
+          <div class="min-w-0">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-muted">When</div>
+            <div class="text-[14px] font-semibold text-ink truncate">Wed 21 May · Afternoon (12 – 4 PM)</div>
+          </div>
+        </div>
+        <a href="#step1" class="text-[12px] font-semibold text-brand-700 hover:text-brand-800">Edit</a>
+      </div>
+
+      <!-- Contact -->
+      <div class="rounded-2xl border border-line bg-white p-4 flex items-center justify-between">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="inline-grid h-10 w-10 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.34 1.9.66 2.81a2 2 0 01-.45 2.11L8 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.32 1.85.54 2.81.66A2 2 0 0122 16.92z"/></svg>
+          </span>
+          <div class="min-w-0">
+            <div class="text-[11px] font-semibold uppercase tracking-wide text-muted">Contact</div>
+            <div class="text-[14px] font-semibold text-ink truncate">Mohammed Al-Salem · +965 9876 5432</div>
+          </div>
+        </div>
+        <a href="#step2" class="text-[12px] font-semibold text-brand-700 hover:text-brand-800">Edit</a>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between gap-3 mt-6">
+      <a href="#step2" class="text-[13px] font-semibold text-brand-700 hover:text-brand-800">← Back</a>
+      <button class="inline-flex items-center gap-2 rounded-pill bg-brand-700 px-7 py-4 text-[15px] font-bold text-white hover:bg-brand-800 shadow-brand">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg>
+        Confirm my booking
+      </button>
+    </div>
+
+    <p class="mt-4 text-center text-[11px] text-muted">Free · No obligation · Cancel anytime</p>
+  </div>
+</main>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- STATUS TRACKER — REDESIGNED                                          -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="tracker" class="border-t-8 border-slate-200">
+<header class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
+  <div class="container-page py-8 sm:py-10">
+    <a href="#" class="inline-flex items-center gap-1 text-[13px] font-medium text-white/80 hover:text-white">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 19l-7-7 7-7"/></svg>
+      Back to home
+    </a>
+    <h1 class="mt-4 font-display text-[clamp(28px,3.6vw,42px)] font-bold leading-tight tracking-[-0.025em] text-white">Your booking is confirmed</h1>
+    <p class="mt-2 max-w-xl text-[14px] text-white/85 sm:text-[15px]">Mohammed, we're on it. Track everything below.</p>
+
+    <!-- BookingRef as visual anchor (NEW) -->
+    <div class="mt-6 inline-flex items-center gap-3 rounded-2xl bg-white/15 backdrop-blur px-4 py-3">
+      <div class="text-[10px] font-semibold uppercase tracking-wider text-white/70">Booking ref</div>
+      <div class="font-display text-[22px] font-bold tabular-nums text-white tracking-[-0.02em]">BMC-CON-000042</div>
+      <button class="text-white/70 hover:text-white" aria-label="Copy">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="bg-surface-soft">
+  <div class="container-page py-8 sm:py-12 max-w-3xl">
+
+    <!-- Timeline (NEW — replaces flat status pill) -->
+    <div class="rounded-3xl border border-line bg-white p-6 shadow-brand-sm">
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-muted">Progress</div>
+      <span class="annot absolute right-6 mt-[-12px]">+ new</span>
+
+      <ol class="mt-4 relative">
+        <!-- Timeline line -->
+        <div class="absolute left-[15px] top-3 bottom-3 w-0.5 bg-line"></div>
+
+        <!-- Done -->
+        <li class="relative flex gap-4 pb-5">
+          <span class="z-10 inline-grid h-8 w-8 place-items-center rounded-full bg-emerald-600 text-white flex-shrink-0">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <div class="flex-1 pt-1">
+            <div class="text-[14px] font-bold text-ink">Booking received</div>
+            <div class="text-[12px] text-muted">19 May, 7:42 AM</div>
+          </div>
+        </li>
+
+        <!-- Active -->
+        <li class="relative flex gap-4 pb-5">
+          <span class="z-10 inline-grid h-8 w-8 place-items-center rounded-full bg-brand-700 text-white flex-shrink-0 ring-4 ring-brand-100">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" class="animate-pulse"><circle cx="12" cy="12" r="6"/></svg>
+          </span>
+          <div class="flex-1 pt-1">
+            <div class="flex items-center gap-2">
+              <div class="text-[14px] font-bold text-ink">Inspector assigned</div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-2 py-0.5 rounded">In progress</span>
+            </div>
+            <div class="text-[12px] text-muted">Yousef Al-Mutairi will be in touch by 11 AM</div>
+          </div>
+        </li>
+
+        <!-- Pending -->
+        <li class="relative flex gap-4 pb-5 opacity-60">
+          <span class="z-10 inline-grid h-8 w-8 place-items-center rounded-full bg-white border-2 border-line text-muted flex-shrink-0">
+            <span class="text-[13px] font-bold">3</span>
+          </span>
+          <div class="flex-1 pt-1">
+            <div class="text-[14px] font-bold text-ink-3">Inspection (~60 min on-site)</div>
+            <div class="text-[12px] text-muted">Wed 21 May · Afternoon (12 – 4 PM)</div>
+          </div>
+        </li>
+
+        <li class="relative flex gap-4 opacity-60">
+          <span class="z-10 inline-grid h-8 w-8 place-items-center rounded-full bg-white border-2 border-line text-muted flex-shrink-0">
+            <span class="text-[13px] font-bold">4</span>
+          </span>
+          <div class="flex-1 pt-1">
+            <div class="text-[14px] font-bold text-ink-3">Sign report + receive offer</div>
+            <div class="text-[12px] text-muted">Within 24 hours of signoff</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    <!-- Inspector card (NEW) -->
+    <div class="mt-5 rounded-3xl border border-line bg-white p-5 shadow-brand-sm relative">
+      <span class="annot absolute right-5 top-5">+ new</span>
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-muted">Your inspector</div>
+      <div class="mt-3 flex items-center gap-4">
+        <div class="h-14 w-14 rounded-full bg-gradient-to-br from-brand-200 to-brand-400 flex-shrink-0 grid place-items-center text-white font-display font-bold text-[20px]">YM</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-[15px] font-bold text-ink">Yousef Al-Mutairi</div>
+          <div class="flex items-center gap-2 text-[12px] text-muted mt-0.5">
+            <span class="inline-flex items-center gap-0.5">
+              <svg viewBox="0 0 20 20" width="12" height="12" fill="currentColor" class="text-amber-500"><path d="M10 1l2.6 5.6 6.4.9-4.5 4.5 1.1 6.4L10 15.4l-5.6 3 1.1-6.4L1 7.5l6.4-.9L10 1z"/></svg>
+              4.9
+            </span>
+            <span>·</span>
+            <span>847 inspections completed</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-2">
+        <a href="https://wa.me/96598765432" class="inline-flex items-center justify-center gap-2 rounded-pill bg-emerald-500 px-4 py-2.5 text-[13px] font-bold text-white hover:bg-emerald-600">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5 1.8.7 2.5.8 3.4.7.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.2-.2-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 4.9L2 22l5.2-1.4c1.3.7 2.9 1.1 4.8 1.1 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.7 0-3.2-.5-4.5-1.3l-.3-.2-3.2.9.8-3.1-.2-.3C3.8 14.7 3 13.4 3 12c0-5 4-9 9-9s9 4 9 9-4 9-9 9z"/></svg>
+          WhatsApp Yousef
+        </a>
+        <a href="tel:+96522282282" class="inline-flex items-center justify-center gap-2 rounded-pill bg-white border border-line px-4 py-2.5 text-[13px] font-bold text-ink hover:bg-surface-cool">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.34 1.9.66 2.81a2 2 0 01-.45 2.11L8 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.32 1.85.54 2.81.66A2 2 0 0122 16.92z"/></svg>
+          Call concierge
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick actions (NEW) -->
+    <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
+      <button class="rounded-2xl border border-line bg-white px-4 py-3 text-[13px] font-semibold text-ink hover:bg-surface-cool inline-flex items-center justify-center gap-2">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+        Add to calendar
+      </button>
+      <button class="rounded-2xl border border-line bg-white px-4 py-3 text-[13px] font-semibold text-ink hover:bg-surface-cool inline-flex items-center justify-center gap-2">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Reschedule
+      </button>
+      <button class="rounded-2xl border border-line bg-white px-4 py-3 text-[13px] font-semibold text-red-600 hover:bg-red-50 inline-flex items-center justify-center gap-2">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+        Cancel booking
+      </button>
+    </div>
+
+    <p class="mt-3 text-center text-[11px] text-muted">Auto-refreshes every 30 seconds.</p>
+  </div>
+</main>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- STATUS TRACKER — SIGNED STATE                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="tracker-signed" class="border-t-8 border-slate-200">
+<header class="bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-500 text-white">
+  <div class="container-page py-8 sm:py-10">
+    <a href="#" class="inline-flex items-center gap-1 text-[13px] font-medium text-white/80 hover:text-white">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 19l-7-7 7-7"/></svg>
+      Back to home
+    </a>
+    <div class="mt-3 inline-flex items-center gap-2 rounded-pill bg-white/20 px-3 py-1 text-[12px] font-bold backdrop-blur">
+      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+      Signed &amp; complete
+    </div>
+    <h1 class="mt-4 font-display text-[clamp(28px,3.6vw,42px)] font-bold leading-tight tracking-[-0.025em] text-white">Your offer is on the way</h1>
+    <p class="mt-2 max-w-xl text-[14px] text-white/85 sm:text-[15px]">Our valuation team will WhatsApp you a guaranteed cash offer within 24 hours.</p>
+
+    <div class="mt-6 inline-flex items-center gap-3 rounded-2xl bg-white/15 backdrop-blur px-4 py-3">
+      <div class="text-[10px] font-semibold uppercase tracking-wider text-white/70">Booking ref</div>
+      <div class="font-display text-[22px] font-bold tabular-nums text-white">BMC-CON-000042</div>
+    </div>
+  </div>
+</header>
+
+<main class="bg-surface-soft">
+  <div class="container-page py-8 sm:py-12 max-w-3xl">
+    <!-- Result summary -->
+    <div class="rounded-3xl border border-line bg-white p-6 shadow-brand-sm">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-[11px] font-semibold uppercase tracking-wider text-muted">Overall score</div>
+          <div class="font-display text-[40px] font-bold text-emerald-700 leading-none mt-1">85<span class="text-[18px] text-muted ml-1">/100</span></div>
+        </div>
+        <div class="text-right">
+          <div class="text-[11px] font-semibold uppercase tracking-wider text-muted">Inspected by</div>
+          <div class="text-[14px] font-semibold text-ink mt-1">Yousef Al-Mutairi</div>
+          <div class="text-[11px] text-muted">21 May, 14:38</div>
+        </div>
+      </div>
+
+      <div class="mt-5 flex flex-wrap gap-2">
+        <a href="#" class="inline-flex items-center gap-2 rounded-pill bg-brand-700 px-5 py-2.5 text-[13px] font-bold text-white hover:bg-brand-800">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          View full report (PDF)
+        </a>
+        <a href="#" class="inline-flex items-center gap-2 rounded-pill bg-white border border-line px-5 py-2.5 text-[13px] font-bold text-ink hover:bg-surface-cool">
+          Forward to a friend
+        </a>
+      </div>
+    </div>
+
+    <!-- Brand trust footer -->
+    <div class="mt-8 text-center text-[11px] text-muted">
+      Behbehani Motors · Trusted since 1935 · 200,000+ inspections · ★ 4.8 Google rating
+    </div>
+  </div>
+</main>
+</section>
+
+<div class="bg-slate-900 text-white text-center text-[11px] py-3">— end of mockup —</div>
+
+</body>
+</html>

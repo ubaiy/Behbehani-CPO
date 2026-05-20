@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auth + My Bookings — Redesign v1 (mockup)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        },
+        colors: {
+          brand: { 50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E40AF',900:'#1E3A8A' },
+          ink:'#0F172A','ink-2':'#334155','ink-3':'#475569',
+          muted:'#64748B','muted-2':'#94A3B8',
+          line:'#E2E8F0',
+          surface:{ soft:'#F8FAFC', cool:'#F1F5F9' },
+        },
+        boxShadow: {
+          'brand': '0 8px 24px -8px rgba(30,58,138,.18)',
+          'brand-lg': '0 24px 64px -16px rgba(30,58,138,.30)',
+          'brand-sm': '0 2px 8px -2px rgba(30,58,138,.10)',
+        },
+        borderRadius: { 'pill': '9999px' },
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family:'Plus Jakarta Sans',system-ui,sans-serif; color:#0F172A; background:#F8FAFC; }
+  .container-page { max-width:1200px; margin-inline:auto; padding-inline:1rem; }
+  .input { border:1.5px solid #E2E8F0; border-radius:0.75rem; padding:0.75rem 0.875rem; background:#fff; font-size:0.875rem; outline:none; width:100%; }
+  .input:focus { border-color:#1D4ED8; box-shadow:0 0 0 3px rgba(29,78,216,.10); }
+  .input-error { border-color:#DC2626; }
+  .annot { display:inline-block; padding:2px 8px; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:600; border-radius:4px; border:1px solid #FCD34D; }
+  .annot-new { background:#DBEAFE; color:#1E40AF; border-color:#93C5FD; }
+  /* Modal frame stays in document flow for mockup (so user can scroll through all states) */
+  .modal-frame { background:rgba(15,23,42,0.45); padding:24px; border-radius:24px; }
+</style>
+</head>
+<body>
+
+<!-- ─── MOCKUP NAVIGATION ───────────────────────────────────────────── -->
+<div class="sticky top-0 z-50 bg-slate-900 text-white">
+  <div class="container-page py-2 text-[12px] flex items-center justify-between gap-4">
+    <strong class="font-bold">Auth + My Bookings — Redesign v1 (mockup)</strong>
+    <nav class="flex gap-1 flex-wrap text-[11px]">
+      <a href="#signin" class="px-2.5 py-1 rounded hover:bg-slate-700">Sign-in modal</a>
+      <a href="#signin-otp-code" class="px-2.5 py-1 rounded hover:bg-slate-700">OTP entry</a>
+      <a href="#signup" class="px-2.5 py-1 rounded hover:bg-slate-700">Sign-up modal</a>
+      <a href="#claim" class="px-2.5 py-1 rounded hover:bg-slate-700">Ghost-claim</a>
+      <a href="#signed-header" class="px-2.5 py-1 rounded hover:bg-slate-700">Header signed-in</a>
+      <a href="#bookings-empty" class="px-2.5 py-1 rounded hover:bg-slate-700">My bookings (empty)</a>
+      <a href="#bookings-list" class="px-2.5 py-1 rounded hover:bg-slate-700">My bookings (populated)</a>
+      <a href="#saved-cars" class="px-2.5 py-1 rounded hover:bg-slate-700">Saved cars</a>
+      <a href="#listing-heart" class="px-2.5 py-1 rounded hover:bg-slate-700">Heart on listing</a>
+      <a href="#edges" class="px-2.5 py-1 rounded hover:bg-slate-700">Edge states</a>
+    </nav>
+  </div>
+</div>
+
+<!-- ─── WHAT'S NEW ───────────────────────────────────────────────────── -->
+<section class="container-page py-6">
+  <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+    <h2 class="font-display font-bold text-[15px] text-amber-900 mb-2">What's in v0.10 — Customer auth + My bookings</h2>
+    <ul class="text-[13px] text-amber-900 grid gap-1.5 sm:grid-cols-2">
+      <li><span class="annot-new annot">+ new</span> &nbsp; <strong>Sign-up modal</strong> — same shell as sign-in, full form (name, mobile, email, password+confirm, T&Cs).</li>
+      <li><span class="annot">↻ overhaul</span> &nbsp; <strong>Sign-in modal</strong> — real password sign-in + OTP toggle, replaces the "coming soon" stub.</li>
+      <li><span class="annot-new annot">+ new</span> &nbsp; <strong>OTP entry step</strong> — 6 digit cells, paste support, 30s resend cooldown.</li>
+      <li><span class="annot-new annot">+ new</span> &nbsp; <strong>Ghost-account claim</strong> — when signup mobile already exists from a Concierge booking, prompt OTP to claim.</li>
+      <li><span class="annot-new annot">+ new</span> &nbsp; <strong>Header signed-in state</strong> — name + avatar dropdown with My bookings / Sign out.</li>
+      <li><span class="annot-new annot">+ new</span> &nbsp; <strong>/my-bookings page</strong> — lists customer's concierge inspections with status pill + link to tracker.</li>
+      <li><span class="annot">↻ enabled</span> &nbsp; <strong>OAuth row (Google active)</strong> — Google works; Apple+Facebook stay greyed/"coming soon".</li>
+      <li><span class="annot-new annot">+ new</span> &nbsp; <strong>Saved cars</strong> — heart toggle on every listing card + dedicated /my-saved-cars page. Requires sign-in (prompts sign-in modal if guest clicks heart).</li>
+      <li><span class="annot-new annot">+ new</span> &nbsp; <strong>Edge states</strong> — locked account, OTP expired, weak password, mobile already in use.</li>
+    </ul>
+    <p class="mt-3 text-[12px] text-amber-800 italic">Modals are shown INLINE for review (not actually overlay-positioned). In production they appear as centered overlays over the storefront.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SIGN-IN MODAL — Password tab (default)                               -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="signin" class="border-t border-line">
+<div class="container-page py-8">
+  <h3 class="text-[12px] uppercase tracking-wider text-muted font-semibold mb-3">Sign-in modal — Password tab (default)</h3>
+  <div class="modal-frame mx-auto max-w-[520px]">
+    <div class="relative w-full rounded-[20px] bg-white p-7 shadow-brand-lg sm:p-9">
+      <button class="absolute end-4 top-4 inline-grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-surface-cool hover:text-ink" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+
+      <!-- Logo placeholder -->
+      <div class="mb-5 inline-flex items-center gap-2.5">
+        <span class="inline-grid h-11 w-11 place-items-center rounded-xl bg-brand-700 text-white">
+          <svg viewBox="0 0 64 40" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M2 38 L20 4 L38 38 Z"/><path d="M26 38 L44 12 L62 38 Z"/></svg>
+        </span>
+        <span class="leading-tight">
+          <span class="block text-[11px] font-bold uppercase tracking-wider text-brand-700">Behbehani Motors</span>
+          <span class="block text-[10px] text-muted">Certified Pre-Owned</span>
+        </span>
+      </div>
+
+      <h2 class="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[30px]">Welcome back</h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted">Sign in to track your bookings and offers.</p>
+
+      <!-- Method tabs: Password / One-time code -->
+      <div class="mt-6 flex gap-1 rounded-lg bg-surface-cool p-1">
+        <button class="flex-1 rounded-md py-2.5 text-sm font-semibold bg-white text-ink shadow-brand-sm">
+          Password
+        </button>
+        <button class="flex-1 rounded-md py-2.5 text-sm font-medium text-muted hover:text-ink-2">
+          One-time code
+        </button>
+      </div>
+
+      <!-- Identifier sub-tabs: Mobile / Email -->
+      <div class="mt-5 flex gap-3 text-[12px] font-semibold">
+        <button class="flex items-center gap-1.5 text-brand-700 border-b-2 border-brand-700 pb-1">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.34 1.9.66 2.81a2 2 0 01-.45 2.11L8 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.32 1.85.54 2.81.66A2 2 0 0122 16.92z"/></svg>
+          Mobile
+        </button>
+        <button class="flex items-center gap-1.5 text-muted hover:text-ink-2 pb-1">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+          Email
+        </button>
+      </div>
+
+      <label class="mt-3 block">
+        <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Mobile</span>
+        <div class="flex items-stretch overflow-hidden rounded-lg border-[1.5px] border-line focus-within:border-brand-700">
+          <span class="bg-surface-cool px-3.5 py-3 text-sm font-semibold text-ink-2">+965</span>
+          <input type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="9999 1234" value="9876 5432" class="flex-1 border-0 px-3.5 py-3 text-sm text-ink outline-none placeholder:text-muted-2"/>
+        </div>
+      </label>
+
+      <label class="mt-3 block">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="block text-[13px] font-medium text-ink-2">Password</span>
+          <a href="#" class="text-[12px] font-semibold text-brand-700 hover:text-brand-800">Forgot?</a>
+        </div>
+        <div class="relative">
+          <input type="password" autocomplete="current-password" value="••••••••" class="input pr-12"/>
+          <button class="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink-2" aria-label="Show password">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </label>
+
+      <button class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-pill bg-brand-700 px-6 py-3.5 text-[15px] font-bold text-white hover:bg-brand-800 shadow-brand">
+        Sign in
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10 6l6 6-6 6"/></svg>
+      </button>
+
+      <div class="relative my-5 text-center text-xs text-muted">
+        <span class="absolute inset-x-0 top-1/2 -z-10 h-px bg-line"></span>
+        <span class="bg-white px-3">or continue with</span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button class="inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-ink-2 hover:bg-surface-cool">
+          <svg viewBox="0 0 18 18" width="18" height="18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.32A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3.01-2.32z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.59C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96l3.01 2.32C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+          Google
+        </button>
+        <button class="relative inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-muted-2 cursor-not-allowed">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="#94A3B8"><path d="M17.6 12.6c0-3 2.5-4.5 2.6-4.5-1.4-2.1-3.6-2.4-4.4-2.4-1.9-.2-3.6 1.1-4.6 1.1-1 0-2.4-1.1-4-1-2 0-3.9 1.2-5 3-2.1 3.7-.5 9.1 1.5 12.1 1 1.5 2.2 3.1 3.8 3.1 1.5-.1 2.1-1 3.9-1 1.8 0 2.4 1 4 1 1.6 0 2.7-1.5 3.7-3 1.2-1.7 1.6-3.4 1.7-3.5-.1 0-3.2-1.2-3.2-4.9zM14.6 3.7c.8-1 1.4-2.4 1.2-3.7-1.2.1-2.6.8-3.5 1.8-.8.9-1.5 2.3-1.3 3.6 1.3.1 2.7-.7 3.6-1.7z"/></svg>
+          Apple
+          <span class="absolute -top-2 -right-1 text-[9px] bg-surface-cool text-muted px-1.5 py-0.5 rounded-full">soon</span>
+        </button>
+        <button class="relative inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-muted-2 cursor-not-allowed">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="#94A3B8"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+          Facebook
+          <span class="absolute -top-2 -right-1 text-[9px] bg-surface-cool text-muted px-1.5 py-0.5 rounded-full">soon</span>
+        </button>
+      </div>
+
+      <p class="mt-6 text-center text-[13px] text-muted">
+        New here? <a href="#signup" class="font-semibold text-brand-700 hover:text-brand-800">Create an account</a>
+      </p>
+      <p class="mt-3 text-center text-[11px] leading-relaxed text-muted">By continuing you agree to our <a href="#" class="underline">Terms</a> and <a href="#" class="underline">Privacy Policy</a>.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SIGN-IN MODAL — OTP request (One-time code tab)                      -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="signin-otp" class="border-t border-line bg-surface-soft">
+<div class="container-page py-8">
+  <h3 class="text-[12px] uppercase tracking-wider text-muted font-semibold mb-3">Sign-in modal — One-time code tab (request)</h3>
+  <div class="modal-frame mx-auto max-w-[520px]">
+    <div class="relative w-full rounded-[20px] bg-white p-7 shadow-brand-lg sm:p-9">
+      <button class="absolute end-4 top-4 inline-grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-surface-cool hover:text-ink">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+
+      <div class="mb-5 inline-flex items-center gap-2.5">
+        <span class="inline-grid h-11 w-11 place-items-center rounded-xl bg-brand-700 text-white">
+          <svg viewBox="0 0 64 40" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M2 38 L20 4 L38 38 Z"/><path d="M26 38 L44 12 L62 38 Z"/></svg>
+        </span>
+        <span class="leading-tight">
+          <span class="block text-[11px] font-bold uppercase tracking-wider text-brand-700">Behbehani Motors</span>
+        </span>
+      </div>
+
+      <h2 class="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink">Welcome back</h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted">We'll text you a 6-digit code — no password needed.</p>
+
+      <div class="mt-6 flex gap-1 rounded-lg bg-surface-cool p-1">
+        <button class="flex-1 rounded-md py-2.5 text-sm font-medium text-muted hover:text-ink-2">Password</button>
+        <button class="flex-1 rounded-md py-2.5 text-sm font-semibold bg-white text-ink shadow-brand-sm">One-time code</button>
+      </div>
+
+      <label class="mt-5 block">
+        <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Mobile</span>
+        <div class="flex items-stretch overflow-hidden rounded-lg border-[1.5px] border-line focus-within:border-brand-700">
+          <span class="bg-surface-cool px-3.5 py-3 text-sm font-semibold text-ink-2">+965</span>
+          <input type="tel" inputmode="numeric" placeholder="9999 1234" value="9876 5432" class="flex-1 border-0 px-3.5 py-3 text-sm text-ink outline-none"/>
+        </div>
+        <p class="mt-1.5 text-[12px] text-muted">We'll send a one-time code via SMS.</p>
+      </label>
+
+      <button class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-pill bg-brand-700 px-6 py-3.5 text-[15px] font-bold text-white hover:bg-brand-800 shadow-brand">
+        Send code
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+
+      <p class="mt-5 text-center text-[13px] text-muted">
+        New here? <a href="#signup" class="font-semibold text-brand-700 hover:text-brand-800">Create an account</a>
+      </p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- OTP CODE ENTRY                                                       -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="signin-otp-code" class="border-t border-line">
+<div class="container-page py-8">
+  <h3 class="text-[12px] uppercase tracking-wider text-muted font-semibold mb-3">OTP code entry — after "Send code"</h3>
+  <div class="modal-frame mx-auto max-w-[520px]">
+    <div class="relative w-full rounded-[20px] bg-white p-7 shadow-brand-lg sm:p-9">
+      <button class="absolute start-4 top-4 inline-flex items-center gap-1 text-[13px] font-semibold text-muted hover:text-ink">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 19l-7-7 7-7"/></svg>
+        Back
+      </button>
+      <button class="absolute end-4 top-4 inline-grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-surface-cool hover:text-ink">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+
+      <div class="mt-8">
+        <div class="inline-grid h-14 w-14 place-items-center rounded-full bg-brand-50 text-brand-700">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.34 1.9.66 2.81a2 2 0 01-.45 2.11L8 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.32 1.85.54 2.81.66A2 2 0 0122 16.92z"/></svg>
+        </div>
+        <h2 class="mt-4 font-display text-[24px] font-bold leading-tight tracking-[-0.02em] text-ink">Enter the code</h2>
+        <p class="mt-1 text-sm text-muted">Sent to <strong class="text-ink-2">+965 9876 5432</strong>. <button class="text-brand-700 font-semibold hover:text-brand-800">Change</button></p>
+      </div>
+
+      <!-- 6-digit OTP cells -->
+      <div class="mt-6 flex gap-2 justify-center">
+        <input type="text" inputmode="numeric" maxlength="1" value="3" class="w-12 h-14 text-center text-[20px] font-bold tabular-nums border-[1.5px] border-line rounded-xl focus:border-brand-700 focus:outline-none"/>
+        <input type="text" inputmode="numeric" maxlength="1" value="7" class="w-12 h-14 text-center text-[20px] font-bold tabular-nums border-[1.5px] border-line rounded-xl focus:border-brand-700 focus:outline-none"/>
+        <input type="text" inputmode="numeric" maxlength="1" value="2" class="w-12 h-14 text-center text-[20px] font-bold tabular-nums border-[1.5px] border-line rounded-xl focus:border-brand-700 focus:outline-none"/>
+        <input type="text" inputmode="numeric" maxlength="1" value="9" class="w-12 h-14 text-center text-[20px] font-bold tabular-nums border-[1.5px] border-line rounded-xl focus:border-brand-700 focus:outline-none"/>
+        <input type="text" inputmode="numeric" maxlength="1" value="" placeholder="•" class="w-12 h-14 text-center text-[20px] font-bold tabular-nums border-[1.5px] border-brand-700 rounded-xl ring-2 ring-brand-100 focus:outline-none placeholder:text-muted-2"/>
+        <input type="text" inputmode="numeric" maxlength="1" value="" placeholder="•" class="w-12 h-14 text-center text-[20px] font-bold tabular-nums border-[1.5px] border-line rounded-xl focus:border-brand-700 focus:outline-none placeholder:text-muted-2"/>
+      </div>
+
+      <p class="mt-4 text-center text-[12px] text-muted">
+        Didn't get it? <button class="font-semibold text-muted-2 cursor-not-allowed">Resend in 0:23</button>
+      </p>
+
+      <button class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-pill bg-brand-700 px-6 py-3.5 text-[15px] font-bold text-white hover:bg-brand-800 shadow-brand">
+        Verify and sign in
+      </button>
+
+      <p class="mt-4 text-center text-[11px] leading-relaxed text-muted">Code expires in 5 minutes. If you don't have an account yet, signing in here will create one for you.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SIGN-UP MODAL                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="signup" class="border-t border-line bg-surface-soft">
+<div class="container-page py-8">
+  <h3 class="text-[12px] uppercase tracking-wider text-muted font-semibold mb-3">Sign-up modal — full form</h3>
+  <div class="modal-frame mx-auto max-w-[520px]">
+    <div class="relative w-full rounded-[20px] bg-white p-7 shadow-brand-lg sm:p-9">
+      <button class="absolute end-4 top-4 inline-grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-surface-cool hover:text-ink">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+
+      <div class="mb-5 inline-flex items-center gap-2.5">
+        <span class="inline-grid h-11 w-11 place-items-center rounded-xl bg-brand-700 text-white">
+          <svg viewBox="0 0 64 40" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M2 38 L20 4 L38 38 Z"/><path d="M26 38 L44 12 L62 38 Z"/></svg>
+        </span>
+        <span class="leading-tight">
+          <span class="block text-[11px] font-bold uppercase tracking-wider text-brand-700">Behbehani Motors</span>
+          <span class="block text-[10px] text-muted">Certified Pre-Owned</span>
+        </span>
+      </div>
+
+      <h2 class="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink">Create your account</h2>
+      <p class="mt-2 text-sm leading-relaxed text-muted">One account for buying, selling, and tracking your inspections.</p>
+
+      <div class="mt-5 space-y-4">
+        <label class="block">
+          <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Full name</span>
+          <input type="text" autocomplete="name" placeholder="Mohammed Al-Salem" class="input"/>
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Mobile</span>
+          <div class="flex items-stretch overflow-hidden rounded-lg border-[1.5px] border-line focus-within:border-brand-700">
+            <span class="bg-surface-cool px-3.5 py-3 text-sm font-semibold text-ink-2">+965</span>
+            <input type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="9999 1234" class="flex-1 border-0 px-3.5 py-3 text-sm text-ink outline-none"/>
+          </div>
+          <p class="mt-1.5 text-[12px] text-muted">We'll text a verification code.</p>
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Email <span class="text-muted-2 font-normal">(optional)</span></span>
+          <input type="email" autocomplete="email" placeholder="you@example.com" class="input"/>
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Password</span>
+          <div class="relative">
+            <input type="password" autocomplete="new-password" placeholder="At least 8 characters" class="input pr-12"/>
+            <button class="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink-2" aria-label="Show password">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <!-- Password strength bar -->
+          <div class="mt-2 flex gap-1">
+            <div class="h-1 flex-1 rounded-full bg-emerald-500"></div>
+            <div class="h-1 flex-1 rounded-full bg-emerald-500"></div>
+            <div class="h-1 flex-1 rounded-full bg-emerald-500"></div>
+            <div class="h-1 flex-1 rounded-full bg-line"></div>
+          </div>
+          <p class="mt-1 text-[12px] text-emerald-700 font-medium">Strong password</p>
+        </label>
+
+        <label class="block">
+          <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Confirm password</span>
+          <input type="password" autocomplete="new-password" placeholder="Re-enter password" class="input"/>
+        </label>
+
+        <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-surface-soft p-3 hover:bg-white">
+          <input type="checkbox" checked class="mt-1 h-4 w-4 rounded border-line text-brand-700"/>
+          <span class="text-[13px] leading-relaxed text-ink-2">I agree to the <a href="#" class="text-brand-700 font-semibold">Terms of Service</a> and <a href="#" class="text-brand-700 font-semibold">Privacy Policy</a>.</span>
+        </label>
+      </div>
+
+      <button class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-pill bg-brand-700 px-6 py-3.5 text-[15px] font-bold text-white hover:bg-brand-800 shadow-brand">
+        Create account
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10 6l6 6-6 6"/></svg>
+      </button>
+
+      <div class="relative my-5 text-center text-xs text-muted">
+        <span class="absolute inset-x-0 top-1/2 -z-10 h-px bg-line"></span>
+        <span class="bg-white px-3">or sign up with</span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button class="inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-ink-2 hover:bg-surface-cool">
+          <svg viewBox="0 0 18 18" width="18" height="18"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.32A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3.01-2.32z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.59C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96l3.01 2.32C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+          Google
+        </button>
+        <button class="relative inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-muted-2 cursor-not-allowed">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="#94A3B8"><path d="M17.6 12.6c0-3 2.5-4.5 2.6-4.5-1.4-2.1-3.6-2.4-4.4-2.4-1.9-.2-3.6 1.1-4.6 1.1-1 0-2.4-1.1-4-1-2 0-3.9 1.2-5 3-2.1 3.7-.5 9.1 1.5 12.1 1 1.5 2.2 3.1 3.8 3.1 1.5-.1 2.1-1 3.9-1 1.8 0 2.4 1 4 1 1.6 0 2.7-1.5 3.7-3 1.2-1.7 1.6-3.4 1.7-3.5-.1 0-3.2-1.2-3.2-4.9z"/></svg>
+          Apple<span class="absolute -top-2 -right-1 text-[9px] bg-surface-cool text-muted px-1.5 py-0.5 rounded-full">soon</span>
+        </button>
+        <button class="relative inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-muted-2 cursor-not-allowed">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="#94A3B8"><path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/></svg>
+          FB<span class="absolute -top-2 -right-1 text-[9px] bg-surface-cool text-muted px-1.5 py-0.5 rounded-full">soon</span>
+        </button>
+      </div>
+
+      <p class="mt-6 text-center text-[13px] text-muted">
+        Already have an account? <a href="#signin" class="font-semibold text-brand-700 hover:text-brand-800">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- GHOST-ACCOUNT CLAIM                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="claim" class="border-t border-line">
+<div class="container-page py-8">
+  <h3 class="text-[12px] uppercase tracking-wider text-muted font-semibold mb-3">Ghost-account claim — when sign-up mobile already exists from a prior Concierge booking</h3>
+  <div class="modal-frame mx-auto max-w-[520px]">
+    <div class="relative w-full rounded-[20px] bg-white p-7 shadow-brand-lg sm:p-9">
+      <button class="absolute end-4 top-4 inline-grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-surface-cool hover:text-ink">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M6 18L18 6"/></svg>
+      </button>
+
+      <div class="inline-grid h-14 w-14 place-items-center rounded-full bg-brand-50 text-brand-700">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      </div>
+
+      <h2 class="mt-4 font-display text-[24px] font-bold leading-tight tracking-[-0.02em] text-ink">We found you!</h2>
+      <p class="mt-2 text-sm text-muted leading-relaxed">
+        We already have a booking under <strong class="text-ink-2">+965 9876 5432</strong> — <strong class="text-ink-2">BMC-CON-000042</strong> from May 19.
+        Verify your number to set your password and claim it.
+      </p>
+
+      <button class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-pill bg-brand-700 px-6 py-3.5 text-[15px] font-bold text-white hover:bg-brand-800 shadow-brand">
+        Send verification code
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+
+      <p class="mt-3 text-center text-[12px] text-muted">
+        Not you? <a href="#signin" class="font-semibold text-brand-700 hover:text-brand-800">Use a different number</a>
+      </p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HEADER — SIGNED IN STATE                                             -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="signed-header" class="border-t border-line bg-surface-soft">
+<div class="container-page py-8">
+  <h3 class="text-[12px] uppercase tracking-wider text-muted font-semibold mb-3">Header — signed-in state (replaces "Sign in" button)</h3>
+
+  <!-- Mock storefront header -->
+  <div class="rounded-2xl bg-white border border-line shadow-brand-sm overflow-hidden">
+    <div class="px-6 py-3 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="inline-grid h-9 w-9 place-items-center rounded-lg bg-brand-700 text-white">
+          <svg viewBox="0 0 64 40" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M2 38 L20 4 L38 38 Z"/><path d="M26 38 L44 12 L62 38 Z"/></svg>
+        </span>
+        <span class="font-display font-bold text-[14px] text-ink">Behbehani Motors</span>
+      </div>
+      <nav class="hidden md:flex gap-5 text-[14px] font-semibold text-ink-2">
+        <a href="#" class="hover:text-brand-700">Buy</a>
+        <a href="#" class="hover:text-brand-700">Sell</a>
+        <a href="#" class="hover:text-brand-700">About</a>
+      </nav>
+      <div class="flex items-center gap-3">
+        <button class="text-muted hover:text-ink" aria-label="Search">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        </button>
+        <!-- Profile menu trigger -->
+        <button class="inline-flex items-center gap-2 rounded-pill border border-line bg-white pl-1 pr-3 py-1 hover:bg-surface-cool">
+          <span class="inline-grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-white font-bold text-[13px]">M</span>
+          <span class="text-[13px] font-semibold text-ink-2">Mohammed</span>
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" class="text-muted"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dropdown open -->
+  <div class="mt-2 mr-6 ml-auto max-w-[280px] rounded-2xl border border-line bg-white shadow-brand-lg overflow-hidden">
+    <div class="px-4 py-3 border-b border-line">
+      <div class="text-[13px] font-bold text-ink">Mohammed Al-Salem</div>
+      <div class="text-[12px] text-muted">+965 9876 5432</div>
+    </div>
+    <div class="py-1">
+      <a href="#bookings-list" class="flex items-center gap-3 px-4 py-2.5 text-[13px] text-ink-2 hover:bg-surface-cool">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="text-muted"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        My bookings
+        <span class="ml-auto text-[10px] font-bold bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full">2</span>
+      </a>
+      <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-[13px] text-ink-2 hover:bg-surface-cool">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="text-muted"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Saved cars
+      </a>
+      <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-[13px] text-ink-2 hover:bg-surface-cool">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" class="text-muted"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Account settings
+      </a>
+    </div>
+    <div class="border-t border-line py-1">
+      <button class="flex items-center gap-3 px-4 py-2.5 text-[13px] text-red-600 hover:bg-red-50 w-full">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        Sign out
+      </button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- MY BOOKINGS — EMPTY                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="bookings-empty" class="border-t border-line">
+<header class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
+  <div class="container-page py-8">
+    <h1 class="font-display text-[clamp(24px,3vw,32px)] font-bold leading-tight tracking-[-0.025em] text-white">My bookings</h1>
+    <p class="mt-1 text-[14px] text-white/85">All your Concierge inspections and offers in one place.</p>
+  </div>
+</header>
+<main class="bg-surface-soft">
+  <div class="container-page py-10 max-w-2xl">
+    <div class="rounded-3xl border border-line bg-white p-10 text-center shadow-brand-sm">
+      <div class="mx-auto inline-grid h-16 w-16 place-items-center rounded-full bg-brand-50 text-brand-700">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+      </div>
+      <h2 class="mt-4 font-display text-[20px] font-bold tracking-[-0.025em] text-ink">No bookings yet</h2>
+      <p class="mt-2 text-[14px] text-muted">When you book a Concierge inspection or reserve a car, it'll show up here.</p>
+      <div class="mt-6 flex flex-wrap gap-2 justify-center">
+        <a href="#" class="inline-flex items-center gap-2 rounded-pill bg-brand-700 px-5 py-2.5 text-[13px] font-bold text-white hover:bg-brand-800">Sell your car</a>
+        <a href="#" class="inline-flex items-center gap-2 rounded-pill bg-white border border-line px-5 py-2.5 text-[13px] font-bold text-ink hover:bg-surface-cool">Browse cars</a>
+      </div>
+    </div>
+  </div>
+</main>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- MY BOOKINGS — POPULATED                                              -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="bookings-list" class="border-t border-line">
+<header class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
+  <div class="container-page py-8">
+    <h1 class="font-display text-[clamp(24px,3vw,32px)] font-bold leading-tight tracking-[-0.025em] text-white">My bookings</h1>
+    <p class="mt-1 text-[14px] text-white/85">2 active · 1 completed</p>
+  </div>
+</header>
+<main class="bg-surface-soft">
+  <div class="container-page py-10 max-w-3xl space-y-3">
+
+    <!-- Filter chips -->
+    <div class="flex gap-2 mb-3 flex-wrap">
+      <button class="inline-flex items-center gap-1.5 rounded-pill bg-brand-700 px-4 py-1.5 text-[12px] font-bold text-white">All (3)</button>
+      <button class="inline-flex items-center gap-1.5 rounded-pill bg-white border border-line px-4 py-1.5 text-[12px] font-bold text-ink-2 hover:bg-surface-cool">Active (2)</button>
+      <button class="inline-flex items-center gap-1.5 rounded-pill bg-white border border-line px-4 py-1.5 text-[12px] font-bold text-ink-2 hover:bg-surface-cool">Completed (1)</button>
+    </div>
+
+    <!-- Active booking (inspector assigned) -->
+    <a href="#" class="block rounded-2xl border border-line bg-white p-5 hover:shadow-brand-sm hover:border-brand-200 transition-all group">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="inline-grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </span>
+          <div class="min-w-0">
+            <div class="text-[15px] font-bold text-ink truncate">2021 Toyota Camry</div>
+            <div class="text-[12px] text-muted">42,000 km · Salmiya</div>
+          </div>
+        </div>
+        <span class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-pill bg-amber-100 text-amber-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          Inspector assigned
+        </span>
+      </div>
+      <div class="flex items-center justify-between text-[12px]">
+        <div class="text-muted">
+          <span class="font-mono font-semibold text-ink-2">BMC-CON-000042</span>
+          <span class="mx-2">·</span>
+          <span>Wed 21 May · Afternoon</span>
+        </div>
+        <span class="text-[12px] font-semibold text-brand-700 group-hover:text-brand-800">Track →</span>
+      </div>
+    </a>
+
+    <!-- Active booking (just booked) -->
+    <a href="#" class="block rounded-2xl border border-line bg-white p-5 hover:shadow-brand-sm hover:border-brand-200 transition-all group">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="inline-grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </span>
+          <div class="min-w-0">
+            <div class="text-[15px] font-bold text-ink truncate">2018 Lexus RX 350</div>
+            <div class="text-[12px] text-muted">82,400 km · Hawalli</div>
+          </div>
+        </div>
+        <span class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-pill bg-brand-100 text-brand-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+          Awaiting confirmation
+        </span>
+      </div>
+      <div class="flex items-center justify-between text-[12px]">
+        <div class="text-muted">
+          <span class="font-mono font-semibold text-ink-2">BMC-CON-000041</span>
+          <span class="mx-2">·</span>
+          <span>Booked 2 hours ago</span>
+        </div>
+        <span class="text-[12px] font-semibold text-brand-700 group-hover:text-brand-800">Track →</span>
+      </div>
+    </a>
+
+    <!-- Completed booking -->
+    <a href="#" class="block rounded-2xl border border-line bg-white p-5 hover:shadow-brand-sm hover:border-brand-200 transition-all group">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="inline-grid h-12 w-12 flex-shrink-0 place-items-center rounded-xl bg-emerald-50 text-emerald-700">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 13l4 4L19 7"/></svg>
+          </span>
+          <div class="min-w-0">
+            <div class="text-[15px] font-bold text-ink truncate">2019 Mercedes C 200</div>
+            <div class="text-[12px] text-muted">63,000 km · Capital</div>
+          </div>
+        </div>
+        <span class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-pill bg-emerald-100 text-emerald-800 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+          Signed
+        </span>
+      </div>
+      <div class="flex items-center justify-between text-[12px]">
+        <div class="text-muted">
+          <span class="font-mono font-semibold text-ink-2">BMC-CON-000038</span>
+          <span class="mx-2">·</span>
+          <span>Signed 12 May · Score 91</span>
+        </div>
+        <span class="text-[12px] font-semibold text-brand-700 group-hover:text-brand-800">View report →</span>
+      </div>
+    </a>
+
+  </div>
+</main>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- SAVED CARS — populated                                               -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="saved-cars" class="border-t border-line">
+<header class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 text-white">
+  <div class="container-page py-8">
+    <h1 class="font-display text-[clamp(24px,3vw,32px)] font-bold leading-tight tracking-[-0.025em] text-white">Saved cars</h1>
+    <p class="mt-1 text-[14px] text-white/85">4 cars · sorted by most recently saved</p>
+  </div>
+</header>
+<main class="bg-surface-soft">
+  <div class="container-page py-10">
+
+    <!-- Filter strip -->
+    <div class="flex items-center justify-between flex-wrap gap-3 mb-4">
+      <div class="flex gap-2 flex-wrap">
+        <button class="inline-flex items-center gap-1.5 rounded-pill bg-brand-700 px-4 py-1.5 text-[12px] font-bold text-white">All (4)</button>
+        <button class="inline-flex items-center gap-1.5 rounded-pill bg-white border border-line px-4 py-1.5 text-[12px] font-bold text-ink-2 hover:bg-surface-cool">Available (3)</button>
+        <button class="inline-flex items-center gap-1.5 rounded-pill bg-white border border-line px-4 py-1.5 text-[12px] font-bold text-muted hover:bg-surface-cool">Sold (1)</button>
+      </div>
+      <button class="text-[12px] font-semibold text-muted hover:text-ink-2">Sort: Recently saved ↓</button>
+    </div>
+
+    <!-- Grid of saved listing cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Card 1 — available -->
+      <article class="rounded-2xl border border-line bg-white overflow-hidden hover:shadow-brand-sm group">
+        <a href="#" class="block relative">
+          <div class="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 grid place-items-center">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </div>
+          <!-- Heart filled (saved) -->
+          <button class="absolute top-3 right-3 inline-grid h-9 w-9 place-items-center rounded-full bg-white shadow-brand-sm hover:bg-red-50">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="#DC2626" stroke="#DC2626" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+          <span class="absolute top-3 left-3 inline-flex items-center gap-1 rounded-pill bg-emerald-100 text-emerald-800 px-2 py-1 text-[10px] font-bold uppercase">
+            <svg viewBox="0 0 20 20" width="10" height="10" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+            Inspected
+          </span>
+        </a>
+        <div class="p-4">
+          <a href="#" class="block">
+            <div class="text-[15px] font-bold text-ink truncate">2022 BMW 530i M Sport</div>
+            <div class="text-[12px] text-muted mt-0.5">48,000 km · GCC</div>
+          </a>
+          <div class="mt-3 flex items-end justify-between">
+            <div>
+              <div class="font-display font-bold text-[18px] text-ink tabular-nums">12,500 KWD</div>
+              <div class="text-[11px] text-muted">~260 KWD/mo</div>
+            </div>
+            <span class="text-[11px] text-muted">Saved 2d ago</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2 — available -->
+      <article class="rounded-2xl border border-line bg-white overflow-hidden hover:shadow-brand-sm group">
+        <a href="#" class="block relative">
+          <div class="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 grid place-items-center">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </div>
+          <button class="absolute top-3 right-3 inline-grid h-9 w-9 place-items-center rounded-full bg-white shadow-brand-sm hover:bg-red-50">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="#DC2626" stroke="#DC2626" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+        </a>
+        <div class="p-4">
+          <a href="#" class="block">
+            <div class="text-[15px] font-bold text-ink truncate">2020 Toyota Land Cruiser</div>
+            <div class="text-[12px] text-muted mt-0.5">102,000 km · GCC</div>
+          </a>
+          <div class="mt-3 flex items-end justify-between">
+            <div>
+              <div class="font-display font-bold text-[18px] text-ink tabular-nums">18,900 KWD</div>
+              <div class="text-[11px] text-muted">~394 KWD/mo</div>
+            </div>
+            <span class="text-[11px] text-muted">Saved 4d ago</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3 — available, price dropped -->
+      <article class="rounded-2xl border border-line bg-white overflow-hidden hover:shadow-brand-sm group ring-2 ring-emerald-200">
+        <a href="#" class="block relative">
+          <div class="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 grid place-items-center">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </div>
+          <button class="absolute top-3 right-3 inline-grid h-9 w-9 place-items-center rounded-full bg-white shadow-brand-sm hover:bg-red-50">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="#DC2626" stroke="#DC2626" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+          <span class="absolute top-3 left-3 inline-flex items-center gap-1 rounded-pill bg-emerald-100 text-emerald-800 px-2 py-1 text-[10px] font-bold uppercase">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"><path d="M19 14l-7 7-7-7M12 21V4"/></svg>
+            Price dropped
+          </span>
+        </a>
+        <div class="p-4">
+          <a href="#" class="block">
+            <div class="text-[15px] font-bold text-ink truncate">2021 Mercedes C 200</div>
+            <div class="text-[12px] text-muted mt-0.5">63,000 km · GCC</div>
+          </a>
+          <div class="mt-3 flex items-end justify-between">
+            <div>
+              <div class="flex items-baseline gap-2">
+                <div class="font-display font-bold text-[18px] text-emerald-700 tabular-nums">10,750 KWD</div>
+                <div class="text-[12px] text-muted line-through tabular-nums">11,500</div>
+              </div>
+              <div class="text-[11px] text-emerald-700 font-semibold">−750 KWD this week</div>
+            </div>
+            <span class="text-[11px] text-muted">Saved 6d ago</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 4 — sold -->
+      <article class="rounded-2xl border border-line bg-white overflow-hidden opacity-75 relative">
+        <a href="#" class="block relative">
+          <div class="aspect-[4/3] bg-gradient-to-br from-slate-300 to-slate-400 grid place-items-center">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#fff" stroke-width="1.5"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </div>
+          <button class="absolute top-3 right-3 inline-grid h-9 w-9 place-items-center rounded-full bg-white shadow-brand-sm hover:bg-red-50">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="#94A3B8" stroke="#94A3B8" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+          <span class="absolute top-3 left-3 inline-flex items-center gap-1 rounded-pill bg-slate-700 text-white px-2 py-1 text-[10px] font-bold uppercase">Sold</span>
+          <span class="absolute inset-0 grid place-items-center">
+            <span class="bg-white/90 backdrop-blur px-4 py-2 rounded-full text-[13px] font-bold text-ink">No longer available</span>
+          </span>
+        </a>
+        <div class="p-4">
+          <a href="#" class="block">
+            <div class="text-[15px] font-bold text-ink truncate">2019 Audi Q5 quattro</div>
+            <div class="text-[12px] text-muted mt-0.5">78,000 km · GCC</div>
+          </a>
+          <div class="mt-3 flex items-end justify-between">
+            <div class="text-[13px] text-muted">Browse similar →</div>
+            <span class="text-[11px] text-muted">Saved 14d ago</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <p class="mt-6 text-center text-[12px] text-muted">We'll WhatsApp you when a saved car's price drops or it gets sold.</p>
+  </div>
+</main>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- HEART ON LISTING CARDS (browse + VDP integration)                    -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="listing-heart" class="border-t border-line bg-surface-soft">
+<div class="container-page py-8">
+  <h3 class="text-[12px] uppercase tracking-wider text-muted font-semibold mb-3">Heart toggle integration — appears on every listing card across browse, home, VDP</h3>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <!-- Unsaved (default for signed-in or guest) -->
+    <div>
+      <p class="text-[13px] font-bold text-ink mb-2">1️⃣ Not saved</p>
+      <article class="rounded-2xl border border-line bg-white overflow-hidden">
+        <div class="relative">
+          <div class="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 grid place-items-center">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </div>
+          <button class="absolute top-3 right-3 inline-grid h-9 w-9 place-items-center rounded-full bg-white/95 backdrop-blur shadow-brand-sm hover:bg-red-50 transition-colors">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#475569" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+        </div>
+        <div class="p-3">
+          <div class="text-[14px] font-bold text-ink truncate">2022 BMW 530i</div>
+          <div class="text-[16px] font-bold text-ink tabular-nums mt-1">12,500 KWD</div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Saved (filled) -->
+    <div>
+      <p class="text-[13px] font-bold text-ink mb-2">2️⃣ Saved (filled red)</p>
+      <article class="rounded-2xl border border-line bg-white overflow-hidden">
+        <div class="relative">
+          <div class="aspect-[4/3] bg-gradient-to-br from-slate-200 to-slate-300 grid place-items-center">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#94A3B8" stroke-width="1.5"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </div>
+          <button class="absolute top-3 right-3 inline-grid h-9 w-9 place-items-center rounded-full bg-white/95 backdrop-blur shadow-brand-sm hover:bg-red-50">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="#DC2626" stroke="#DC2626" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+        </div>
+        <div class="p-3">
+          <div class="text-[14px] font-bold text-ink truncate">2022 BMW 530i</div>
+          <div class="text-[16px] font-bold text-ink tabular-nums mt-1">12,500 KWD</div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Guest tap → sign-in prompt -->
+    <div>
+      <p class="text-[13px] font-bold text-ink mb-2">3️⃣ Guest taps heart → sign-in prompt</p>
+      <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4">
+        <div class="flex items-start gap-3">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="#1D4ED8" class="flex-shrink-0 mt-0.5"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          <div>
+            <p class="text-[13px] font-semibold text-brand-900">Sign in to save cars</p>
+            <p class="text-[12px] text-brand-800 mt-1">Saved cars are kept in your account. We'll WhatsApp you if the price drops.</p>
+            <div class="mt-3 flex gap-2">
+              <a href="#signin" class="inline-flex items-center gap-1 rounded-pill bg-brand-700 px-4 py-1.5 text-[12px] font-bold text-white hover:bg-brand-800">Sign in</a>
+              <a href="#signup" class="inline-flex items-center gap-1 rounded-pill bg-white border border-brand-200 px-4 py-1.5 text-[12px] font-bold text-brand-700 hover:bg-brand-100">Create account</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- EDGE STATES                                                          -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<section id="edges" class="border-t border-line bg-surface-soft">
+<div class="container-page py-8">
+  <h3 class="text-[12px] uppercase tracking-wider text-muted font-semibold mb-3">Edge states (inline error patterns)</h3>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <!-- Wrong password -->
+    <div class="rounded-2xl border border-line bg-white p-6">
+      <h4 class="text-[13px] font-bold text-ink mb-3">Wrong password</h4>
+      <label class="block">
+        <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Password</span>
+        <input type="password" value="••••••••" class="input input-error"/>
+      </label>
+      <p class="mt-2 text-[12px] text-red-600 font-medium flex items-center gap-1.5">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+        Incorrect password. Forgot your password?
+      </p>
+    </div>
+
+    <!-- Account locked -->
+    <div class="rounded-2xl border border-line bg-white p-6">
+      <h4 class="text-[13px] font-bold text-ink mb-3">Account locked (5 failed attempts)</h4>
+      <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">
+        <div class="flex items-start gap-3">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-700 flex-shrink-0 mt-0.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          <div>
+            <p class="text-[13px] font-semibold text-amber-900">Account temporarily locked</p>
+            <p class="text-[12px] text-amber-800 mt-1">Too many failed attempts. Try again in <strong>10 minutes</strong>, or use a one-time code to sign in.</p>
+            <button class="mt-2 text-[12px] font-bold text-brand-700 hover:text-brand-800">Send one-time code instead →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile already in use (on signup) -->
+    <div class="rounded-2xl border border-line bg-white p-6">
+      <h4 class="text-[13px] font-bold text-ink mb-3">Mobile already has an account</h4>
+      <label class="block">
+        <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Mobile</span>
+        <div class="flex items-stretch overflow-hidden rounded-lg border-[1.5px] border-red-500">
+          <span class="bg-surface-cool px-3.5 py-3 text-sm font-semibold text-ink-2">+965</span>
+          <input type="tel" value="9876 5432" class="flex-1 border-0 px-3.5 py-3 text-sm text-ink outline-none"/>
+        </div>
+      </label>
+      <p class="mt-2 text-[12px] text-red-600 font-medium">
+        This number is already registered.
+        <a href="#signin" class="font-bold underline">Sign in instead</a>, or
+        <a href="#claim" class="font-bold underline">claim this account</a>.
+      </p>
+    </div>
+
+    <!-- OTP expired -->
+    <div class="rounded-2xl border border-line bg-white p-6">
+      <h4 class="text-[13px] font-bold text-ink mb-3">OTP expired</h4>
+      <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">
+        <div class="flex items-start gap-3">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="text-amber-700 flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <div>
+            <p class="text-[13px] font-semibold text-amber-900">Code expired</p>
+            <p class="text-[12px] text-amber-800 mt-1">For your security, codes expire after 5 minutes.</p>
+            <button class="mt-2 text-[12px] font-bold text-brand-700 hover:text-brand-800">Send a new code →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weak password (signup) -->
+    <div class="rounded-2xl border border-line bg-white p-6">
+      <h4 class="text-[13px] font-bold text-ink mb-3">Weak password</h4>
+      <label class="block">
+        <span class="mb-1.5 block text-[13px] font-medium text-ink-2">Password</span>
+        <input type="password" value="12345" class="input"/>
+      </label>
+      <div class="mt-2 flex gap-1">
+        <div class="h-1 flex-1 rounded-full bg-red-500"></div>
+        <div class="h-1 flex-1 rounded-full bg-line"></div>
+        <div class="h-1 flex-1 rounded-full bg-line"></div>
+        <div class="h-1 flex-1 rounded-full bg-line"></div>
+      </div>
+      <p class="mt-1 text-[12px] text-red-600 font-medium">Too weak — add at least 8 characters, mixing letters and numbers.</p>
+    </div>
+
+    <!-- Network error -->
+    <div class="rounded-2xl border border-line bg-white p-6">
+      <h4 class="text-[13px] font-bold text-ink mb-3">Network down</h4>
+      <div class="rounded-xl bg-red-50 border border-red-200 p-4">
+        <div class="flex items-start gap-3">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" class="text-red-700 flex-shrink-0 mt-0.5"><path d="M3 9a16 16 0 0118 0M6 12a11 11 0 0112 0M9 15a6 6 0 016 0M12 18.5h.01"/></svg>
+          <div>
+            <p class="text-[13px] font-semibold text-red-900">Can't reach the server</p>
+            <p class="text-[12px] text-red-800 mt-1">Check your internet connection and try again.</p>
+            <button class="mt-2 text-[12px] font-bold text-brand-700 hover:text-brand-800">Try again →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="bg-slate-900 text-white text-center text-[11px] py-3">— end of mockup —</div>
+
+</body>
+</html>

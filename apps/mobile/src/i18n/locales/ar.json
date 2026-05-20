@@ -1,0 +1,63 @@
+{
+  "app": {
+    "title": "بهبهاني سيارات معتمدة"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "buy": "شراء",
+    "sell": "بيع",
+    "services": "الخدمات",
+    "finance": "التمويل",
+    "maintenance": "الصيانة",
+    "favorites": "المفضلة",
+    "account": "حسابي",
+    "search": "بحث",
+    "more": "المزيد"
+  },
+  "common": {
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "loading": "جارٍ التحميل…",
+    "error": "حدث خطأ ما",
+    "retry": "حاول مرة أخرى",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "save": "حفظ",
+    "close": "إغلاق",
+    "pageNotFound": "الصفحة غير موجودة",
+    "goHome": "الرئيسية"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signInSubtitle": "مرحبًا بعودتك إلى بهبهاني سيارات معتمدة",
+    "createAccount": "إنشاء حساب",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "mobilePlaceholder": "رقم الهاتف",
+    "passwordPlaceholder": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "register": "إنشاء حساب",
+    "orSignInWith": "أو تسجيل الدخول عبر",
+    "signInWithOtp": "الدخول برمز OTP",
+    "signInWithGoogle": "المتابعة عبر Google",
+    "signInWithApple": "المتابعة عبر Apple",
+    "comingSoon": "قريبًا",
+    "signInDisclaimer": "بتسجيل دخولك، أنت توافق على الشروط وسياسة الخصوصية.",
+    "biometricPrompt": "المصادقة للمتابعة"
+  },
+  "listings": {
+    "title": "السيارات المتاحة",
+    "noResults": "لا توجد سيارات",
+    "priceLabel": "السعر",
+    "mileageLabel": "المسافة المقطوعة",
+    "yearLabel": "السنة",
+    "badge": {
+      "featured": "مميز",
+      "inspected": "تم فحصه",
+      "premium": "مميز",
+      "lowMileage": "عداد منخفض",
+      "recentlyAdded": "مضاف حديثًا",
+      "priceDrop": "تخفيض السعر"
+    }
+  }
+}

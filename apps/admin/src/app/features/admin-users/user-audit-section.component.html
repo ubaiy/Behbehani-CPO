@@ -1,0 +1,104 @@
+<div class="bg-white rounded-xl border border-slate-200 mb-5">
+
+  <!-- Collapsible header -->
+  <button
+    type="button"
+    (click)="toggle.emit()"
+    class="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 rounded-xl transition-colors"
+    [attr.aria-expanded]="expanded"
+  >
+    <div class="flex items-center gap-2.5">
+      <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+      <span class="text-sm font-semibold text-slate-700">Audit log — {{ userName }}</span>
+      @if (!loading && !hasError) {
+        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">
+          {{ entries.length }} entries shown
+        </span>
+      }
+    </div>
+    <svg
+      class="w-4 h-4 text-slate-400 transition-transform duration-200"
+      [class.rotate-180]="expanded"
+      fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+    ><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+  </button>
+
+  @if (expanded) {
+    <div class="border-t border-slate-100">
+
+      <!-- Loading -->
+      @if (loading) {
+        <div class="flex items-center justify-center py-10">
+          <div class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      }
+
+      <!-- Error -->
+      @if (!loading && hasError) {
+        <div class="px-5 py-6 text-center">
+          <p class="text-xs text-slate-500">Unable to load audit log.</p>
+          <p class="text-xs text-slate-400 mt-1">
+            <a [routerLink]="['/admin/audit-log']" [queryParams]="{ actorId: userId }" class="text-brand-600 hover:underline">
+              View full audit log at /admin/audit-log
+            </a>
+          </p>
+        </div>
+      }
+
+      <!-- Entries -->
+      @if (!loading && !hasError) {
+        @if (entries.length === 0) {
+          <div class="px-5 py-6 text-center">
+            <p class="text-xs text-slate-400">No audit log entries found for this user.</p>
+          </div>
+        } @else {
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs">
+              <thead>
+                <tr class="border-b border-slate-100 bg-slate-50">
+                  <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide py-2.5 px-4 whitespace-nowrap">Timestamp</th>
+                  <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide py-2.5 px-4">Action</th>
+                  <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide py-2.5 px-4">Resource</th>
+                  <th class="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide py-2.5 px-4">Outcome</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50">
+                @for (entry of entries; track entry.id) {
+                  <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-4 font-mono text-slate-500 whitespace-nowrap">
+                      {{ formatDate(entry.createdAt) }}
+                    </td>
+                    <td class="py-3 px-4">
+                      <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-brand-50 text-brand-700 font-semibold">
+                        {{ entry.action }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 text-slate-600">{{ entry.resource }}</td>
+                    <td class="py-3 px-4">
+                      @if (entry.outcome === 'success') {
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-brand-50 text-brand-700 font-semibold">success</span>
+                      } @else if (entry.outcome === 'denied') {
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-slate-100 text-slate-600 font-semibold">denied</span>
+                      } @else {
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-red-50 text-red-700 font-semibold">error</span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="px-5 py-3 border-t border-slate-100">
+            <a
+              [routerLink]="['/admin/audit-log']"
+              [queryParams]="{ actorId: userId }"
+              class="text-xs text-brand-600 hover:underline font-medium"
+            >
+              View all in global audit log &rarr;
+            </a>
+          </div>
+        }
+      }
+    </div>
+  }
+</div>

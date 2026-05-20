@@ -1,0 +1,21 @@
+---
+source_file: "apps/api/src/auth/users.repo.ts"
+type: "code"
+community: "Community 22"
+location: "L79"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_22
+---
+
+# resetFailedLogin()
+
+## Connections
+- [[auth.service.ts]] - `imports` [EXTRACTED]
+- [[signInWithEmail()]] - `calls` [EXTRACTED]
+- [[signInWithMobile()]] - `calls` [EXTRACTED]
+- [[users.repo.spec.ts]] - `imports` [EXTRACTED]
+- [[users.repo.ts]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_22

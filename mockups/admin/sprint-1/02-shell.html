@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behbehani CPO · Back Office — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Thin custom scrollbar for sidebar */
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    /* Chart bar placeholder animation */
+    @keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    .bar-anim { transform-origin: bottom; animation: bar-grow 0.6s ease forwards; }
+  </style>
+</head>
+<body class="h-full bg-slate-100 font-sans antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR  (240px fixed)
+  ════════════════════════════════════════ -->
+  <aside class="w-60 flex-shrink-0 bg-slate-900 flex flex-col h-full">
+
+    <!-- Brand mark -->
+    <div class="flex items-center gap-2.5 px-4 py-4 border-b border-slate-800">
+      <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 1.5L3 4.5v5c0 4.14 2.97 8.01 7 8.96 4.03-.95 7-4.82 7-8.96v-5L10 1.5zm-1 10.5H7V6h2v6zm2 0h-1V6h1a2 2 0 010 4h-1v1.5H11V12z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold tracking-widest text-brand-400 uppercase leading-none">Behbehani CPO</p>
+        <p class="text-xs text-slate-500 leading-tight mt-0.5">Back Office</p>
+      </div>
+    </div>
+
+    <!-- Nav groups — scrollable -->
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-2 py-3 space-y-5" aria-label="Main navigation">
+
+      <!-- Dashboard (no group heading) -->
+      <div>
+        <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium bg-brand-700 text-white">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Dashboard
+        </a>
+      </div>
+
+      <!-- Inventory -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Inventory</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Listings
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5l7 7-7 7-7-7V3z"/></svg>
+            Brands &amp; Models
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Pricing Rules
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <span class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+              Pipeline
+            </span>
+            <span class="text-xs font-semibold bg-blue-600 text-white rounded-full px-1.5 py-0.5 leading-none">14</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Sales -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Sales</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Reservations
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            Orders
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            Trade-Ins
+          </a>
+        </div>
+      </div>
+
+      <!-- Operations -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Operations</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+            Deliveries
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Maintenance
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+            Returns
+          </a>
+        </div>
+      </div>
+
+      <!-- Customers -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Customers</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            Users
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+            Reviews
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <span class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+              Support
+            </span>
+            <span class="text-xs font-semibold bg-red-500 text-white rounded-full px-1.5 py-0.5 leading-none">7</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Finance -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Finance</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Financing Apps
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
+            Invoices
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"/></svg>
+            Refunds
+          </a>
+        </div>
+      </div>
+
+      <!-- Insights -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Insights</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Analytics
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Reports
+          </a>
+        </div>
+      </div>
+
+      <!-- Admin (RBAC-gated items) -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Admin</p>
+        <div class="space-y-0.5">
+          <!-- Items below are visible to Super Admin only. The Angular impl uses the
+               *adminRole structural directive on each entry to hide it for users
+               without that role. Lock icons / dimmed-disabled patterns are NOT used. -->
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Roles &amp; Permissions
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            Audit Log
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Settings
+          </a>
+        </div>
+      </div>
+
+    </nav>
+
+    <!-- User profile footer -->
+    <div class="border-t border-slate-800 px-3 py-3">
+      <div class="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-slate-800 cursor-pointer transition-colors">
+        <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+          <span class="text-xs font-bold text-white">FM</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-slate-200 truncate">Fatima Al-Mutawa</p>
+          <p class="text-xs text-slate-500 truncate">Operations Manager</p>
+        </div>
+        <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN COLUMN (top bar + content)
+  ════════════════════════════════════════ -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 gap-4">
+
+      <!-- Global search -->
+      <div class="flex-1 max-w-md">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input
+            type="search"
+            placeholder="Search VIN, order, customer…"
+            class="w-full pl-9 pr-3 py-1.5 text-sm rounded-md border border-slate-200 bg-slate-50
+                   focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent focus:bg-white
+                   placeholder-slate-400 text-slate-700"
+          />
+          <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 bg-slate-100 border border-slate-200 rounded px-1 py-0.5 font-mono">/</kbd>
+        </div>
+      </div>
+
+      <!-- Right side actions -->
+      <div class="flex items-center gap-3">
+
+        <!-- Notifications bell -->
+        <button class="relative p-2 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Notifications">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <!-- Unread badge -->
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+        </button>
+
+        <!-- Environment badge -->
+        <!-- For Production, swap to bg-red-50 text-red-700 border-red-200 -->
+        <span class="hidden lg:inline-flex items-center rounded-full border bg-blue-50 border-blue-200 px-2.5 py-0.5 text-xs font-medium text-blue-700">Staging</span>
+
+        <!-- User avatar -->
+        <button class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100 transition-colors">
+          <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+            <span class="text-xs font-bold text-white">FM</span>
+          </div>
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+
+      </div>
+    </header>
+
+    <!-- CONTENT AREA — scrollable -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-6">
+
+      <!-- Breadcrumbs -->
+      <nav class="flex items-center gap-1.5 text-xs text-slate-500 mb-4" aria-label="Breadcrumb">
+        <a href="#" class="hover:text-slate-700">Home</a>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-slate-800 font-medium">Dashboard</span>
+      </nav>
+
+      <!-- Page title row -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-xl font-semibold text-slate-800">Dashboard</h1>
+          <p class="text-sm text-slate-500 mt-0.5">Wednesday, 14 May 2026 — Kuwait (AST)</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select class="text-sm rounded-md border border-slate-300 px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option>This month</option>
+          </select>
+          <button class="text-sm rounded-md border border-slate-300 bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Export
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+        <!-- Active Listings -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Active Listings</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800">138</p>
+              <p class="mt-1 text-xs text-emerald-600 font-medium flex items-center gap-0.5">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                +6 this week
+              </p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reservations Today -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Reservations Today</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800">9</p>
+              <p class="mt-1 text-xs text-slate-400 font-medium">3 pending confirmation</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-violet-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders This Week -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Orders This Week</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800">24</p>
+              <p class="mt-1 text-xs text-red-500 font-medium flex items-center gap-0.5">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                -2 vs last week
+              </p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Avg Days to Sell -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Avg Days to Sell</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800">18.4</p>
+              <p class="mt-1 text-xs text-emerald-600 font-medium flex items-center gap-0.5">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                -1.2 days vs prev
+              </p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom row: chart + activity feed -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        <!-- Bar chart placeholder -->
+        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <h2 class="text-sm font-semibold text-slate-800">Listings by Pipeline Stage</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Current snapshot — 138 vehicles</p>
+            </div>
+            <span class="text-xs text-slate-400 bg-slate-100 rounded-md px-2 py-1 font-medium">Illustrative — Sprint 11</span>
+          </div>
+
+          <!-- Chart body -->
+          <div class="flex items-end gap-2.5 h-36 px-2">
+            <!-- Bars: Draft, Inbound, Inspection, Photoshoot, Reconditioning, Listed, Reserved, Sold, Delivered, Closed -->
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">8</span>
+              <div class="w-full bg-slate-200 rounded-t bar-anim" style="height: 22%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Draft</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">12</span>
+              <div class="w-full bg-slate-400 rounded-t bar-anim" style="height: 33%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Inbound</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">7</span>
+              <div class="w-full bg-blue-400 rounded-t bar-anim" style="height: 19%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Inspect</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">4</span>
+              <div class="w-full bg-purple-400 rounded-t bar-anim" style="height: 11%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Photo</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">9</span>
+              <div class="w-full bg-orange-400 rounded-t bar-anim" style="height: 25%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Recon</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">36</span>
+              <div class="w-full bg-emerald-500 rounded-t bar-anim" style="height: 100%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Listed</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">11</span>
+              <div class="w-full bg-blue-500 rounded-t bar-anim" style="height: 31%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Reserved</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">22</span>
+              <div class="w-full bg-teal-500 rounded-t bar-anim" style="height: 61%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Sold</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">18</span>
+              <div class="w-full bg-teal-300 rounded-t bar-anim" style="height: 50%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Delivrd</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 flex-1">
+              <span class="text-xs text-slate-500 font-medium">11</span>
+              <div class="w-full bg-slate-300 rounded-t bar-anim" style="height: 31%"></div>
+              <span class="text-xs text-slate-400 truncate w-full text-center" style="font-size:9px">Closed</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent activity feed -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold text-slate-800">Recent Activity</h2>
+            <a href="#" class="text-xs text-brand-600 hover:underline font-medium">View audit log</a>
+          </div>
+          <ul class="space-y-3">
+
+            <li class="flex items-start gap-3">
+              <div class="mt-0.5 w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-slate-700"><span class="font-medium">Ahmed Al-Rashidi</span> moved <span class="font-medium text-slate-800">2024 Lexus RX 350</span> to <span class="text-emerald-700 font-medium">Listed</span></p>
+                <p class="text-xs text-slate-400 mt-0.5">2 min ago</p>
+              </div>
+            </li>
+
+            <li class="flex items-start gap-3">
+              <div class="mt-0.5 w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-slate-700">New reservation by <span class="font-medium">Sara Al-Sabah</span> for <span class="font-medium text-slate-800">2023 Toyota Camry SE</span></p>
+                <p class="text-xs text-slate-400 mt-0.5">14 min ago</p>
+              </div>
+            </li>
+
+            <li class="flex items-start gap-3">
+              <div class="mt-0.5 w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-slate-700">Inspection flagged on <span class="font-medium text-slate-800">2021 BMW 520i</span> — engine note added</p>
+                <p class="text-xs text-slate-400 mt-0.5">38 min ago</p>
+              </div>
+            </li>
+
+            <li class="flex items-start gap-3">
+              <div class="mt-0.5 w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-violet-600" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-slate-700"><span class="font-medium">Khaled Al-Hajri</span> created a new user account (Sales Agent role)</p>
+                <p class="text-xs text-slate-400 mt-0.5">1 hr ago</p>
+              </div>
+            </li>
+
+            <li class="flex items-start gap-3">
+              <div class="mt-0.5 w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-teal-600" fill="currentColor" viewBox="0 0 20 20"><path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/><path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h3.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-2a4 4 0 00-4-4h-3V4a1 1 0 00-1-1H3z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-slate-700">Delivery confirmed for order <span class="font-mono font-medium text-slate-800">#ORD-1847</span> — Nissan Patrol</p>
+                <p class="text-xs text-slate-400 mt-0.5">2 hr ago</p>
+              </div>
+            </li>
+
+          </ul>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

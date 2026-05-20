@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "web", "--port=4202", "--ssr=false"],
+      "port": 4202
+    },
+    {
+      "name": "admin",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "admin", "--port=4201"],
+      "port": 4201
+    },
+    {
+      "name": "mobile",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "apps/mobile", "run", "web"],
+      "port": 8081
+    },
+    {
+      "name": "mockups-mobile",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["http-server", "mockups/mobile/sprint-M2", "-p", "8090", "-c-1", "--cors"],
+      "port": 8090
+    }
+  ]
+}

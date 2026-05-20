@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behbehani CPO · Back Office — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Sidebar scrollbar */
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    /* Annotation card style — left-bordered design spec cards */
+    .annotation-card {
+      border-left: 3px solid #2563eb;
+    }
+
+    /* Stacked bar chart segments */
+    .pipeline-bar { height: 28px; display: flex; border-radius: 4px; overflow: hidden; }
+    .pipeline-seg { height: 100%; transition: opacity 0.15s; cursor: default; }
+    .pipeline-seg:hover { opacity: 0.85; }
+
+    /* Tooltip helper */
+    .ts-wrap { position: relative; display: inline-block; }
+    .ts-tip { display: none; position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+              background: #1e293b; color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 4px;
+              white-space: nowrap; z-index: 30; }
+    .ts-wrap:hover .ts-tip { display: block; }
+  </style>
+</head>
+<body class="h-full bg-slate-100 font-sans antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR  (240px fixed)
+  ════════════════════════════════════════ -->
+  <aside class="w-60 flex-shrink-0 bg-slate-900 flex flex-col h-full">
+
+    <!-- Brand mark — twin peaks (MYB lockup) -->
+    <div class="flex items-center gap-2.5 px-4 py-4 border-b border-slate-800">
+      <div class="w-9 h-9 rounded-lg bg-white flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6 text-brand-700" viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round" aria-hidden="true">
+          <!-- Two interlocking mountain peaks — MYB brand mark -->
+          <path d="M2 38 L20 4 L38 38 Z" />
+          <path d="M26 38 L44 12 L62 38 Z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold tracking-widest text-brand-400 uppercase leading-none">Behbehani CPO</p>
+        <p class="text-xs text-slate-500 leading-tight mt-0.5">Back Office</p>
+      </div>
+    </div>
+
+    <!-- Nav groups — scrollable -->
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-2 py-3 space-y-5" aria-label="Main navigation">
+
+      <!-- Dashboard — ACTIVE -->
+      <div>
+        <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium bg-brand-700 text-white">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          Dashboard
+        </a>
+      </div>
+
+      <!-- Inventory -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Inventory</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Listings
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <span class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+              Pipeline
+            </span>
+            <span class="text-xs font-semibold bg-brand-600 text-white rounded-full px-1.5 py-0.5 leading-none">34</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Settings (finance_officer+ only) -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Settings</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Pricing Rules
+          </a>
+        </div>
+      </div>
+
+      <!-- Sales (coming soon) -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Sales</p>
+        <div class="space-y-0.5">
+          <span class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-500 cursor-not-allowed">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            Reservations
+          </span>
+          <span class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-500 cursor-not-allowed">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            Orders
+          </span>
+          <span class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-500 cursor-not-allowed">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            Trade-Ins
+          </span>
+        </div>
+      </div>
+
+      <!-- Reports -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Reports</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Inventory Aging
+          </a>
+        </div>
+      </div>
+
+      <!-- Admin -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Admin</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            Users
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            Audit Log
+          </a>
+          <span class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-500 cursor-not-allowed">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Roles &amp; Permissions
+          </span>
+        </div>
+      </div>
+
+    </nav>
+
+    <!-- User profile footer -->
+    <div class="border-t border-slate-800 px-3 py-3">
+      <div class="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-slate-800 cursor-pointer transition-colors">
+        <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+          <span class="text-xs font-bold text-white">KA</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-slate-200 truncate">Khalid Al-Ansari</p>
+          <p class="text-xs text-slate-500 truncate">Super Admin</p>
+        </div>
+        <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN COLUMN (topbar + content)
+  ════════════════════════════════════════ -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 gap-4">
+      <span class="text-sm font-semibold text-slate-700 hidden sm:block">Behbehani CPO &middot; Back Office</span>
+      <div class="flex-1"></div>
+      <div class="flex items-center gap-3">
+        <!-- Notifications bell -->
+        <button class="relative p-2 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Notifications">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+        </button>
+        <!-- Env badge -->
+        <span class="hidden lg:inline-flex items-center rounded-full border bg-blue-50 border-blue-200 px-2.5 py-0.5 text-xs font-medium text-blue-700">Staging</span>
+        <!-- User avatar + role badge -->
+        <div class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100 transition-colors cursor-pointer">
+          <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+            <span class="text-xs font-bold text-white">KA</span>
+          </div>
+          <div class="hidden md:flex flex-col items-start">
+            <span class="text-xs font-medium text-slate-700 leading-none">Khalid Al-Ansari</span>
+            <span class="text-xs text-brand-600 font-semibold leading-none mt-0.5">super_admin</span>
+          </div>
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA — scrollable -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-6">
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-1.5 text-xs text-slate-500 mb-4" aria-label="Breadcrumb">
+        <span class="text-slate-800 font-medium">Dashboard</span>
+      </nav>
+
+      <!-- ═══════════════════════════════════
+           HEADER STRIP
+      ═══════════════════════════════════ -->
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h1 class="text-xl font-semibold text-slate-800">Good morning, Khalid</h1>
+          <p class="text-sm text-slate-500 mt-0.5">Here's what's happening across inventory, pricing, and people today.</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0 mt-1">
+          <span class="text-xs text-slate-400">Last refreshed: <span class="font-medium text-slate-600">14:34 AST</span></span>
+          <button class="p-1.5 rounded-md border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition-colors" title="Refresh dashboard">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           DAILY VALUE STRIP — today's transactional totals
+           Lives at the top so operators see "what happened today"
+           the moment they land. Card values are slate-placeholders
+           until each owning module ships (the labels carry the sprint tag).
+      ═══════════════════════════════════ -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+
+        <!-- Reservations today — Sprint 5 -->
+        <div class="bg-white rounded-lg border border-slate-200 border-dashed p-3 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Reservations today</p>
+            <p class="text-xl font-bold text-slate-300 leading-tight mt-1">—</p>
+          </div>
+          <span class="inline-flex rounded-full bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 flex-shrink-0">Sprint 5</span>
+        </div>
+
+        <!-- Orders today — Sprint 6 -->
+        <div class="bg-white rounded-lg border border-slate-200 border-dashed p-3 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Orders today</p>
+            <p class="text-xl font-bold text-slate-300 leading-tight mt-1">—</p>
+          </div>
+          <span class="inline-flex rounded-full bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 flex-shrink-0">Sprint 6</span>
+        </div>
+
+        <!-- Financing apps open — Sprint 7 -->
+        <div class="bg-white rounded-lg border border-slate-200 border-dashed p-3 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Financing apps open</p>
+            <p class="text-xl font-bold text-slate-300 leading-tight mt-1">—</p>
+          </div>
+          <span class="inline-flex rounded-full bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 flex-shrink-0">Sprint 7</span>
+        </div>
+
+        <!-- Trade-in valuations — Sprint 9 -->
+        <div class="bg-white rounded-lg border border-slate-200 border-dashed p-3 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Trade-in valuations</p>
+            <p class="text-xl font-bold text-slate-300 leading-tight mt-1">—</p>
+          </div>
+          <span class="inline-flex rounded-full bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 flex-shrink-0">Sprint 9</span>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           ANNOTATION — KPI delta values
+      ═══════════════════════════════════ -->
+      <div class="annotation-card bg-white rounded-lg border border-brand-200 shadow-sm p-3 mb-4">
+        <p class="text-xs font-semibold text-brand-700 mb-1">Design annotation — KPI delta values</p>
+        <p class="text-xs text-slate-600">Card delta values (+6 vs last week) are computed server-side from rolling 7-day windows; the response includes <code class="bg-slate-100 px-1 rounded font-mono">deltaSign</code> ('up'|'down'|'flat') and <code class="bg-slate-100 px-1 rounded font-mono">deltaPct</code> so the frontend doesn't recompute.</p>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           ROW 1 — TOP KPI CARDS
+      ═══════════════════════════════════ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+
+        <!-- KPI 1: Total Active Listings -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Active Listings</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800">142</p>
+              <p class="mt-0.5 text-xs text-slate-400">stages other than sold / delivered / closed</p>
+              <div class="mt-2 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-brand-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                <span class="inline-flex items-center rounded-full bg-brand-50 border border-brand-200 px-2 py-0.5 text-xs font-semibold text-brand-700">+6 vs last week</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 2: Aging 20-44d -->
+        <div class="bg-brand-50 rounded-xl border border-brand-200 p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-brand-700 uppercase tracking-wide">Aging 20–44 Days</p>
+              <p class="mt-2 text-3xl font-bold text-brand-900">23</p>
+              <p class="mt-0.5 text-xs text-brand-600">approaching discount threshold</p>
+              <div class="mt-2 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-brand-700" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                <span class="inline-flex items-center rounded-full bg-brand-100 border border-brand-300 px-2 py-0.5 text-xs font-semibold text-brand-800">+4 vs last week</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 3: Aging 45+d -->
+        <div class="bg-red-50 rounded-xl border border-red-200 p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-red-700 uppercase tracking-wide">Aging 45+ Days</p>
+              <p class="mt-2 text-3xl font-bold text-red-800">11</p>
+              <p class="mt-0.5 text-xs text-red-600">discount applied or overdue review</p>
+              <div class="mt-2 flex items-center gap-1.5">
+                <svg class="w-3 h-3 text-red-700" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                <span class="inline-flex items-center rounded-full bg-red-100 border border-red-300 px-2 py-0.5 text-xs font-semibold text-red-700">+2 vs last week</span>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-red-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 4: Monthly Discount Applied -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Monthly Discount Applied</p>
+              <p class="mt-2 text-2xl font-bold text-slate-800 tabular-nums">KWD 18,420.000</p>
+              <p class="mt-0.5 text-xs text-slate-400">applied by aging engine this month</p>
+              <div class="mt-2">
+                <a href="/settings/pricing-rules" class="text-xs text-brand-600 hover:underline font-medium">View Pricing Rules &rarr;</a>
+              </div>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           ANNOTATION — Pipeline chart source
+      ═══════════════════════════════════ -->
+      <div class="annotation-card bg-white rounded-lg border border-brand-200 shadow-sm p-3 mb-4">
+        <p class="text-xs font-semibold text-brand-700 mb-1">Design annotation — Pipeline chart</p>
+        <p class="text-xs text-slate-600">Listing counts derive from a single <code class="bg-slate-100 px-1 rounded font-mono">prisma.listing.groupBy(&#123;by: ['stage']&#125;)</code> query — no separate endpoint. Stages in <span class="font-medium text-slate-700">sold / delivered / closed</span> are included in the chart for historical context but excluded from the Active Listings KPI above.</p>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           ROW 2 — PIPELINE AT A GLANCE
+      ═══════════════════════════════════ -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5 mb-4">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-800">Pipeline at a Glance</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Listing distribution across the 10 stages (FR-ADM-005).</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs font-semibold text-brand-700">Most stuck stage: reconditioning</p>
+            <p class="text-xs text-slate-500">avg <span class="font-medium text-slate-700">18d</span> dwell time</p>
+            <a href="/inventory/pipeline" class="text-xs text-brand-600 hover:underline font-medium mt-1 inline-block">Open pipeline board &rarr;</a>
+          </div>
+        </div>
+
+        <!-- Stacked bar chart -->
+        <div class="pipeline-bar mb-3 rounded-lg overflow-hidden">
+          <!-- acquired: brand-800 · 8 -->
+          <div class="pipeline-seg bg-brand-800 ts-wrap" style="width:5.6%" title="">
+            <span class="ts-tip">acquired: 8</span>
+          </div>
+          <!-- inbound: brand-700 · 14 -->
+          <div class="pipeline-seg bg-brand-700 ts-wrap" style="width:9.9%" title="">
+            <span class="ts-tip">inbound: 14</span>
+          </div>
+          <!-- inspection: brand-600 · 7 -->
+          <div class="pipeline-seg bg-brand-600 ts-wrap" style="width:4.9%" title="">
+            <span class="ts-tip">inspection: 7</span>
+          </div>
+          <!-- photoshoot: brand-500 · 5 -->
+          <div class="pipeline-seg bg-brand-500 ts-wrap" style="width:3.5%" title="">
+            <span class="ts-tip">photoshoot: 5</span>
+          </div>
+          <!-- reconditioning: brand-400 · 9 -->
+          <div class="pipeline-seg bg-brand-400 ts-wrap" style="width:6.3%" title="">
+            <span class="ts-tip">reconditioning: 9</span>
+          </div>
+          <!-- listed: brand-300 · 47 -->
+          <div class="pipeline-seg bg-brand-300 ts-wrap" style="width:33.1%" title="">
+            <span class="ts-tip">listed: 47</span>
+          </div>
+          <!-- reserved: brand-200 · 11 -->
+          <div class="pipeline-seg bg-brand-200 ts-wrap" style="width:7.7%" title="">
+            <span class="ts-tip">reserved: 11</span>
+          </div>
+          <!-- sold: slate-400 · 22 -->
+          <div class="pipeline-seg bg-slate-400 ts-wrap" style="width:15.5%" title="">
+            <span class="ts-tip">sold: 22</span>
+          </div>
+          <!-- delivered: slate-300 · 14 -->
+          <div class="pipeline-seg bg-slate-300 ts-wrap" style="width:9.9%" title="">
+            <span class="ts-tip">delivered: 14</span>
+          </div>
+          <!-- closed: slate-200 · 5 -->
+          <div class="pipeline-seg bg-slate-200 ts-wrap" style="width:3.5%" title="">
+            <span class="ts-tip">closed: 5</span>
+          </div>
+        </div>
+
+        <!-- Labels under bar -->
+        <div class="flex" style="font-size:10px">
+          <div class="text-center text-slate-600 font-medium" style="width:5.6%">8</div>
+          <div class="text-center text-slate-600 font-medium" style="width:9.9%">14</div>
+          <div class="text-center text-slate-600 font-medium" style="width:4.9%">7</div>
+          <div class="text-center text-slate-600 font-medium" style="width:3.5%">5</div>
+          <div class="text-center text-slate-600 font-medium" style="width:6.3%">9</div>
+          <div class="text-center text-brand-700 font-bold" style="width:33.1%">47</div>
+          <div class="text-center text-slate-600 font-medium" style="width:7.7%">11</div>
+          <div class="text-center text-slate-500 font-medium" style="width:15.5%">22</div>
+          <div class="text-center text-slate-500 font-medium" style="width:9.9%">14</div>
+          <div class="text-center text-slate-400 font-medium" style="width:3.5%">5</div>
+        </div>
+
+        <!-- Color key chips -->
+        <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-sm bg-brand-800 inline-block flex-shrink-0"></span>acquired</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-sm bg-brand-700 inline-block flex-shrink-0"></span>inbound</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-sm bg-brand-600 inline-block flex-shrink-0"></span>inspection</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-sm bg-brand-500 inline-block flex-shrink-0"></span>photoshoot</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-sm bg-brand-400 inline-block flex-shrink-0"></span>reconditioning</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-brand-700 font-semibold"><span class="w-2.5 h-2.5 rounded-sm bg-brand-300 inline-block flex-shrink-0"></span>listed</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-600"><span class="w-2.5 h-2.5 rounded-sm bg-brand-200 inline-block flex-shrink-0"></span>reserved</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-slate-400 inline-block flex-shrink-0"></span>sold</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-slate-300 inline-block flex-shrink-0"></span>delivered</span>
+          <span class="inline-flex items-center gap-1.5 text-xs text-slate-400"><span class="w-2.5 h-2.5 rounded-sm bg-slate-200 inline-block flex-shrink-0 border border-slate-300"></span>closed</span>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           ROW 3 — AGING ENGINE + QUICK ACTIONS
+      ═══════════════════════════════════ -->
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
+
+        <!-- LEFT: Aging engine status (60%) -->
+        <div class="lg:col-span-3 bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-semibold text-slate-800">Aging Engine</h2>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 border border-brand-200 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-brand-500 inline-block"></span>
+              ACTIVE
+            </span>
+          </div>
+          <!-- Inline annotation: PAUSED variant -->
+          <p class="text-xs text-slate-400 italic mb-4">Variant: status pill shows <span class="font-mono bg-slate-100 px-1 rounded">PAUSED</span> with a slate dot when the engine is suspended via the Pause button.</p>
+
+          <!-- Mini-stat rows -->
+          <div class="space-y-3 mb-5">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+              <div>
+                <p class="text-xs font-medium text-slate-600">Last run</p>
+                <p class="text-xs text-slate-400 mt-0.5">2026-05-17 02:00 AST</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-semibold text-slate-700">87 processed</p>
+                <p class="text-xs text-slate-400">12 discounts applied</p>
+              </div>
+            </div>
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+              <div>
+                <p class="text-xs font-medium text-slate-600">Next run</p>
+                <p class="text-xs text-slate-400 mt-0.5">Scheduled — nightly 02:00 AST</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-semibold text-brand-700">in 7h 23m</p>
+              </div>
+            </div>
+            <div class="flex items-start justify-between">
+              <div>
+                <p class="text-xs font-medium text-slate-600">Active discounts</p>
+                <p class="text-xs text-slate-400 mt-0.5">from current engine cycle</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs font-semibold text-slate-700">12 listings</p>
+                <p class="text-xs font-semibold text-brand-700 tabular-nums">KWD 6,210.000</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Role-gated buttons -->
+          <div class="flex flex-wrap gap-2">
+            <button class="inline-flex items-center gap-1.5 rounded-md bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 hover:bg-brand-700 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Run now
+            </button>
+            <button class="inline-flex items-center gap-1.5 rounded-md bg-white border border-slate-300 text-slate-700 text-xs font-semibold px-3 py-1.5 hover:bg-slate-50 transition-colors">
+              <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Pause engine
+            </button>
+            <a href="/reports/inventory-aging" class="inline-flex items-center gap-1.5 rounded-md bg-white border border-slate-300 text-brand-600 text-xs font-semibold px-3 py-1.5 hover:bg-brand-50 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Open report
+            </a>
+          </div>
+          <p class="text-xs text-slate-400 mt-2 italic">These buttons render only for <span class="font-semibold text-slate-500">finance_officer</span> + <span class="font-semibold text-slate-500">pricing_manager</span> (super_admin implicit via middleware bypass).</p>
+        </div>
+
+        <!-- RIGHT: Quick actions (40%) -->
+        <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-5">
+          <h2 class="text-sm font-semibold text-slate-800 mb-4">Quick Actions</h2>
+          <div class="space-y-1.5">
+
+            <!-- Action 1: New vehicle -->
+            <a href="/inventory/listings/new" class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-100 hover:bg-brand-50 hover:border-brand-200 transition-colors group">
+              <div class="w-8 h-8 rounded-lg bg-brand-50 group-hover:bg-brand-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-slate-800">New vehicle</p>
+                <p class="text-xs text-slate-400">/inventory/listings/new</p>
+              </div>
+              <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            <p class="text-xs text-slate-400 pl-3 italic">Role: listings WRITE_ROLES</p>
+
+            <!-- Action 2: Run aging engine now -->
+            <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-100 hover:bg-brand-50 hover:border-brand-200 transition-colors group">
+              <div class="w-8 h-8 rounded-lg bg-brand-50 group-hover:bg-brand-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0 text-left">
+                <p class="text-xs font-semibold text-slate-800">Run aging engine now</p>
+                <p class="text-xs text-slate-400">Confirm modal &rarr; POST /v1/admin/aging/run-now</p>
+              </div>
+              <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <p class="text-xs text-slate-400 pl-3 italic">Role: finance_officer, pricing_manager</p>
+
+            <!-- Action 3: Create user -->
+            <a href="/admin/users?create=true" class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-100 hover:bg-brand-50 hover:border-brand-200 transition-colors group">
+              <div class="w-8 h-8 rounded-lg bg-brand-50 group-hover:bg-brand-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-slate-800">Create user</p>
+                <p class="text-xs text-slate-400">/admin/users — opens create drawer</p>
+              </div>
+              <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            <p class="text-xs text-slate-400 pl-3 italic">Role: super_admin only</p>
+
+            <!-- Action 4: View audit log -->
+            <a href="/admin/audit-log" class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-100 hover:bg-brand-50 hover:border-brand-200 transition-colors group">
+              <div class="w-8 h-8 rounded-lg bg-brand-50 group-hover:bg-brand-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-slate-800">View audit log</p>
+                <p class="text-xs text-slate-400">/admin/audit-log</p>
+              </div>
+              <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </a>
+            <p class="text-xs text-slate-400 pl-3 italic">Role: super_admin, general_manager</p>
+
+          </div>
+          <p class="text-xs text-slate-400 mt-3 italic">Each action is hidden (not disabled) for roles without permission — the list shrinks accordingly.</p>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════
+           ANNOTATION — Recent activity endpoint
+      ═══════════════════════════════════ -->
+      <div class="annotation-card bg-white rounded-lg border border-brand-200 shadow-sm p-3 mb-4">
+        <p class="text-xs font-semibold text-brand-700 mb-1">Design annotation — Recent activity</p>
+        <p class="text-xs text-slate-600">Reuses <code class="bg-slate-100 px-1 rounded font-mono">/v1/admin/audit-log?pageSize=10</code> — no new endpoint needed for this section. Non-privileged roles receive a scope-filtered result set with a "Limited to your visible scope" caption below the table.</p>
+      </div>
+
+      <!-- ═══════════════════════════════════
+           ROW 4 — RECENT ACTIVITY + SYSTEM HEALTH
+      ═══════════════════════════════════ -->
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
+
+        <!-- LEFT: Recent Activity (60%) -->
+        <div class="lg:col-span-3 bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+            <div>
+              <h2 class="text-sm font-semibold text-slate-800">Recent Activity</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Last 10 admin actions across the system.</p>
+            </div>
+            <a href="/admin/audit-log" class="text-xs text-brand-600 hover:underline font-medium whitespace-nowrap">View full audit log &rarr;</a>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                  <th class="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Time</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Actor</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Action</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Resource</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Outcome</th>
+                  <th class="px-3 py-2.5 w-8"></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+
+                <!-- Row 1: listing.create — success -->
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-2.5">
+                    <div class="ts-wrap"><span class="font-mono text-xs text-slate-700 cursor-default">2 min ago</span></div>
+                  </td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0"><span class="text-white font-bold" style="font-size:8px">KA</span></div>
+                      <span class="text-xs text-slate-700 whitespace-nowrap">Khalid</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap">listing.create</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">admin.listing</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">success</span></td>
+                  <td class="px-3 py-2.5"><button class="p-1 rounded text-slate-300 hover:text-slate-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button></td>
+                </tr>
+
+                <!-- Row 2: listing.stage.changed — success -->
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-2.5"><span class="font-mono text-xs text-slate-700">8 min ago</span></td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0"><span class="text-white font-bold" style="font-size:8px">FA</span></div>
+                      <span class="text-xs text-slate-700 whitespace-nowrap">Fatima</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap">listing.stage.changed</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">admin.listing</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">success</span></td>
+                  <td class="px-3 py-2.5"><button class="p-1 rounded text-slate-300 hover:text-slate-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button></td>
+                </tr>
+
+                <!-- Row 3: pricing.tier.update — success -->
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-2.5"><span class="font-mono text-xs text-slate-700">19 min ago</span></td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0"><span class="text-white font-bold" style="font-size:8px">KA</span></div>
+                      <span class="text-xs text-slate-700 whitespace-nowrap">Khalid</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap">pricing.tier.update</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">admin.pricing-tier</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">success</span></td>
+                  <td class="px-3 py-2.5"><button class="p-1 rounded text-slate-300 hover:text-slate-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button></td>
+                </tr>
+
+                <!-- Row 4: aging.run-now — success -->
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-2.5"><span class="font-mono text-xs text-slate-700">34 min ago</span></td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0"><span class="text-white font-bold" style="font-size:8px">KA</span></div>
+                      <span class="text-xs text-slate-700 whitespace-nowrap">Khalid</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap">aging.run-now</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">admin.aging</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">success</span></td>
+                  <td class="px-3 py-2.5"><button class="p-1 rounded text-slate-300 hover:text-slate-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button></td>
+                </tr>
+
+                <!-- Row 5: user.password.reset — success -->
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-2.5"><span class="font-mono text-xs text-slate-700">1 hr ago</span></td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-slate-500 flex items-center justify-center flex-shrink-0"><span class="text-white font-bold" style="font-size:8px">NM</span></div>
+                      <span class="text-xs text-slate-700 whitespace-nowrap">Nour</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap">user.password.reset</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">admin.user</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">success</span></td>
+                  <td class="px-3 py-2.5"><button class="p-1 rounded text-slate-300 hover:text-slate-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button></td>
+                </tr>
+
+                <!-- Row 6: auth.login.failed — denied -->
+                <tr class="hover:bg-red-50 transition-colors bg-red-50/40">
+                  <td class="px-4 py-2.5"><span class="font-mono text-xs text-slate-700">1 hr ago</span></td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-slate-300 flex items-center justify-center flex-shrink-0"><span class="text-slate-500 font-bold" style="font-size:9px">?</span></div>
+                      <span class="text-xs text-slate-500 italic whitespace-nowrap">unknown</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700 whitespace-nowrap">auth.login.failed</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">admin.session</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700">denied</span></td>
+                  <td class="px-3 py-2.5"><button class="p-1 rounded text-slate-300 hover:text-slate-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button></td>
+                </tr>
+
+                <!-- Row 7: listing.archive — success -->
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-2.5"><span class="font-mono text-xs text-slate-700">2 hr ago</span></td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0"><span class="text-white font-bold" style="font-size:8px">FA</span></div>
+                      <span class="text-xs text-slate-700 whitespace-nowrap">Fatima</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap">listing.archive</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">admin.listing</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">success</span></td>
+                  <td class="px-3 py-2.5"><button class="p-1 rounded text-slate-300 hover:text-slate-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button></td>
+                </tr>
+
+                <!-- Row 8: user.roles.assigned — success -->
+                <tr class="hover:bg-slate-50 transition-colors">
+                  <td class="px-4 py-2.5"><span class="font-mono text-xs text-slate-700">3 hr ago</span></td>
+                  <td class="px-3 py-2.5">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0"><span class="text-white font-bold" style="font-size:8px">KA</span></div>
+                      <span class="text-xs text-slate-700 whitespace-nowrap">Khalid</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap">user.roles.assigned</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">admin.user</span></td>
+                  <td class="px-3 py-2.5"><span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">success</span></td>
+                  <td class="px-3 py-2.5"><button class="p-1 rounded text-slate-300 hover:text-slate-600"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button></td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-5 py-3 border-t border-slate-100 flex items-center justify-between">
+            <p class="text-xs text-slate-400 italic">Non-privileged roles see a scope-filtered list with "Limited to your visible scope" notice.</p>
+            <a href="/admin/audit-log" class="text-xs text-brand-600 hover:underline font-medium whitespace-nowrap">View full audit log &rarr;</a>
+          </div>
+        </div>
+
+        <!-- RIGHT: System Health (40%) -->
+        <div class="lg:col-span-2 space-y-3">
+
+          <!-- Media coverage card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Media coverage</h3>
+              <span class="text-xs text-slate-400">storefront-ready</span>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span class="text-xs text-slate-600">Photos</span>
+                </div>
+                <span class="text-xs font-semibold text-slate-800">1,247</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span class="text-xs text-slate-600">Videos</span>
+                </div>
+                <span class="text-xs font-semibold text-slate-800">89</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  <span class="text-xs text-slate-600">360&deg; tours</span>
+                </div>
+                <span class="text-xs font-semibold text-slate-800">23</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin users card — role-gated super_admin + general_manager -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Admin users</h3>
+              <span class="text-xs text-brand-600 italic">super_admin + general_manager</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-center">
+                <p class="text-lg font-bold text-slate-800">6</p>
+                <p class="text-xs text-slate-400">active</p>
+              </div>
+              <div class="text-center">
+                <p class="text-lg font-bold text-red-700">1</p>
+                <p class="text-xs text-slate-400">locked</p>
+              </div>
+              <div class="text-center">
+                <p class="text-lg font-bold text-slate-300">0</p>
+                <p class="text-xs text-slate-400">disabled</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing tiers card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Pricing tiers</h3>
+            </div>
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-lg font-bold text-slate-800">4 <span class="text-xs font-normal text-slate-400">active</span></p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-brand-700 font-semibold">Next aging run</p>
+                <p class="text-xs text-slate-600">in 7h 23m</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- API uptime card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wide">API uptime</h3>
+              <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">99.97%</span>
+            </div>
+            <p class="text-xs text-slate-400">Last 30 days</p>
+            <p class="text-xs text-slate-400 italic mt-1">Live metric arrives Sprint 11 — source is telemetry placeholder.</p>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+</body>
+</html>

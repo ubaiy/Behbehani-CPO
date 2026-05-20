@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Certified Vehicles — Behbehani CPO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8f',
+              950: '#172554',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* ── Base ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; }
+
+    /* ── Range slider reset ── */
+    input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px; background: #e2e8f0;
+      border-radius: 9999px; outline: none; cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #2563eb; border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #2563eb; border: 2px solid #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.25); cursor: pointer;
+    }
+
+    /* ── Chip ── */
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 5px 12px; border-radius: 9999px; font-size: 13px;
+      font-weight: 500; border: 1.5px solid #cbd5e1; background: #fff;
+      cursor: pointer; transition: all .15s;
+      color: #475569;
+    }
+    .chip:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+    .chip.active { border-color: #2563eb; background: #eff6ff; color: #2563eb; }
+
+    /* ── Filter section ── */
+    .filter-section { border-bottom: 1px solid #e2e8f0; }
+    .filter-toggle { width: 100%; display: flex; align-items: center;
+      justify-content: space-between; padding: 12px 0; font-weight: 600;
+      font-size: 13px; color: #1e293b; cursor: pointer; letter-spacing: .01em;
+      background: none; border: none; }
+    .filter-toggle svg { transition: transform .2s; }
+    .filter-toggle.collapsed svg { transform: rotate(-90deg); }
+    .filter-body { padding-bottom: 12px; }
+    .filter-body.hidden { display: none; }
+
+    /* ── Annotation card ── */
+    .annotation {
+      position: relative;
+      background: #fefce8; border: 1.5px dashed #ca8a04;
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 11.5px; line-height: 1.5; color: #78350f;
+    }
+    .annotation::before {
+      content: 'DEV NOTE';
+      display: block; font-size: 9px; font-weight: 700;
+      letter-spacing: .08em; color: #b45309; margin-bottom: 4px;
+    }
+
+    /* ── Card photo placeholder ── */
+    .card-photo {
+      aspect-ratio: 16/10; width: 100%;
+      background: linear-gradient(135deg, #bfdbfe 0%, #dbeafe 40%, #eff6ff 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .card-photo::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(30,40,80,.12) 0%, transparent 60%);
+    }
+
+    /* ── Reserved overlay ── */
+    .reserved-overlay {
+      position: absolute; inset: 0; background: rgba(15,23,42,.52);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10; backdrop-filter: blur(1px);
+    }
+
+    /* ── Sticky sort bar ── */
+    .sort-bar-sticky {
+      position: sticky; top: 64px; z-index: 20;
+      background: #fff; border-bottom: 1px solid #e2e8f0;
+    }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { animation: spin .7s linear infinite; }
+
+    /* ── Topbar ── */
+    .topbar { position: sticky; top: 0; z-index: 40;
+      background: #1e3a8f; box-shadow: 0 2px 12px rgba(0,0,0,.18); }
+
+    /* ── Bottom-sheet overlay (mobile filter) ── */
+    .sheet-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      z-index: 50; display: none;
+    }
+    .sheet-panel {
+      position: fixed; inset-inline-start: 0; inset-inline-end: 0; bottom: 0;
+      height: 88vh; background: #fff; border-radius: 20px 20px 0 0;
+      overflow-y: auto; z-index: 51; transform: translateY(100%);
+      transition: transform .32s cubic-bezier(.32,1,.6,1);
+    }
+    .sheet-open .sheet-overlay { display: block; }
+    .sheet-open .sheet-panel { transform: translateY(0); }
+
+    /* ── Responsive grid ── */
+    @media (min-width: 768px) {
+      .results-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .results-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    /* ── View toggle active ── */
+    .view-btn { display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 6px; font-size: 13px;
+      font-weight: 500; transition: all .15s; cursor: pointer; }
+    .view-btn.active { background: #eff6ff; color: #2563eb; }
+    .view-btn:not(.active) { color: #64748b; }
+    .view-btn:not(.active):hover { background: #f1f5f9; }
+
+    /* ── Pagination ── */
+    .page-btn { display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 6px; font-size: 13px;
+      font-weight: 500; cursor: pointer; border: 1.5px solid transparent; }
+    .page-btn:hover { background: #f1f5f9; }
+    .page-btn.active { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+    .page-btn.disabled { color: #cbd5e1; pointer-events: none; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+<!-- ═══════════════════════════════════════════
+     TOPBAR
+═══════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="max-w-screen-xl mx-auto px-4 flex items-center justify-between h-16 gap-4">
+    <!-- Logo -->
+    <a href="/en" class="flex items-center gap-3 shrink-0">
+      <div class="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-content-center">
+        <span class="text-white font-bold text-lg leading-none select-none px-1">B</span>
+      </div>
+      <div class="hidden sm:block">
+        <span class="text-white font-bold text-base tracking-wide">Behbehani</span>
+        <span class="block text-brand-300 text-[10px] font-medium tracking-widest uppercase -mt-0.5">Certified Pre-Owned</span>
+      </div>
+    </a>
+
+    <!-- Nav links (desktop) -->
+    <nav class="hidden lg:flex items-center gap-1">
+      <a href="/en" class="text-white/80 hover:text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">Home</a>
+      <a href="/en/browse" class="text-white text-sm font-semibold px-3 py-2 rounded-lg bg-white/15">Browse Cars</a>
+      <a href="/en/sell" class="text-white/80 hover:text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">Sell / Trade</a>
+      <a href="/en/finance" class="text-white/80 hover:text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">Finance</a>
+      <a href="/en/al-daman" class="text-white/80 hover:text-white text-sm font-medium px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">Al Daman</a>
+    </nav>
+
+    <!-- Right controls -->
+    <div class="flex items-center gap-2">
+      <!-- Search -->
+      <button class="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors" aria-label="Search">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </button>
+      <!-- Saved -->
+      <button class="hidden sm:flex text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors items-center gap-1.5 text-sm font-medium" aria-label="Saved cars">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+        <span class="hidden md:inline">Saved</span>
+      </button>
+      <!-- Lang toggle -->
+      <a href="/ar/browse" class="text-white/80 hover:text-white text-sm font-medium px-3 py-1.5 rounded-lg border border-white/20 hover:bg-white/10 transition-colors hidden sm:inline-flex">
+        عربي
+      </a>
+      <!-- Sign in -->
+      <button class="bg-white text-brand-800 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-brand-50 transition-colors hidden md:inline-flex">
+        Sign in
+      </button>
+      <!-- Mobile hamburger -->
+      <button class="lg:hidden text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors" aria-label="Menu">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════
+     BREADCRUMB
+═══════════════════════════════════════════ -->
+<div class="bg-white border-b border-slate-200">
+  <div class="max-w-screen-xl mx-auto px-4 py-2.5">
+    <nav class="flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
+      <a href="/en" class="text-brand-600 hover:underline font-medium">Home</a>
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/></svg>
+      <span class="text-slate-500">Browse cars</span>
+    </nav>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE H1 + MOBILE FILTER TRIGGER
+═══════════════════════════════════════════ -->
+<div class="bg-white border-b border-slate-200">
+  <div class="max-w-screen-xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-800 font-extrabold text-slate-900">Browse certified vehicles</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Inspected, warranted &amp; ready to drive</p>
+    </div>
+    <!-- Mobile: open filter sheet -->
+    <button id="openFilters"
+      class="lg:hidden inline-flex items-center gap-2 bg-brand-600 text-white text-sm font-semibold px-4 py-2.5 rounded-full shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 4h18M7 8h10m-7 4h4"/>
+      </svg>
+      Filters
+      <span class="bg-white text-brand-700 text-[11px] font-bold rounded-full px-1.5 py-0.5 leading-none">3</span>
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN LAYOUT
+═══════════════════════════════════════════ -->
+<main class="max-w-screen-xl mx-auto px-4 py-6 flex gap-6 flex-1 items-start">
+
+  <!-- ── FILTER RAIL (desktop) ── -->
+  <aside class="hidden lg:flex flex-col w-72 shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden self-start sticky top-[72px]">
+    <!-- Rail header -->
+    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+      <span class="font-bold text-slate-800 text-sm">Filters</span>
+      <div class="flex items-center gap-3 text-xs font-semibold">
+        <button class="text-red-500 hover:text-red-700 transition-colors">Clear all</button>
+        <span class="text-slate-300">|</span>
+        <button class="text-brand-600 hover:text-brand-800 transition-colors">Save search</button>
+      </div>
+    </div>
+
+    <!-- Annotation: URL deep-link -->
+    <div class="px-4 pt-3 pb-1">
+      <div class="annotation">
+        Filters write to URL query string — deep-linkable &amp; back-button restores full filter state.
+      </div>
+    </div>
+
+    <div class="px-4 overflow-y-auto max-h-[calc(100vh-200px)] pb-6">
+
+      <!-- Body type -->
+      <div class="filter-section pt-1">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Body type
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="space-y-2">
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" checked class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Sedan</span>
+              <span class="text-xs text-slate-400 font-medium">32</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">SUV</span>
+              <span class="text-xs text-slate-400 font-medium">45</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Hatchback</span>
+              <span class="text-xs text-slate-400 font-medium">18</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Coupé</span>
+              <span class="text-xs text-slate-400 font-medium">8</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Pickup</span>
+              <span class="text-xs text-slate-400 font-medium">22</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Van</span>
+              <span class="text-xs text-slate-400 font-medium">6</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brand -->
+      <div class="filter-section">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Brand
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="relative mb-2.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" placeholder="Search brands…" class="w-full pl-7 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+          </div>
+          <div class="space-y-2">
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" checked class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Toyota</span>
+              <span class="text-xs text-slate-400 font-medium">28</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Lexus</span>
+              <span class="text-xs text-slate-400 font-medium">14</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Nissan</span>
+              <span class="text-xs text-slate-400 font-medium">19</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Hyundai</span>
+              <span class="text-xs text-slate-400 font-medium">11</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Kia</span>
+              <span class="text-xs text-slate-400 font-medium">9</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Honda</span>
+              <span class="text-xs text-slate-400 font-medium">7</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">Mercedes-Benz</span>
+              <span class="text-xs text-slate-400 font-medium">6</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900 flex-1">BMW</span>
+              <span class="text-xs text-slate-400 font-medium">5</span>
+            </label>
+          </div>
+          <button class="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-800 transition-colors">+12 more</button>
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="filter-section">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Price (KWD)
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="px-1 mb-3">
+            <input type="range" min="0" max="50000" value="8000" class="w-full" />
+          </div>
+          <div class="flex gap-2">
+            <div class="flex-1">
+              <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Min</label>
+              <input type="number" value="3000" class="mt-1 w-full border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+            </div>
+            <div class="flex items-end pb-1.5 text-slate-300 text-sm">—</div>
+            <div class="flex-1">
+              <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Max</label>
+              <input type="number" value="8000" class="mt-1 w-full border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1.5">Default range: KWD 3,000 – 25,000</p>
+        </div>
+      </div>
+
+      <!-- Year -->
+      <div class="filter-section">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Year
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="px-1 mb-3">
+            <input type="range" min="2015" max="2026" value="2025" class="w-full" />
+          </div>
+          <div class="flex gap-2">
+            <div class="flex-1">
+              <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">From</label>
+              <input type="number" value="2018" class="mt-1 w-full border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+            </div>
+            <div class="flex items-end pb-1.5 text-slate-300 text-sm">—</div>
+            <div class="flex-1">
+              <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">To</label>
+              <input type="number" value="2025" class="mt-1 w-full border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mileage -->
+      <div class="filter-section">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Mileage (km)
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="px-1 mb-3">
+            <input type="range" min="0" max="300000" value="200000" class="w-full" />
+          </div>
+          <div class="flex gap-2">
+            <div class="flex-1">
+              <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Min km</label>
+              <input type="number" value="0" class="mt-1 w-full border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+            </div>
+            <div class="flex items-end pb-1.5 text-slate-300 text-sm">—</div>
+            <div class="flex-1">
+              <label class="text-[10px] font-semibold text-slate-400 uppercase tracking-wide">Max km</label>
+              <input type="number" value="200000" class="mt-1 w-full border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transmission -->
+      <div class="filter-section">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Transmission
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="flex flex-wrap gap-2">
+            <button class="chip active">Automatic</button>
+            <button class="chip">Manual</button>
+            <button class="chip">CVT</button>
+            <button class="chip">DCT</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fuel -->
+      <div class="filter-section">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Fuel type
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="flex flex-wrap gap-2">
+            <button class="chip active">Petrol</button>
+            <button class="chip">Diesel</button>
+            <button class="chip">Hybrid</button>
+            <button class="chip">Electric</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Drivetrain -->
+      <div class="filter-section">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Drivetrain
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="flex flex-wrap gap-2">
+            <button class="chip">FWD</button>
+            <button class="chip">RWD</button>
+            <button class="chip active">AWD</button>
+            <button class="chip">4WD</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seats -->
+      <div class="filter-section">
+        <button class="filter-toggle" onclick="toggleSection(this)">
+          Seats
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body">
+          <div class="flex flex-wrap gap-2">
+            <button class="chip">2</button>
+            <button class="chip">4</button>
+            <button class="chip active">5</button>
+            <button class="chip">7</button>
+            <button class="chip">8+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features (collapsed) -->
+      <div class="filter-section">
+        <button class="filter-toggle collapsed" onclick="toggleSection(this)">
+          Features
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="filter-body hidden">
+          <div class="space-y-2">
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900">Sunroof / Moonroof</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900">360 Camera</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900">Leather seats</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900">Apple CarPlay</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900">Adaptive cruise control</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900">Heated seats</span>
+            </label>
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <input type="checkbox" class="w-4 h-4 accent-brand-600 rounded" />
+              <span class="text-sm text-slate-700 group-hover:text-slate-900">Blind spot monitor</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Apply button -->
+      <div class="pt-4">
+        <button class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3 rounded-xl text-sm transition-colors shadow-sm">
+          Show <span id="railCount">87</span> cars
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── RESULTS COLUMN ── -->
+  <div class="flex-1 min-w-0 flex flex-col gap-4">
+
+    <!-- ── SORT BAR (sticky) ── -->
+    <div class="sort-bar-sticky -mx-4 px-4 py-3 rounded-none lg:rounded-xl lg:mx-0 lg:border lg:border-slate-200 lg:shadow-sm">
+      <div class="flex items-center gap-3 flex-wrap">
+
+        <!-- Left: count + spinner -->
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <svg id="sortSpinner" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-brand-500 spinner hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <span id="countLabel" class="font-semibold text-slate-900 text-sm whitespace-nowrap">Showing <span class="text-brand-700">87</span> of 143 cars</span>
+        </div>
+
+        <!-- Center: view toggle -->
+        <div class="flex items-center gap-1 border border-slate-200 rounded-lg p-0.5 bg-slate-50">
+          <button class="view-btn active" aria-label="Grid view" aria-pressed="true">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            <span class="hidden sm:inline">Grid</span>
+          </button>
+          <a href="04-listings-list.html" class="view-btn" aria-label="List view" aria-pressed="false">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+            <span class="hidden sm:inline">List</span>
+          </a>
+        </div>
+
+        <!-- Right: sort -->
+        <select class="border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 focus:outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 bg-white cursor-pointer">
+          <option>Newest first</option>
+          <option>Price: Low to High</option>
+          <option>Price: High to Low</option>
+          <option>Mileage: Low to High</option>
+          <option>Year: Newest</option>
+          <option>Best deal</option>
+          <option>Closest match</option>
+        </select>
+      </div>
+
+      <!-- Socket.IO annotation -->
+      <div class="annotation mt-3">
+        Count updates via Socket.IO event <code class="bg-yellow-100 px-1 rounded text-[11px] font-mono">listings:filtered-count</code> — target &lt;300 ms (FR-BUY-015). Spinner visible while request is in flight.
+      </div>
+    </div>
+
+    <!-- ── ACTIVE FILTER CHIPS ── -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide shrink-0">Active:</span>
+      <button class="inline-flex items-center gap-1.5 bg-brand-50 border border-brand-200 text-brand-800 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-100 transition-colors">
+        Sedan
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <button class="inline-flex items-center gap-1.5 bg-brand-50 border border-brand-200 text-brand-800 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-100 transition-colors">
+        Toyota
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <button class="inline-flex items-center gap-1.5 bg-brand-50 border border-brand-200 text-brand-800 text-xs font-semibold px-3 py-1.5 rounded-full hover:bg-brand-100 transition-colors">
+        Price &le; KWD 8,000.000
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <button class="text-xs text-slate-400 hover:text-red-500 font-medium ml-1 transition-colors">Clear all</button>
+    </div>
+
+    <!-- ── RESULT GRID ── -->
+    <div class="results-grid grid grid-cols-1 gap-5">
+
+      <!-- CARD 1 — New arrival -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div class="card-photo">
+          <div class="absolute top-3 left-3 z-10">
+            <span class="bg-brand-600 text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">New arrival</span>
+          </div>
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <!-- Car silhouette placeholder -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 40 Q15 25 30 22 L50 18 Q65 14 80 18 L100 24 Q108 28 112 40 L110 42 Q105 38 95 38 Q85 38 80 42 L40 42 Q35 38 25 38 Q15 38 10 42 Z" stroke-linejoin="round"/>
+            <circle cx="25" cy="42" r="8"/><circle cx="95" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-700 transition-colors">
+            2024 Toyota Camry XSE V6
+          </h3>
+          <!-- Spec strip -->
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-500">
+            <span>42,000 km</span>
+            <span class="text-slate-300">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-300">·</span>
+            <span>Automatic</span>
+            <span class="text-slate-300">·</span>
+            <span>Sedan</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Al Daman
+            </span>
+          </div>
+          <!-- Price -->
+          <div class="mt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 7,850.000</p>
+            <p class="text-xs text-slate-400 mt-0.5">From <span class="font-semibold text-slate-600">KWD 75.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+            View details
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD 2 — Best deal + Price drop tag -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div class="card-photo">
+          <div class="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
+            <span class="bg-green-600 text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">Best deal</span>
+            <span class="bg-red-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">Price drop -KWD 250.000</span>
+          </div>
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M8 40 Q15 22 35 18 L55 14 Q70 10 90 16 L108 24 Q115 30 115 40 L112 42 Q107 37 97 37 Q87 37 82 42 L38 42 Q33 37 23 37 Q13 37 8 42 Z" stroke-linejoin="round"/>
+            <circle cx="23" cy="42" r="8"/><circle cx="97" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-700 transition-colors">
+            2023 Lexus RX 350 F-Sport
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-500">
+            <span>28,500 km</span>
+            <span class="text-slate-300">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-300">·</span>
+            <span>Automatic</span>
+            <span class="text-slate-300">·</span>
+            <span>SUV</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Al Daman
+            </span>
+          </div>
+          <div class="mt-3">
+            <div class="flex items-baseline gap-2">
+              <p class="text-lg font-extrabold text-slate-900">KWD 14,500.000</p>
+              <p class="text-sm text-slate-400 line-through">KWD 14,750.000</p>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">From <span class="font-semibold text-slate-600">KWD 138.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+            View details
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD 3 — Reserved -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden group opacity-80">
+        <div class="card-photo">
+          <div class="reserved-overlay">
+            <div class="text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+              </svg>
+              <span class="text-white font-bold text-sm tracking-wide uppercase">Reserved</span>
+            </div>
+          </div>
+          <div class="absolute top-3 left-3 z-10">
+            <span class="bg-slate-600 text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">Reserved</span>
+          </div>
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow-sm" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 40 Q15 25 30 22 L50 18 Q65 14 80 18 L100 24 Q108 28 112 40 L110 42 Q105 38 95 38 Q85 38 80 42 L40 42 Q35 38 25 38 Q15 38 10 42 Z" stroke-linejoin="round"/>
+            <circle cx="25" cy="42" r="8"/><circle cx="95" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-500 text-sm leading-snug">
+            2022 Nissan Patrol SE Platinum
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-400">
+            <span>55,000 km</span>
+            <span class="text-slate-200">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-200">·</span>
+            <span>Automatic</span>
+            <span class="text-slate-200">·</span>
+            <span>SUV</span>
+            <span class="text-slate-200">·</span>
+            <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-400 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              Al Daman
+            </span>
+          </div>
+          <div class="mt-3">
+            <p class="text-lg font-extrabold text-slate-400">KWD 19,200.000</p>
+            <p class="text-xs text-slate-300 mt-0.5">From <span class="font-semibold">KWD 183.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-slate-200 text-slate-400 text-sm font-semibold py-2.5 rounded-xl cursor-not-allowed" disabled>
+            Currently reserved
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD 4 -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div class="card-photo">
+          <div class="absolute top-3 left-3 z-10">
+            <span class="bg-brand-600 text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">New arrival</span>
+          </div>
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 40 Q15 25 30 22 L50 18 Q65 14 80 18 L100 24 Q108 28 112 40 L110 42 Q105 38 95 38 Q85 38 80 42 L40 42 Q35 38 25 38 Q15 38 10 42 Z" stroke-linejoin="round"/>
+            <circle cx="25" cy="42" r="8"/><circle cx="95" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-700 transition-colors">
+            2024 Hyundai Tucson N-Line AWD
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-500">
+            <span>12,300 km</span>
+            <span class="text-slate-300">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-300">·</span>
+            <span>DCT</span>
+            <span class="text-slate-300">·</span>
+            <span>SUV</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Al Daman
+            </span>
+          </div>
+          <div class="mt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 6,950.000</p>
+            <p class="text-xs text-slate-400 mt-0.5">From <span class="font-semibold text-slate-600">KWD 66.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+            View details
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD 5 -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div class="card-photo">
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 40 Q15 25 30 22 L50 18 Q65 14 80 18 L100 24 Q108 28 112 40 L110 42 Q105 38 95 38 Q85 38 80 42 L40 42 Q35 38 25 38 Q15 38 10 42 Z" stroke-linejoin="round"/>
+            <circle cx="25" cy="42" r="8"/><circle cx="95" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-700 transition-colors">
+            2023 Toyota Land Cruiser GX.R V8
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-500">
+            <span>33,700 km</span>
+            <span class="text-slate-300">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-300">·</span>
+            <span>Automatic</span>
+            <span class="text-slate-300">·</span>
+            <span>SUV</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Al Daman
+            </span>
+          </div>
+          <div class="mt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 21,400.000</p>
+            <p class="text-xs text-slate-400 mt-0.5">From <span class="font-semibold text-slate-600">KWD 204.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+            View details
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD 6 -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div class="card-photo">
+          <div class="absolute top-3 left-3 z-10">
+            <span class="bg-green-600 text-white text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">Best deal</span>
+          </div>
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 40 Q15 25 30 22 L50 18 Q65 14 80 18 L100 24 Q108 28 112 40 L110 42 Q105 38 95 38 Q85 38 80 42 L40 42 Q35 38 25 38 Q15 38 10 42 Z" stroke-linejoin="round"/>
+            <circle cx="25" cy="42" r="8"/><circle cx="95" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-700 transition-colors">
+            2022 Kia Sorento EX+ AWD
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-500">
+            <span>61,200 km</span>
+            <span class="text-slate-300">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-300">·</span>
+            <span>Automatic</span>
+            <span class="text-slate-300">·</span>
+            <span>SUV</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Al Daman
+            </span>
+          </div>
+          <div class="mt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 5,200.000</p>
+            <p class="text-xs text-slate-400 mt-0.5">From <span class="font-semibold text-slate-600">KWD 50.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+            View details
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD 7 -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div class="card-photo">
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 40 Q15 25 30 22 L50 18 Q65 14 80 18 L100 24 Q108 28 112 40 L110 42 Q105 38 95 38 Q85 38 80 42 L40 42 Q35 38 25 38 Q15 38 10 42 Z" stroke-linejoin="round"/>
+            <circle cx="25" cy="42" r="8"/><circle cx="95" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-700 transition-colors">
+            2021 Honda Accord Touring 2.0T
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-500">
+            <span>78,400 km</span>
+            <span class="text-slate-300">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-300">·</span>
+            <span>CVT</span>
+            <span class="text-slate-300">·</span>
+            <span>Sedan</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Al Daman
+            </span>
+          </div>
+          <div class="mt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 4,450.000</p>
+            <p class="text-xs text-slate-400 mt-0.5">From <span class="font-semibold text-slate-600">KWD 42.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+            View details
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD 8 -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div class="card-photo">
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M8 40 Q15 22 35 18 L55 14 Q70 10 90 16 L108 24 Q115 30 115 40 L112 42 Q107 37 97 37 Q87 37 82 42 L38 42 Q33 37 23 37 Q13 37 8 42 Z" stroke-linejoin="round"/>
+            <circle cx="23" cy="42" r="8"/><circle cx="97" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-700 transition-colors">
+            2023 BMW 530i M-Sport
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-500">
+            <span>19,800 km</span>
+            <span class="text-slate-300">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-300">·</span>
+            <span>Automatic</span>
+            <span class="text-slate-300">·</span>
+            <span>Sedan</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Al Daman
+            </span>
+          </div>
+          <div class="mt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 16,800.000</p>
+            <p class="text-xs text-slate-400 mt-0.5">From <span class="font-semibold text-slate-600">KWD 160.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+            View details
+          </button>
+        </div>
+      </article>
+
+      <!-- CARD 9 -->
+      <article class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+        <div class="card-photo">
+          <button class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors" aria-label="Save to favourites">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-16 text-brand-300 opacity-60 relative z-0" fill="none" viewBox="0 0 120 60" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 40 Q15 25 30 22 L50 18 Q65 14 80 18 L100 24 Q108 28 112 40 L110 42 Q105 38 95 38 Q85 38 80 42 L40 42 Q35 38 25 38 Q15 38 10 42 Z" stroke-linejoin="round"/>
+            <circle cx="25" cy="42" r="8"/><circle cx="95" cy="42" r="8"/>
+          </svg>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-700 transition-colors">
+            2022 Mercedes-Benz C 300 AMG Line
+          </h3>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-slate-500">
+            <span>36,100 km</span>
+            <span class="text-slate-300">·</span>
+            <span>Petrol</span>
+            <span class="text-slate-300">·</span>
+            <span>Automatic</span>
+            <span class="text-slate-300">·</span>
+            <span>Sedan</span>
+            <span class="text-slate-300">·</span>
+            <span class="inline-flex items-center gap-1 bg-brand-50 text-brand-700 font-semibold px-1.5 py-0.5 rounded text-[10px]">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Al Daman
+            </span>
+          </div>
+          <div class="mt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 12,600.000</p>
+            <p class="text-xs text-slate-400 mt-0.5">From <span class="font-semibold text-slate-600">KWD 120.000</span>/mo</p>
+          </div>
+          <button class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors">
+            View details
+          </button>
+        </div>
+      </article>
+
+    </div><!-- /results-grid -->
+
+    <!-- ── PAGINATION ── -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Page info + size selector -->
+        <div class="flex items-center gap-3 text-sm text-slate-500">
+          <span>Showing <span class="font-semibold text-slate-700">1 – 24</span> of <span class="font-semibold text-slate-700">87</span></span>
+          <span class="text-slate-300">|</span>
+          <label class="flex items-center gap-1.5 text-xs">
+            Per page:
+            <select class="border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-700 focus:outline-none focus:border-brand-400 bg-white">
+              <option selected>24</option>
+              <option>48</option>
+              <option>96</option>
+            </select>
+          </label>
+        </div>
+
+        <!-- Page buttons -->
+        <div class="flex items-center gap-1">
+          <button class="page-btn disabled" aria-label="Previous page">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <span class="page-btn text-slate-400 cursor-default">…</span>
+          <button class="page-btn">12</button>
+          <button class="page-btn" aria-label="Next page">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /results column -->
+</main>
+
+<!-- ═══════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════ -->
+<footer class="bg-brand-950 text-white mt-auto">
+  <div class="max-w-screen-xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+      <!-- Brand -->
+      <div class="col-span-2 md:col-span-1">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center">
+            <span class="text-white font-bold text-base leading-none">B</span>
+          </div>
+          <span class="font-bold text-sm">Behbehani CPO</span>
+        </div>
+        <p class="text-brand-300 text-xs leading-relaxed">Kuwait's trusted certified pre-owned automotive marketplace. Every car inspected, warranted, and ready to drive.</p>
+      </div>
+      <!-- Buy -->
+      <div>
+        <h4 class="font-semibold text-xs uppercase tracking-wider text-brand-300 mb-3">Buy</h4>
+        <ul class="space-y-2 text-xs text-brand-200">
+          <li><a href="#" class="hover:text-white transition-colors">Browse all cars</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">New arrivals</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Best deals</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Finance options</a></li>
+        </ul>
+      </div>
+      <!-- Sell -->
+      <div>
+        <h4 class="font-semibold text-xs uppercase tracking-wider text-brand-300 mb-3">Sell</h4>
+        <ul class="space-y-2 text-xs text-brand-200">
+          <li><a href="#" class="hover:text-white transition-colors">Sell your car</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Trade-in estimate</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">How it works</a></li>
+        </ul>
+      </div>
+      <!-- Help -->
+      <div>
+        <h4 class="font-semibold text-xs uppercase tracking-wider text-brand-300 mb-3">Help</h4>
+        <ul class="space-y-2 text-xs text-brand-200">
+          <li><a href="#" class="hover:text-white transition-colors">Al Daman warranty</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Contact us</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">FAQs</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Privacy policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-brand-400">
+      <span>© 2026 Behbehani Motors Company. All rights reserved.</span>
+      <div class="flex items-center gap-4">
+        <a href="/ar/browse" class="hover:text-white transition-colors">عربي</a>
+        <a href="#" class="hover:text-white transition-colors">Terms</a>
+        <a href="#" class="hover:text-white transition-colors">Privacy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════
+     MOBILE FILTER BOTTOM SHEET
+═══════════════════════════════════════════ -->
+<div id="filterSheet" class="">
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="sheet-panel" id="sheetPanel">
+    <!-- Sheet drag handle -->
+    <div class="flex justify-center pt-3 pb-1">
+      <div class="w-10 h-1 rounded-full bg-slate-300"></div>
+    </div>
+    <!-- Sheet header -->
+    <div class="flex items-center justify-between px-5 py-3 border-b border-slate-200 sticky top-0 bg-white z-10">
+      <span class="font-bold text-slate-900">Filters</span>
+      <div class="flex items-center gap-4">
+        <button class="text-xs font-semibold text-red-500">Clear all</button>
+        <button id="closeSheet" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors" aria-label="Close filters">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+    </div>
+    <!-- Sheet filter content (abbreviated) -->
+    <div class="px-5 pb-32 overflow-y-auto">
+      <div class="py-4 border-b border-slate-100">
+        <p class="font-semibold text-sm text-slate-800 mb-3">Body type</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="chip active">Sedan</button>
+          <button class="chip">SUV</button>
+          <button class="chip">Hatchback</button>
+          <button class="chip">Coupé</button>
+          <button class="chip">Pickup</button>
+          <button class="chip">Van</button>
+        </div>
+      </div>
+      <div class="py-4 border-b border-slate-100">
+        <p class="font-semibold text-sm text-slate-800 mb-3">Brand</p>
+        <div class="relative mb-2.5">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" placeholder="Search brands…" class="w-full pl-7 pr-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:border-brand-400" />
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button class="chip active">Toyota</button>
+          <button class="chip">Lexus</button>
+          <button class="chip">Nissan</button>
+          <button class="chip">Hyundai</button>
+          <button class="chip">Kia</button>
+          <button class="chip">Honda</button>
+        </div>
+      </div>
+      <div class="py-4 border-b border-slate-100">
+        <p class="font-semibold text-sm text-slate-800 mb-3">Price (KWD)</p>
+        <input type="range" min="0" max="50000" value="8000" class="w-full mb-3" />
+        <div class="flex gap-2">
+          <input type="number" value="3000" placeholder="Min" class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400" />
+          <span class="self-center text-slate-300">—</span>
+          <input type="number" value="8000" placeholder="Max" class="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400" />
+        </div>
+      </div>
+      <div class="py-4 border-b border-slate-100">
+        <p class="font-semibold text-sm text-slate-800 mb-3">Transmission</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="chip active">Automatic</button>
+          <button class="chip">Manual</button>
+          <button class="chip">CVT</button>
+          <button class="chip">DCT</button>
+        </div>
+      </div>
+      <div class="py-4 border-b border-slate-100">
+        <p class="font-semibold text-sm text-slate-800 mb-3">Fuel type</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="chip active">Petrol</button>
+          <button class="chip">Diesel</button>
+          <button class="chip">Hybrid</button>
+          <button class="chip">Electric</button>
+        </div>
+      </div>
+      <div class="py-4">
+        <p class="font-semibold text-sm text-slate-800 mb-3">Drivetrain</p>
+        <div class="flex flex-wrap gap-2">
+          <button class="chip">FWD</button>
+          <button class="chip">RWD</button>
+          <button class="chip active">AWD</button>
+          <button class="chip">4WD</button>
+        </div>
+      </div>
+    </div>
+    <!-- Sheet sticky apply bar -->
+    <div class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 px-5 py-4 z-20">
+      <button class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-3.5 rounded-xl text-sm transition-colors">
+        Show 87 cars
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     INTERACTIONS (minimal JS)
+═══════════════════════════════════════════ -->
+<script>
+  /* ── Filter section toggle ── */
+  function toggleSection(btn) {
+    const body = btn.nextElementSibling;
+    const isCollapsed = btn.classList.contains('collapsed');
+    if (isCollapsed) {
+      btn.classList.remove('collapsed');
+      body.classList.remove('hidden');
+    } else {
+      btn.classList.add('collapsed');
+      body.classList.add('hidden');
+    }
+  }
+
+  /* ── Chip toggle ── */
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
+  });
+
+  /* ── Active filter chip dismiss ── */
+  document.querySelectorAll('[data-dismiss]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('[data-chip]').remove());
+  });
+
+  /* ── Mobile filter sheet ── */
+  const sheet = document.getElementById('filterSheet');
+  const overlay = document.getElementById('sheetOverlay');
+  const closeBtn = document.getElementById('closeSheet');
+  const openBtn = document.getElementById('openFilters');
+
+  function openSheet() { sheet.classList.add('sheet-open'); document.body.style.overflow = 'hidden'; }
+  function closeSheet() { sheet.classList.remove('sheet-open'); document.body.style.overflow = ''; }
+
+  openBtn.addEventListener('click', openSheet);
+  closeBtn.addEventListener('click', closeSheet);
+  overlay.addEventListener('click', closeSheet);
+
+  /* ── Simulated live count spinner (mockup only) ── */
+  const spinner = document.getElementById('sortSpinner');
+  document.querySelectorAll('input[type=range], input[type=checkbox], select').forEach(el => {
+    el.addEventListener('change', () => {
+      spinner.classList.remove('hidden');
+      setTimeout(() => spinner.classList.add('hidden'), 420);
+    });
+  });
+</script>
+
+</body>
+</html>

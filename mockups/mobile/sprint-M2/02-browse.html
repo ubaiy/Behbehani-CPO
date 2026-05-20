@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>02 — Mobile Browse — Behbehani Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: {
+        50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',
+        500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E3A8A',900:'#1E2563'
+      }},
+      fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], arabic:['Tajawal','sans-serif'] }
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .card-photo { background: linear-gradient(135deg, #BFDBFE 0%, #DBEAFE 40%, #EFF6FF 100%); }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex justify-center">
+
+  <div class="w-[375px] min-h-[812px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative">
+
+    <!-- Status bar -->
+    <div class="h-11 bg-white flex items-center justify-between px-6 pt-2">
+      <span class="text-[14px] font-semibold text-slate-900">9:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg viewBox="0 0 20 12" class="w-4 h-3 text-slate-900" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+        <svg viewBox="0 0 16 12" class="w-4 h-3 text-slate-900" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+        <svg viewBox="0 0 26 12" class="w-6 h-3 text-slate-900" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="px-4 pt-1 pb-3 bg-white sticky top-0 z-20 border-b border-slate-100">
+      <div class="flex items-center gap-2 mb-3">
+        <button class="w-11 h-11 -ms-2 flex items-center justify-center text-slate-600" aria-label="Back">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h1 class="text-[18px] font-bold text-slate-900 flex-1">Browse cars</h1>
+        <button class="w-11 h-11 -me-2 flex items-center justify-center text-slate-600" aria-label="Map view">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v16l7-3 8 3 7-3V3l-7 3-8-3-7 3z"/><path d="M8 3v16"/><path d="M16 6v16"/></svg>
+        </button>
+      </div>
+
+      <!-- Search bar -->
+      <button class="w-full flex items-center gap-2 h-11 px-4 bg-slate-100 rounded-2xl text-start mb-3">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span class="text-[14px] text-slate-500 flex-1">Toyota Camry</span>
+        <svg viewBox="0 0 24 24" class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+
+      <!-- Filter chip rail: Brand / Body Type / Budget Max / Sort / More filters -->
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <button id="openFilterBtn" class="flex-shrink-0 inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-brand-800 text-white text-[12px] font-semibold min-h-[44px]">
+          <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18M7 12h10m-7 8h4"/></svg>
+          Filters
+          <span class="bg-white text-brand-800 text-[10px] font-extrabold rounded-full px-1.5 leading-tight">3</span>
+        </button>
+        <button class="flex-shrink-0 inline-flex items-center gap-1 h-9 px-3 rounded-full bg-brand-50 border border-brand-200 text-[12px] font-semibold text-brand-800 min-h-[44px]">
+          Brand: Toyota
+          <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <button class="flex-shrink-0 inline-flex items-center gap-1 h-9 px-3 rounded-full bg-brand-50 border border-brand-200 text-[12px] font-semibold text-brand-800 min-h-[44px]">
+          Body: Sedan
+          <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <button class="flex-shrink-0 inline-flex items-center gap-1 h-9 px-3 rounded-full bg-brand-50 border border-brand-200 text-[12px] font-semibold text-brand-800 min-h-[44px]">
+          Budget max KWD 6,000.000
+          <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+        <button class="flex-shrink-0 inline-flex items-center gap-1 h-9 px-3 rounded-full bg-white border border-slate-200 text-[12px] font-semibold text-slate-600 min-h-[44px]">
+          More filters
+          <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Live count header + sort + view-mode toggle -->
+    <div class="px-4 py-2.5 flex items-center justify-between border-b border-slate-100 bg-white gap-2">
+      <h2 class="text-[14px] font-bold text-slate-900"><span data-live-count>47</span> cars match</h2>
+      <div class="flex items-center gap-1.5">
+        <!-- Sort dropdown (enum: featured | priceAsc | priceDesc | mileageAsc | newest) -->
+        <label class="relative">
+          <select class="appearance-none h-9 ps-3 pe-7 rounded-full border border-slate-200 bg-white text-[12px] font-semibold text-slate-700 focus:outline-none focus:border-brand-700">
+            <option value="featured">Featured</option>
+            <option value="priceAsc">Price: low to high</option>
+            <option value="priceDesc">Price: high to low</option>
+            <option value="mileageAsc">Mileage: low to high</option>
+            <option value="newest" selected>Newest first</option>
+          </select>
+          <svg viewBox="0 0 24 24" class="absolute end-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </label>
+        <!-- View mode toggle: Grid / List -->
+        <div class="flex items-center rounded-full border border-slate-200 overflow-hidden bg-white" role="group" aria-label="View mode">
+          <button class="w-9 h-9 flex items-center justify-center bg-brand-50 text-brand-800" aria-label="List view" aria-pressed="true">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          </button>
+          <button class="w-9 h-9 flex items-center justify-center text-slate-500" aria-label="Grid view" aria-pressed="false">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results scroll -->
+    <main class="flex-1 overflow-y-auto pb-24 bg-slate-50">
+
+      <!-- Pull-to-refresh hint -->
+      <div class="flex items-center justify-center gap-1.5 py-2 text-[11px] text-slate-400">
+        <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/></svg>
+        Pull to refresh
+      </div>
+
+      <!-- Card 1 -->
+      <article class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm mx-3 my-3">
+        <div class="card-photo aspect-[16/10] relative">
+          <span class="absolute top-2 start-2 inline-flex items-center gap-1 bg-white/95 backdrop-blur text-brand-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+            Inspected
+          </span>
+          <span class="absolute top-2 start-24 inline-flex items-center bg-red-50 text-red-700 border border-red-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            −KWD 250.000
+          </span>
+          <button class="absolute top-2 end-2 w-9 h-9 rounded-full bg-white/95 backdrop-blur flex items-center justify-center text-slate-500 active:text-red-500" aria-label="Favorite">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+          <span class="absolute bottom-2 end-2 bg-black/60 text-white text-[10px] font-medium px-2 py-0.5 rounded-full">1 / 8</span>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-[15px] font-bold text-slate-900 leading-snug truncate">2022 Toyota Camry LE</p>
+              <p class="text-[12px] text-slate-500 mt-0.5">Sedan · 38,420 km · Automatic · Petrol</p>
+              <div class="flex items-center gap-1.5 mt-2 text-[11px] text-slate-500">
+                <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Shuwaikh showroom · 7-day return
+              </div>
+            </div>
+            <div class="text-end flex-shrink-0">
+              <p class="text-[11px] text-slate-400 line-through">KWD 4,500.000</p>
+              <p class="text-[16px] font-extrabold text-brand-900 leading-none">KWD 4,250.000</p>
+              <p class="text-[10px] text-slate-500 mt-0.5">from KWD 75.000/mo</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm mx-3 my-3">
+        <div class="card-photo aspect-[16/10] relative" style="background: linear-gradient(135deg, #93C5FD 0%, #BFDBFE 100%);">
+          <span class="absolute top-2 start-2 inline-flex items-center gap-1 bg-white/95 backdrop-blur text-brand-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+            Inspected
+          </span>
+          <button class="absolute top-2 end-2 w-9 h-9 rounded-full bg-white/95 backdrop-blur flex items-center justify-center text-red-500" aria-label="Favorite">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-[15px] font-bold text-slate-900 leading-snug truncate">2023 Lexus NX 350 F-Sport</p>
+              <p class="text-[12px] text-slate-500 mt-0.5">SUV · 12,800 km · Automatic · Petrol</p>
+              <div class="flex items-center gap-1.5 mt-2 text-[11px] text-slate-500">
+                <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Shuwaikh showroom · 1-yr warranty
+              </div>
+            </div>
+            <div class="text-end flex-shrink-0">
+              <p class="text-[16px] font-extrabold text-brand-900 leading-none">KWD 12,900.000</p>
+              <p class="text-[10px] text-slate-500 mt-0.5">from KWD 228.000/mo</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm mx-3 my-3">
+        <div class="card-photo aspect-[16/10] relative" style="background: linear-gradient(135deg, #BFDBFE 0%, #EFF6FF 100%);">
+          <span class="absolute top-2 start-2 inline-flex items-center gap-1 bg-white/95 backdrop-blur text-brand-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+            Inspected
+          </span>
+          <button class="absolute top-2 end-2 w-9 h-9 rounded-full bg-white/95 backdrop-blur flex items-center justify-center text-slate-500" aria-label="Favorite">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </button>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-[15px] font-bold text-slate-900 leading-snug truncate">2021 BMW 320i M Sport</p>
+              <p class="text-[12px] text-slate-500 mt-0.5">Sedan · 44,200 km · Automatic · Petrol</p>
+            </div>
+            <div class="text-end flex-shrink-0">
+              <p class="text-[16px] font-extrabold text-brand-900 leading-none">KWD 7,150.000</p>
+              <p class="text-[10px] text-slate-500 mt-0.5">from KWD 132.000/mo</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Reserved card with hold-timer overlay -->
+      <article class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm mx-3 my-3 relative">
+        <div class="card-photo aspect-[16/10] relative" style="background: linear-gradient(135deg, #DBEAFE 0%, #93C5FD 100%);">
+          <div class="absolute inset-0 bg-slate-900/55 flex flex-col items-center justify-center">
+            <span class="inline-flex items-center gap-1.5 bg-white text-slate-900 text-[12px] font-bold px-3 py-1.5 rounded-full">
+              <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 text-brand-700" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              Reserved · 4h 32m left
+            </span>
+            <p class="text-white/80 text-[10px] mt-1.5">Refundable 48-hour hold</p>
+          </div>
+        </div>
+        <div class="p-3">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex-1 min-w-0">
+              <p class="text-[15px] font-bold text-slate-900 leading-snug truncate">2022 Kia Sportage GT</p>
+              <p class="text-[12px] text-slate-500 mt-0.5">SUV · 22,100 km · Automatic · Petrol</p>
+            </div>
+            <div class="text-end flex-shrink-0">
+              <p class="text-[16px] font-extrabold text-slate-400 leading-none line-through">KWD 6,850.000</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Loading-next-page indicator (infinite scroll) -->
+      <div class="flex items-center justify-center gap-2 py-4">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 text-brand-700 animate-spin" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg>
+        <span class="text-[12px] text-slate-500">Loading more cars…</span>
+      </div>
+
+      <!-- State templates: empty / loading-skeleton / error-retry (visible for spec review) -->
+      <div class="mx-3 mb-4 space-y-3">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">State templates (visible for spec review)</p>
+
+        <!-- Empty -->
+        <template data-state="empty"></template>
+        <div class="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center" data-state-preview="empty">
+          <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center mb-3">
+            <svg viewBox="0 0 24 24" class="w-7 h-7 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </div>
+          <p class="text-[15px] font-bold text-slate-900">No cars match these filters</p>
+          <p class="text-[12px] text-slate-500 mt-1">Try removing a filter or expanding your price range.</p>
+          <button class="mt-3 inline-flex items-center gap-1.5 bg-brand-800 text-white text-[12px] font-semibold px-4 py-2 rounded-full min-h-[44px]">
+            Clear all filters
+          </button>
+        </div>
+
+        <!-- Loading skeleton -->
+        <template data-state="loading"></template>
+        <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden" data-state-preview="loading">
+          <div class="aspect-[16/10] bg-slate-200 animate-pulse"></div>
+          <div class="p-3 space-y-2">
+            <div class="h-4 bg-slate-200 rounded animate-pulse w-2/3"></div>
+            <div class="h-3 bg-slate-100 rounded animate-pulse w-1/2"></div>
+            <div class="h-5 bg-slate-200 rounded animate-pulse w-1/3 ms-auto"></div>
+          </div>
+        </div>
+
+        <!-- Error retry -->
+        <template data-state="error"></template>
+        <div class="rounded-2xl border border-red-200 bg-red-50 p-5 text-center" data-state-preview="error">
+          <div class="w-12 h-12 mx-auto rounded-full bg-white border border-red-200 flex items-center justify-center mb-3">
+            <svg viewBox="0 0 24 24" class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          </div>
+          <p class="text-[14px] font-bold text-red-700">Couldn't load cars</p>
+          <p class="text-[12px] text-red-600 mt-1">Network error. Check your connection and try again.</p>
+          <button class="mt-3 inline-flex items-center gap-1.5 bg-red-700 text-white text-[12px] font-semibold px-4 py-2 rounded-full min-h-[44px]">
+            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 109-9"/><path d="M3 4v8h8"/></svg>
+            Retry
+          </button>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Bottom tab bar: Home / Browse / Sell / Services / Account + More -->
+    <nav class="absolute bottom-0 inset-x-0 bg-white border-t border-slate-200 pb-5 pt-2">
+      <div class="grid grid-cols-6 px-1">
+        <a href="01-home.html" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">Home</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-brand-800" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span class="text-[10px] font-semibold text-brand-800">Browse</span>
+        </a>
+        <a href="08-sell-yourcar.html" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">Sell</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94L14.7 6.3z"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">Services</span>
+        </a>
+        <a href="06-account.html" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">Account</span>
+        </a>
+        <a href="07-more-sheet.html" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">More</span>
+        </a>
+      </div>
+      <div class="absolute bottom-1 inset-x-0 flex justify-center">
+        <div class="w-32 h-1 bg-slate-900 rounded-full opacity-90"></div>
+      </div>
+    </nav>
+
+  </div>
+</body>
+</html>

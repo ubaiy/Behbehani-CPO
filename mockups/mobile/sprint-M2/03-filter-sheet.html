@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>03 — Filter Bottom Sheet — Behbehani Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: {
+        50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',
+        500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E3A8A',900:'#1E2563'
+      }},
+      fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], arabic:['Tajawal','sans-serif'] }
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* Custom range */
+    input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 4px;
+      background: #E2E8F0; border-radius: 9999px; outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #1E3A8A; border: 3px solid #fff;
+      box-shadow: 0 2px 6px rgba(30,58,138,.35); cursor: pointer;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: #1E3A8A; border: 3px solid #fff;
+      box-shadow: 0 2px 6px rgba(30,58,138,.35);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex justify-center">
+
+  <div class="w-[375px] min-h-[812px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative">
+
+    <!-- Status bar -->
+    <div class="h-11 bg-slate-900/0 flex items-center justify-between px-6 pt-2 absolute top-0 inset-x-0 z-30 text-white">
+      <span class="text-[14px] font-semibold">9:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg viewBox="0 0 20 12" class="w-4 h-3" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+        <svg viewBox="0 0 16 12" class="w-4 h-3" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+        <svg viewBox="0 0 26 12" class="w-6 h-3" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <!-- Dimmed background showing browse list behind -->
+    <div class="absolute inset-0 bg-slate-900/60 z-10"></div>
+    <div class="absolute inset-0 z-0 overflow-hidden">
+      <div class="h-11 bg-white"></div>
+      <div class="px-4 pt-2 pb-3 bg-white border-b border-slate-100">
+        <div class="h-9 bg-slate-100 rounded-2xl"></div>
+        <div class="mt-3 flex gap-2">
+          <div class="h-9 w-20 rounded-full bg-brand-800"></div>
+          <div class="h-9 w-16 rounded-full bg-brand-50"></div>
+        </div>
+      </div>
+      <div class="h-32 bg-slate-200 rounded-2xl mx-3 mt-3"></div>
+      <div class="h-32 bg-slate-200 rounded-2xl mx-3 mt-3"></div>
+    </div>
+
+    <!-- ─── Bottom sheet ─── -->
+    <div class="absolute inset-x-0 bottom-0 z-20 bg-white rounded-t-3xl shadow-2xl flex flex-col" style="height: 88%;">
+
+      <!-- Grabber -->
+      <div class="flex justify-center pt-2">
+        <div class="w-12 h-1.5 bg-slate-300 rounded-full"></div>
+      </div>
+
+      <!-- Sheet header -->
+      <div class="px-4 pt-2 pb-3 flex items-center justify-between border-b border-slate-100">
+        <button class="text-[12px] font-semibold text-brand-700 min-h-[44px] -ms-2 px-2 py-2">Reset all</button>
+        <h2 class="text-[16px] font-bold text-slate-900">Filters</h2>
+        <button class="text-[14px] font-semibold text-slate-500 min-h-[44px] -me-2 px-2 py-2" aria-label="Close">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Scrollable filters (full filter set per FR-BUY-011, 015) -->
+      <div class="flex-1 overflow-y-auto px-4 pb-32">
+
+        <!-- Brand -->
+        <section class="py-4 border-b border-slate-100">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Brand</h3>
+            <button class="text-[12px] font-semibold text-brand-700">See all (24)</button>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="h-12 rounded-xl bg-brand-50 border border-brand-300 text-brand-900 text-[13px] font-semibold">Toyota</button>
+            <button class="h-12 rounded-xl bg-white border border-slate-200 text-slate-700 text-[13px] font-medium">Lexus</button>
+            <button class="h-12 rounded-xl bg-white border border-slate-200 text-slate-700 text-[13px] font-medium">BMW</button>
+            <button class="h-12 rounded-xl bg-white border border-slate-200 text-slate-700 text-[13px] font-medium">Mercedes</button>
+            <button class="h-12 rounded-xl bg-white border border-slate-200 text-slate-700 text-[13px] font-medium">Kia</button>
+            <button class="h-12 rounded-xl bg-white border border-slate-200 text-slate-700 text-[13px] font-medium">Hyundai</button>
+          </div>
+        </section>
+
+        <!-- Body type -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Body type</h3>
+          <div class="flex flex-wrap gap-2">
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-brand-700 bg-brand-50 text-brand-900 text-[13px] font-semibold">Sedan</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">SUV</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Hatchback</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Coupé</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Pickup</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Van</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Convertible</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Wagon</button>
+          </div>
+        </section>
+
+        <!-- Year From / To -->
+        <section class="py-4 border-b border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Year</h3>
+            <span class="text-[13px] font-semibold text-brand-900">2020 – 2025</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <label class="block">
+              <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">From</span>
+              <select class="mt-1 w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-[13px] font-semibold text-slate-900">
+                <option>2020</option><option>2018</option><option>2015</option><option>2010</option>
+              </select>
+            </label>
+            <label class="block">
+              <span class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">To</span>
+              <select class="mt-1 w-full h-11 px-3 rounded-xl bg-slate-50 border border-slate-200 text-[13px] font-semibold text-slate-900">
+                <option>2025</option><option>2024</option><option>2023</option><option>2022</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <!-- Budget Max (KWD) -->
+        <section class="py-4 border-b border-slate-100">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Budget max (KWD)</h3>
+            <span class="text-[13px] font-semibold text-brand-900">KWD 6,000.000</span>
+          </div>
+          <div class="relative h-6 mt-3">
+            <div class="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 bg-slate-200 rounded-full"></div>
+            <div class="absolute top-1/2 -translate-y-1/2 h-1 bg-brand-700 rounded-full" style="left: 0%; right: 76%;"></div>
+            <div class="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brand-900 border-2 border-white shadow-md" style="left: 24%; transform: translate(-50%, -50%);"></div>
+          </div>
+          <div class="flex items-center justify-between mt-2 text-[11px] text-slate-400">
+            <span>KWD 1,000.000</span>
+            <span>KWD 25,000.000</span>
+          </div>
+        </section>
+
+        <!-- Monthly Payment range -->
+        <section class="py-4 border-b border-slate-100">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Monthly payment</h3>
+            <span class="text-[13px] font-semibold text-brand-900">KWD 50 – 150 /mo</span>
+          </div>
+          <div class="relative h-6 mt-3">
+            <div class="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 bg-slate-200 rounded-full"></div>
+            <div class="absolute top-1/2 -translate-y-1/2 h-1 bg-brand-700 rounded-full" style="left: 10%; right: 50%;"></div>
+            <div class="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brand-900 border-2 border-white shadow-md" style="left: 10%; transform: translate(-50%, -50%);"></div>
+            <div class="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brand-900 border-2 border-white shadow-md" style="left: 50%; transform: translate(-50%, -50%);"></div>
+          </div>
+          <div class="flex items-center justify-between mt-2 text-[11px] text-slate-400">
+            <span>KWD 0</span>
+            <span>KWD 500.000 /mo</span>
+          </div>
+        </section>
+
+        <!-- Mileage range (km) -->
+        <section class="py-4 border-b border-slate-100">
+          <div class="flex items-center justify-between mb-1">
+            <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider">Mileage (km)</h3>
+            <span class="text-[13px] font-semibold text-brand-900">0 – 80,000 km</span>
+          </div>
+          <div class="relative h-6 mt-3">
+            <div class="absolute top-1/2 -translate-y-1/2 left-0 right-0 h-1 bg-slate-200 rounded-full"></div>
+            <div class="absolute top-1/2 -translate-y-1/2 h-1 bg-brand-700 rounded-full" style="left: 0%; right: 45%;"></div>
+            <div class="absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-brand-900 border-2 border-white shadow-md" style="left: 55%; transform: translate(-50%, -50%);"></div>
+          </div>
+          <div class="flex items-center justify-between mt-2 text-[11px] text-slate-400">
+            <span>0 km</span>
+            <span>150,000+ km</span>
+          </div>
+        </section>
+
+        <!-- Transmission -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Transmission</h3>
+          <div class="flex gap-2">
+            <button class="h-11 flex-1 min-h-[44px] rounded-xl bg-brand-50 border border-brand-300 text-brand-900 text-[13px] font-semibold">Automatic</button>
+            <button class="h-11 flex-1 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[13px] font-medium">Manual</button>
+            <button class="h-11 flex-1 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[13px] font-medium">CVT</button>
+          </div>
+        </section>
+
+        <!-- Fuel -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Fuel</h3>
+          <div class="flex flex-wrap gap-2">
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-brand-700 bg-brand-50 text-brand-900 text-[13px] font-semibold">Petrol</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Diesel</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Hybrid</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Electric</button>
+          </div>
+        </section>
+
+        <!-- Exterior color -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Exterior colour</h3>
+          <div class="flex flex-wrap gap-2">
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">White</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Black</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Silver</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Grey</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Blue</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Red</button>
+          </div>
+        </section>
+
+        <!-- Interior color -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Interior colour</h3>
+          <div class="flex flex-wrap gap-2">
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Black</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Beige</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Grey</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">Brown</button>
+          </div>
+        </section>
+
+        <!-- Cylinders -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Cylinders</h3>
+          <div class="flex gap-2 flex-wrap">
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">3</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">4</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">6</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">8</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">12</button>
+          </div>
+        </section>
+
+        <!-- Drivetrain -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Drivetrain</h3>
+          <div class="grid grid-cols-4 gap-2">
+            <button class="h-11 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[12px] font-medium">FWD</button>
+            <button class="h-11 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[12px] font-medium">RWD</button>
+            <button class="h-11 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[12px] font-medium">AWD</button>
+            <button class="h-11 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[12px] font-medium">4WD</button>
+          </div>
+        </section>
+
+        <!-- Seats -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Seats</h3>
+          <div class="flex gap-2 flex-wrap">
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">2</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">4</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">5</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">7</button>
+            <button class="px-3 py-1.5 min-h-[44px] rounded-full border-[1.5px] border-slate-300 text-slate-700 text-[13px] font-medium">8+</button>
+          </div>
+        </section>
+
+        <!-- Regional Specs -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Regional specs</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="h-11 min-h-[44px] rounded-xl bg-brand-50 border border-brand-300 text-brand-900 text-[12px] font-semibold">GCC</button>
+            <button class="h-11 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[12px] font-medium">American</button>
+            <button class="h-11 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[12px] font-medium">European</button>
+            <button class="h-11 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[12px] font-medium">Japanese</button>
+          </div>
+        </section>
+
+        <!-- Seller Type -->
+        <section class="py-4 border-b border-slate-100">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Seller type</h3>
+          <div class="grid grid-cols-3 gap-2">
+            <button class="h-11 min-h-[44px] rounded-xl bg-brand-50 border border-brand-300 text-brand-900 text-[12px] font-semibold">Platform</button>
+            <button class="h-11 min-h-[44px] rounded-xl bg-white border border-slate-200 text-slate-700 text-[12px] font-medium">Dealer</button>
+            <button disabled aria-disabled="true" class="h-11 min-h-[44px] rounded-xl bg-slate-50 border border-slate-200 text-slate-400 text-[12px] font-medium relative cursor-not-allowed">
+              Private
+              <span class="absolute -top-1 end-1 inline-flex items-center bg-slate-200 text-slate-500 text-[8px] font-bold uppercase tracking-wider px-1 py-0.5 rounded">Soon</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Inspection + Warranty flags -->
+        <section class="py-4">
+          <h3 class="text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-3">Vehicle assurance</h3>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white">
+              <div>
+                <p class="text-[13px] font-semibold text-slate-900">Al Daman inspected</p>
+                <p class="text-[11px] text-slate-500">CPO-certified cars only</p>
+              </div>
+              <input type="checkbox" checked class="w-5 h-5 accent-brand-700">
+            </label>
+            <label class="flex items-center justify-between p-3 rounded-xl border border-slate-200 bg-white">
+              <div>
+                <p class="text-[13px] font-semibold text-slate-900">Warranty included</p>
+                <p class="text-[11px] text-slate-500">Manufacturer or platform warranty</p>
+              </div>
+              <input type="checkbox" class="w-5 h-5 accent-brand-700">
+            </label>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Sticky bottom Show N cars (N updates live) -->
+      <div class="absolute bottom-0 inset-x-0 bg-white border-t border-slate-100 px-4 pt-3 pb-[max(env(safe-area-inset-bottom),24px)]">
+        <button class="w-full h-12 min-h-[44px] rounded-2xl bg-brand-900 text-white text-[15px] font-bold flex items-center justify-center gap-2">
+          Show <span data-live-count>47</span> cars
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+</body>
+</html>

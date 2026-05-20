@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behbehani · Sign your inspection report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' } },
+      fontFamily: { sans: ['Inter','system-ui','sans-serif'] },
+    } } };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="min-h-full bg-slate-100 font-sans antialiased text-slate-800">
+
+<!--
+  PUBLIC route /inspection-sign/:token
+  No admin auth. Token-gated (64-char hex, 7-day expiry).
+  Mobile-first — most customers will open from a phone via the SMS link.
+  No sidebar, no admin chrome, just Behbehani branding and the signing flow.
+
+  This file shows the ACTIVE signing state. Other states (token expired,
+  already signed, token revoked) handled with similar layouts but distinct
+  body copy.
+-->
+
+<!-- ── Public header (NO admin sidebar) ────────────────────────────── -->
+<header class="bg-white border-b border-slate-200">
+  <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg bg-brand-700 flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" viewBox="0 0 64 40" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M2 38 L20 4 L38 38 Z"/><path d="M26 38 L44 12 L62 38 Z"/></svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold tracking-wider text-brand-700 uppercase leading-none">Behbehani</p>
+        <p class="text-xs text-slate-500 mt-0.5">Certified Pre-Owned</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5 text-xs text-slate-500">
+      <svg class="w-3.5 h-3.5 text-brand-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+      Secure signing
+    </div>
+  </div>
+</header>
+
+<main class="max-w-2xl mx-auto px-4 py-6 pb-24">
+
+  <!-- Greeting -->
+  <div class="text-center mb-5">
+    <h1 class="text-2xl font-bold text-slate-800">Sign your inspection report</h1>
+    <p class="text-sm text-slate-500 mt-1">Hello Mohammed — Behbehani's inspection team has completed the inspection of your vehicle. Please review and sign below.</p>
+  </div>
+
+  <!-- Vehicle + score banner -->
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-4 shadow-sm">
+    <div class="flex items-center gap-4">
+      <div class="relative w-20 h-20 flex-shrink-0">
+        <svg viewBox="0 0 36 36" class="w-full h-full">
+          <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+          <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#2563eb" stroke-width="3"
+                  stroke-dasharray="85 100" stroke-dashoffset="25" transform="rotate(-90 18 18)" stroke-linecap="round"/>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span class="text-xl font-bold text-slate-800 tabular-nums">85</span>
+          <span class="text-xs text-slate-500">/ 100</span>
+        </div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-base font-semibold text-slate-800 leading-tight">2020 Lexus RX 350</p>
+        <p class="text-xs text-slate-500 mt-0.5 font-mono">VIN •••••••••••••• 884420</p>
+        <p class="text-xs text-slate-500 mt-1">Inspected 18 May 2026 at your home in Salmiya</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section scores (compact, mobile-friendly) -->
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-4 shadow-sm">
+    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Section scores</p>
+    <div class="space-y-2.5 text-sm">
+      <div class="flex items-center gap-3">
+        <span class="flex-1 text-slate-700">Exterior</span>
+        <div class="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-600" style="width:93%"></div></div>
+        <span class="font-semibold tabular-nums text-slate-700 w-8 text-right">93</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="flex-1 text-slate-700">Interior</span>
+        <div class="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-600" style="width:96%"></div></div>
+        <span class="font-semibold tabular-nums text-slate-700 w-8 text-right">96</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="flex-1 text-slate-700">Engine &amp; Drivetrain</span>
+        <div class="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-500" style="width:71%"></div></div>
+        <span class="font-semibold tabular-nums text-slate-700 w-8 text-right">71</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="flex-1 text-slate-700">Electrical</span>
+        <div class="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-600" style="width:90%"></div></div>
+        <span class="font-semibold tabular-nums text-slate-700 w-8 text-right">90</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="flex-1 text-slate-700">Safety</span>
+        <div class="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-600" style="width:100%"></div></div>
+        <span class="font-semibold tabular-nums text-slate-700 w-8 text-right">100</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="flex-1 text-slate-700">Documentation</span>
+        <div class="w-24 h-1.5 rounded-full bg-slate-100 overflow-hidden"><div class="h-full bg-brand-500" style="width:80%"></div></div>
+        <span class="font-semibold tabular-nums text-slate-700 w-8 text-right">80</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items needing attention -->
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-4 shadow-sm">
+    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Items needing attention</p>
+    <ul class="space-y-3 text-sm">
+      <li class="flex items-start gap-2">
+        <span class="mt-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-100 text-red-700 text-xs font-bold flex-shrink-0">!</span>
+        <div class="flex-1 min-w-0">
+          <p class="font-medium text-slate-800">Brakes — front pads</p>
+          <p class="text-xs text-slate-500 mt-0.5">Front-left pad at 2 mm — needs replacement before sale.</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-2">
+        <span class="mt-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex-shrink-0">i</span>
+        <div class="flex-1 min-w-0">
+          <p class="font-medium text-slate-800">Suspension alignment</p>
+          <p class="text-xs text-slate-500 mt-0.5">Slight pull to the right — alignment recommended.</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-2">
+        <span class="mt-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex-shrink-0">i</span>
+        <div class="flex-1 min-w-0">
+          <p class="font-medium text-slate-800">Tires — front-right tread</p>
+          <p class="text-xs text-slate-500 mt-0.5">5/32" — passes but rotation recommended within 5,000 km.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- PDF download -->
+  <a class="block bg-white rounded-xl border border-slate-200 p-4 mb-5 shadow-sm hover:border-brand-300">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-semibold text-slate-800">View full inspection PDF</p>
+        <p class="text-xs text-slate-500">All 71 inspection items, photos, and notes</p>
+      </div>
+      <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+    </div>
+  </a>
+
+  <!-- ═══ SIGNATURE SECTION ═══ -->
+  <div class="bg-white rounded-xl border-2 border-brand-200 p-5 mb-5 shadow-sm">
+    <p class="text-base font-semibold text-slate-800 mb-1">Your signature</p>
+    <p class="text-xs text-slate-500 mb-4">Sign with your finger or stylus below.</p>
+
+    <!-- Drawn signature pad -->
+    <div class="relative h-40 rounded-md border-2 border-dashed border-slate-300 bg-slate-50/40 mb-2 overflow-hidden touch-none">
+      <p class="absolute inset-0 flex items-center justify-center text-xs text-slate-400 select-none pointer-events-none">Sign here</p>
+      <button class="absolute top-2 right-2 text-xs text-slate-500 bg-white rounded px-2 py-0.5 border border-slate-200">Clear</button>
+    </div>
+    <p class="text-xs text-slate-400 mb-4">Captured on this device · stored securely · embedded in the final PDF.</p>
+
+    <!-- Typed name -->
+    <div class="mb-4">
+      <label class="block text-xs font-medium text-slate-600 mb-1">Type your full name</label>
+      <input type="text" placeholder="As it appears on your Civil ID" class="w-full text-base rounded-md border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-brand-500"/>
+    </div>
+
+    <!-- Acceptance checkboxes -->
+    <div class="space-y-3 mb-5">
+      <label class="flex items-start gap-3 cursor-pointer p-2 rounded-md hover:bg-slate-50">
+        <input type="checkbox" class="mt-1 rounded border-slate-300 text-brand-600 focus:ring-brand-500"/>
+        <span class="text-sm text-slate-700">I confirm I am the owner of this vehicle, or authorized to represent the owner.</span>
+      </label>
+      <label class="flex items-start gap-3 cursor-pointer p-2 rounded-md hover:bg-slate-50">
+        <input type="checkbox" class="mt-1 rounded border-slate-300 text-brand-600 focus:ring-brand-500"/>
+        <span class="text-sm text-slate-700">I have reviewed the inspection findings and acknowledge them as accurate.</span>
+      </label>
+      <label class="flex items-start gap-3 cursor-pointer p-2 rounded-md hover:bg-slate-50">
+        <input type="checkbox" class="mt-1 rounded border-slate-300 text-brand-600 focus:ring-brand-500"/>
+        <span class="text-sm text-slate-700">I understand Behbehani will use this signed report to formulate a purchase offer for my vehicle.</span>
+      </label>
+    </div>
+
+    <!-- Action button -->
+    <button class="w-full rounded-md bg-brand-600 px-4 py-3 text-base font-semibold text-white hover:bg-brand-700 shadow-sm">
+      Sign &amp; submit
+    </button>
+
+    <p class="text-xs text-slate-400 mt-3 text-center">By signing, you agree to Behbehani's <a class="text-brand-600 hover:underline">Inspection Terms</a> and <a class="text-brand-600 hover:underline">Privacy Policy</a>.</p>
+  </div>
+
+  <!-- Link expiry footer -->
+  <div class="text-center text-xs text-slate-400">
+    <p>This signing link is valid until <span class="font-semibold text-slate-600">25 May 2026, 09:42 AST</span>.</p>
+    <p class="mt-1">Questions? Call <a class="text-brand-600 hover:underline">+965 1808 100</a> or reply to the email from <span class="font-mono">concierge&#64;behbehani.com</span>.</p>
+  </div>
+
+</main>
+
+<!-- Bottom-bar reminder (mobile sticky pattern, shown when scrolled past the signature pad) -->
+<div class="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200 px-4 py-3 shadow-lg sm:hidden">
+  <button class="w-full rounded-md bg-brand-600 px-4 py-3 text-sm font-semibold text-white">Sign &amp; submit</button>
+</div>
+
+</body>
+</html>

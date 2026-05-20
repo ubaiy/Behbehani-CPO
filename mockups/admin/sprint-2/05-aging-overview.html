@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behbehani CPO · Back Office — Inventory Aging</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    /* Collapsible run history */
+    #run-history-body { display: none; }
+    #run-history-body.open { display: table-row-group; }
+    #history-toggle-icon { transition: transform 0.2s ease; }
+    #history-toggle-icon.open { transform: rotate(180deg); }
+
+    /* Range input styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: #e2e8f0;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #2563eb;
+      cursor: pointer;
+      border: 2px solid white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-100 font-sans antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR
+  ════════════════════════════════════════ -->
+  <aside class="w-60 flex-shrink-0 bg-slate-900 flex flex-col h-full">
+
+    <!-- Brand mark -->
+    <div class="flex items-center gap-2.5 px-4 py-4 border-b border-slate-800">
+      <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 1.5L3 4.5v5c0 4.14 2.97 8.01 7 8.96 4.03-.95 7-4.82 7-8.96v-5L10 1.5zm-1 10.5H7V6h2v6zm2 0h-1V6h1a2 2 0 010 4h-1v1.5H11V12z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold tracking-widest text-brand-400 uppercase leading-none">Behbehani CPO</p>
+        <p class="text-xs text-slate-500 leading-tight mt-0.5">Back Office</p>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-2 py-3 space-y-5" aria-label="Main navigation">
+
+      <div>
+        <a href="02-shell.html" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+          <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+      </div>
+
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Inventory</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Listings
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5l7 7-7 7-7-7V3z"/></svg>
+            Brands &amp; Models
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Pricing Rules
+          </a>
+          <!-- Active: Inventory Aging -->
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium bg-brand-700 text-white">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Inventory Aging
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <span class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+              Pipeline
+            </span>
+            <span class="text-xs font-semibold bg-blue-600 text-white rounded-full px-1.5 py-0.5 leading-none">14</span>
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Sales</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Reservations</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>Orders</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>Trade-Ins</a>
+        </div>
+      </div>
+
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Operations</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>Deliveries</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Maintenance</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>Returns</a>
+        </div>
+      </div>
+
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Insights</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Analytics</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Reports</a>
+        </div>
+      </div>
+
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Admin</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Roles &amp; Permissions</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>Audit Log</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</a>
+        </div>
+      </div>
+
+    </nav>
+
+    <!-- User profile footer -->
+    <div class="border-t border-slate-800 px-3 py-3">
+      <div class="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-slate-800 cursor-pointer transition-colors">
+        <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+          <span class="text-xs font-bold text-white">KA</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-slate-200 truncate">Khalid Al-Ansari</p>
+          <p class="text-xs text-slate-500 truncate">Super Admin</p>
+        </div>
+        <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN COLUMN
+  ════════════════════════════════════════ -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 gap-4">
+      <div class="flex-1 max-w-md">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="search" placeholder="Search VIN, order, customer…" class="w-full pl-9 pr-3 py-1.5 text-sm rounded-md border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white placeholder-slate-400 text-slate-700"/>
+          <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 bg-slate-100 border border-slate-200 rounded px-1 py-0.5 font-mono">/</kbd>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="relative p-2 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Notifications">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+        </button>
+        <span class="hidden lg:inline-flex items-center rounded-full border bg-blue-50 border-blue-200 px-2.5 py-0.5 text-xs font-medium text-blue-700">Staging</span>
+        <button class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100 transition-colors">
+          <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+            <span class="text-xs font-bold text-white">KA</span>
+          </div>
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA — scrollable -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-6">
+
+      <!-- Breadcrumbs -->
+      <nav class="flex items-center gap-1.5 text-xs text-slate-500 mb-4" aria-label="Breadcrumb">
+        <a href="#" class="hover:text-slate-700">Home</a>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <a href="#" class="hover:text-slate-700">Inventory</a>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-slate-800 font-medium">Inventory Aging</span>
+      </nav>
+
+      <!-- Page title row -->
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h1 class="text-xl font-semibold text-slate-800">Inventory Aging</h1>
+          <p class="text-sm text-slate-500 mt-0.5">BullMQ aging-discount engine — Thursday, 14 May 2026</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="text-sm rounded-md border border-slate-300 bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            Export CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════
+           ENGINE STATUS BANNER
+      ════════════════════════════ -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5 mb-5 flex flex-col sm:flex-row sm:items-center gap-4">
+
+        <!-- Left: engine status + run info -->
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-3 mb-2">
+            <!-- Engine ACTIVE pill -->
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1 text-sm font-semibold text-green-700">
+              <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+              Engine: ACTIVE
+            </span>
+          </div>
+          <p class="text-sm text-slate-700">
+            <span class="font-medium">Last run:</span> 2026-05-13 02:00 &mdash; processed <span class="font-semibold text-slate-800">87</span> listings, applied <span class="font-semibold text-brand-600">12</span> discounts
+          </p>
+          <p class="text-xs text-slate-400 mt-1 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Next scheduled run: tonight 02:00 Asia/Kuwait (UTC+3)
+          </p>
+        </div>
+
+        <!-- Right: role-gated actions (super_admin + pricing_manager) -->
+        <!-- Angular impl: *ngIf="hasRole('super_admin') || hasRole('pricing_manager')" -->
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3.5 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Run now
+          </button>
+          <button class="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors">
+            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Pause engine
+          </button>
+          <a href="#" class="text-sm font-medium text-brand-600 hover:text-brand-700 hover:underline px-1 whitespace-nowrap">
+            View pricing rules
+          </a>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════
+           KPI CARDS
+      ════════════════════════════ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+
+        <!-- Card 1: Total active listings -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Active Listings</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800">142</p>
+              <p class="mt-1 text-xs text-slate-400 font-medium">Across all stages</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Aging 20–44 days -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Aging — 20 to 44 Days</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800">23</p>
+              <p class="mt-1 flex items-center gap-1.5">
+                <span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">+4 vs last week</span>
+              </p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Aging 45+ days -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Aging — 45+ Days</p>
+              <p class="mt-2 text-3xl font-bold text-red-600">11</p>
+              <p class="mt-1 flex items-center gap-1.5">
+                <span class="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-xs font-semibold text-red-700">+2 vs last week</span>
+              </p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Total discount this month -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Discounts This Month</p>
+              <p class="mt-2 text-2xl font-bold text-slate-800 tabular-nums">18,420.000</p>
+              <p class="mt-1 text-xs text-slate-400 font-medium">KWD total reduction</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           DISTRIBUTION CHART
+      ════════════════════════════════════════ -->
+      <div class="bg-white rounded-xl border border-slate-200 p-5 mb-5">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-800">Days on Lot — Distribution</h2>
+            <p class="text-xs text-slate-400 mt-0.5">All 142 active listings by age bucket</p>
+          </div>
+          <span class="text-xs text-slate-400 bg-slate-100 rounded-md px-2 py-1 font-medium">As of 14 May 2026</span>
+        </div>
+
+        <!-- Horizontal stacked bar -->
+        <div class="mb-3">
+          <div class="flex rounded-md overflow-hidden h-7 w-full">
+            <!-- 0–7: brand-200 -->
+            <div class="bg-brand-200 flex items-center justify-center" style="width: 26.8%;" title="0–7 days: 38">
+              <span class="text-xs font-semibold text-brand-800">38</span>
+            </div>
+            <!-- 8–19: brand-300 -->
+            <div class="bg-brand-300 flex items-center justify-center" style="width: 22.5%;" title="8–19 days: 32">
+              <span class="text-xs font-semibold text-brand-900">32</span>
+            </div>
+            <!-- 20–29: brand-400 -->
+            <div class="bg-brand-400 flex items-center justify-center" style="width: 11.3%;" title="20–29 days: 16">
+              <span class="text-xs font-semibold text-white">16</span>
+            </div>
+            <!-- 30–44: brand-500 -->
+            <div class="bg-brand-500 flex items-center justify-center" style="width: 9.9%;" title="30–44 days: 7">
+              <span class="text-xs font-semibold text-white">7</span>
+            </div>
+            <!-- 45–59: red-300 -->
+            <div class="bg-red-300 flex items-center justify-center" style="width: 8.5%;" title="45–59 days: 12">
+              <span class="text-xs font-semibold text-red-900">5</span>
+            </div>
+            <!-- 60–89: red-400 -->
+            <div class="bg-red-400 flex items-center justify-center" style="width: 9.9%;" title="60–89 days: 4">
+              <span class="text-xs font-semibold text-white">4</span>
+            </div>
+            <!-- 90–119: red-500 -->
+            <div class="bg-red-500 flex items-center justify-center" style="width: 5.6%;" title="90–119 days: 2">
+              <span class="text-xs font-semibold text-white">2</span>
+            </div>
+            <!-- 120+: red-700 -->
+            <div class="bg-red-700 flex items-center justify-center" style="width: 5%; min-width: 28px;" title="120+ days: 1">
+              <span class="text-xs font-semibold text-white">1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bucket labels and counts -->
+        <div class="grid grid-cols-8 gap-1 text-center">
+          <div>
+            <p class="text-xs font-semibold text-slate-700">38</p>
+            <p class="text-xs text-slate-400 mt-0.5 leading-tight" style="font-size:10px">0–7d</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-slate-700">32</p>
+            <p class="text-xs text-slate-400 mt-0.5 leading-tight" style="font-size:10px">8–19d</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-blue-700">16</p>
+            <p class="text-xs text-blue-400 mt-0.5 leading-tight" style="font-size:10px">20–29d</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-blue-700">7</p>
+            <p class="text-xs text-blue-400 mt-0.5 leading-tight" style="font-size:10px">30–44d</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-red-600">5</p>
+            <p class="text-xs text-red-400 mt-0.5 leading-tight" style="font-size:10px">45–59d</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-red-600">4</p>
+            <p class="text-xs text-red-400 mt-0.5 leading-tight" style="font-size:10px">60–89d</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-red-700">2</p>
+            <p class="text-xs text-red-400 mt-0.5 leading-tight" style="font-size:10px">90–119d</p>
+          </div>
+          <div>
+            <p class="text-xs font-semibold text-red-800">1</p>
+            <p class="text-xs text-red-500 mt-0.5 leading-tight" style="font-size:10px">120+d</p>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-slate-100">
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-sm bg-brand-200 flex-shrink-0"></span>
+            <span class="text-xs text-slate-500">0–7 days — fresh</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-sm bg-brand-400 flex-shrink-0"></span>
+            <span class="text-xs text-slate-500">20–44 days — Tier 1 discount</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-sm bg-red-400 flex-shrink-0"></span>
+            <span class="text-xs text-slate-500">45+ days — Tier 2 discount</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-3 h-3 rounded-sm bg-red-700 flex-shrink-0"></span>
+            <span class="text-xs text-slate-500">120+ days — escalated review</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           ACTIVE DISCOUNTS TABLE
+      ════════════════════════════════════════ -->
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-5">
+
+        <!-- Table header bar -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-800">Active Discounts</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Listings with engine-applied pricing tiers — showing 8 of 34</p>
+          </div>
+          <a href="#" class="text-xs font-medium text-brand-600 hover:text-brand-700 hover:underline">View all 34</a>
+        </div>
+
+        <!-- Filter strip -->
+        <div class="px-5 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-end gap-3">
+
+          <!-- Stage multi-select -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Stage</label>
+            <select class="py-1.5 pl-3 pr-7 text-xs rounded-md border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-700">
+              <option>All stages</option>
+              <option selected>Listed</option>
+              <option>Reserved</option>
+            </select>
+          </div>
+
+          <!-- Tier filter -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Tier</label>
+            <select class="py-1.5 pl-3 pr-7 text-xs rounded-md border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-700">
+              <option>All tiers</option>
+              <option>Tier 1 (20–44d)</option>
+              <option>Tier 2 (45–89d)</option>
+              <option>Tier 3 (90d+)</option>
+            </select>
+          </div>
+
+          <!-- Brand filter -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Brand</label>
+            <select class="py-1.5 pl-3 pr-7 text-xs rounded-md border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-slate-700">
+              <option>All brands</option>
+              <option>Toyota</option>
+              <option>Lexus</option>
+              <option>Nissan</option>
+              <option>BMW</option>
+              <option>Mercedes-Benz</option>
+              <option>Hyundai</option>
+              <option>Kia</option>
+            </select>
+          </div>
+
+          <!-- Days on lot range slider (visual only) -->
+          <div class="flex-1 min-w-40">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Days on lot: <span class="text-slate-800 font-semibold">20 – 150</span></label>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400 tabular-nums w-6 text-right">20</span>
+              <input type="range" min="0" max="180" value="20" class="flex-1" />
+              <input type="range" min="0" max="180" value="150" class="flex-1" />
+              <span class="text-xs text-slate-400 tabular-nums w-6">150</span>
+            </div>
+          </div>
+
+          <div class="flex items-end pb-0.5">
+            <button class="text-xs text-slate-500 hover:text-brand-600 font-medium whitespace-nowrap">Reset</button>
+          </div>
+
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200">
+                <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Listing</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">VIN</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Stage</th>
+                <th class="px-3 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide">Days</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Tier</th>
+                <th class="px-3 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Discount</th>
+                <th class="px-3 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Original / Current (KWD)</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Applied on</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide w-28">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+
+              <!-- Row 1: 145 days — red (45+), Listed -->
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                  <a href="#" class="font-medium text-slate-800 hover:text-brand-600 block leading-tight">2021 Nissan Patrol LE</a>
+                  <span class="text-xs text-slate-400 font-mono">#STK-0881</span>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500"><span class="text-slate-300">•••••</span> NP8832</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Listed</span></td>
+                <td class="px-3 py-3 text-center"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700">145</span></td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full border border-red-200 px-2 py-0.5 text-xs font-medium text-red-700 bg-red-50">Tier 3</span></td>
+                <td class="px-3 py-3 text-right font-semibold text-red-600 tabular-nums">-8%</td>
+                <td class="px-3 py-3 text-right text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-400 line-through">14,500.000</span>
+                  <span class="block font-semibold text-slate-800">13,340.000</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">24 Apr 2026</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-1.5">
+                    <!-- Reapply tier (role-gated) -->
+                    <button title="Reapply tier" class="p-1.5 rounded-md bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <a href="#" class="text-xs font-medium text-brand-600 hover:underline whitespace-nowrap">View</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 2: 112 days — red (45+), Listed -->
+              <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30">
+                <td class="px-4 py-3">
+                  <a href="#" class="font-medium text-slate-800 hover:text-brand-600 block leading-tight">2020 BMW 730Li xDrive</a>
+                  <span class="text-xs text-slate-400 font-mono">#STK-0894</span>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500"><span class="text-slate-300">•••••</span> BM3341</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Listed</span></td>
+                <td class="px-3 py-3 text-center"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700">112</span></td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full border border-red-200 px-2 py-0.5 text-xs font-medium text-red-700 bg-red-50">Tier 3</span></td>
+                <td class="px-3 py-3 text-right font-semibold text-red-600 tabular-nums">-8%</td>
+                <td class="px-3 py-3 text-right text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-400 line-through">22,800.000</span>
+                  <span class="block font-semibold text-slate-800">20,976.000</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">07 May 2026</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-1.5">
+                    <button title="Reapply tier" class="p-1.5 rounded-md bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <a href="#" class="text-xs font-medium text-brand-600 hover:underline whitespace-nowrap">View</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 3: 78 days — red (45+), Listed -->
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                  <a href="#" class="font-medium text-slate-800 hover:text-brand-600 block leading-tight">2022 Mercedes-Benz E 200</a>
+                  <span class="text-xs text-slate-400 font-mono">#STK-0912</span>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500"><span class="text-slate-300">•••••</span> MB6614</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Listed</span></td>
+                <td class="px-3 py-3 text-center"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700">78</span></td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full border border-red-200 px-2 py-0.5 text-xs font-medium text-red-700 bg-red-50">Tier 2</span></td>
+                <td class="px-3 py-3 text-right font-semibold text-red-600 tabular-nums">-5%</td>
+                <td class="px-3 py-3 text-right text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-400 line-through">17,200.000</span>
+                  <span class="block font-semibold text-slate-800">16,340.000</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">01 May 2026</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-1.5">
+                    <button title="Reapply tier" class="p-1.5 rounded-md bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <a href="#" class="text-xs font-medium text-brand-600 hover:underline whitespace-nowrap">View</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 4: 62 days — red (45+), Reserved -->
+              <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30">
+                <td class="px-4 py-3">
+                  <a href="#" class="font-medium text-slate-800 hover:text-brand-600 block leading-tight">2021 Lexus GX 460 Luxury</a>
+                  <span class="text-xs text-slate-400 font-mono">#STK-0928</span>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500"><span class="text-slate-300">•••••</span> LX4477</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700">Reserved</span></td>
+                <td class="px-3 py-3 text-center"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700">62</span></td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full border border-red-200 px-2 py-0.5 text-xs font-medium text-red-700 bg-red-50">Tier 2</span></td>
+                <td class="px-3 py-3 text-right font-semibold text-red-600 tabular-nums">-5%</td>
+                <td class="px-3 py-3 text-right text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-400 line-through">19,500.000</span>
+                  <span class="block font-semibold text-slate-800">18,525.000</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">10 May 2026</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-1.5">
+                    <button title="Reapply tier" class="p-1.5 rounded-md bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <a href="#" class="text-xs font-medium text-brand-600 hover:underline whitespace-nowrap">View</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 5: 51 days — red (45+), Listed -->
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                  <a href="#" class="font-medium text-slate-800 hover:text-brand-600 block leading-tight">2022 Toyota Land Cruiser GXR</a>
+                  <span class="text-xs text-slate-400 font-mono">#STK-0935</span>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500"><span class="text-slate-300">•••••</span> TL9920</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Listed</span></td>
+                <td class="px-3 py-3 text-center"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-red-50 text-red-700">51</span></td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full border border-red-200 px-2 py-0.5 text-xs font-medium text-red-700 bg-red-50">Tier 2</span></td>
+                <td class="px-3 py-3 text-right font-semibold text-red-600 tabular-nums">-5%</td>
+                <td class="px-3 py-3 text-right text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-400 line-through">28,400.000</span>
+                  <span class="block font-semibold text-slate-800">26,980.000</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">11 May 2026</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-1.5">
+                    <button title="Reapply tier" class="p-1.5 rounded-md bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <a href="#" class="text-xs font-medium text-brand-600 hover:underline whitespace-nowrap">View</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 6: 44 days — blue (20–44), Listed -->
+              <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30">
+                <td class="px-4 py-3">
+                  <a href="#" class="font-medium text-slate-800 hover:text-brand-600 block leading-tight">2023 Hyundai Palisade SEL</a>
+                  <span class="text-xs text-slate-400 font-mono">#STK-0944</span>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500"><span class="text-slate-300">•••••</span> HP2255</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Listed</span></td>
+                <td class="px-3 py-3 text-center"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700">44</span></td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full border border-blue-200 px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-50">Tier 1</span></td>
+                <td class="px-3 py-3 text-right font-semibold text-brand-600 tabular-nums">-3%</td>
+                <td class="px-3 py-3 text-right text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-400 line-through">11,900.000</span>
+                  <span class="block font-semibold text-slate-800">11,543.000</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">12 May 2026</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-1.5">
+                    <button title="Reapply tier" class="p-1.5 rounded-md bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <a href="#" class="text-xs font-medium text-brand-600 hover:underline whitespace-nowrap">View</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 7: 38 days — blue (20–44), Listed -->
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="px-4 py-3">
+                  <a href="#" class="font-medium text-slate-800 hover:text-brand-600 block leading-tight">2023 Nissan Pathfinder SV</a>
+                  <span class="text-xs text-slate-400 font-mono">#STK-0951</span>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500"><span class="text-slate-300">•••••</span> NP0731</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Listed</span></td>
+                <td class="px-3 py-3 text-center"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700">38</span></td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full border border-blue-200 px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-50">Tier 1</span></td>
+                <td class="px-3 py-3 text-right font-semibold text-brand-600 tabular-nums">-3%</td>
+                <td class="px-3 py-3 text-right text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-400 line-through">9,750.000</span>
+                  <span class="block font-semibold text-slate-800">9,457.500</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">13 May 2026</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-1.5">
+                    <button title="Reapply tier" class="p-1.5 rounded-md bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <a href="#" class="text-xs font-medium text-brand-600 hover:underline whitespace-nowrap">View</a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 8: 31 days — blue (20–44), Listed -->
+              <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30">
+                <td class="px-4 py-3">
+                  <a href="#" class="font-medium text-slate-800 hover:text-brand-600 block leading-tight">2024 Kia Telluride EX</a>
+                  <span class="text-xs text-slate-400 font-mono">#STK-0962</span>
+                </td>
+                <td class="px-3 py-3 font-mono text-xs text-slate-500"><span class="text-slate-300">•••••</span> KT5588</td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Listed</span></td>
+                <td class="px-3 py-3 text-center"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700">31</span></td>
+                <td class="px-3 py-3"><span class="inline-flex items-center rounded-full border border-blue-200 px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-50">Tier 1</span></td>
+                <td class="px-3 py-3 text-right font-semibold text-brand-600 tabular-nums">-3%</td>
+                <td class="px-3 py-3 text-right text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-400 line-through">13,200.000</span>
+                  <span class="block font-semibold text-slate-800">12,804.000</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">13 May 2026</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-1.5">
+                    <button title="Reapply tier" class="p-1.5 rounded-md bg-brand-50 text-brand-600 hover:bg-brand-100 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    </button>
+                    <a href="#" class="text-xs font-medium text-brand-600 hover:underline whitespace-nowrap">View</a>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200">
+          <p class="text-xs text-slate-500">Showing <span class="font-medium text-slate-700">1–8</span> of <span class="font-medium text-slate-700">34</span></p>
+          <div class="flex items-center gap-1">
+            <button class="px-2 py-1 text-xs rounded border border-slate-300 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-40" disabled>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="px-2.5 py-1 text-xs rounded border border-brand-600 bg-brand-600 text-white font-semibold">1</button>
+            <button class="px-2.5 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">2</button>
+            <button class="px-2.5 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">3</button>
+            <span class="px-1 text-xs text-slate-400">…</span>
+            <button class="px-2.5 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">5</button>
+            <button class="px-2 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           ENGINE RUN HISTORY (collapsible)
+      ════════════════════════════════════════ -->
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden mb-5">
+
+        <!-- Collapsible header -->
+        <button
+          onclick="toggleHistory()"
+          class="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors text-left"
+          aria-expanded="false"
+          aria-controls="run-history-body"
+        >
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            <span class="text-sm font-semibold text-slate-800">Engine Run History</span>
+            <span class="text-xs text-slate-400 font-normal">— last 7 nightly runs</span>
+          </div>
+          <svg id="history-toggle-icon" class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+
+        <!-- Collapsible body -->
+        <div id="run-history-body" class="border-t border-slate-200">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                  <th class="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Date</th>
+                  <th class="px-3 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Processed</th>
+                  <th class="px-3 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Discounts Applied</th>
+                  <th class="px-3 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Total Reduction (KWD)</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Outcome</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <tr class="hover:bg-slate-50">
+                  <td class="px-4 py-2.5 text-sm font-medium text-slate-700 whitespace-nowrap">2026-05-13 02:00</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">87</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">12</td>
+                  <td class="px-3 py-2.5 text-right text-sm font-medium text-slate-800 tabular-nums">3,240.000</td>
+                  <td class="px-3 py-2.5"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Success</span></td>
+                </tr>
+                <!-- Skipped row — illustrates pause state -->
+                <tr class="hover:bg-slate-50 bg-slate-50/50">
+                  <td class="px-4 py-2.5 text-sm font-medium text-slate-700 whitespace-nowrap">2026-05-12 02:00</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-400 tabular-nums">—</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-400 tabular-nums">—</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-400 tabular-nums">—</td>
+                  <td class="px-3 py-2.5">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">Skipped — paused by admin</span>
+                  </td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="px-4 py-2.5 text-sm font-medium text-slate-700 whitespace-nowrap">2026-05-11 02:00</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">91</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">9</td>
+                  <td class="px-3 py-2.5 text-right text-sm font-medium text-slate-800 tabular-nums">2,817.500</td>
+                  <td class="px-3 py-2.5"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Success</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50 bg-slate-50/50">
+                  <td class="px-4 py-2.5 text-sm font-medium text-slate-700 whitespace-nowrap">2026-05-10 02:00</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">88</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">14</td>
+                  <td class="px-3 py-2.5 text-right text-sm font-medium text-slate-800 tabular-nums">4,102.000</td>
+                  <td class="px-3 py-2.5"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Success</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="px-4 py-2.5 text-sm font-medium text-slate-700 whitespace-nowrap">2026-05-09 02:00</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">84</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">11</td>
+                  <td class="px-3 py-2.5 text-right text-sm font-medium text-slate-800 tabular-nums">3,058.000</td>
+                  <td class="px-3 py-2.5"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Success</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50 bg-slate-50/50">
+                  <td class="px-4 py-2.5 text-sm font-medium text-slate-700 whitespace-nowrap">2026-05-08 02:00</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">79</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">7</td>
+                  <td class="px-3 py-2.5 text-right text-sm font-medium text-slate-800 tabular-nums">1,960.500</td>
+                  <td class="px-3 py-2.5"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-green-50 text-green-700">Success</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="px-4 py-2.5 text-sm font-medium text-slate-700 whitespace-nowrap">2026-05-07 02:00</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">82</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-600 tabular-nums">0</td>
+                  <td class="px-3 py-2.5 text-right text-sm text-slate-400 tabular-nums">0.000</td>
+                  <td class="px-3 py-2.5"><span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700">Success — no new tiers</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══════════════════════════════════════
+           AGING CHIP LEGEND (footer card)
+      ════════════════════════════════════════ -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4">
+        <div class="flex flex-wrap items-center gap-4">
+          <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Aging chip legend</p>
+          <div class="flex items-center gap-1.5">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-500">18</span>
+            <span class="text-xs text-slate-500">Under 20 days — no discount applied</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700">32</span>
+            <span class="text-xs text-slate-500">20–44 days — Tier 1 discount active</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-red-50 text-red-700">67</span>
+            <span class="text-xs text-slate-500">45+ days — Tier 2 / 3 discount active</span>
+          </div>
+          <p class="ml-auto text-xs text-slate-400 italic">Same chip styling appears on the vehicles list and pipeline board.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<script>
+  // Toggle run history collapsible
+  function toggleHistory() {
+    const body = document.getElementById('run-history-body');
+    const icon = document.getElementById('history-toggle-icon');
+    const expanded = body.classList.toggle('open');
+    icon.classList.toggle('open', expanded);
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "app": {
+    "name": "Behbehani CPO — Admin"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "pipeline": "Pipeline",
+    "orders": "Orders",
+    "customers": "Customers",
+    "deliveries": "Deliveries",
+    "returns": "Returns",
+    "maintenance": "Maintenance",
+    "tradeIn": "Trade-in",
+    "financing": "Financing",
+    "auditLog": "Audit log",
+    "settings": "Settings"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in"
+  },
+  "common": {
+    "language": "العربية",
+    "currency": "KWD",
+    "loading": "Loading…"
+  }
+}

@@ -1,0 +1,22 @@
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-2.6-catalog\01-brands-list.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-2.6-catalog\02-brand-edit-drawer.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-2.6-catalog\03-models-list.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-2.6-catalog\04-body-types.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-2.6-catalog\_shell.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-4-inspection\01-inspections-queue.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-4-inspection\02-inspection-edit.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-4-inspection\03-inspection-signoff.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-4-inspection\04-listing-edit-tab.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-4-inspection\05-customer-sign.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\admin\sprint-4-inspection\_shell.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\01-home-en.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\02-home-ar.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\03-listings-grid.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\04-listings-list.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\05-vdp.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\behbehani-motors\car-market\README.md
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\behbehani-motors\car-market\chats\chat1.md
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\behbehani-motors\car-market\chats\chat2.md
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\behbehani-motors\car-market\project\Behbehani Motors (Standalone).html
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\behbehani-motors\car-market\project\Behbehani Motors.html
+C:\Users\UBAIY\Back\MYB\Project\mockups\web\sprint-3\behbehani-motors\car-market\project\srs_extracted.txt

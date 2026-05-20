@@ -1,0 +1,87 @@
+---
+source_file: ".nx/workspace-data/parsed-lock-file.nodes.json"
+type: "code"
+community: "Community 143"
+location: "L7"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_143
+---
+
+# version
+
+## Connections
+- [[data]] - `contains` [EXTRACTED]
+- [[data_1]] - `contains` [EXTRACTED]
+- [[data_2]] - `contains` [EXTRACTED]
+- [[data_3]] - `contains` [EXTRACTED]
+- [[data_4]] - `contains` [EXTRACTED]
+- [[data_5]] - `contains` [EXTRACTED]
+- [[data_6]] - `contains` [EXTRACTED]
+- [[data_7]] - `contains` [EXTRACTED]
+- [[data_8]] - `contains` [EXTRACTED]
+- [[data_9]] - `contains` [EXTRACTED]
+- [[data_10]] - `contains` [EXTRACTED]
+- [[data_11]] - `contains` [EXTRACTED]
+- [[data_12]] - `contains` [EXTRACTED]
+- [[data_13]] - `contains` [EXTRACTED]
+- [[data_14]] - `contains` [EXTRACTED]
+- [[data_15]] - `contains` [EXTRACTED]
+- [[data_16]] - `contains` [EXTRACTED]
+- [[data_17]] - `contains` [EXTRACTED]
+- [[data_18]] - `contains` [EXTRACTED]
+- [[data_19]] - `contains` [EXTRACTED]
+- [[data_20]] - `contains` [EXTRACTED]
+- [[data_21]] - `contains` [EXTRACTED]
+- [[data_22]] - `contains` [EXTRACTED]
+- [[data_23]] - `contains` [EXTRACTED]
+- [[data_24]] - `contains` [EXTRACTED]
+- [[data_25]] - `contains` [EXTRACTED]
+- [[data_26]] - `contains` [EXTRACTED]
+- [[data_27]] - `contains` [EXTRACTED]
+- [[data_28]] - `contains` [EXTRACTED]
+- [[data_29]] - `contains` [EXTRACTED]
+- [[data_30]] - `contains` [EXTRACTED]
+- [[data_31]] - `contains` [EXTRACTED]
+- [[data_32]] - `contains` [EXTRACTED]
+- [[data_33]] - `contains` [EXTRACTED]
+- [[data_34]] - `contains` [EXTRACTED]
+- [[data_35]] - `contains` [EXTRACTED]
+- [[data_36]] - `contains` [EXTRACTED]
+- [[data_37]] - `contains` [EXTRACTED]
+- [[data_38]] - `contains` [EXTRACTED]
+- [[data_39]] - `contains` [EXTRACTED]
+- [[data_40]] - `contains` [EXTRACTED]
+- [[data_41]] - `contains` [EXTRACTED]
+- [[data_42]] - `contains` [EXTRACTED]
+- [[data_43]] - `contains` [EXTRACTED]
+- [[data_44]] - `contains` [EXTRACTED]
+- [[data_45]] - `contains` [EXTRACTED]
+- [[data_46]] - `contains` [EXTRACTED]
+- [[data_47]] - `contains` [EXTRACTED]
+- [[data_48]] - `contains` [EXTRACTED]
+- [[data_49]] - `contains` [EXTRACTED]
+- [[data_50]] - `contains` [EXTRACTED]
+- [[data_51]] - `contains` [EXTRACTED]
+- [[data_52]] - `contains` [EXTRACTED]
+- [[data_53]] - `contains` [EXTRACTED]
+- [[data_54]] - `contains` [EXTRACTED]
+- [[data_55]] - `contains` [EXTRACTED]
+- [[data_56]] - `contains` [EXTRACTED]
+- [[data_57]] - `contains` [EXTRACTED]
+- [[data_58]] - `contains` [EXTRACTED]
+- [[data_59]] - `contains` [EXTRACTED]
+- [[data_60]] - `contains` [EXTRACTED]
+- [[data_61]] - `contains` [EXTRACTED]
+- [[data_62]] - `contains` [EXTRACTED]
+- [[data_63]] - `contains` [EXTRACTED]
+- [[data_64]] - `contains` [EXTRACTED]
+- [[data_65]] - `contains` [EXTRACTED]
+- [[data_66]] - `contains` [EXTRACTED]
+- [[data_67]] - `contains` [EXTRACTED]
+- [[data_68]] - `contains` [EXTRACTED]
+- [[data_69]] - `contains` [EXTRACTED]
+- [[data_70]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_143

@@ -1,0 +1,177 @@
+<!-- Full-page centering wrapper -->
+<div class="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-slate-50">
+
+  <!-- Sign-in card -->
+  <div class="w-full max-w-sm bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+
+    <!-- Card header -->
+    <div class="px-8 pt-8 pb-6 border-b border-slate-100">
+
+      <!-- Brand mark — full Morad Yousuf Behbehani lockup -->
+      <div class="mb-5">
+        <img
+          src="/brand-logo.png"
+          alt="Morad Yousuf Behbehani"
+          class="h-12 w-auto"
+        />
+        <p class="text-xs text-slate-400 tracking-widest uppercase mt-3">
+          Certified Pre-Owned — Back Office
+        </p>
+      </div>
+
+      <h1 class="text-lg font-semibold text-slate-800">Administrator Sign In</h1>
+      <p class="text-sm text-slate-500 mt-0.5">Authorised personnel only.</p>
+    </div>
+
+    <!-- Form body -->
+    <div class="px-8 py-6">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()"
+        novalidate
+        class="space-y-4"
+        aria-label="Administrator sign-in form"
+      >
+
+        <!-- Email field -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-slate-700 mb-1">
+            Work email
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            placeholder="you@behbehani.com"
+            [attr.aria-invalid]="email.invalid && email.touched ? 'true' : null"
+            aria-describedby="email-error"
+            class="w-full rounded-md border px-3 py-2 text-sm text-slate-800 placeholder-slate-400 bg-white
+                   focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
+            [class.border-slate-300]="!(email.invalid && email.touched)"
+            [class.border-red-400]="email.invalid && email.touched"
+          />
+          @if (email.touched && email.hasError('required')) {
+            <p id="email-error" class="mt-1 text-xs text-red-600" role="alert">
+              Email address is required.
+            </p>
+          } @else if (email.touched && email.hasError('email')) {
+            <p id="email-error" class="mt-1 text-xs text-red-600" role="alert">
+              Enter a valid email address.
+            </p>
+          }
+        </div>
+
+        <!-- Password field -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
+            Password
+          </label>
+          <div class="relative">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              [attr.aria-invalid]="password.invalid && password.touched ? 'true' : null"
+              aria-describedby="password-error"
+              class="w-full rounded-md border px-3 py-2 pr-10 text-sm text-slate-800 placeholder-slate-400 bg-white
+                     focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
+              [class.border-slate-300]="!(password.invalid && password.touched)"
+              [class.border-red-400]="password.invalid && password.touched"
+            />
+            <!-- Show / hide password toggle -->
+            <button
+              type="button"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+              [attr.aria-pressed]="showPassword()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none focus:text-brand-600"
+            >
+              @if (showPassword()) {
+                <!-- Eye-off icon -->
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 012.05-3.44M6.53 6.53A9.97 9.97 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.97 9.97 0 01-4.417 5.32M6.53 6.53L3 3m3.53 3.53l10.94 10.94M3 3l18 18"/>
+                </svg>
+              } @else {
+                <!-- Eye icon -->
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              }
+            </button>
+          </div>
+          @if (password.touched && password.hasError('required')) {
+            <p id="password-error" class="mt-1 text-xs text-red-600" role="alert">
+              Password is required.
+            </p>
+          } @else if (password.touched && password.hasError('minlength')) {
+            <p id="password-error" class="mt-1 text-xs text-red-600" role="alert">
+              Password must be at least 8 characters.
+            </p>
+          }
+        </div>
+
+        <!-- API error banner -->
+        @if (errorMessage()) {
+          <div
+            role="alert"
+            aria-live="assertive"
+            class="flex items-start gap-2 rounded-md bg-red-50 border border-red-200 px-3 py-2.5"
+          >
+            <svg
+              class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            <p class="text-xs text-red-700">{{ errorMessage() }}</p>
+          </div>
+        }
+
+        <!-- Submit button -->
+        <button
+          type="submit"
+          [disabled]="submitting()"
+          class="w-full rounded-md bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white
+                 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2
+                 disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150"
+          [attr.aria-busy]="submitting() ? 'true' : null"
+        >
+          @if (submitting()) {
+            <span class="inline-flex items-center gap-2">
+              <svg
+                class="w-4 h-4 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+              </svg>
+              Signing in…
+            </span>
+          } @else {
+            Sign in to Back Office
+          }
+        </button>
+
+      </form>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <p class="mt-6 text-center text-xs text-slate-400 select-none">
+    v0.1.0 &middot; Sprint 1
+  </p>
+
+</div>

@@ -1,0 +1,581 @@
+    <!-- ── Error banner ──────────────────────────────────────── -->
+    @if (error()) {
+      <div class="mb-4 flex items-center justify-between rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+        <span class="text-sm text-red-700">Failed to load dashboard. Please refresh.</span>
+        <button
+          type="button"
+          class="ml-4 text-xs font-semibold text-red-700 underline hover:no-underline"
+          (click)="reload()"
+        >Retry</button>
+      </div>
+    }
+
+    <!-- ═══════════════════════════════════
+         HEADER STRIP
+    ═══════════════════════════════════ -->
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        @if (loading()) {
+          <div class="h-7 w-64 bg-slate-200 animate-pulse rounded mb-1"></div>
+          <div class="h-4 w-80 bg-slate-100 animate-pulse rounded"></div>
+        } @else {
+          <h1 class="text-xl font-semibold text-slate-800">
+            Good {{ greeting }}, {{ data()?.greetingName ?? '' }}
+          </h1>
+          <p class="text-sm text-slate-500 mt-0.5">
+            Here's what's happening across inventory, pricing, and people today.
+          </p>
+        }
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0 mt-1">
+        @if (!loading() && data()) {
+          <span class="text-xs text-slate-400">
+            Last refreshed: <span class="font-medium text-slate-600">{{ formatAt(data()!.generatedAt) }}</span>
+          </span>
+        }
+        <button
+          type="button"
+          class="p-1.5 rounded-md border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-brand-600 transition-colors"
+          title="Refresh dashboard"
+          (click)="reload()"
+          [disabled]="loading()"
+          aria-label="Refresh dashboard"
+        >
+          <svg
+            class="w-4 h-4"
+            [class.animate-spin]="loading()"
+            fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         DAILY VALUE STRIP (4 cards)
+    ═══════════════════════════════════ -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+      @if (loading()) {
+        @for (i of skeletonArr4; track i) {
+          <div class="bg-white rounded-lg border border-slate-200 border-dashed p-3 animate-pulse">
+            <div class="h-3 w-32 bg-slate-200 rounded mb-2"></div>
+            <div class="h-6 w-10 bg-slate-100 rounded"></div>
+          </div>
+        }
+      } @else {
+        @for (tile of data()?.dailyValues ?? []; track tile.key) {
+          <div class="bg-white rounded-lg border border-slate-200 border-dashed p-3 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">{{ tile.label }}</p>
+              <p class="text-xl font-bold leading-tight mt-1"
+                 [class.text-slate-800]="tile.value !== null"
+                 [class.text-slate-300]="tile.value === null">
+                {{ tile.value !== null ? tile.value : '—' }}
+              </p>
+            </div>
+            @if (tile.sprintTag) {
+              <span class="inline-flex rounded-full bg-slate-100 text-slate-600 text-xs font-medium px-2 py-0.5 flex-shrink-0">
+                {{ tile.sprintTag }}
+              </span>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <!-- ═══════════════════════════════════
+         TOP KPI CARDS (5 tiles)
+    ═══════════════════════════════════ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
+      @if (loading()) {
+        @for (i of skeletonArr5; track i) {
+          <div class="bg-white rounded-xl border border-slate-200 p-5 animate-pulse">
+            <div class="h-4 w-28 bg-slate-200 rounded mb-3"></div>
+            <div class="h-9 w-16 bg-slate-200 rounded mb-2"></div>
+            <div class="h-3 w-36 bg-slate-100 rounded"></div>
+          </div>
+        }
+      } @else if (data()) {
+        <!-- Active Listings -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Total Active Listings</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800 tabular-nums">{{ data()!.topKpis.activeListings.value }}</p>
+              <p class="mt-0.5 text-xs text-slate-400">{{ data()!.topKpis.activeListings.caption }}</p>
+              @if (data()!.topKpis.activeListings.delta; as d) {
+                <div class="mt-2 flex items-center gap-1.5">
+                  <svg class="w-3 h-3" [class.text-brand-600]="d.sign === 'up'" [class.text-red-600]="d.sign === 'down'" [class.text-slate-400]="d.sign === 'flat'"
+                       fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                    @if (d.sign === 'up') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+                    } @else if (d.sign === 'down') {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                    } @else {
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/>
+                    }
+                  </svg>
+                  <span class="inline-flex items-center rounded-full bg-brand-50 border border-brand-200 px-2 py-0.5 text-xs font-semibold text-brand-700">
+                    {{ d.sign === 'up' ? '+' : d.sign === 'down' ? '-' : '' }}{{ d.pct }}% vs {{ d.vsPeriod }}
+                  </span>
+                </div>
+              }
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Listings — clickable, jumps to filtered list -->
+        <a [routerLink]="['/inventory/listings']" [queryParams]="{ featured: 'true' }"
+           class="block bg-white rounded-xl border border-slate-200 p-5 hover:border-brand-300 hover:shadow-sm transition-all"
+           aria-label="View featured listings">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Featured Listings</p>
+              <p class="mt-2 text-3xl font-bold text-slate-800 tabular-nums">{{ data()!.topKpis.featuredListings.value }}</p>
+              <p class="mt-0.5 text-xs text-slate-400">{{ data()!.topKpis.featuredListings.caption }}</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-brand-600" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.293z"/>
+              </svg>
+            </div>
+          </div>
+        </a>
+
+        <!-- Aging 20-44d (brand tint) -->
+        <div class="bg-brand-50 rounded-xl border border-brand-200 p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-brand-700 uppercase tracking-wide">Aging 20–44 Days</p>
+              <p class="mt-2 text-3xl font-bold text-brand-900 tabular-nums">{{ data()!.topKpis.aging20to44.value }}</p>
+              <p class="mt-0.5 text-xs text-brand-600">{{ data()!.topKpis.aging20to44.caption }}</p>
+              @if (data()!.topKpis.aging20to44.delta; as d) {
+                <div class="mt-2 flex items-center gap-1.5">
+                  <span class="inline-flex items-center rounded-full bg-brand-100 border border-brand-300 px-2 py-0.5 text-xs font-semibold text-brand-800">
+                    {{ d.sign === 'up' ? '+' : d.sign === 'down' ? '-' : '' }}{{ d.pct }}% vs {{ d.vsPeriod }}
+                  </span>
+                </div>
+              }
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-100 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aging 45+d (red tint — tone: warn) -->
+        <div class="bg-red-50 rounded-xl border border-red-200 p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-red-700 uppercase tracking-wide">Aging 45+ Days</p>
+              <p class="mt-2 text-3xl font-bold text-red-800 tabular-nums">{{ data()!.topKpis.aging45plus.value }}</p>
+              <p class="mt-0.5 text-xs text-red-600">{{ data()!.topKpis.aging45plus.caption }}</p>
+              @if (data()!.topKpis.aging45plus.delta; as d) {
+                <div class="mt-2 flex items-center gap-1.5">
+                  <span class="inline-flex items-center rounded-full bg-red-100 border border-red-300 px-2 py-0.5 text-xs font-semibold text-red-700">
+                    {{ d.sign === 'up' ? '+' : d.sign === 'down' ? '-' : '' }}{{ d.pct }}% vs {{ d.vsPeriod }}
+                  </span>
+                </div>
+              }
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-red-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Discount (KWD money tile) -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <div class="flex items-start justify-between">
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Monthly Discount Applied</p>
+              <p class="mt-2 text-2xl font-bold text-slate-800 tabular-nums">
+                {{ filsToKwd(data()!.topKpis.monthlyDiscountAppliedFils.value.toString()) }}
+              </p>
+              <p class="mt-0.5 text-xs text-slate-400">{{ data()!.topKpis.monthlyDiscountAppliedFils.caption }}</p>
+            </div>
+            <div class="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0 ml-3">
+              <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ═══════════════════════════════════
+         PIPELINE AT A GLANCE (full-width)
+    ═══════════════════════════════════ -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5 mb-4">
+      @if (loading()) {
+        <div class="h-4 w-40 bg-slate-200 animate-pulse rounded mb-4"></div>
+        <div class="h-7 w-full bg-slate-200 animate-pulse rounded mb-3"></div>
+        <div class="flex gap-1">
+          @for (i of skeletonArr4; track i) {
+            <div class="h-3 bg-slate-100 animate-pulse rounded flex-1"></div>
+          }
+        </div>
+      } @else if (data()) {
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-800">Pipeline at a Glance</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Listing distribution across the 10 stages.</p>
+          </div>
+          @if (data()!.pipeline.mostStuckStage; as ms) {
+            <div class="text-right flex-shrink-0 ml-4">
+              <p class="text-xs font-semibold text-brand-700">Most stuck stage: {{ ms.stage }}</p>
+              <p class="text-xs text-slate-500">avg <span class="font-medium text-slate-700">{{ ms.avgDays }}d</span> dwell time</p>
+            </div>
+          }
+        </div>
+
+        <!-- Stacked bar -->
+        <div class="flex w-full rounded overflow-hidden mb-2" style="height:28px">
+          @for (seg of data()!.pipeline.stages; track seg.stage; let i = $index) {
+            @if (seg.count > 0) {
+              <div
+                class="flex items-center justify-center text-xs font-semibold text-white transition-opacity hover:opacity-85 cursor-default"
+                [class]="pipelineColor(i)"
+                [style.flex-basis.%]="pipelinePercent(seg.count)"
+                [title]="seg.stage + ': ' + seg.count"
+              >
+                @if (pipelinePercent(seg.count) > 6) {
+                  {{ seg.count }}
+                }
+              </div>
+            }
+          }
+        </div>
+
+        <!-- Count labels under bar (proportional widths) -->
+        <div class="flex w-full" style="font-size:10px">
+          @for (seg of data()!.pipeline.stages; track seg.stage; let i = $index) {
+            <div
+              class="text-center font-medium"
+              [class]="pipelineLabelColor(i)"
+              [style.flex-basis.%]="pipelinePercent(seg.count)"
+            >
+              @if (seg.count > 0) {
+                {{ seg.count }}
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Color key -->
+        <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-slate-100">
+          @for (seg of data()!.pipeline.stages; track seg.stage; let i = $index) {
+            <span class="inline-flex items-center gap-1.5 text-xs"
+                  [class.text-brand-700]="seg.stage === 'listed'"
+                  [class.font-semibold]="seg.stage === 'listed'"
+                  [class.text-slate-400]="i >= 7 && seg.stage !== 'listed'"
+                  [class.text-slate-600]="i < 7 && seg.stage !== 'listed'">
+              <span
+                class="w-2.5 h-2.5 rounded-sm inline-block flex-shrink-0"
+                [class]="pipelineColor(i)"
+                [class.border]="i === 9"
+                [class.border-slate-300]="i === 9"
+              ></span>
+              {{ seg.stage }}
+            </span>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- ═══════════════════════════════════
+         ROW 3 — AGING ENGINE + QUICK ACTIONS
+    ═══════════════════════════════════ -->
+    @if (!loading() && data()) {
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
+
+        <!-- LEFT: Aging engine (col-span-3) — only if agingEngine is non-null -->
+        @if (data()!.agingEngine; as ae) {
+          <div class="lg:col-span-3 bg-white rounded-xl border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-semibold text-slate-800">Aging Engine</h2>
+              <!-- Status pill -->
+              @if (ae.enabled && !ae.paused) {
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 border border-brand-200 px-2.5 py-0.5 text-xs font-semibold text-brand-700">
+                  <span class="w-1.5 h-1.5 rounded-full bg-brand-500 inline-block"></span>
+                  ACTIVE
+                </span>
+              } @else if (ae.paused) {
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-300 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
+                  PAUSED
+                </span>
+              } @else {
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-xs font-semibold text-red-700">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>
+                  INACTIVE
+                </span>
+              }
+            </div>
+
+            <div class="space-y-3 mb-4">
+              <!-- Last run -->
+              <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <p class="text-xs font-medium text-slate-600">Last run</p>
+                  @if (ae.lastRun) {
+                    <p class="text-xs text-slate-400 mt-0.5">{{ formatIso(ae.lastRun.finishedAt) }}</p>
+                  } @else {
+                    <p class="text-xs text-slate-400 mt-0.5">No runs recorded yet</p>
+                  }
+                </div>
+                @if (ae.lastRun) {
+                  <div class="text-right">
+                    <p class="text-xs font-semibold text-slate-700">{{ ae.lastRun.processedCount }} processed</p>
+                    <p class="text-xs text-slate-400">{{ ae.lastRun.appliedCount }} discounts applied</p>
+                  </div>
+                }
+              </div>
+
+              <!-- Next run -->
+              <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                  <p class="text-xs font-medium text-slate-600">Next run</p>
+                  <p class="text-xs text-slate-400 mt-0.5">Scheduled — nightly 02:00 AST</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs font-semibold text-brand-700">in {{ timeUntil(ae.nextScheduledAt) }}</p>
+                </div>
+              </div>
+
+              <!-- Active discounts summary -->
+              <div class="flex items-start justify-between">
+                <div>
+                  <p class="text-xs font-medium text-slate-600">Active discounts</p>
+                  <p class="text-xs text-slate-400 mt-0.5">from current engine cycle</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-xs font-semibold text-slate-700">{{ ae.activeDiscounts.listingCount }} listings</p>
+                  <p class="text-xs font-semibold text-brand-700 tabular-nums">{{ filsToKwd(ae.activeDiscounts.totalReductionFils) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Open report link -->
+            <a
+              routerLink="/reports/inventory-aging"
+              class="inline-flex items-center gap-1.5 rounded-md bg-white border border-slate-300 text-brand-600 text-xs font-semibold px-3 py-1.5 hover:bg-brand-50 transition-colors"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Open report
+            </a>
+          </div>
+        }
+
+        <!-- RIGHT: Quick actions (col-span-2) — hidden if empty array -->
+        @if (data()!.quickActions.length > 0) {
+          <div [class]="data()!.agingEngine ? 'lg:col-span-2' : 'lg:col-span-5'"
+               class="bg-white rounded-xl border border-slate-200 p-5">
+            <h2 class="text-sm font-semibold text-slate-800 mb-4">Quick Actions</h2>
+            <div class="space-y-1.5">
+              @for (action of data()!.quickActions; track action.key) {
+                <a
+                  [routerLink]="action.href"
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-slate-100 hover:bg-brand-50 hover:border-brand-200 transition-colors group"
+                >
+                  <div class="w-8 h-8 rounded-lg bg-brand-50 group-hover:bg-brand-100 flex items-center justify-center flex-shrink-0 transition-colors">
+                    <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-semibold text-slate-800">{{ action.label }}</p>
+                    <p class="text-xs text-slate-400 truncate">{{ action.href }}</p>
+                  </div>
+                  <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-brand-600 transition-colors flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </a>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+    }
+
+    <!-- ═══════════════════════════════════
+         ROW 4 — RECENT ACTIVITY + SYSTEM HEALTH
+    ═══════════════════════════════════ -->
+    @if (!loading() && data()) {
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-4">
+
+        <!-- LEFT: Recent Activity (col-span-3) -->
+        <div class="lg:col-span-3 bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+            <div>
+              <h2 class="text-sm font-semibold text-slate-800">Recent Activity</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Last {{ data()!.recentActivity.length }} admin actions across the system.</p>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-100">
+                  <th class="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Time</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Actor</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Action</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Resource</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Outcome</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                @if (data()!.recentActivity.length === 0) {
+                  <tr>
+                    <td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">No recent activity</td>
+                  </tr>
+                } @else {
+                  @for (entry of data()!.recentActivity; track entry.id) {
+                    <tr
+                      class="hover:bg-slate-50 transition-colors"
+                      [class.bg-red-50/40]="entry.outcome === 'denied' || entry.outcome === 'error'"
+                    >
+                      <td class="px-4 py-2.5">
+                        <span class="font-mono text-xs text-slate-700">{{ relativeTime(entry.createdAt) }}</span>
+                      </td>
+                      <td class="px-3 py-2.5">
+                        <div class="flex items-center gap-1.5">
+                          <div class="w-5 h-5 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+                            <span class="text-white font-bold" style="font-size:8px">{{ actorInitials(entry.actorName) }}</span>
+                          </div>
+                          <span class="text-xs text-slate-700 whitespace-nowrap">{{ entry.actorName ?? 'unknown' }}</span>
+                        </div>
+                      </td>
+                      <td class="px-3 py-2.5">
+                        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-50 text-blue-700 whitespace-nowrap">
+                          {{ entry.action }}
+                        </span>
+                      </td>
+                      <td class="px-3 py-2.5">
+                        <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 whitespace-nowrap">
+                          {{ entry.resource }}
+                        </span>
+                      </td>
+                      <td class="px-3 py-2.5">
+                        <span
+                          class="inline-flex rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap"
+                          [class.bg-brand-50]="entry.outcome === 'success'"
+                          [class.text-brand-700]="entry.outcome === 'success'"
+                          [class.bg-red-50]="entry.outcome === 'denied'"
+                          [class.text-red-700]="entry.outcome === 'denied'"
+                          [class.bg-red-100]="entry.outcome === 'error'"
+                          [class.text-red-800]="entry.outcome === 'error'"
+                          [class.bg-slate-100]="entry.outcome !== 'success' && entry.outcome !== 'denied' && entry.outcome !== 'error'"
+                          [class.text-slate-600]="entry.outcome !== 'success' && entry.outcome !== 'denied' && entry.outcome !== 'error'"
+                        >{{ entry.outcome }}</span>
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Footer link — show only if actor has view_audit_log action -->
+          @if (data()!.quickActions.some(a => a.key === 'view_audit_log')) {
+            <div class="px-5 py-3 border-t border-slate-100 flex justify-end">
+              <a routerLink="/admin/audit-log" class="text-xs text-brand-600 hover:underline font-medium whitespace-nowrap">
+                View full audit log &rarr;
+              </a>
+            </div>
+          }
+        </div>
+
+        <!-- RIGHT: System Health (col-span-2) -->
+        <div class="lg:col-span-2 space-y-3">
+
+          <!-- Media coverage -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Media Coverage</h3>
+              <span class="text-xs text-slate-400">storefront-ready</span>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="text-xs text-slate-600">Photos</span>
+                </div>
+                <span class="text-xs font-semibold text-slate-800">{{ data()!.systemHealth.media.photos.toLocaleString() }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  <span class="text-xs text-slate-600">Videos</span>
+                </div>
+                <span class="text-xs font-semibold text-slate-800">{{ data()!.systemHealth.media.videos }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.845v6.31a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                  </svg>
+                  <span class="text-xs text-slate-600">360&deg; tours</span>
+                </div>
+                <span class="text-xs font-semibold text-slate-800">{{ data()!.systemHealth.media.media360 }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Admin users — only if non-null (role-gated) -->
+          @if (data()!.systemHealth.users; as u) {
+            <div class="bg-white rounded-xl border border-slate-200 p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wide">Admin Users</h3>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="text-center">
+                  <p class="text-lg font-bold text-slate-800">{{ u.active }}</p>
+                  <p class="text-xs text-slate-400">active</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-lg font-bold" [class.text-red-700]="u.locked > 0" [class.text-slate-800]="u.locked === 0">{{ u.locked }}</p>
+                  <p class="text-xs text-slate-400">locked</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-lg font-bold" [class.text-slate-300]="u.disabled === 0" [class.text-slate-700]="u.disabled > 0">{{ u.disabled }}</p>
+                  <p class="text-xs text-slate-400">disabled</p>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Pricing tiers -->
+          <div class="bg-white rounded-xl border border-slate-200 p-4">
+            <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-3">Pricing Tiers</h3>
+            <p class="text-lg font-bold text-slate-800">
+              {{ data()!.systemHealth.pricingTiers.active }}
+              <span class="text-xs font-normal text-slate-400">active</span>
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    }
+
+    <!-- TODO: Add 30-second auto-refresh timer here when polling is approved.
+         Pattern: interval(30_000).pipe(takeUntil(destroy$)).subscribe(() => this.reload()) -->

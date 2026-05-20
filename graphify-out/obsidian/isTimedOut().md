@@ -1,0 +1,19 @@
+---
+source_file: ".github/skills/monitor-ci/scripts/ci-poll-decide.mjs"
+type: "code"
+community: "Community 37"
+location: "L126"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Community_37
+---
+
+# isTimedOut()
+
+## Connections
+- [[backoff()]] - `calls` [EXTRACTED]
+- [[ci-poll-decide.mjs]] - `contains` [EXTRACTED]
+- [[classify()]] - `calls` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Community_37

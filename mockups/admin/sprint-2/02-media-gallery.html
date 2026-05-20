@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behbehani CPO · Back Office — Media Gallery</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    .content-area { padding-bottom: 80px; }
+
+    /* Photo thumbnail hover overlay */
+    .thumb-card:hover .thumb-overlay { opacity: 1; }
+    .thumb-overlay { opacity: 0; transition: opacity 0.15s ease; }
+
+    /* Drag-and-drop zone hover */
+    .dropzone:hover,
+    .dropzone.drag-over {
+      border-color: #2563eb;
+      background-color: #eff6ff;
+    }
+
+    /* Sub-tab active */
+    .media-tab.active {
+      background-color: #2563eb;
+      color: #ffffff;
+    }
+    .media-tab {
+      transition: background-color 0.12s ease, color 0.12s ease;
+    }
+
+    /* Progress bar shimmer */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .progress-shimmer {
+      background: linear-gradient(90deg, #bfdbfe 25%, #93c5fd 50%, #bfdbfe 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+
+    /* CSS gradient photo placeholders — 12 distinct palettes */
+    .ph-1  { background: linear-gradient(135deg, #e0e7ef 0%, #b6c5d8 100%); }
+    .ph-2  { background: linear-gradient(135deg, #d1e8e4 0%, #a3c4bc 100%); }
+    .ph-3  { background: linear-gradient(135deg, #e8e0d4 0%, #c9b99a 100%); }
+    .ph-4  { background: linear-gradient(135deg, #dde4f0 0%, #a8b8d8 100%); }
+    .ph-5  { background: linear-gradient(135deg, #f0ece4 0%, #d4c8b4 100%); }
+    .ph-6  { background: linear-gradient(135deg, #d8e8f4 0%, #a0c0dc 100%); }
+    .ph-7  { background: linear-gradient(135deg, #e4d8ec 0%, #c0a4d0 100%); }
+    .ph-8  { background: linear-gradient(135deg, #d4e8d4 0%, #9cbc9c 100%); }
+    .ph-9  { background: linear-gradient(135deg, #f0e4dc 0%, #d8b8a8 100%); }
+    .ph-uploading { background: linear-gradient(135deg, #e8edf4 0%, #ccd4e0 100%); }
+    .ph-failed { background: linear-gradient(135deg, #fde8e8 0%, #f0b8b8 100%); }
+
+    /* Car silhouette overlay for placeholders */
+    .thumb-img-inner { position: relative; }
+    .thumb-img-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 40' fill='rgba(255,255,255,0.18)'%3E%3Cpath d='M8 28 L12 20 L20 16 L28 14 L52 14 L60 16 L68 20 L72 28 L70 30 L60 30 L58 28 Q56 24 52 24 Q48 24 46 28 L34 28 Q32 24 28 24 Q24 24 22 28 L20 30 L10 30 Z'/%3E%3Ccircle cx='25' cy='29' r='4' fill='rgba(0,0,0,0.15)'/%3E%3Ccircle cx='55' cy='29' r='4' fill='rgba(0,0,0,0.15)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center 60%;
+      background-size: 70%;
+    }
+
+    /* Frame strip selected state */
+    .frame-strip-item.selected {
+      outline: 2px solid #2563eb;
+      outline-offset: 1px;
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-100 font-sans antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR (240px fixed — carried from sprint-1)
+  ════════════════════════════════════════ -->
+  <aside class="w-60 flex-shrink-0 bg-slate-900 flex flex-col h-full">
+
+    <!-- Brand mark -->
+    <div class="flex items-center gap-2.5 px-4 py-4 border-b border-slate-800">
+      <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 1.5L3 4.5v5c0 4.14 2.97 8.01 7 8.96 4.03-.95 7-4.82 7-8.96v-5L10 1.5zm-1 10.5H7V6h2v6zm2 0h-1V6h1a2 2 0 010 4h-1v1.5H11V12z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold tracking-widest text-brand-400 uppercase leading-none">Behbehani CPO</p>
+        <p class="text-xs text-slate-500 leading-tight mt-0.5">Back Office</p>
+      </div>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-2 py-3 space-y-5" aria-label="Main navigation">
+      <div>
+        <a href="../sprint-1/02-shell.html" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+          <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+      </div>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Inventory</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium bg-brand-700 text-white">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Listings
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5l7 7-7 7-7-7V3z"/></svg>Brands &amp; Models</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Pricing Rules</a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <span class="flex items-center gap-2.5"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>Pipeline</span>
+            <span class="text-xs font-semibold bg-blue-600 text-white rounded-full px-1.5 py-0.5 leading-none">14</span>
+          </a>
+        </div>
+      </div>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Sales</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Reservations</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>Orders</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>Trade-Ins</a>
+        </div>
+      </div>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Finance</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Financing Apps</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>Invoices</a>
+        </div>
+      </div>
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Admin</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Roles &amp; Permissions</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>Audit Log</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- User footer -->
+    <div class="border-t border-slate-800 px-3 py-3">
+      <div class="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-slate-800 cursor-pointer transition-colors">
+        <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0"><span class="text-xs font-bold text-white">FM</span></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-slate-200 truncate">Fatima Al-Mutawa</p>
+          <p class="text-xs text-slate-500 truncate">Operations Manager</p>
+        </div>
+        <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN COLUMN
+  ════════════════════════════════════════ -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 gap-4">
+      <div class="flex-1 max-w-md">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="search" placeholder="Search VIN, order, customer…" class="w-full pl-9 pr-3 py-1.5 text-sm rounded-md border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white placeholder-slate-400 text-slate-700"/>
+          <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 bg-slate-100 border border-slate-200 rounded px-1 py-0.5 font-mono">/</kbd>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="relative p-2 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Notifications">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+        </button>
+        <span class="hidden lg:inline-flex items-center rounded-full border bg-blue-50 border-blue-200 px-2.5 py-0.5 text-xs font-medium text-blue-700">Staging</span>
+        <button class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100 transition-colors">
+          <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0"><span class="text-xs font-bold text-white">FM</span></div>
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- SCROLLABLE CONTENT AREA -->
+    <div class="flex-1 overflow-y-auto bg-slate-50 content-area">
+      <div class="p-6">
+
+        <!-- Breadcrumbs -->
+        <nav class="flex items-center gap-1.5 text-xs text-slate-500 mb-4" aria-label="Breadcrumb">
+          <a href="../sprint-1/02-shell.html" class="hover:text-slate-700">Home</a>
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <a href="#" class="hover:text-slate-700">Inventory</a>
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <a href="#" class="hover:text-slate-700">Listings</a>
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <a href="../sprint-1/04-vehicle-edit.html" class="hover:text-slate-700">2022 Toyota Camry</a>
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          <span class="text-slate-800 font-medium">Media</span>
+        </nav>
+
+        <!-- Page title row -->
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <h1 class="text-xl font-semibold text-slate-800">2022 Toyota Camry SE</h1>
+            <div class="flex items-center gap-2 mt-1">
+              <!-- VIN: last 6 chars only — full VIN stays in the main edit form -->
+              <span class="font-mono text-xs text-slate-400">VIN ···<span class="text-slate-600 font-medium">9341</span></span>
+              <span class="text-slate-300">·</span>
+              <span class="font-mono text-xs text-slate-400">#STK-1042</span>
+              <span class="text-slate-300">·</span>
+              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Acquired</span>
+              <span class="text-slate-300">·</span>
+              <span class="text-xs text-slate-400">Last saved 4 hrs ago by F. Al-Mutawa</span>
+            </div>
+          </div>
+          <!-- Media count badge -->
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 rounded-lg bg-brand-50 border border-brand-200 px-3 py-1.5 text-xs font-semibold text-brand-700">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              9 photos
+            </span>
+            <span class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              1 video
+            </span>
+          </div>
+        </div>
+
+        <!-- ─── MAIN TAB STRIP (extends from vehicle-edit.html) ─── -->
+        <div class="flex items-center gap-0 border-b border-slate-200 mb-6 overflow-x-auto">
+          <a href="../sprint-1/04-vehicle-edit.html" class="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent whitespace-nowrap -mb-px">Overview</a>
+          <button class="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent whitespace-nowrap -mb-px">Specifications</button>
+          <button class="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent whitespace-nowrap -mb-px">Pricing</button>
+          <!-- ACTIVE TAB: Media -->
+          <button class="px-4 py-2.5 text-sm font-semibold text-brand-600 border-b-2 border-brand-600 whitespace-nowrap -mb-px">
+            Media
+            <span class="ml-1.5 text-xs font-semibold bg-brand-100 text-brand-700 rounded-full px-1.5 py-0.5">11</span>
+          </button>
+          <button class="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent whitespace-nowrap -mb-px">
+            Inspection
+            <span class="ml-1.5 text-xs font-semibold bg-slate-200 text-slate-500 rounded-full px-1.5 py-0.5">Pending</span>
+          </button>
+          <button class="px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-700 border-b-2 border-transparent whitespace-nowrap -mb-px">Status &amp; History</button>
+        </div>
+
+        <!-- ─── TWO-COLUMN LAYOUT ─── -->
+        <div class="flex gap-6 items-start">
+
+          <!-- ═══ LEFT: MEDIA PANEL (main area) ═══ -->
+          <div class="flex-1 min-w-0 space-y-5">
+
+            <!-- ─── MEDIA SUB-TABS (segmented control) ─── -->
+            <div class="bg-white rounded-xl border border-slate-200 p-1 flex gap-1 w-fit">
+              <button id="tab-photos" class="media-tab active px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                Photos
+                <span class="text-xs font-semibold bg-white/20 rounded-full px-1.5 py-0.5 leading-none">9</span>
+              </button>
+              <button id="tab-360" class="media-tab px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                360° Walk-Around
+                <span class="text-xs font-semibold bg-emerald-100 text-emerald-700 rounded-full px-1.5 py-0.5 leading-none">36</span>
+              </button>
+              <button id="tab-video" class="media-tab px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                Walk-Around Video
+                <span class="text-xs font-semibold bg-slate-200 text-slate-600 rounded-full px-1.5 py-0.5 leading-none">1</span>
+              </button>
+            </div>
+
+
+            <!-- ══════════════════════════════════
+                 PANEL A: PHOTOS (default visible)
+            ══════════════════════════════════ -->
+            <div id="panel-photos">
+
+              <!-- Upload dropzone -->
+              <div class="dropzone bg-white rounded-xl border-2 border-dashed border-slate-300 p-8 text-center cursor-pointer transition-colors mb-5"
+                   role="button" aria-label="Photo upload zone">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-12 h-12 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-700">Drop photos here, or click to select</p>
+                    <p class="text-xs text-slate-400 mt-1">JPEG / PNG / WebP &nbsp;&middot;&nbsp; max 10 MB each &nbsp;&middot;&nbsp; up to 60 photos</p>
+                  </div>
+                  <button class="mt-1 px-4 py-2 rounded-md bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
+                    Choose files
+                  </button>
+                </div>
+              </div>
+
+              <!-- Thumbnail grid + sidebar help text -->
+              <div class="flex gap-5 items-start">
+
+                <!-- 6-column photo grid -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between mb-3">
+                    <p class="text-xs font-semibold text-slate-600 uppercase tracking-wide">9 of 60 photos uploaded</p>
+                    <!-- Role-gated: inventory_admin + super_admin only -->
+                    <!-- NOTE for Angular impl: wrap with *hasRole="['inventory_admin','super_admin']" directive -->
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs text-slate-400 bg-slate-100 rounded px-2 py-0.5 border border-slate-200 font-medium">inventory_admin</span>
+                      <button class="text-xs text-slate-500 hover:text-slate-700 border border-slate-200 rounded px-2 py-1 hover:bg-slate-50 transition-colors flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/></svg>
+                        Sort by upload date
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-6 gap-2.5">
+
+                    <!-- ── PHOTO 1: Primary (star filled) ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border-2 border-brand-500 shadow-sm cursor-grab">
+                      <div class="thumb-img-inner ph-1 aspect-[4/3]"></div>
+                      <!-- Drag handle top-left (role-gated) -->
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity" title="Drag to reorder">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <!-- Delete top-right (role-gated) -->
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Remove photo" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600 hover:text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <!-- Primary star (filled = primary) -->
+                      <div class="absolute bottom-1.5 left-1.5" title="Primary photo (storefront thumbnail)">
+                        <svg class="w-4 h-4 text-brand-600 drop-shadow-sm" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      </div>
+                      <!-- PRIMARY label pill -->
+                      <div class="absolute bottom-1.5 right-1.5">
+                        <span class="text-xs font-semibold bg-brand-600 text-white rounded px-1.5 py-0.5 leading-none">Primary</span>
+                      </div>
+                      <!-- Hover info overlay -->
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">4.2 MB</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 2: Normal ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border border-slate-200 hover:border-brand-300 cursor-grab">
+                      <div class="thumb-img-inner ph-2 aspect-[4/3]"></div>
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600 hover:text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <!-- Star outlined = not primary (role-gated: "Set primary" action) -->
+                      <button class="absolute bottom-1.5 left-1.5" title="Set as primary photo" aria-label="Set as primary photo">
+                        <svg class="w-4 h-4 text-white/70 hover:text-brand-400 drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                      </button>
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">3.8 MB</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 3: Normal ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border border-slate-200 hover:border-brand-300 cursor-grab">
+                      <div class="thumb-img-inner ph-3 aspect-[4/3]"></div>
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <button class="absolute bottom-1.5 left-1.5" title="Set as primary" aria-label="Set as primary photo">
+                        <svg class="w-4 h-4 text-white/70 hover:text-brand-400 drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                      </button>
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">5.1 MB</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 4: Normal ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border border-slate-200 hover:border-brand-300 cursor-grab">
+                      <div class="thumb-img-inner ph-4 aspect-[4/3]"></div>
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <button class="absolute bottom-1.5 left-1.5" title="Set as primary" aria-label="Set as primary photo">
+                        <svg class="w-4 h-4 text-white/70 hover:text-brand-400 drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                      </button>
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">4.6 MB</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 5: Uploading at 60% ── -->
+                    <div class="relative group rounded-lg overflow-hidden border border-slate-200 bg-white">
+                      <div class="thumb-img-inner ph-uploading aspect-[4/3] opacity-50"></div>
+                      <!-- Upload progress overlay -->
+                      <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/75 gap-1.5 p-2">
+                        <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                          <div class="progress-shimmer h-1.5 rounded-full" style="width: 60%;"></div>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium text-center leading-tight truncate w-full">camry_front_34.jpg</p>
+                        <p class="text-xs text-brand-600 font-semibold">60%</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 6: Uploading at 85% ── -->
+                    <div class="relative group rounded-lg overflow-hidden border border-slate-200 bg-white">
+                      <div class="thumb-img-inner ph-uploading aspect-[4/3] opacity-50"></div>
+                      <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/75 gap-1.5 p-2">
+                        <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                        <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                          <div class="progress-shimmer h-1.5 rounded-full" style="width: 85%;"></div>
+                        </div>
+                        <p class="text-xs text-slate-500 font-medium text-center leading-tight truncate w-full">camry_rear_pass.jpg</p>
+                        <p class="text-xs text-brand-600 font-semibold">85%</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 7: Normal ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border border-slate-200 hover:border-brand-300 cursor-grab">
+                      <div class="thumb-img-inner ph-5 aspect-[4/3]"></div>
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <button class="absolute bottom-1.5 left-1.5" aria-label="Set as primary photo">
+                        <svg class="w-4 h-4 text-white/70 hover:text-brand-400 drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                      </button>
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">3.2 MB</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 8: Normal ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border border-slate-200 hover:border-brand-300 cursor-grab">
+                      <div class="thumb-img-inner ph-6 aspect-[4/3]"></div>
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <button class="absolute bottom-1.5 left-1.5" aria-label="Set as primary photo">
+                        <svg class="w-4 h-4 text-white/70 hover:text-brand-400 drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                      </button>
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">4.0 MB</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 9: Failed ── -->
+                    <div class="relative group rounded-lg overflow-hidden border border-red-300 bg-white">
+                      <div class="thumb-img-inner ph-failed aspect-[4/3] opacity-60"></div>
+                      <div class="absolute inset-0 flex flex-col items-center justify-center bg-red-900/20 gap-1.5 p-2">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+                        <p class="text-xs text-red-700 font-medium text-center leading-tight">Upload failed</p>
+                        <button class="mt-0.5 px-2.5 py-1 rounded-full bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors">Retry</button>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 10: Normal ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border border-slate-200 hover:border-brand-300 cursor-grab">
+                      <div class="thumb-img-inner ph-7 aspect-[4/3]"></div>
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <button class="absolute bottom-1.5 left-1.5" aria-label="Set as primary photo">
+                        <svg class="w-4 h-4 text-white/70 hover:text-brand-400 drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                      </button>
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">2.9 MB</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 11: Normal ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border border-slate-200 hover:border-brand-300 cursor-grab">
+                      <div class="thumb-img-inner ph-8 aspect-[4/3]"></div>
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <button class="absolute bottom-1.5 left-1.5" aria-label="Set as primary photo">
+                        <svg class="w-4 h-4 text-white/70 hover:text-brand-400 drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                      </button>
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">3.5 MB</p>
+                      </div>
+                    </div>
+
+                    <!-- ── PHOTO 12: Normal ── -->
+                    <div class="thumb-card relative group rounded-lg overflow-hidden border border-slate-200 hover:border-brand-300 cursor-grab">
+                      <div class="thumb-img-inner ph-9 aspect-[4/3]"></div>
+                      <div class="absolute top-1.5 left-1.5 w-5 h-5 rounded bg-white/80 flex items-center justify-center cursor-grab opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg class="w-3 h-3 text-slate-500" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a1 1 0 011 1v1h4V3a1 1 0 112 0v1h1a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2h1V3a1 1 0 011-1zm9 5H4v8h12V7z"/></svg>
+                      </div>
+                      <button class="absolute top-1.5 right-1.5 w-5 h-5 rounded bg-white/80 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Remove photo">
+                        <svg class="w-3 h-3 text-slate-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                      <button class="absolute bottom-1.5 left-1.5" aria-label="Set as primary photo">
+                        <svg class="w-4 h-4 text-white/70 hover:text-brand-400 drop-shadow-sm" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
+                      </button>
+                      <div class="thumb-overlay absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center gap-1 rounded-lg">
+                        <p class="text-white text-xs font-semibold">1920 x 1280</p>
+                        <p class="text-white/80 text-xs">4.8 MB</p>
+                      </div>
+                    </div>
+
+                  </div><!-- end grid -->
+                </div>
+
+                <!-- Right help block -->
+                <div class="w-48 flex-shrink-0">
+                  <div class="bg-brand-50 border border-brand-100 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <svg class="w-4 h-4 text-brand-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      <p class="text-xs font-semibold text-brand-700">Photo order</p>
+                    </div>
+                    <p class="text-xs text-brand-600 leading-relaxed">Drag thumbnails to reorder. The first photo becomes the card thumbnail shown on the storefront listing grid.</p>
+                    <div class="mt-3 pt-3 border-t border-brand-200">
+                      <p class="text-xs font-semibold text-brand-700 mb-1">Role note</p>
+                      <p class="text-xs text-brand-600 leading-relaxed">Set Primary, Delete, and Reorder controls are visible to <span class="font-semibold">inventory_admin</span> and <span class="font-semibold">super_admin</span> only.</p>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-brand-200">
+                      <p class="text-xs font-semibold text-brand-700 mb-1">S3 upload</p>
+                      <p class="text-xs text-brand-600 leading-relaxed">Files are uploaded directly to S3 via a presigned URL. The admin never proxies file data.</p>
+                    </div>
+                  </div>
+                </div>
+
+              </div><!-- end flex row -->
+            </div><!-- end panel-photos -->
+
+
+            <!-- ══════════════════════════════════
+                 PANEL B: 360 WALK-AROUND (hidden)
+            ══════════════════════════════════ -->
+            <div id="panel-360" class="hidden space-y-5">
+
+              <!-- Dropzone -->
+              <div class="dropzone bg-white rounded-xl border-2 border-dashed border-slate-300 p-8 text-center cursor-pointer transition-colors">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-12 h-12 rounded-full bg-brand-50 border border-brand-200 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-slate-700">Drop 360° asset here, or click to select</p>
+                    <p class="text-xs text-slate-400 mt-1">
+                      <span class="font-mono bg-slate-100 rounded px-1 py-0.5">.zip</span> of sequential frames (e.g. frame_001.jpg … frame_036.jpg)
+                      &nbsp; or &nbsp;
+                      <span class="font-mono bg-slate-100 rounded px-1 py-0.5">.mp4</span> video converted to frames server-side
+                    </p>
+                  </div>
+                  <button class="px-4 py-2 rounded-md bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors">Choose file</button>
+                </div>
+              </div>
+
+              <!-- Already-uploaded state -->
+              <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-slate-800">camry_360_frames.zip</p>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold px-2 py-0.5">36 frames</span>
+                        <span class="text-xs text-slate-400">47.2 MB</span>
+                        <span class="text-xs text-slate-400">·</span>
+                        <span class="text-xs text-slate-400">Uploaded by K. Al-Hajri · 2 days ago</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Role-gated actions (inventory_admin + super_admin) -->
+                  <div class="flex items-center gap-2">
+                    <button class="px-3 py-1.5 rounded-md border border-slate-300 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">Replace</button>
+                    <button class="px-3 py-1.5 rounded-md border border-red-200 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors">Remove</button>
+                  </div>
+                </div>
+                <!-- 16:9 preview placeholder with 360° icon overlay -->
+                <div class="relative bg-gradient-to-br from-slate-100 to-slate-200" style="aspect-ratio: 16/9;">
+                  <!-- Grid overlay to suggest panoramic feel -->
+                  <div class="absolute inset-0" style="background-image: linear-gradient(rgba(148,163,184,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.15) 1px, transparent 1px); background-size: 40px 40px;"></div>
+                  <!-- Centre icon -->
+                  <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                    <div class="w-16 h-16 rounded-full bg-white/70 border border-slate-300 flex items-center justify-center shadow-sm">
+                      <svg class="w-8 h-8 text-brand-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                      </svg>
+                    </div>
+                    <p class="text-sm font-medium text-slate-600 text-center px-6">Pannellum viewer will render the uploaded frames in the storefront VDP</p>
+                    <p class="text-xs text-slate-400">360° interactive view · 36 frames · equirectangular projection</p>
+                  </div>
+                  <!-- Frame count badge top-right -->
+                  <div class="absolute top-3 right-3">
+                    <span class="inline-flex items-center gap-1 rounded-lg bg-white/90 border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-sm">
+                      <svg class="w-3 h-3 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      36 frames
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- end panel-360 -->
+
+
+            <!-- ══════════════════════════════════
+                 PANEL C: WALK-AROUND VIDEO (hidden)
+            ══════════════════════════════════ -->
+            <div id="panel-video" class="hidden space-y-5">
+
+              <!-- Upload constraints notice -->
+              <div class="bg-brand-50 border border-brand-100 rounded-xl p-4 flex items-start gap-3">
+                <svg class="w-4 h-4 text-brand-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div>
+                  <p class="text-xs font-semibold text-brand-700">Single-slot video</p>
+                  <p class="text-xs text-brand-600 mt-0.5">MP4 / MOV &nbsp;&middot;&nbsp; max 60 seconds &nbsp;&middot;&nbsp; max 100 MB &nbsp;&middot;&nbsp; One video per listing. Uploading a new file replaces the current one.</p>
+                </div>
+              </div>
+
+              <!-- Uploaded video card -->
+              <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+
+                <!-- Video metadata bar -->
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-brand-50 border border-brand-200 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div>
+                      <p class="text-sm font-semibold text-slate-800">camry_walkaround_final.mp4</p>
+                      <div class="flex items-center gap-2 mt-0.5">
+                        <span class="text-xs text-slate-400">54 seconds</span>
+                        <span class="text-xs text-slate-400">·</span>
+                        <span class="text-xs text-slate-400">82.4 MB</span>
+                        <span class="text-xs text-slate-400">·</span>
+                        <span class="text-xs text-slate-400">1920×1080</span>
+                        <span class="text-xs text-slate-400">·</span>
+                        <span class="text-xs text-slate-400">Uploaded by F. Al-Mutawa · Today, 10:14</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Role-gated actions -->
+                  <div class="flex items-center gap-2">
+                    <button class="px-3 py-1.5 rounded-md border border-slate-300 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-1.5">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                      Replace
+                    </button>
+                    <button class="px-3 py-1.5 rounded-md border border-red-200 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors">Remove</button>
+                  </div>
+                </div>
+
+                <!-- Video preview 16:9 + thumbnail picker -->
+                <div class="p-5 space-y-4">
+                  <!-- 16:9 thumbnail with play overlay -->
+                  <div class="relative rounded-xl overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900" style="aspect-ratio: 16/9;">
+                    <div class="absolute inset-0" style="background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #1e3a8a 100%); opacity: 0.8;"></div>
+                    <!-- Car silhouette suggestion -->
+                    <div class="absolute inset-0 flex items-center justify-center" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 100%22 fill=%22rgba(255,255,255,0.06)%22%3E%3Cpath d=%22M20 70 L30 50 L50 40 L70 36 L130 36 L150 40 L170 50 L180 70 L175 75 L150 75 L145 70 Q140 60 130 60 Q120 60 115 70 L85 70 Q80 60 70 60 Q60 60 55 70 L50 75 L25 75 Z%22/%3E%3Ccircle cx=%2262%22 cy=%2272%22 r=%228%22 fill=%22rgba(0,0,0,0.3)%22/%3E%3Ccircle cx=%22138%22 cy=%2272%22 r=%228%22 fill=%22rgba(0,0,0,0.3)%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: center; background-size: 60%;"></div>
+                    <!-- Play button -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <div class="w-16 h-16 rounded-full bg-white/20 border-2 border-white/50 flex items-center justify-center cursor-pointer hover:bg-white/30 transition-colors backdrop-blur-sm">
+                        <svg class="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+                      </div>
+                    </div>
+                    <!-- Duration badge -->
+                    <div class="absolute bottom-3 right-3">
+                      <span class="text-xs font-semibold text-white bg-black/60 rounded px-2 py-0.5">0:54</span>
+                    </div>
+                    <!-- Poster frame indicator -->
+                    <div class="absolute top-3 left-3">
+                      <span class="text-xs font-semibold text-white bg-brand-600/90 rounded-md px-2 py-0.5 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        Poster frame
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Thumbnail frame picker strip -->
+                  <div>
+                    <p class="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      Choose poster frame
+                    </p>
+                    <div class="flex gap-2">
+                      <!-- Frame 1 at 0:00 — selected -->
+                      <div class="frame-strip-item selected relative rounded-md overflow-hidden cursor-pointer flex-1" style="aspect-ratio: 16/9; background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);">
+                        <div class="absolute bottom-0 inset-x-0 bg-black/50 text-center py-0.5"><span class="text-white text-xs">0:00</span></div>
+                      </div>
+                      <!-- Frame 2 at 0:13 -->
+                      <div class="frame-strip-item relative rounded-md overflow-hidden cursor-pointer hover:outline hover:outline-2 hover:outline-brand-400 hover:outline-offset-1 flex-1" style="aspect-ratio: 16/9; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);">
+                        <div class="absolute bottom-0 inset-x-0 bg-black/50 text-center py-0.5"><span class="text-white text-xs">0:13</span></div>
+                      </div>
+                      <!-- Frame 3 at 0:27 -->
+                      <div class="frame-strip-item relative rounded-md overflow-hidden cursor-pointer hover:outline hover:outline-2 hover:outline-brand-400 hover:outline-offset-1 flex-1" style="aspect-ratio: 16/9; background: linear-gradient(135deg, #1e3a8a 0%, #60a5fa 100%);">
+                        <div class="absolute bottom-0 inset-x-0 bg-black/50 text-center py-0.5"><span class="text-white text-xs">0:27</span></div>
+                      </div>
+                      <!-- Frame 4 at 0:40 -->
+                      <div class="frame-strip-item relative rounded-md overflow-hidden cursor-pointer hover:outline hover:outline-2 hover:outline-brand-400 hover:outline-offset-1 flex-1" style="aspect-ratio: 16/9; background: linear-gradient(135deg, #1e40af 0%, #93c5fd 100%);">
+                        <div class="absolute bottom-0 inset-x-0 bg-black/50 text-center py-0.5"><span class="text-white text-xs">0:40</span></div>
+                      </div>
+                      <!-- Frame 5 at 0:54 -->
+                      <div class="frame-strip-item relative rounded-md overflow-hidden cursor-pointer hover:outline hover:outline-2 hover:outline-brand-400 hover:outline-offset-1 flex-1" style="aspect-ratio: 16/9; background: linear-gradient(135deg, #1e3a8a 0%, #dbeafe 100%);">
+                        <div class="absolute bottom-0 inset-x-0 bg-black/50 text-center py-0.5"><span class="text-white text-xs">0:54</span></div>
+                      </div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1.5">Click a frame to use it as the video poster on the storefront VDP.</p>
+                  </div>
+                </div>
+
+              </div><!-- end video card -->
+            </div><!-- end panel-video -->
+
+          </div><!-- end left media panel -->
+
+          <!-- ═══ RIGHT RAIL ═══ -->
+          <div class="w-64 flex-shrink-0 space-y-4">
+
+            <!-- Media summary card -->
+            <div class="bg-white rounded-xl border border-slate-200 p-4">
+              <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">Media Summary</h3>
+              <dl class="space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <dt class="text-xs text-slate-500 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Photos
+                  </dt>
+                  <dd class="text-sm font-semibold text-slate-800">9 <span class="text-xs font-normal text-slate-400">/ 60</span></dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-xs text-slate-500 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                    360° frames
+                  </dt>
+                  <dd class="text-sm font-semibold text-emerald-600">36</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-xs text-slate-500 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    Walk-around video
+                  </dt>
+                  <dd class="text-sm font-semibold text-emerald-600">1</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-xs text-slate-500">Primary photo</dt>
+                  <dd class="text-xs font-semibold text-brand-600 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    Set
+                  </dd>
+                </div>
+                <div class="pt-2 border-t border-slate-100">
+                  <div class="flex items-center justify-between">
+                    <dt class="text-xs text-slate-500">Total S3 size</dt>
+                    <dd class="text-sm font-semibold text-slate-800">163.4 MB</dd>
+                  </div>
+                </div>
+              </dl>
+            </div>
+
+            <!-- Listing price summary (KWD 3 decimals) -->
+            <div class="bg-white rounded-xl border border-slate-200 p-4">
+              <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-3">Listing Summary</h3>
+              <dl class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <dt class="text-xs text-slate-500">Asking price</dt>
+                  <dd class="text-sm font-semibold text-slate-800">8,250.000 KWD</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-xs text-slate-500">Reserve price</dt>
+                  <dd class="text-sm font-semibold text-slate-800">7,900.000 KWD</dd>
+                </div>
+                <div class="flex items-center justify-between">
+                  <dt class="text-xs text-slate-500">CPO inspection fee</dt>
+                  <dd class="text-sm font-semibold text-slate-800">75.000 KWD</dd>
+                </div>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <dt class="text-xs font-medium text-slate-600">Days on lot</dt>
+                  <dd class="text-sm font-semibold text-amber-600">12 days</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- Audit -->
+            <div class="bg-white rounded-xl border border-slate-200 p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Media Changes</h3>
+                <a href="#" class="text-xs text-brand-600 hover:underline">Full log</a>
+              </div>
+              <ul class="space-y-3">
+                <li class="flex items-start gap-2.5">
+                  <div class="w-5 h-5 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-xs font-bold text-brand-600">F</span></div>
+                  <div class="min-w-0">
+                    <p class="text-xs text-slate-700">Walk-around video uploaded</p>
+                    <p class="text-xs text-slate-400">F. Al-Mutawa · Today</p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-xs font-bold text-emerald-600">K</span></div>
+                  <div class="min-w-0">
+                    <p class="text-xs text-slate-700">360° zip replaced (36 frames)</p>
+                    <p class="text-xs text-slate-400">K. Al-Hajri · 2 days ago</p>
+                  </div>
+                </li>
+                <li class="flex items-start gap-2.5">
+                  <div class="w-5 h-5 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0 mt-0.5"><span class="text-xs font-bold text-brand-600">F</span></div>
+                  <div class="min-w-0">
+                    <p class="text-xs text-slate-700">9 photos uploaded, primary set</p>
+                    <p class="text-xs text-slate-400">F. Al-Mutawa · 3 days ago</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+          </div><!-- end right rail -->
+
+        </div><!-- end two-column layout -->
+      </div><!-- end inner padding -->
+    </div><!-- end scrollable content -->
+
+    <!-- ═══ STICKY FOOTER BAR ═══ -->
+    <div class="absolute bottom-0 right-0 left-60 h-16 bg-white border-t border-slate-200 flex items-center justify-between px-6 z-20 shadow-sm">
+
+      <!-- Left: unsaved media indicator -->
+      <div class="flex items-center gap-2">
+        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        <span class="text-xs text-slate-600">2 uploads in progress. Save Draft to record metadata.</span>
+      </div>
+
+      <!-- Right: action buttons -->
+      <div class="flex items-center gap-2.5">
+        <a href="#"
+           class="px-4 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100 transition-colors">
+          Cancel
+        </a>
+        <div class="flex flex-col items-center gap-0.5">
+          <button class="px-4 py-2 rounded-md border border-slate-300 text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1">
+            Save Draft
+          </button>
+          <p class="text-xs text-slate-400 leading-tight">Stays in 'acquired' until you publish.</p>
+        </div>
+        <button class="px-4 py-2 rounded-md text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-1 flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          Publish
+        </button>
+      </div>
+
+    </div>
+
+  </div><!-- end main column -->
+
+</div><!-- end flex wrapper -->
+
+<!-- ═══ MINIMAL TAB SWITCHING SCRIPT ═══ -->
+<script>
+  var tabs = ['photos', '360', 'video'];
+
+  function switchMediaTab(selected) {
+    tabs.forEach(function(t) {
+      var btn = document.getElementById('tab-' + t);
+      var panel = document.getElementById('panel-' + t);
+      if (t === selected) {
+        btn.classList.add('active');
+        panel.classList.remove('hidden');
+      } else {
+        btn.classList.remove('active');
+        btn.classList.add('text-slate-600');
+        panel.classList.add('hidden');
+      }
+    });
+  }
+
+  document.getElementById('tab-photos').addEventListener('click', function() { switchMediaTab('photos'); });
+  document.getElementById('tab-360').addEventListener('click', function() { switchMediaTab('360'); });
+  document.getElementById('tab-video').addEventListener('click', function() { switchMediaTab('video'); });
+</script>
+
+</body>
+</html>

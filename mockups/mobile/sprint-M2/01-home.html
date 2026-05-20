@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>01 — Mobile Home — Behbehani Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#EFF6FF', 100: '#DBEAFE', 200: '#BFDBFE', 300: '#93C5FD',
+              400: '#60A5FA', 500: '#3B82F6', 600: '#2563EB', 700: '#1D4ED8',
+              800: '#1E40AF', 900: '#1E3A8A'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            arabic: ['Tajawal', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .listing-card { transition: transform .15s ease, box-shadow .15s ease; }
+    .listing-card:active { transform: scale(0.98); }
+    @keyframes pulse-skel { 0%,100%{opacity:1} 50%{opacity:.55} }
+    .skel { background: #E5E7EB; animation: pulse-skel 1.4s ease-in-out infinite; border-radius: 8px; }
+    .ios-status { font-variant-numeric: tabular-nums; }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const isSkeleton = new URLSearchParams(location.search).get('skeleton') === '1';
+      if (isSkeleton) {
+        document.getElementById('content-loaded').classList.add('hidden');
+        document.getElementById('content-skeleton').classList.remove('hidden');
+        document.getElementById('skeleton-banner').classList.remove('hidden');
+      }
+    });
+  </script>
+</head>
+<body class="bg-slate-100 min-h-screen flex justify-center">
+
+  <!-- iPhone-style frame (390x844 baseline) -->
+  <div class="w-[390px] min-h-[844px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative">
+
+    <!-- Skeleton-mode banner -->
+    <div id="skeleton-banner" class="hidden absolute top-0 inset-x-0 z-50 bg-brand-50 border-b border-brand-200 px-3 py-1.5 text-[11px] text-brand-900 text-center">
+      Skeleton state — react-query initial fetch
+    </div>
+
+    <!-- Status bar (safe-area top simulation) -->
+    <div class="h-11 bg-white flex items-center justify-between px-6 pt-2 ios-status pt-[env(safe-area-inset-top)]">
+      <span class="text-[14px] font-semibold text-slate-900">9:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg viewBox="0 0 20 12" class="w-4 h-3 text-slate-900" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+        <svg viewBox="0 0 16 12" class="w-4 h-3 text-slate-900" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+        <svg viewBox="0 0 26 12" class="w-6 h-3 text-slate-900" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <!-- Sticky header (search + greeting) -->
+    <header class="px-4 pt-2 pb-3 bg-white sticky top-0 z-30 border-b border-slate-100 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-9 h-9 rounded-xl bg-brand-900 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <div class="leading-tight">
+            <p class="text-[13px] font-bold text-slate-900">Behbehani Motors</p>
+            <p class="text-[9px] font-medium text-brand-700 uppercase tracking-widest">Kuwait · Certified</p>
+          </div>
+        </div>
+        <!-- Right icons (Saved/Favorites HIDDEN per M2 role-gating: not rendered) -->
+        <div class="flex items-center gap-1">
+          <button class="w-11 h-11 flex items-center justify-center text-slate-600 active:bg-slate-100 rounded-full relative" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+            <span class="absolute top-2 end-2 w-2 h-2 bg-red-500 rounded-full"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Greeting -->
+      <div class="mb-3">
+        <p class="text-[13px] text-slate-500">Good evening, Abbas</p>
+        <h1 class="text-[22px] font-bold text-slate-900 leading-tight">Find your next car.</h1>
+      </div>
+
+      <!-- Sticky search bar with type-ahead placeholder -->
+      <button class="w-full flex items-center gap-2 h-12 px-4 bg-slate-100 rounded-2xl text-start active:bg-slate-200" aria-label="Search cars">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <span class="text-[14px] text-slate-500 flex-1">Try "Toyota Camry 2022"…</span>
+        <span class="text-[11px] font-semibold text-brand-700 bg-white border border-slate-200 px-2 py-1 rounded-lg">143 cars</span>
+      </button>
+
+      <!-- Trust badge strip: Inspected · Insured · Returnable · Delivered -->
+      <div class="mt-3 grid grid-cols-4 gap-1.5">
+        <span class="inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-full bg-brand-50 border-[1.5px] border-brand-200 text-[10px] font-bold text-brand-900">
+          <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Inspected
+        </span>
+        <span class="inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-full bg-brand-50 border-[1.5px] border-brand-200 text-[10px] font-bold text-brand-900">
+          <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Insured
+        </span>
+        <span class="inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-full bg-brand-50 border-[1.5px] border-brand-200 text-[10px] font-bold text-brand-900">
+          <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Returnable
+        </span>
+        <span class="inline-flex items-center justify-center gap-1 px-1.5 py-1.5 rounded-full bg-brand-50 border-[1.5px] border-brand-200 text-[10px] font-bold text-brand-900">
+          <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Delivered
+        </span>
+      </div>
+    </header>
+
+    <!-- Scrollable content -->
+    <main class="flex-1 overflow-y-auto pb-24">
+
+      <!-- ============ LOADED CONTENT ============ -->
+      <div id="content-loaded">
+
+        <!-- RAIL 1: Featured Used -->
+        <section class="pt-4 pb-5">
+          <div class="flex items-center justify-between px-4 mb-3">
+            <h2 class="text-[16px] font-bold text-slate-900">Featured Used</h2>
+            <a href="02-browse.html" class="text-[12px] font-semibold text-brand-700">See all</a>
+          </div>
+          <div class="flex gap-3 px-4 overflow-x-auto no-scrollbar pb-1">
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #bfdbfe, #dbeafe, #eff6ff);">
+                <div class="absolute top-2 start-2 flex gap-1">
+                  <span class="px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">CPO INSPECTED</span>
+                </div>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2022 · 38,200 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Toyota Camry LE</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 4,250.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 75.000/mo</p>
+                </div>
+              </div>
+            </a>
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #93C5FD, #BFDBFE, #DBEAFE);">
+                <div class="absolute top-2 start-2 flex gap-1">
+                  <span class="px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">CPO INSPECTED</span>
+                </div>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2023 · 12,800 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Lexus NX 350</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 12,900.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 228.000/mo</p>
+                </div>
+              </div>
+            </a>
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #bfdbfe, #dbeafe, #eff6ff);">
+                <div class="absolute top-2 start-2 flex gap-1">
+                  <span class="px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">CPO INSPECTED</span>
+                </div>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2021 · 44,200 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">BMW 320i M Sport</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 7,150.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 132.000/mo</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- RAIL 2: Shop by Body Type (3-col grid of 9) -->
+        <section class="px-4 pb-5">
+          <h2 class="text-[16px] font-bold text-slate-900 mb-3">Shop by Body Type</h2>
+          <div class="grid grid-cols-3 gap-2">
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-brand-50 border border-brand-100">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-brand-700" fill="currentColor"><path d="M6 22 C6 22 8 14 14 11 C18 9 22 8 28 8 C34 8 36 9 40 11 C44 13 46 18 46 22 Z"/><path d="M17 11 C18 6 22 4 28 4 C33 4 36 7 37 11 Z"/><circle cx="13" cy="23" r="4"/><circle cx="35" cy="23" r="4"/></svg>
+              <span class="text-[11px] font-semibold text-brand-900">Sedan</span>
+            </a>
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-slate-50 border border-slate-200">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-slate-600" fill="currentColor"><path d="M4 22 C4 22 5 12 12 9 C16 7 20 6 28 6 C35 6 38 8 42 12 C45 15 46 20 46 22 Z"/><path d="M14 9 C14 5 18 3 28 3 C37 3 40 6 40 9 Z"/><circle cx="12" cy="23" r="4.5"/><circle cx="36" cy="23" r="4.5"/></svg>
+              <span class="text-[11px] font-semibold text-slate-700">SUV</span>
+            </a>
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-slate-50 border border-slate-200">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-slate-600" fill="currentColor"><path d="M5 22 C5 22 6 14 13 11 C17 9 21 8 28 8 C35 8 38 10 42 14 C44 17 45 20 45 22 Z"/><path d="M16 11 C17 7 21 5 28 5 C34 5 38 8 38 11 Z"/><circle cx="13" cy="23" r="4"/><circle cx="35" cy="23" r="4"/></svg>
+              <span class="text-[11px] font-semibold text-slate-700">Hatchback</span>
+            </a>
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-slate-50 border border-slate-200">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-slate-600" fill="currentColor"><path d="M5 22 C5 22 7 15 14 12 C19 10 24 9 30 9 C37 9 40 11 43 15 C45 18 45 21 45 22 Z"/><path d="M18 12 C20 7 25 5 32 6 C38 7 41 10 41 12 Z"/><circle cx="13" cy="23" r="4"/><circle cx="36" cy="23" r="4"/></svg>
+              <span class="text-[11px] font-semibold text-slate-700">Coupé</span>
+            </a>
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-slate-50 border border-slate-200">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-slate-600" fill="currentColor"><path d="M4 22 L4 16 L10 16 L12 10 L26 10 L28 16 L44 16 L44 22 Z"/><path d="M12 10 L12 6 L24 6 L26 10 Z"/><circle cx="11" cy="23" r="4"/><circle cx="37" cy="23" r="4"/></svg>
+              <span class="text-[11px] font-semibold text-slate-700">Pickup</span>
+            </a>
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-slate-50 border border-slate-200">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-slate-600" fill="currentColor"><path d="M4 22 L4 8 L36 8 L44 14 L44 22 Z"/><circle cx="12" cy="23" r="4"/><circle cx="36" cy="23" r="4"/></svg>
+              <span class="text-[11px] font-semibold text-slate-700">Van</span>
+            </a>
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-slate-50 border border-slate-200">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-slate-600" fill="currentColor"><path d="M3 22 C3 22 5 11 12 9 C16 8 22 7 28 7 C36 7 42 11 45 17 C45 17 38 16 28 16 C18 16 10 18 3 22 Z"/><circle cx="12" cy="23" r="4"/><circle cx="36" cy="23" r="4"/></svg>
+              <span class="text-[11px] font-semibold text-slate-700">Convertible</span>
+            </a>
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-slate-50 border border-slate-200">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-slate-600" fill="currentColor"><path d="M4 22 L4 12 L20 12 L24 6 L40 6 L44 12 L44 22 Z"/><circle cx="12" cy="23" r="4"/><circle cx="36" cy="23" r="4"/></svg>
+              <span class="text-[11px] font-semibold text-slate-700">Wagon</span>
+            </a>
+            <a href="02-browse.html" class="flex flex-col items-center gap-1.5 p-3 min-h-[88px] rounded-2xl bg-slate-50 border border-slate-200">
+              <svg viewBox="0 0 48 28" class="w-8 h-5 text-slate-600" fill="currentColor"><path d="M4 22 L4 6 L36 6 L44 14 L44 22 Z M16 8 L16 14 L36 14"/><circle cx="12" cy="23" r="4"/><circle cx="36" cy="23" r="4"/></svg>
+              <span class="text-[11px] font-semibold text-slate-700">Crossover</span>
+            </a>
+          </div>
+        </section>
+
+        <!-- RAIL 3: Shop by Price Range -->
+        <section class="px-4 pb-5">
+          <h2 class="text-[16px] font-bold text-slate-900 mb-3">Shop by Price Range</h2>
+          <div class="flex flex-wrap gap-2">
+            <a href="02-browse.html" class="inline-flex items-center px-3 py-1.5 rounded-full border-[1.5px] border-slate-300 text-[13px] text-slate-700 font-semibold min-h-[44px]">Under KWD 3,000</a>
+            <a href="02-browse.html" class="inline-flex items-center px-3 py-1.5 rounded-full border-[1.5px] border-slate-300 text-[13px] text-slate-700 font-semibold min-h-[44px]">KWD 3,000 – 6,000</a>
+            <a href="02-browse.html" class="inline-flex items-center px-3 py-1.5 rounded-full border-[1.5px] border-slate-300 text-[13px] text-slate-700 font-semibold min-h-[44px]">KWD 6,000 – 10,000</a>
+            <a href="02-browse.html" class="inline-flex items-center px-3 py-1.5 rounded-full border-[1.5px] border-slate-300 text-[13px] text-slate-700 font-semibold min-h-[44px]">KWD 10,000 – 15,000</a>
+            <a href="02-browse.html" class="inline-flex items-center px-3 py-1.5 rounded-full border-[1.5px] border-slate-300 text-[13px] text-slate-700 font-semibold min-h-[44px]">KWD 15,000 – 20,000</a>
+            <a href="02-browse.html" class="inline-flex items-center px-3 py-1.5 rounded-full border-[1.5px] border-slate-300 text-[13px] text-slate-700 font-semibold min-h-[44px]">KWD 20,000+</a>
+          </div>
+        </section>
+
+        <!-- Full-width SELL YOUR CAR CTA card (brand-900 bg, white text) -->
+        <section class="px-4 pb-5">
+          <a href="08-sell-yourcar.html" class="relative block rounded-2xl bg-brand-900 text-white p-5 overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 opacity-15 pointer-events-none">
+              <svg viewBox="0 0 200 100" class="w-44 h-24 text-white" fill="currentColor">
+                <path d="M20 70 C20 70 30 40 60 32 C90 24 120 24 150 32 C170 38 185 55 185 70 Z"/>
+                <circle cx="55" cy="74" r="11"/><circle cx="150" cy="74" r="11"/>
+              </svg>
+            </div>
+            <div class="relative">
+              <span class="inline-block text-[10px] font-bold tracking-widest uppercase text-brand-200">Sell Your Car</span>
+              <p class="text-white text-[18px] font-bold leading-tight mt-1">Get a real cash offer<br>in 60 seconds</p>
+              <p class="text-brand-100 text-[12px] mt-2">Free inspection · 24-hour payment · No haggling</p>
+              <span class="inline-flex items-center gap-1 mt-3 bg-white text-brand-900 text-[12px] font-semibold px-3 h-9 rounded-full min-h-[44px]">
+                Get instant valuation
+                <svg viewBox="0 0 24 24" class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </span>
+            </div>
+          </a>
+        </section>
+
+        <!-- RAIL 4: Inspected Cars -->
+        <section class="pb-5">
+          <div class="flex items-center justify-between px-4 mb-3">
+            <h2 class="text-[16px] font-bold text-slate-900">Inspected Cars</h2>
+            <a href="02-browse.html" class="text-[12px] font-semibold text-brand-700">See all</a>
+          </div>
+          <div class="flex gap-3 px-4 overflow-x-auto no-scrollbar pb-1">
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #bfdbfe, #dbeafe, #eff6ff);">
+                <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">CPO INSPECTED</span>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2022 · 22,100 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Kia Sportage GT</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 6,850.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 121.000/mo</p>
+                </div>
+              </div>
+            </a>
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #93C5FD, #BFDBFE, #DBEAFE);">
+                <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">CPO INSPECTED</span>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2021 · 42,100 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Honda Accord Sport</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 4,100.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 72.000/mo</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- RAIL 5: Low-Mileage -->
+        <section class="pb-5">
+          <div class="flex items-center justify-between px-4 mb-3">
+            <h2 class="text-[16px] font-bold text-slate-900">Low-Mileage</h2>
+            <a href="02-browse.html" class="text-[12px] font-semibold text-brand-700">See all</a>
+          </div>
+          <div class="flex gap-3 px-4 overflow-x-auto no-scrollbar pb-1">
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #bfdbfe, #dbeafe, #eff6ff);">
+                <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">8,400 km</span>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2024 · 8,400 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Mazda CX-5 Touring</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 8,750.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 155.000/mo</p>
+                </div>
+              </div>
+            </a>
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #93C5FD, #BFDBFE, #DBEAFE);">
+                <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">11,200 km</span>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2024 · 11,200 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Hyundai Tucson</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 7,450.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 131.000/mo</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- RAIL 6: Recently Added -->
+        <section class="pb-5">
+          <div class="flex items-center justify-between px-4 mb-3">
+            <h2 class="text-[16px] font-bold text-slate-900">Recently Added</h2>
+            <a href="02-browse.html" class="text-[12px] font-semibold text-brand-700">See all</a>
+          </div>
+          <div class="flex gap-3 px-4 overflow-x-auto no-scrollbar pb-1">
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #bfdbfe, #dbeafe, #eff6ff);">
+                <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">NEW · 2d ago</span>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2023 · 18,400 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Mazda 6 Touring</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 5,250.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 92.000/mo</p>
+                </div>
+              </div>
+            </a>
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #93C5FD, #BFDBFE, #DBEAFE);">
+                <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-brand-900 text-white text-[10px] font-semibold">NEW · 1d ago</span>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2022 · 28,700 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Hyundai Sonata</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <p class="text-[16px] font-bold text-brand-900">KWD 4,650.000</p>
+                  <p class="text-[11px] text-slate-500">from KWD 82.000/mo</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- RAIL 7: Price Drops -->
+        <section class="pb-5">
+          <div class="flex items-center justify-between px-4 mb-3">
+            <h2 class="text-[16px] font-bold text-slate-900">Price Drops</h2>
+            <a href="02-browse.html" class="text-[12px] font-semibold text-brand-700">See all</a>
+          </div>
+          <div class="flex gap-3 px-4 overflow-x-auto no-scrollbar pb-1">
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #bfdbfe, #dbeafe, #eff6ff);">
+                <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-red-700 text-white text-[10px] font-semibold">−KWD 250.000</span>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2022 · 38,200 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Toyota Camry LE</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <div>
+                    <p class="text-[11px] text-slate-400 line-through leading-none">KWD 4,500.000</p>
+                    <p class="text-[16px] font-bold text-brand-900 leading-none mt-0.5">KWD 4,250.000</p>
+                  </div>
+                  <p class="text-[11px] text-slate-500">from KWD 75.000/mo</p>
+                </div>
+              </div>
+            </a>
+            <a href="04-vdp.html" class="listing-card flex-shrink-0 w-[240px] bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+              <div class="relative aspect-[16/10]" style="background: linear-gradient(135deg, #93C5FD, #BFDBFE, #DBEAFE);">
+                <span class="absolute top-2 start-2 px-2 py-0.5 rounded-md bg-red-700 text-white text-[10px] font-semibold">−KWD 400.000</span>
+              </div>
+              <div class="p-3">
+                <p class="text-[13px] text-slate-500">2020 · 51,200 km</p>
+                <p class="text-[15px] font-semibold text-slate-900 leading-tight">Kia Optima EX</p>
+                <div class="mt-2 flex items-baseline justify-between">
+                  <div>
+                    <p class="text-[11px] text-slate-400 line-through leading-none">KWD 4,350.000</p>
+                    <p class="text-[16px] font-bold text-brand-900 leading-none mt-0.5">KWD 3,950.000</p>
+                  </div>
+                  <p class="text-[11px] text-slate-500">from KWD 70.000/mo</p>
+                </div>
+              </div>
+            </a>
+          </div>
+        </section>
+
+        <!-- How It Works (3-step explainer) -->
+        <section class="px-4 pb-6">
+          <h2 class="text-[16px] font-bold text-slate-900 mb-3">How it works</h2>
+          <div class="space-y-2.5">
+            <div class="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+              <div class="w-9 h-9 rounded-full bg-brand-900 text-white flex items-center justify-center text-[14px] font-extrabold flex-shrink-0">1</div>
+              <div class="flex-1">
+                <p class="text-[13px] font-bold text-slate-900">Browse inspected cars</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Every car passes our Al Daman 200-point inspection before listing.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+              <div class="w-9 h-9 rounded-full bg-brand-900 text-white flex items-center justify-center text-[14px] font-extrabold flex-shrink-0">2</div>
+              <div class="flex-1">
+                <p class="text-[13px] font-bold text-slate-900">Reserve with KWD 100.000</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Refundable 48-hour hold while you finalise finance or test drive.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+              <div class="w-9 h-9 rounded-full bg-brand-900 text-white flex items-center justify-center text-[14px] font-extrabold flex-shrink-0">3</div>
+              <div class="flex-1">
+                <p class="text-[13px] font-bold text-slate-900">Delivered with 7-day return</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">Pick up at any showroom or home delivery anywhere in Kuwait.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============ SKELETON STATE ============ -->
+      <div id="content-skeleton" class="hidden">
+        <section class="px-4 pt-3">
+          <div class="h-5 skel w-1/3 mb-3"></div>
+          <div class="flex gap-2 overflow-hidden pb-1">
+            <div class="skel w-[88px] h-[88px] rounded-2xl flex-shrink-0"></div>
+            <div class="skel w-[88px] h-[88px] rounded-2xl flex-shrink-0"></div>
+            <div class="skel w-[88px] h-[88px] rounded-2xl flex-shrink-0"></div>
+            <div class="skel w-[88px] h-[88px] rounded-2xl flex-shrink-0"></div>
+          </div>
+        </section>
+        <section class="px-4 pt-5">
+          <div class="h-5 skel w-1/2 mb-3"></div>
+          <div class="flex gap-3 overflow-hidden">
+            <div class="flex-shrink-0 w-[240px] rounded-2xl border border-slate-200 overflow-hidden">
+              <div class="skel aspect-[16/10] rounded-none"></div>
+              <div class="p-3 space-y-2">
+                <div class="h-4 skel w-3/4"></div>
+                <div class="h-3 skel w-1/2"></div>
+                <div class="h-5 skel w-2/3"></div>
+              </div>
+            </div>
+            <div class="flex-shrink-0 w-[240px] rounded-2xl border border-slate-200 overflow-hidden">
+              <div class="skel aspect-[16/10] rounded-none"></div>
+              <div class="p-3 space-y-2">
+                <div class="h-4 skel w-3/4"></div>
+                <div class="h-3 skel w-1/2"></div>
+                <div class="h-5 skel w-2/3"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- Bottom tab bar: Home / Browse / Sell / Services / Account + More -->
+    <nav class="absolute bottom-0 inset-x-0 bg-white border-t border-slate-200 pb-[env(safe-area-inset-bottom)] pt-2">
+      <div class="grid grid-cols-6 px-1">
+        <a class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-brand-900" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+          <span class="text-[10px] font-semibold text-brand-900">Home</span>
+        </a>
+        <a href="02-browse.html" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">Browse</span>
+        </a>
+        <a href="08-sell-yourcar.html" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">Sell</span>
+        </a>
+        <a class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94L14.7 6.3z"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">Services</span>
+        </a>
+        <a href="06-account.html" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">Account</span>
+        </a>
+        <a href="07-more-sheet.html" class="flex flex-col items-center justify-center gap-0.5 min-h-[44px] py-1">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+          <span class="text-[10px] font-medium text-slate-500">More</span>
+        </a>
+      </div>
+      <div class="absolute bottom-1 inset-x-0 flex justify-center">
+        <div class="w-32 h-1 bg-slate-900 rounded-full opacity-90"></div>
+      </div>
+    </nav>
+
+  </div>
+
+</body>
+</html>

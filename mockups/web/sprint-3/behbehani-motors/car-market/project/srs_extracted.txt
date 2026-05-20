@@ -1,0 +1,2177 @@
+Software Requirements Specification
+(SRS)
+Online Car Buying and Selling Platform
+Kuwait Market — Web &amp; Mobile (Frontend + Backend)
+Online Car Marketplace for Kuwait
+Field
+Value
+Document Title
+SRS – Online Car Buying and Selling Platform (Kuwait)
+Document Version
+1.0
+Status
+Baseline / Approved for Development
+Date
+May 2026
+Prepared For
+Project Sponsor / Product Owner
+Prepared By
+Solution Architecture Team
+Target Market
+State of Kuwait
+Languages Supported
+Arabic (primary, RTL) and English (LTR)
+Currency
+Kuwaiti Dinar (KWD)
+Table of Contents
+
+
+(Right-click → Update Field in Microsoft Word to populate the table of contents.)
+
+1. Introduction
+1.1 Purpose
+This Software Requirements Specification (SRS) document defines the complete functional and non-functional requirements for an online car buying and selling platform targeting the Kuwaiti market. The platform — referred to hereinafter as the “System” — will enable individuals, dealers and showrooms to buy, sell, finance, inspect and service vehicles through a unified web portal and native mobile applications (iOS, Android and Huawei AppGallery).
+The System shall provide a complete set of capabilities expected of a modern digital automotive marketplace operating in Kuwait, including concierge-style assisted selling, self-service classifieds, professional 71-point inspections, integrated financing with local banks, and add-on car services (wash, tinting, registration renewal, glass repair, tires, and health check).
+This document is intended for the project sponsor, product owner, solution architects, software engineers (frontend and backend), QA engineers, designers, DevOps engineers, the security officer, and any third-party vendors providing integrations (banks, payment gateways, SMS providers, inspection partners, Ministry of Interior services, etc.).
+1.2 Scope
+The System covers the full online vehicle commerce lifecycle in Kuwait. It supports two complementary commercial models on a single platform:
+Retailer model — for inventory owned or controlled by the operator, customers can complete an end-to-end digital purchase: reserve the car with a refundable deposit, secure financing and insurance online, sign the contract digitally, take home-delivery, and benefit from a money-back return window.
+Marketplace model — for cars sold by certified dealers, registered showrooms and individual private sellers, the platform facilitates discovery, inquiries, valuations and assisted closing while the parties complete the sale through the conventional channels.
+In addition, the System operates a dedicated B2B Dealer Auction Portal for wholesale trade between approved dealerships. The full functional scope is summarized below:
+Browsing and searching a marketplace of pre-owned and new cars listed by platform-operated inventory, certified dealers, registered showrooms and individual private sellers.
+Reserving an operator-owned vehicle with a refundable KWD 100 deposit and a 48-hour hold, followed by a guided 7-step purchase wizard (payment method, trade-in, add-ons, document upload, digital contract signing, delivery slot, confirmation).
+Selling a car via three distinct journeys: (a) a Concierge Service with operator-led inspection, marketing and closing; (b) a Self-Service classified listing; and (c) an Instant Online Valuation with an optional guaranteed part-exchange or sell-only offer.
+Professional 71-point vehicle inspection conducted in-house or through a certified third-party inspection partner, with structured exterior, mechanical, electronic, interior and test-drive checks, plus 25+ HD photos, a 360° walkaround and a 1–2 minute video.
+Loan pre-qualification (soft check) and full financing through partner banks and financial institutions, including a finance calculator and a &apos;search by monthly payment&apos; filter.
+One-click insurance activation at purchase through partner insurers, with third-party and comprehensive coverage options.
+Home delivery scheduling with date/time slots, real-time driver GPS tracking, and a digital handover checklist.
+A 3-day / 300 km money-back return policy for retailer-model purchases, including dashboard-initiated return, pickup scheduling, and refund tracking.
+Aftercare and maintenance pickup with service-type selection (routine service, repair, body work, AC, tires, other), photo evidence, cost estimate and digital approval, and real-time status from request to return.
+Add-on car services purchasable from approved vendors: wash and detailing, tinting, registration renewal, paint protection, tire replacement, glass and windshield, and a car health check.
+Dealer and showroom onboarding, inventory management, dealer dashboards, dealership pages with car counts and listings.
+A B2B Dealer Auction Portal with timed auctions, live bidding with countdown, proxy/auto-bid, Buy Now, Make an Offer, watchlist, auction calendar, winning-bid invoicing, pickup scheduling, and arbitration.
+Customer reviews and ratings, referral program, and value-tracker email updates.
+Multi-language support (Arabic and English) with full right-to-left (RTL) and left-to-right (LTR) layouts.
+Native mobile applications for iOS (Apple App Store), Android (Google Play) and Huawei (AppGallery), with personalized recommendations, offline favorites, in-app WhatsApp chat to customer support, biometric login, and camera capture for valuation.
+A back-office admin portal for operations, sales agents, inspection teams, auction operators, delivery dispatchers, maintenance coordinators, finance officers, content editors, and super-administrators, with role-based access, a vehicle pipeline tracker, aging-based pricing, and a real-time analytics dashboard (units, revenue, gross profit per unit, inventory, days-to-sell, conversion funnel).
+Out of scope for this SRS baseline: full peer-to-peer escrow payments between private buyers and sellers, B2B fleet leasing, and any cross-border GCC operations. These items may be added in future releases.
+1.3 Definitions, Acronyms and Abbreviations
+Term
+Definition
+SRS
+Software Requirements Specification.
+System
+The complete platform being specified (web, mobile, backend, admin, B2B portal).
+KWD
+Kuwaiti Dinar, the official currency of Kuwait.
+MOI
+Ministry of Interior of Kuwait (responsible for vehicle ownership transfer).
+KYC
+Know Your Customer — identity verification of users.
+Civil ID
+Kuwaiti national identification document required for residents/citizens.
+CPO
+Certified Pre-Owned — used vehicles that pass an operator-controlled inspection and warranty programme.
+VDP
+Vehicle Detail Page — the public page presenting a single vehicle in full.
+GPU
+Gross Profit per Unit — operations and finance KPI for retailer-model sales.
+Concierge Service
+Assisted selling journey where the operator manages the full sale on behalf of the seller.
+Self-Service
+Classified listing journey where the seller manages their own listing.
+Retailer Model
+End-to-end digital purchase of operator-owned inventory: reserve, finance, insure, sign, deliver, return.
+Marketplace Model
+Discovery and inquiry experience for dealer and private listings; closing is assisted/offline.
+B2B Auction Portal
+Dedicated wholesale-trading area for verified dealers, with timed auctions, proxy bids and Buy Now.
+Inspection Report
+Structured 71-point report produced after physical car inspection.
+Reservation
+A short-duration hold of a vehicle by a buyer following a refundable deposit (typically KWD 100 for 48 hours).
+Hold Timer
+The visible countdown that indicates the remaining time on a vehicle reservation before it expires.
+e-signature
+Electronic signature on a contract, captured digitally with audit trail.
+Trade-in
+Customer’s existing car offered as part-payment toward a new purchase.
+Part-Exchange Offer
+A guaranteed purchase offer for the trade-in vehicle, valid for a defined period (e.g. 7 days).
+Value Tracker
+An opt-in email service that reports the estimated value of the customer&apos;s car periodically.
+Aging Discount
+An automatic or manual price reduction applied as a vehicle ages on the lot beyond a threshold.
+Days-to-Sell
+The average number of days between listing a vehicle and closing its sale.
+RTL / LTR
+Right-to-Left (Arabic) / Left-to-Right (English) text directions.
+CDN
+Content Delivery Network.
+SLA
+Service Level Agreement.
+VIN
+Vehicle Identification Number.
+JWT
+JSON Web Token — used for stateless API authentication.
+OTP
+One-Time Password — sent via SMS/email for verification.
+PII
+Personally Identifiable Information.
+KNET
+Kuwait’s national debit/payment network.
+Proxy Bid
+An auction feature where the bidder pre-sets a maximum price and the system bids on their behalf in increments.
+Watchlist
+Saved auction lots a B2B dealer wishes to track ahead of the auction window.
+Handover Checklist
+Digital checklist completed jointly by delivery driver and customer at the point of delivery.
+Return Window
+The customer’s contractual right to return a retailer-model purchase within 3 days or 300 km, whichever comes first.
+1.4 References
+IEEE Std 830-1998 — Recommended Practice for Software Requirements Specifications.
+ISO/IEC/IEEE 29148:2018 — Requirements engineering.
+OWASP Application Security Verification Standard (ASVS) v4.0.
+Kuwait Data Privacy Protection Regulation (CITRA Regulation No. 26 of 2024).
+Central Bank of Kuwait regulations relating to consumer credit and auto financing.
+1.5 Document Overview
+Section 2 provides an overall description of the product, its users, and operating environment. Section 3 enumerates all functional requirements grouped by system feature. Section 4 covers external interfaces. Section 5 specifies the frontend (web and mobile) in detail. Section 6 specifies the backend architecture, data model, APIs and integrations. Section 7 defines non-functional requirements. Section 8 captures principal use cases. Section 9 describes the data model. Section 10 lists assumptions, dependencies and appendices.
+
+2. Overall Description
+2.1 Product Perspective
+The System is a new, self-contained product but interfaces with several external services: partner banks for loan origination and real-time pre-qualification, partner insurers for one-click policy activation, e-signature providers for digital contracts, payment gateways (KNET and Visa/Mastercard), SMS gateways for OTP and notifications, the WhatsApp Business API for automated order updates and customer-service chat, email service providers, the Ministry of Interior service portal (where electronic integration is permitted) for ownership-transfer status, mapping providers for vendor/driver locations and delivery tracking, and third-party inspection partners (such as Al Daman) and certified inspection garages.
+Architecturally, the System is composed of:
+Public Web Application — responsive single-page application accessible at the company domain, in Arabic and English.
+Mobile Applications — native iOS app, native Android app, and a Huawei AppGallery build.
+Admin Back-Office — web-only portal for internal users (operations, sales, inspection, auction operations, delivery dispatch, maintenance coordination, finance, content, super-admin).
+Dealer Portal — web portal for car dealers and showrooms to manage their retail inventory and leads.
+B2B Auction Portal — separately authenticated web portal for verified B2B dealers to participate in wholesale auctions, place proxy bids, and manage their auction account.
+Driver/Delivery App — a lightweight mobile experience (PWA or native) used by delivery drivers for route, GPS broadcast, digital handover checklist and proof of delivery.
+Backend Services — API gateway plus a set of domain services (Identity, Listings, Reservation, Checkout, Inspection, Financing, Insurance, Trade-In, Delivery, Returns, Maintenance, Auction, Services, Payments, Notifications, Content, Analytics).
+Data Layer — primary relational database, search engine for catalog queries, object storage and CDN for media, cache layer, and a data warehouse for analytics.
+2.2 Product Functions (Summary)
+Browse, search and filter cars by brand, model, body type, year, price range, monthly-payment range, mileage, transmission, fuel type, color, seats, dealer, and inspection/warranty flags; switch between grid and list views; compare up to three cars side-by-side; see a live count of matching vehicles.
+View vehicle detail pages with 25+ HD images, an interactive 360° spin with imperfection hotspots, a 1–2 minute walkaround video, full specifications, an embedded inspection report, a vehicle-history summary (owners, accidents, service), a monthly-payment calculator, an insurance estimate, similar cars, a &apos;Ready-to-Drive&apos; trust bar, and a delivery-time estimate by location.
+Reserve a vehicle with a refundable KWD 100 deposit via KNET and hold it for 48 hours, then complete a guided 7-step purchase wizard: payment method, trade-in, add-ons, document upload, digital contract signing, delivery slot, confirmation.
+Make purchase offers, save cars to favorites, view recently-viewed vehicles, schedule test drives, request loan pre-qualification, and contact the seller.
+Activate motor insurance in one click at purchase with third-party or comprehensive coverage, and store the policy in a customer document vault.
+Submit a car for sale via concierge (operator-assisted), self-service classifieds, or instant online valuation with a guaranteed part-exchange / sell-only offer valid for up to 7 days; optionally subscribe to monthly Value Tracker updates.
+Schedule and perform a 71-point inspection at a certified garage or on-site; generate and deliver the inspection report.
+Apply for a car loan with soft pre-qualification, view multiple financing options side-by-side, upload required documents, track approval status, and receive final approval; track loan payment schedule in the dashboard.
+Book add-on car services from approved vendors, choose appointment slots, and pay online.
+Receive vehicle home-delivery with date/time selection, real-time driver GPS tracking, and a digital handover checklist; exercise a 3-day / 300 km money-back return from the dashboard with one-click pickup scheduling and refund tracking.
+Request a maintenance pickup with service-type selection, photo/video evidence of the issue, real-time status (requested → confirmed → picked up → in workshop → ready → delivered back), cost estimate review and digital approval to proceed.
+Dealer onboarding, showroom profile, inventory upload (manual and bulk import), lead management.
+B2B dealer auction participation: timed auctions, live real-time bidding with countdown, proxy/auto-bidding, Buy Now, Make an Offer, watchlist, auction calendar, winning-bid notification, invoice generation, vehicle pickup scheduling, and an arbitration / dispute process.
+Customer reviews after every completed buy or sell transaction; referral program tracking.
+Internal admin tools for moderation, pricing review (including aging discounts), inspection scheduling, dispatch, auction operations, return processing, trade-in approval, finance pipeline, vendor management, CMS, and a real-time analytics dashboard (units, revenue, GPU, inventory, days-to-sell, conversion funnel, marketing attribution).
+Bilingual content (Arabic and English) and currency display in KWD.
+2.3 User Classes and Characteristics
+User Class
+Description
+Privileges
+Guest / Anonymous Visitor
+Unregistered visitor browsing the public site or app.
+Browse listings, search, view dealer pages, see static content (How it works, FAQs, Blog). Cannot favorite, contact seller, reserve, submit a sell request, or book services.
+Registered Buyer
+Individual end user signed in to the platform.
+All guest abilities plus: favorites, recently-viewed, compare, save searches, make offers, request test drives, reserve a vehicle, complete the purchase wizard, apply for loans and insurance, schedule deliveries, initiate returns, request maintenance pickups, book services, write reviews, manage profile and addresses.
+Registered Seller
+Individual end user listing a vehicle (concierge, self-service or instant valuation).
+All buyer privileges plus: create and manage sell requests, accept/decline offers, upload car documents, track inspection status, opt in to Value Tracker.
+Dealer / Showroom User (Retail)
+Verified retail business account representing a car dealership or showroom listing to consumers.
+All buyer privileges plus: inventory CRUD, bulk import, manage showroom page, view and respond to leads, view analytics dashboards.
+B2B Auction Bidder
+Verified dealer participating in the wholesale auction portal.
+Browse auction lots, place live and proxy bids, use Buy Now, Make an Offer, manage watchlist, view bid history, receive winning invoices, schedule pickup of won vehicles, raise arbitration.
+Sales Agent (Admin)
+Internal staff handling buyer and seller conversations.
+Manage assigned sell requests, view buyer leads, send offers, mark deals closed, update CRM notes.
+Inspection Officer (Admin/Vendor)
+Internal or partner staff performing or coordinating inspections.
+View inspection schedule, capture inspection results (71 points), upload photos and videos, publish inspection report.
+Auction Operator (Admin)
+Internal staff managing wholesale auction lots.
+Create lots, configure auction start/end, set reserve prices, monitor live auctions, close lots, manage disputes, generate invoices.
+Delivery Dispatcher (Admin)
+Internal staff scheduling and assigning deliveries.
+View delivery queue, assign drivers, reschedule slots, track in-progress deliveries, confirm completions.
+Delivery Driver
+Field user responsible for delivering vehicles to customer addresses.
+View assigned deliveries, broadcast GPS, run the digital handover checklist, capture proof-of-delivery photos and signatures.
+Maintenance Coordinator (Admin)
+Internal staff handling maintenance pickup requests.
+View incoming requests, schedule pickups, issue cost estimates, route to workshops, update status, request customer approval.
+Workshop Technician
+Internal or partner technician executing the maintenance work.
+View work orders, capture parts and labor, attach photos before/after, update progress, mark complete.
+Finance Officer (Admin)
+Internal staff handling loan applications.
+Manage loan pipeline, communicate with bank partners, update application status, request additional documents.
+Customer Service Agent (Admin)
+Internal staff handling chat, WhatsApp and phone support.
+View customer profile, history and active orders; respond to chats; create tickets; escalate to the right team.
+Content Editor (Admin)
+Internal staff managing CMS content.
+Edit static pages, blog posts, banners, FAQs, terms of service, in two languages.
+Vendor (Services)
+External service provider (wash, tint, glass, tires).
+Manage own service catalog, accept/reject bookings, mark services as completed.
+Super Administrator
+System owner.
+Full access to all modules including user management, roles and permissions, system settings, integration credentials and audit logs.
+2.4 Operating Environment
+Web Frontend — Latest two major versions of Google Chrome, Safari, Microsoft Edge, Firefox, and Samsung Internet on desktop and mobile.
+Mobile Apps — iOS 15+ (iPhone and iPad), Android 9+, Huawei devices running HMS Core.
+Backend — Cloud-hosted (AWS, Azure or GCP) in a region with low latency to Kuwait (preferably Bahrain, UAE or Riyadh). Containerized using Docker, orchestrated with Kubernetes.
+Database — Managed PostgreSQL (primary) and managed Redis (cache). Elasticsearch or OpenSearch for search.
+Storage — Object storage (e.g. AWS S3 or Azure Blob) for car images and documents; CDN for global delivery (similar to the b-cdn.net pattern used by the reference platform).
+Languages — Arabic (primary, RTL) and English (LTR), with locale selection persisted per user.
+2.5 Design and Implementation Constraints
+All pricing, financing calculators and dealer payouts shall be expressed in Kuwaiti Dinar (KWD) with three decimal places per local convention.
+The application must fully support Arabic, including right-to-left layouts, Arabic numerals where requested, and locale-correct date formats.
+All PII shall be stored within an approved cloud region and protected per CITRA Regulation No. 26 of 2024 (Kuwait Data Privacy Protection).
+Payment processing must support KNET (Kuwait’s national debit network) in addition to Visa and Mastercard via a PCI-DSS certified gateway.
+Loan-related screens and contracts must comply with Central Bank of Kuwait disclosure rules (APR, fees, total cost).
+Ownership-transfer assistance must align with current MOI Traffic Department procedures.
+Mobile apps must comply with Apple App Store, Google Play and Huawei AppGallery review guidelines.
+Architecture must allow horizontal scaling of stateless services and zero-downtime deployments.
+All source code must be version-controlled (Git); production deployments must follow CI/CD with automated tests.
+2.6 Assumptions and Dependencies
+Bank partners will provide stable APIs or, at minimum, secure SFTP/email pipelines for loan applications.
+Inspection garages will provide trained personnel and a tablet/mobile-friendly UI to capture inspection data.
+Verified vendors will agree to a service catalog and SLA terms before being onboarded.
+The business will hold all required commercial licenses in Kuwait, including any used-car trading authorisation.
+Adequate moderation staff will be available to review and approve self-service car listings within 24 hours.
+
+3. System Features and Functional Requirements
+This section enumerates the functional requirements grouped by system feature. Each requirement is uniquely identified (e.g. FR-AUTH-001). Requirements use the keywords “shall” for mandatory, “should” for recommended, and “may” for optional.
+3.1 User Registration and Authentication
+3.1.1 Description
+The System shall provide secure account creation, authentication, and recovery for individuals and dealer businesses. Authentication shall be available on web and on all mobile platforms with seamless session continuity.
+3.1.2 Functional Requirements
+ID
+Requirement
+FR-AUTH-001
+The System shall allow new users to register using mobile number (Kuwait +965) and password, with OTP verification.
+FR-AUTH-002
+The System shall allow registration and login using email and password, with email verification.
+FR-AUTH-003
+The System shall support social login via Google and Apple (mandatory on iOS).
+FR-AUTH-004
+Passwords shall meet a minimum strength policy: 8+ characters, mixed case, number and symbol.
+FR-AUTH-005
+The System shall lock an account after five consecutive failed login attempts within ten minutes and require OTP-based unlock.
+FR-AUTH-006
+The System shall provide a &apos;Forgot Password&apos; flow with one-time reset link via SMS or email.
+FR-AUTH-007
+Sessions shall be managed using short-lived access tokens (JWT, 15 minutes) and long-lived refresh tokens (30 days, rotating).
+FR-AUTH-008
+The System shall support multi-device login and allow users to view active sessions and remotely sign out.
+FR-AUTH-009
+The System shall provide a dealer registration journey requiring business name, commercial license number, contact, and document uploads, subject to admin approval.
+FR-AUTH-010
+All authentication events shall be logged to an audit trail (user id, ip, device, timestamp).
+FR-AUTH-011
+The System shall allow users to delete their account with a 30-day grace period and full data export on request.
+FR-AUTH-012
+The System shall comply with CITRA Regulation 26/2024 for consent, lawful processing and data subject rights.
+3.2 Browse, Search and Filter Cars (Buy a Car)
+3.2.1 Description
+The buyer journey starts on the home page and the dedicated &apos;Used Cars&apos; page. Users shall be able to discover vehicles through curated rails (featured, inspected, low-mileage, premium), brand browsing, body-type browsing, budget brackets, and a powerful search-and-filter experience.
+3.2.2 Functional Requirements
+ID
+Requirement
+FR-BUY-001
+The System shall display a home page featuring curated rails: Featured Used Cars, Inspected Cars, Warrantied Cars, Premium Cars, Low-Mileage Cars, Recently Viewed (per user), Recently Added, and Price Drops.
+FR-BUY-002
+The home page shall display a quick search bar accepting make, model and budget (or monthly payment) in one input row, with type-ahead suggestions.
+FR-BUY-003
+The home page shall display &apos;Shop by Body Type&apos; visual cards (Sedan, SUV, Coupe, Convertible, Pickup, Hatchback, Minivan, Van, Coupe-SUV) and &apos;Shop by Price Range&apos; tiles.
+FR-BUY-004
+The home page shall display a trust-badge strip (Inspected, Insured, Returnable, Delivered) and a 3-4 step &apos;How It Works&apos; visual explainer.
+FR-BUY-005
+The home page shall display a &apos;Sell Your Car&apos; CTA that opens the instant valuation entry.
+FR-BUY-006
+The site shall implement a sticky header containing search, account, favorites, language toggle (EN/AR) and a shortcut to the cart/reservation.
+FR-BUY-007
+The System shall expose brand entry points for the top brands sold in Kuwait, including but not limited to Toyota, Lexus, Mercedes-Benz, BMW, Chevrolet, Ford, Nissan, GMC, Land Rover, Porsche, Volkswagen, Dodge, Audi, Kia, Honda, Jeep, Hyundai, Infiniti, Jaguar, MINI, Mazda, Mitsubishi, Bentley, Rolls-Royce, Ferrari, Lamborghini, Tesla, Cadillac, RAM, Chery, GAC, BYD.
+FR-BUY-008
+The System shall expose body-type filters for Sedan, SUV, Coupe, Convertible, Pickup, Hatchback, Minivan, Van, and Coupe-SUV.
+FR-BUY-009
+The System shall expose budget brackets: less than 3,000 KWD; 3K–6K; 6K–10K; 10K–15K; 15K–20K; 20K+.
+FR-BUY-010
+The System shall provide a full-text search box that searches across make, model, trim, year and badge text.
+FR-BUY-011
+The listings page shall support filtering by: brand, model, trim, year (from/to), price (KWD from/to), monthly payment (KWD from/to), mileage (km from/to), body type, transmission (auto/manual/CVT), fuel type (petrol/diesel/hybrid/electric), exterior color, interior color, cylinders, drive (FWD/RWD/AWD/4WD), number of seats, regional specs (GCC/American/European/Japanese), seller type (Platform/Dealer/Private), and inspection/warranty flags.
+FR-BUY-012
+When the monthly-payment filter is used, the System shall compute eligibility per listing using a default tenure and APR and shall update results as filter values change.
+FR-BUY-013
+The listings page shall support sorting by: best match, newest first, lowest price, highest price, lowest mileage, year (newest), and most popular.
+FR-BUY-014
+The listings page shall offer a Grid view and a List view toggle, persisted per user.
+FR-BUY-015
+The listings page shall display a live count of matching vehicles that updates within 300 ms as filters change.
+FR-BUY-016
+The listings page shall support infinite scroll on mobile and paginated results on desktop with lazy-loading of images, at least 20 items per page.
+FR-BUY-017
+Filter and search state shall be reflected in the URL to allow sharing and bookmarking.
+FR-BUY-018
+The System shall provide saved searches with email and push alerts for new matches and for price drops on previously matched cars.
+FR-BUY-019
+The System shall provide a &apos;Favorites&apos; feature (heart icon) requiring authentication, and a &apos;Compare&apos; feature that allows side-by-side comparison of 2 or 3 vehicles.
+FR-BUY-020
+Each car card shall display: main photo, badges (Inspected, Premium, Low Mileage, Warranty, Recently Added, Price Drop, Reserved/Pending), year and model, mileage in KM, price in KWD, monthly installment estimate, key specs (transmission, fuel, body), a favorite button and, where applicable, a Reserve button.
+FR-BUY-021
+When a vehicle is reserved or under purchase by another buyer, its card shall display a &apos;Reserved&apos; or &apos;Purchase Pending&apos; status with the remaining hold time.
+FR-BUY-022
+The System shall provide SEO-friendly URLs in the form /used-cars/{brand}/{model}/{id}.
+FR-BUY-023
+Search responses shall return within 800 ms at the 95th percentile under normal load.
+3.3 Car Detail Page and Inspection Report
+3.3.1 Description
+The car detail page is the primary conversion surface. It must provide rich media, complete specifications, the inspection report, financing options and a clear call-to-action to make an offer or contact the seller.
+3.3.2 Functional Requirements
+ID
+Requirement
+FR-CAR-001
+The car detail page (VDP) shall display a gallery of at least 25 HD photos plus an interactive 360° exterior viewer.
+FR-CAR-002
+The 360° viewer shall support optional imperfection hotspots that mark and describe dings, scratches, paint touch-ups and other observed defects with a close-up photo for each hotspot.
+FR-CAR-003
+The VDP shall display an interior photo gallery covering seats, dashboard, trunk and engine bay, separately navigable from the exterior gallery.
+FR-CAR-004
+The VDP shall include a 1–2 minute walkaround video player (HLS or DASH) where a video is available, with captions in Arabic and English.
+FR-CAR-005
+Specifications shown shall include: make, model, trim, year, mileage, exterior color, interior color, transmission, fuel type, cylinders, drivetrain, regional specs, body type, doors, seats, VIN (last 6 masked), and number of previous owners.
+FR-CAR-006
+The VDP shall display a Features &amp; Equipment list grouped by category (Safety, Comfort, Technology, Performance, Exterior).
+FR-CAR-007
+The VDP shall display a Vehicle History summary including number of previous owners, accident-status flag, and service-history availability.
+FR-CAR-008
+The VDP shall display a price band classifier (e.g. &apos;Fair price&apos;) comparing the listed price against the market median for that make/model/year.
+FR-CAR-009
+The VDP shall provide a monthly-payment calculator that estimates the installment in KWD given a default tenure (e.g. 60 months), with controls to change down payment and tenure, and shall offer a Financing pre-qualification CTA (soft check).
+FR-CAR-010
+The VDP shall display an indicative motor insurance quote (e.g. third-party and comprehensive) for the vehicle, with a CTA to activate insurance at purchase.
+FR-CAR-011
+For operator-owned inventory, the VDP shall expose a primary Reserve Now button that initiates a refundable KWD 100 deposit and a 48-hour hold on the vehicle.
+FR-CAR-012
+The VDP shall expose additional CTAs as applicable to the seller type: Make an Offer, Book Test Drive, Apply for Loan, Contact Seller, and Add to Favorites.
+FR-CAR-013
+When an inspection report is available, it shall be embedded on the VDP with a structured breakdown across the 71 inspection points, grouped by Exterior, Mechanical, Electronic, Interior, and Test Drive, with overall score and notes; partner inspection reports (e.g. Al Daman) shall render in a consistent embedded view.
+FR-CAR-014
+The VDP shall display a &apos;Ready-to-Drive&apos; trust badge bar highlighting inspected, warranty, returnable and home-delivery attributes where applicable.
+FR-CAR-015
+The VDP shall display an estimated delivery time by location (selectable governorate or zip), based on operator dispatch capacity.
+FR-CAR-016
+The VDP shall display a &apos;Similar Cars&apos; rail showing five recommendations based on make, model, body type and price proximity.
+FR-CAR-017
+The VDP shall display the dealer or showroom card when applicable, with name, logo, total cars in stock, rating, location and a link to the showroom page.
+FR-CAR-018
+The VDP shall include rich-data structured markup (schema.org/Car and schema.org/Vehicle) for SEO.
+FR-CAR-019
+The VDP shall offer &apos;Share&apos; actions via WhatsApp, X, Facebook, copy-link, email.
+FR-CAR-020
+The System shall track and display a &apos;Views&apos; counter and a &apos;Last reduced&apos; price-change indicator where applicable.
+3.4 Sell a Car — Concierge Service
+3.4.1 Description
+The concierge service is an operator-led sale: the user provides minimal car information, then a dedicated advisor takes over. Operations performs inspection, professional photoshoot, valuation, marketing, buyer-inquiry handling, negotiation, secure payment and ownership transfer.
+3.4.2 Functional Requirements
+ID
+Requirement
+FR-SCN-001
+The seller shall be able to start a concierge sell request by submitting make, model, year, trim and contact details.
+FR-SCN-002
+The System shall immediately create a Sell Request record and assign it to a sales advisor based on a round-robin or load-balanced rule.
+FR-SCN-003
+The advisor shall be able to schedule an inspection at a certified garage or on-site at the seller’s home or workplace.
+FR-SCN-004
+After inspection and photoshoot, the System shall produce a structured inspection report and at least 25 HD photos plus 360° images.
+FR-SCN-005
+The advisor shall record an internal valuation and a proposed list price. Both shall be reviewable in the admin portal.
+FR-SCN-006
+Upon seller approval of the price, the System shall publish the listing to the public marketplace and any syndicated partner sites.
+FR-SCN-007
+All buyer inquiries (calls, chats, emails, viewing requests) shall be routed to the assigned advisor through the admin CRM.
+FR-SCN-008
+Upon a successful offer, the advisor shall mark the deal as accepted; the System shall trigger the payment-and-transfer workflow.
+FR-SCN-009
+The System shall record secure-payment receipt confirmation and ownership-transfer milestones at the Ministry of Interior.
+FR-SCN-010
+Sellers shall see a status dashboard with milestones: Request Submitted → Inspection Scheduled → Inspected → Published → Offer Accepted → Paid → Transferred → Closed.
+FR-SCN-011
+Time-to-first-offer SLA shall be visible to the seller, with a target of three days from inspection.
+FR-SCN-012
+After the deal closes, the System shall request a customer review (1–5 stars and free-text comment in Arabic or English).
+3.5 Sell a Car — Self-Service Classified
+3.5.1 Description
+Self-service is for sellers who prefer direct control. They post their own listing, manage inquiries, and complete the transfer themselves, while still benefiting from platform reach and a brief admin moderation.
+3.5.2 Functional Requirements
+ID
+Requirement
+FR-SSS-001
+The seller shall be able to create a new listing by providing: make, model, year, trim, mileage, transmission, fuel, exterior/interior color, regional specs, accident history, service history, asking price, free-text description, and at least eight photos.
+FR-SSS-002
+The System shall validate uploads and reject duplicate listings (same VIN or same seller + same make/model/year within 30 days).
+FR-SSS-003
+Submitted listings shall enter a moderation queue and be reviewed by an admin within 24 hours. The seller shall be notified of approval, rejection or required edits.
+FR-SSS-004
+Once published, the seller shall receive calls, chats and leads directly through the platform’s masked-number and in-app messaging features.
+FR-SSS-005
+The System may proactively offer the seller a platform cash offer after marketing the car to registered buyers for 1–2 days.
+FR-SSS-006
+The seller shall be able to edit, deactivate or mark as sold any of their own listings.
+FR-SSS-007
+Listings shall expire after a configurable period (default 60 days), with a one-tap renew option.
+FR-SSS-008
+The System shall offer paid promotion add-ons: Featured slot, Bump-up, and Highlighted card.
+FR-SSS-009
+The System shall display a self-service fee schedule transparently before publication.
+3.6 Vehicle Inspection Module
+3.6.1 Description
+Inspection is performed by trained technicians at certified garages or on-site. The structured 71-point inspection covers exterior, mechanical, electronic, interior and test-drive evaluations.
+3.6.2 Functional Requirements
+ID
+Requirement
+FR-INS-001
+The System shall maintain a master Inspection Template with at least 71 inspection points, organized into Exterior, Mechanical, Electronic, Interior and Test Drive groups.
+FR-INS-002
+Each point shall capture: status (OK / Needs Attention / Failed), severity (Low/Medium/High), free-text notes, and photo evidence (zero or more images).
+FR-INS-003
+The inspection app (tablet/mobile) shall allow technicians to operate offline and synchronize results when connectivity returns.
+FR-INS-004
+The inspector shall capture at least 25 HD photos and an optional 360° spin per car.
+FR-INS-005
+On submission, the System shall compute a summary score and generate a downloadable PDF report in Arabic and English.
+FR-INS-006
+The seller shall be able to view the report in their dashboard and download a copy.
+FR-INS-007
+If the inspection is done on-site, the System shall flag the chassis re-inspection requirement at the time of sale.
+FR-INS-008
+Inspection reports shall be retained for at least three years and remain accessible to the seller and buyer.
+FR-INS-009
+Admin shall be able to version the inspection template without invalidating historic reports.
+3.7 Financing / Auto Loan Module
+3.7.1 Description
+The platform shall help buyers obtain auto loans through partner banks and finance houses operating in Kuwait. The flow includes a financing calculator, document collection, application submission, approval tracking and final contract signing.
+3.7.2 Functional Requirements
+ID
+Requirement
+FR-FIN-001
+The System shall provide a finance calculator that takes car price, down payment percentage, and tenure (12–84 months) and returns the monthly installment in KWD.
+FR-FIN-002
+Calculator inputs and outputs shall reflect each partner bank’s effective APR and any administrative fees.
+FR-FIN-003
+The System shall provide a Financing Pre-Qualification (soft credit check) that returns a likely-approved indicative offer in real time, without affecting the customer’s credit record where applicable.
+FR-FIN-004
+The System shall integrate via real-time API with at least one anchor partner bank (e.g. Al Ahli Bank of Kuwait) for pre-qualification and full pre-approval, and shall be capable of fanning out to additional banks asynchronously.
+FR-FIN-005
+When multiple banks return offers, the System shall display them side-by-side with APR, tenure, monthly installment, total cost and any fees, allowing the customer to choose.
+FR-FIN-006
+A buyer shall be able to apply for pre-approval before selecting a specific car, and reuse the approval against any eligible car during its validity period.
+FR-FIN-007
+Loan applications shall capture: full name, Civil ID number, mobile, email, monthly salary, employer, employment type (government / private / expat), bank statements (last 3 months), salary certificate, copy of Civil ID, copy of passport (expats), and authorization signature documents for company representatives.
+FR-FIN-008
+The System shall encrypt uploaded documents at rest and limit access to authorized finance officers.
+FR-FIN-009
+The finance officer shall be able to forward applications to one or more partner banks and record initial and final approval outcomes.
+FR-FIN-010
+The buyer shall see real-time status: Submitted → Pre-Qualified → Under Review → Initial Approval → Final Approval → Contract Ready → Funded.
+FR-FIN-011
+Status changes shall trigger notifications via push, SMS and email.
+FR-FIN-012
+Upon final approval, the buyer shall be able to schedule a viewing/test-drive appointment and proceed to the digital contract signing.
+FR-FIN-013
+The System shall produce a loan summary disclosure aligned with Central Bank of Kuwait requirements before contract signing.
+FR-FIN-014
+The customer dashboard shall display the loan payment schedule (date, amount, principal, interest, balance), payment status, and any prepayment options where supported by the partner bank.
+FR-FIN-015
+Applications and decisions shall be retained for the period required by applicable financial-services regulation.
+3.8 Car Services Marketplace
+3.8.1 Description
+Users can purchase add-on services from approved vendors. Each service has its own catalog, pricing, availability and fulfillment workflow.
+3.8.2 Service Catalog
+Service
+Description
+Wash and Detailing
+Exterior wash, interior cleaning, polish, ceramic detail packages.
+Tinting
+Window tinting in various shades, with warranty options.
+Registration Renewal
+Annual MOI vehicle registration renewal, including required tests.
+Paint Protection
+Paint protection film and ceramic coating packages.
+Tire Replacement
+Selection by size and brand, fitment and balancing.
+Glass and Windshield
+Repair or full replacement of windshield and side glass.
+Car Health Check
+Diagnostic health check, oil change and minor maintenance bundles.
+3.8.3 Functional Requirements
+ID
+Requirement
+FR-SVC-001
+The System shall display all active service categories with vendor count and starting price.
+FR-SVC-002
+Each service shall list available vendors with rating, distance from user, and earliest available slot.
+FR-SVC-003
+Booking flow shall capture: car (selected from user’s garage or entered ad hoc), service variant, vendor, date and time slot, location (vendor site or on-site).
+FR-SVC-004
+Payment shall be processed online via KNET, Visa or Mastercard, with optional cash-on-completion where vendor allows.
+FR-SVC-005
+Vendors shall be notified of new bookings and shall be able to confirm, reschedule or cancel from a vendor portal.
+FR-SVC-006
+Users shall receive booking confirmation, reminder (24h before) and completion notifications.
+FR-SVC-007
+Users shall be able to rate vendors (1–5 stars) and leave a review after service completion.
+FR-SVC-008
+Admin shall manage vendor onboarding, commission rates, payouts and SLA monitoring.
+3.9 Dealer and Showroom Module
+3.9.1 Description
+Verified dealerships and showrooms shall have a dedicated experience to onboard, manage inventory, present their brand, and convert leads.
+3.9.2 Functional Requirements
+ID
+Requirement
+FR-DLR-001
+The System shall provide a dealer registration form capturing business name, commercial license, address (with map pin), contact, logo, banner, brands carried, and verification documents.
+FR-DLR-002
+Dealer registrations shall be reviewed and approved by an admin before activation.
+FR-DLR-003
+Approved dealers shall access a dealer portal with inventory CRUD, bulk CSV import, lead inbox, analytics, and showroom-page editor.
+FR-DLR-004
+Each dealer’s public page shall show: logo, banner, description, total cars in stock, brand chips, contact actions (call/WhatsApp/directions), and a paginated list of their cars.
+FR-DLR-005
+Dealers shall receive leads via in-app inbox, email and WhatsApp deep links.
+FR-DLR-006
+Dealers shall have access to performance analytics: impressions, profile views, leads, response time, and conversion rate.
+FR-DLR-007
+Admin shall be able to feature dealers on the home page, with rotation rules.
+FR-DLR-008
+Dealer accounts shall support multiple sub-users (e.g. owner, sales staff) with role-based access.
+FR-DLR-009
+Dealer subscription plans (Basic / Premium / Enterprise) shall be configurable in admin.
+3.10 Reviews and Ratings
+ID
+Requirement
+FR-REV-001
+After every completed buy or sell transaction, the System shall invite the customer to leave a 1–5 star rating and a free-text comment.
+FR-REV-002
+Reviews shall display the reviewer’s display name, role (Buyer / Seller), star rating, comment, brand and model purchased/sold, and date.
+FR-REV-003
+Admin shall be able to hide reviews that contain profanity, PII or marketing spam, with audit log.
+FR-REV-004
+Aggregate ratings shall be shown on the home page, dealer pages and the dedicated Customer Reviews page.
+FR-REV-005
+Reviews shall be displayed bilingually based on the original input language.
+3.11 Communication, Leads and Messaging
+ID
+Requirement
+FR-MSG-001
+The System shall provide in-app chat between buyers and sellers/dealers, with attachment support (images and documents).
+FR-MSG-002
+The System shall integrate with the WhatsApp Business API for automated order, reservation, financing, delivery and return status updates, as well as inbound customer-service conversations routed to the agent inbox.
+FR-MSG-003
+The System shall integrate WhatsApp deep links for ask-on-WhatsApp flows from listings and dealer pages (e.g. wa.me/96522XXXXXX).
+FR-MSG-004
+Outbound calls from buyers to sellers shall use masked numbers to protect privacy.
+FR-MSG-005
+All leads shall be captured in the admin CRM with car id, buyer id, channel, timestamp and disposition.
+FR-MSG-006
+Sellers, dealers and customer-service agents shall receive instant push, email and SMS notifications for new leads and inbound messages.
+FR-MSG-007
+Anti-spam rules shall throttle messages (e.g. max 5 cold messages per buyer per hour) and detect prohibited content.
+FR-MSG-008
+Arabic and English customer-service scripts and quick replies shall be configurable in the admin portal.
+3.12 Notifications
+ID
+Requirement
+FR-NOT-001
+The System shall support push notifications (FCM for Android and Huawei, APNs for iOS), email, SMS, WhatsApp Business and in-app inbox.
+FR-NOT-002
+Notification preferences shall be configurable per user, per channel and per category, with category-level opt-out.
+FR-NOT-003
+The System shall send transactional notifications for: OTP, registration, password reset, listing approved/rejected, new lead, reservation confirmed, reservation expiring (1h before), payment received, financing status change, insurance activated, delivery scheduled / out for delivery / delivered, return request status, maintenance pickup status, auction outbid, auction won, inspection completed, review request, deal closed.
+FR-NOT-004
+The System shall send behavioural notifications for: new-inventory matches against saved searches, price-drop alerts on favorited vehicles, and abandoned-checkout / abandoned-reservation reminders.
+FR-NOT-005
+Marketing notifications shall comply with consent and unsubscribe requirements.
+FR-NOT-006
+All notifications shall be available in Arabic and English with templates managed in the admin CMS.
+3.13 Multi-Language and Localization
+ID
+Requirement
+FR-LOC-001
+All user-facing screens, emails, SMS and PDFs shall be fully translated into Arabic and English.
+FR-LOC-002
+Arabic content shall use right-to-left layout for icons, navigation, forms, tables and PDFs.
+FR-LOC-003
+Language preference shall be selectable from the header (web) and settings (mobile) and persisted per user.
+FR-LOC-004
+URLs shall include the locale prefix (e.g. /en/, /ar/) for SEO.
+FR-LOC-005
+Number, date and currency formats shall follow Kuwait conventions; prices in KWD with three decimal places where applicable.
+3.14 Mobile Applications
+ID
+Requirement
+FR-MOB-001
+The System shall provide native mobile apps for iOS, Android (Google Play) and Huawei (AppGallery).
+FR-MOB-002
+Apps shall support feature parity with the web for buying, reserving, completing the purchase wizard, selling, services, financing, insurance, deliveries, returns, maintenance, auctions, favorites, chat and notifications.
+FR-MOB-003
+Apps shall use biometric (Face ID / Touch ID / fingerprint) for quick re-authentication when enabled by the user.
+FR-MOB-004
+Apps shall surface personalized recommendations on the home screen, based on the user’s browsing, favorites and saved searches.
+FR-MOB-005
+Apps shall provide offline access to previously viewed listings and favorites, and shall queue user actions (favorites, lead messages, reservation drafts) for sync when connectivity returns.
+FR-MOB-006
+Apps shall offer app-exclusive deals and early-access drops where business rules dictate.
+FR-MOB-007
+Apps shall provide an in-app WhatsApp chat to Customer Service entry, opening either an in-app webview or the WhatsApp app.
+FR-MOB-008
+Apps shall integrate the device camera for the Sell-Your-Car flow, with on-device quality checks (focus, lighting, framing) and guided photo capture.
+FR-MOB-009
+Apps shall support deep links and universal links to open VDPs, reservations, auction lots and orders from external sources (WhatsApp, social media, email).
+FR-MOB-010
+Apps shall implement crash reporting and analytics (e.g. Firebase Crashlytics, AppsFlyer or similar).
+3.15 Admin / Back-Office Portal
+3.15.1 Description
+Internal staff manage day-to-day operations through a secure admin portal. The portal is role-based and audited end-to-end.
+3.15.2 Functional Requirements
+ID
+Requirement
+FR-ADM-001
+The admin portal shall require strong authentication including TOTP-based two-factor authentication.
+FR-ADM-002
+The admin portal shall implement role-based access control (RBAC) with roles including Super Admin, General Manager, Operations, Sales Agent, Inspection Officer, Auction Operator, Delivery Dispatcher, Maintenance Coordinator, Finance Officer, Customer Service Agent, Vendor Manager, Content Editor, and Technical Support.
+FR-ADM-003
+User management — search, filter and edit users; soft-delete; reset password; impersonate (with consent log).
+FR-ADM-004
+Inventory management — add, edit, deactivate and re-publish vehicles; bulk import; merge duplicates; assign to retail or auction channel.
+FR-ADM-005
+Vehicle Pipeline Tracker — board view of every vehicle through the lifecycle stages: Acquired → Inbound → Inspection → Photoshoot → Reconditioning → Listed → Reserved → Sold → Delivered → Closed, with drag-and-drop or status-update actions, ownership and aging in each stage.
+FR-ADM-006
+Pricing management — set and adjust prices manually; configure automatic aging-discount rules (e.g. -2% after 30 days, -5% after 60 days) with admin override; price-change audit trail.
+FR-ADM-007
+Order management — view orders, update status, assign delivery driver, view payment status, view contract status.
+FR-ADM-008
+Listing moderation — approve, reject or request changes; flag duplicates; pricing review.
+FR-ADM-009
+Sell-request CRM — pipeline of concierge and instant-valuation requests with assignment, status, notes and tasks.
+FR-ADM-010
+Inspection scheduling — calendar view, technician load balancing, route planning, on-site vs. in-garage routing.
+FR-ADM-011
+Finance pipeline — track loan applications, partner-bank decisions, document checklist, SLA timers.
+FR-ADM-012
+Vendor and service management — vendors, service catalog, pricing, commissions, payouts, SLA dashboards.
+FR-ADM-013
+B2B dealer management — approve dealer applications, manage dealer roster, view their bids, suspend on rule violation.
+FR-ADM-014
+Auction management — create auction lots, configure start/end window, set reserve price, monitor bidding, close lots, generate invoices, escalate disputes.
+FR-ADM-015
+Delivery scheduling and driver assignment — view delivery queue, assign drivers, reschedule, monitor live GPS, mark completion.
+FR-ADM-016
+Return processing workflow — review return requests, schedule pickup, confirm vehicle condition, trigger refund, close case.
+FR-ADM-017
+Trade-in request management — review trade-in offers, dispatch inspection, finalize offer, apply offer to a new purchase.
+FR-ADM-018
+Maintenance coordination — accept incoming pickup requests, schedule with workshops, issue cost estimates, request customer approval, track in-workshop progress, schedule return delivery.
+FR-ADM-019
+Customer CRM — 360° view of profiles, interactions, documents, orders, financing, insurance, deliveries, returns, reviews.
+FR-ADM-020
+CMS — manage static pages, blog posts, FAQs, banners and home-page rails in Arabic and English.
+FR-ADM-021
+Audit log — immutable log of all admin actions, including who/what/when/from-where.
+FR-ADM-022
+System settings — feature flags, pricing rules, fee schedules, integration credentials (encrypted), notification templates.
+3.17 Reservation and Purchase Wizard (Retailer Flow)
+3.17.1 Description
+For operator-owned inventory, the System shall enable a fully digital end-to-end purchase. A customer reserves a vehicle with a refundable deposit, completes a guided 7-step wizard (payment method, trade-in, add-ons, document upload, digital contract signing, delivery slot, confirmation), and receives the vehicle through home-delivery. While reserved, the vehicle is held off-market for the buyer for a fixed 48-hour window.
+3.17.2 Functional Requirements
+ID
+Requirement
+FR-RES-001
+The System shall allow a registered, verified buyer to reserve a single operator-owned vehicle by paying a KWD 100 refundable deposit via KNET.
+FR-RES-002
+Upon successful deposit, the System shall place a 48-hour hold on the vehicle (configurable), prevent other buyers from reserving or purchasing it, and display a visible hold-timer on the VDP and in the buyer’s dashboard.
+FR-RES-003
+If the hold expires without progression, the deposit shall be auto-refunded according to the published policy, and the vehicle shall return to the open inventory.
+FR-RES-004
+The buyer shall be guided through a 7-step purchase wizard with a visible progress breadcrumb: (1) Payment Method, (2) Trade-In, (3) Add-ons, (4) Document Upload, (5) Digital Contract Signing, (6) Delivery Slot, (7) Confirmation.
+FR-RES-005
+Step 1 — Payment Method: the buyer shall choose cash (KNET/bank transfer), financing (one of the approved offers), or a hybrid; the chosen method shall drive subsequent steps.
+FR-RES-006
+Step 2 — Trade-In: the buyer shall be able to apply a previously valued trade-in offer to the purchase, reducing the net amount due.
+FR-RES-007
+Step 3 — Add-ons: the buyer shall be able to add extended warranty, paint protection, tinting, ceramic detail, GAP coverage and other approved add-ons, with itemized pricing in KWD.
+FR-RES-008
+Step 4 — Document Upload: the buyer shall upload Civil ID (front and back), driver license and, where financing is selected, salary certificate and bank statements. Documents shall be validated and stored encrypted in the document vault.
+FR-RES-009
+Step 5 — Digital Contract Signing: the System shall generate the sale (and where applicable, financing and insurance) contracts and present them for e-signature via an approved e-signature provider; signed contracts shall include a tamper-evident audit trail.
+FR-RES-010
+Step 6 — Delivery Slot: the buyer shall select a delivery address (saved or new) and a date/time slot from operator availability; estimated delivery time shall be displayed.
+FR-RES-011
+Step 7 — Confirmation: the System shall present an order summary, charges breakdown, next-steps timeline, and email/SMS confirmation.
+FR-RES-012
+The buyer shall be able to pause and resume the wizard within the hold period without losing progress.
+FR-RES-013
+All deposit and full-payment transactions shall be processed through PCI-DSS compliant gateways; card data shall not be stored on the System.
+FR-RES-014
+Reservations and orders shall be visible in the buyer’s dashboard with status: Reserved → Wizard In Progress → Contract Signed → Paid → Scheduled → Delivered → Closed.
+FR-RES-015
+Customer service agents shall be able to view the reservation state and unblock the customer via the admin portal.
+3.18 Motor Insurance Module
+3.18.1 Description
+The System shall enable customers to view an indicative insurance quote on the VDP and activate motor insurance in a single click during the purchase wizard, via integration with one or more partner insurers (e.g. Kuwait Insurance Company).
+3.18.2 Functional Requirements
+ID
+Requirement
+FR-INR-001
+The VDP shall display an indicative insurance quote based on the vehicle attributes and the partner insurer’s rate card.
+FR-INR-002
+The System shall offer multiple coverage options at minimum: Third-Party Liability and Comprehensive.
+FR-INR-003
+During the purchase wizard, the buyer shall be able to activate insurance with one click, with the premium added to the total due.
+FR-INR-004
+Activated policies shall become effective from the delivery date and time of the vehicle.
+FR-INR-005
+The customer dashboard shall include the digital policy document, certificate, and key dates.
+FR-INR-006
+The System shall remind the customer of policy renewal 30 and 7 days before expiry.
+FR-INR-007
+Insurance integrations shall be implemented via secure API with the partner; failure modes shall be handled gracefully (retry, manual fallback).
+FR-INR-008
+Personal data shared with insurers shall be limited to what is required by the policy.
+3.19 Trade-In and Instant Online Valuation
+3.19.1 Description
+Customers shall be able to obtain an instant online valuation of their existing car and, optionally, sell it to the operator outright (sell-only) or apply the offer as part-payment toward another vehicle (trade-in). The flow continues with a full inspection and a final guaranteed offer.
+3.19.2 Functional Requirements
+ID
+Requirement
+FR-TRD-001
+The System shall provide an Instant Online Valuation form taking make, model, year, trim, mileage, regional specs and condition self-assessment, and returning an indicative price range within 5 seconds.
+FR-TRD-002
+Customers shall optionally upload photos of the car to refine the valuation; the System shall display an updated range after photo review.
+FR-TRD-003
+The customer shall be able to schedule a pickup or visit for a full physical inspection.
+FR-TRD-004
+Following the physical inspection, the System shall present a Final Offer valid for 7 days (configurable).
+FR-TRD-005
+The customer shall be able to choose Sell-Only or Trade-In; for Trade-In, the offer shall be applied as part-payment in the purchase wizard.
+FR-TRD-006
+Guaranteed Part-Exchange Price — when offered, the System shall display the validity window and reservation rules clearly to the customer.
+FR-TRD-007
+The System shall offer a Value Tracker — an opt-in monthly email containing the estimated current value of the customer’s vehicle.
+FR-TRD-008
+All offers, expirations and customer decisions shall be auditable in the admin portal.
+3.20 Vehicle Delivery
+3.20.1 Description
+Operator-model purchases shall be delivered to any address in Kuwait. Customers select a delivery slot during the purchase wizard; drivers complete a digital handover at the address.
+3.20.2 Functional Requirements
+ID
+Requirement
+FR-DEL-001
+The System shall present available delivery date/time slots within the operator’s service window for any address in Kuwait.
+FR-DEL-002
+The customer shall receive notifications (push, SMS, email, WhatsApp) at each delivery milestone: Scheduled → Confirmed → Out for Delivery → Delivered.
+FR-DEL-003
+The System shall provide real-time driver GPS tracking on a map for the customer when the vehicle is Out for Delivery, with privacy controls.
+FR-DEL-004
+The driver application shall present a Digital Handover Checklist covering vehicle condition, documents handed over, keys, fuel, and customer ID verification.
+FR-DEL-005
+Proof of Delivery shall capture customer signature (in-app) and time-stamped photos.
+FR-DEL-006
+Failed deliveries shall be recorded with reason codes and rescheduled.
+FR-DEL-007
+Delivery completion shall trigger insurance activation, ownership-transfer initiation, financing funding (where applicable), and the start of the return window.
+3.21 Returns Module (3 Days / 300 km)
+3.21.1 Description
+Retailer-model customers shall benefit from a 3-day / 300-km money-back return window starting at delivery. The return shall be initiated from the dashboard with a single click and managed end-to-end by the System.
+3.21.2 Functional Requirements
+ID
+Requirement
+FR-RET-001
+The customer dashboard shall display the remaining return window (days and kilometers) and a one-click Initiate Return action while the window is open.
+FR-RET-002
+On initiation, the customer shall select a return reason, optionally upload photos/videos and describe the issue, and choose a pickup slot.
+FR-RET-003
+The System shall schedule the return pickup and dispatch a driver to collect the vehicle.
+FR-RET-004
+On collection, the driver shall complete a return handover checklist (condition, mileage, accessories).
+FR-RET-005
+Where the returned vehicle is within the policy thresholds, the System shall trigger a refund through the same payment instrument; where it exceeds thresholds (mileage, damage), the System shall present any applicable deductions for customer acknowledgment before processing.
+FR-RET-006
+The customer dashboard shall display the refund processing status: Initiated → Picked Up → Inspected → Refund Approved → Refund Sent → Closed.
+FR-RET-007
+The customer shall optionally choose to drop off the vehicle at the operator’s facility instead of pickup.
+FR-RET-008
+All returns and refund decisions shall be logged in the audit trail.
+3.22 Maintenance Pickup and Aftercare
+3.22.1 Description
+Customers shall be able to request maintenance pickups for their car — including past purchases — through the dashboard or mobile app. The flow covers service-type selection, evidence upload, cost approval, and real-time progress tracking from request to return delivery.
+3.22.2 Functional Requirements
+ID
+Requirement
+FR-MNT-001
+The dashboard shall display a maintenance-history log for the customer’s car(s): past services, repairs, dates, invoices and attached photos.
+FR-MNT-002
+The customer shall be able to Request a Maintenance Pickup specifying date, time, address, and a free-text description of the issue.
+FR-MNT-003
+The customer shall choose a service type: Routine Service, Repair, Body Work, Air-Conditioning, Tires, Other.
+FR-MNT-004
+The customer shall optionally upload photos or videos of the issue.
+FR-MNT-005
+The status of the request shall be tracked in real time: Requested → Confirmed → Picked Up → In Workshop → Cost Estimate Issued → Awaiting Approval → Approved / Declined → Repair In Progress → Ready → Delivered Back.
+FR-MNT-006
+The workshop or coordinator shall issue a Cost Estimate with itemized parts and labor; the customer shall be able to Approve or Decline digitally, with line-item objections supported.
+FR-MNT-007
+On approval, the workshop shall proceed; on decline, the System shall present alternatives or schedule return delivery.
+FR-MNT-008
+The customer shall receive notifications at each status change via push, SMS, email and WhatsApp.
+FR-MNT-009
+Final invoice shall be generated and payable online via KNET/Visa/Mastercard or charged to the customer’s saved instrument with consent.
+FR-MNT-010
+After return delivery, the System shall request a service rating.
+3.23 B2B Dealer Auction Portal
+3.23.1 Description
+The System shall operate a separate, authenticated B2B Dealer Auction Portal for verified dealerships to participate in wholesale trading. Lots are listed by the operator (and optionally by other approved sellers) with full condition reports. Auctions follow a timed format with live bidding, proxy bids, Buy Now and Make an Offer options.
+3.23.2 Functional Requirements
+ID
+Requirement
+FR-AUC-001
+The portal shall require a separate B2B login distinct from the consumer login; dealer registration shall require a trade license upload and pass an admin verification workflow before activation.
+FR-AUC-002
+Wholesale vehicle listings shall include 40+ HD photos, a third-party or in-house inspection report (e.g. Al Daman) with defects, condition grading, mileage, regional specs and prior history.
+FR-AUC-003
+Each lot shall be configured with a timed-auction window (start, end), reserve price, increments, Buy Now price (optional), and Make-an-Offer rules (optional).
+FR-AUC-004
+Live bidding shall update every connected bidder’s screen in near real time (≤ 1 s) and shall display a visible countdown timer with anti-snipe extension (e.g. +2 minutes on bids in the final 2 minutes).
+FR-AUC-005
+Bidders shall be able to set a maximum proxy/auto-bid; the System shall automatically bid the next valid increment up to that maximum on their behalf.
+FR-AUC-006
+Bidders shall be able to use Buy Now to win immediately at the listed Buy-Now price (if configured), bypassing the auction.
+FR-AUC-007
+Bidders may submit a Make-an-Offer outside the auction format, subject to operator acceptance.
+FR-AUC-008
+Bidders shall maintain a Watchlist of upcoming lots and view an Auction Calendar of all scheduled windows.
+FR-AUC-009
+On winning, the bidder shall receive a notification via SMS, email and in-portal alert; the System shall generate an invoice for the winning amount including any fees.
+FR-AUC-010
+The bidder shall schedule a Pickup Slot for the won vehicle from the operator’s facility within a configurable window.
+FR-AUC-011
+The dealer dashboard shall show: active bids, won lots, payments, pickup status, invoices, and full transaction history.
+FR-AUC-012
+An Arbitration / Dispute process shall allow the winning dealer to dispute defects not disclosed in the condition report within a configurable window; outcomes (acceptance, refund, partial credit, rejection) shall be recorded.
+FR-AUC-013
+A Quotation Portal shall optionally allow dealers to post desired-vehicle specs; eligible dealers/operator can submit offers in response.
+FR-AUC-014
+The portal shall be available on web and as part of the mobile applications.
+FR-AUC-015
+All bids shall be immutable; the bid log shall be auditable per dealer.
+FR-AUC-016
+The auction operator (admin) shall have a live monitoring view to detect bidding anomalies and intervene where necessary.
+3.24 Analytics and Reporting
+3.24.1 Description
+The admin portal shall include a comprehensive analytics suite providing real-time and historical insight into commercial and operational performance, with role-based dashboards and exportable reports.
+3.24.2 Functional Requirements
+ID
+Requirement
+FR-ANL-001
+The System shall provide a Real-Time Dashboard covering: units sold (today/MTD/YTD), revenue, Gross Profit per Unit (GPU), active inventory, average days-to-sell, reservation rate, and conversion rate.
+FR-ANL-002
+The System shall provide a Conversion Funnel report from Visitor → VDP View → Reserve → Purchase, broken down by source, device and locale.
+FR-ANL-003
+The System shall provide an Inventory Aging Report grouped by age band (0–14, 15–30, 31–60, 60+ days) with recommended discount actions per the configured aging-discount policy.
+FR-ANL-004
+The System shall provide Marketing Attribution by channel (organic, paid search, social, referral, direct, app) and Customer Acquisition Cost by channel.
+FR-ANL-005
+The System shall provide a B2B Auction Performance report covering sell-through rate, average recovery vs. internal benchmark, average bids per lot, and dealer engagement.
+FR-ANL-006
+All reports shall be filterable by date range and exportable to CSV and Excel.
+FR-ANL-007
+The System shall integrate Google Analytics 4 and Google Tag Manager on web, and AppsFlyer or Adjust on mobile, with consent-respecting event taxonomy shared across web and app.
+FR-ANL-008
+A data warehouse (e.g. BigQuery, Snowflake, Redshift) shall back analytics for historical depth and ad-hoc queries.
+
+4. External Interface Requirements
+4.1 User Interfaces
+Responsive web application that adapts to desktop (≥1280 px), laptop (≥1024 px), tablet (≥768 px) and mobile (≥360 px) breakpoints.
+Native mobile applications on iOS, Android and Huawei AppGallery.
+Internal admin portal optimized for desktop browsers.
+Dealer portal optimized for desktop and tablet.
+All UIs shall meet WCAG 2.1 Level AA accessibility guidelines (contrast, focus, alt text, keyboard navigation, screen reader support).
+4.2 Hardware Interfaces
+Mobile apps shall use device camera for car photo capture and Civil ID / document scanning.
+Mobile apps shall use GPS for vendor proximity searches and on-site inspection locations.
+Inspector tablets shall optionally interface with OBD-II diagnostic readers via Bluetooth (future enhancement).
+4.3 Software Interfaces / Integrations
+Integration
+Purpose
+Direction
+KNET Payment Gateway
+Local debit-card payments for deposits, full payments, services and listing fees.
+Outbound + callback
+Visa / Mastercard via PCI-DSS gateway
+Card payments (regional &amp; international cards).
+Outbound + callback
+Bank Transfer (manual / API)
+Direct bank-transfer payment instructions and reconciliation.
+Outbound + reconciliation file
+Anchor Partner Bank API (e.g. Al Ahli Bank of Kuwait)
+Real-time loan pre-qualification and pre-approval, plus full loan origination.
+Outbound + callback
+Additional Partner Banks (NBK, KFH, Burgan, ABK, Gulf Bank, etc.)
+Multi-offer loan fan-out and decisions.
+Outbound + callback (API or secure file transfer)
+Insurance Partner API (e.g. Kuwait Insurance Company)
+Quote, bind, policy issuance, document retrieval.
+Outbound + callback
+E-Signature Provider
+Digital contract signing with tamper-evident audit trail.
+Outbound + webhook
+Third-Party Inspection Partner (e.g. Al Daman)
+Vehicle inspection scheduling, report retrieval, embedded report viewer.
+Outbound + webhook
+MOI Traffic Department
+Vehicle ownership-transfer status (where digital integration is permitted).
+Outbound
+SMS Gateway (e.g. Twilio, Unifonic)
+OTP and transactional SMS in Kuwait.
+Outbound
+WhatsApp Business API
+Automated transactional updates and two-way customer service.
+Outbound + inbound webhook
+Email Service (e.g. SendGrid, SES)
+Transactional and marketing email.
+Outbound
+Firebase Cloud Messaging
+Push notifications for Android and web.
+Outbound
+Apple Push Notification service
+Push notifications for iOS.
+Outbound
+Huawei Push Kit
+Push notifications for Huawei AppGallery apps.
+Outbound
+Google Maps / Mapbox
+Maps, geocoding, vendor and driver locations, ETA, directions.
+Outbound
+Driver/Delivery Tracking App
+Live GPS broadcast, route, digital handover checklist, proof-of-delivery.
+Bidirectional
+Google Analytics 4 / GTM
+Web analytics and tag management.
+Outbound
+AppsFlyer / Adjust
+Mobile attribution.
+Outbound
+Object Storage CDN
+Hosting and delivering car images, videos and documents.
+Outbound
+KYC / OCR Provider
+Civil ID OCR and identity verification.
+Outbound
+360° Image / Video Hosting
+Streaming, HLS/DASH video and interactive 360° viewer assets.
+Outbound
+Data Warehouse (e.g. BigQuery, Snowflake)
+Historical analytics, attribution, ad-hoc reporting.
+Outbound
+4.4 Communication Interfaces
+All client-server traffic shall use HTTPS with TLS 1.2 or higher; HSTS shall be enabled.
+WebSocket (over TLS) shall be used for real-time chat and admin live dashboards.
+Webhooks shall be supported for partner bank decisioning and payment confirmation callbacks.
+Inbound APIs shall be rate-limited per IP, per user and per API key.
+
+5. Frontend Specifications
+5.1 Web Frontend Architecture
+The web frontend shall be implemented as a modern, server-rendered single-page application optimized for SEO, performance and accessibility.
+Framework — Next.js (React 18+) with TypeScript, using the App Router and React Server Components for SEO-critical pages (home, car details, dealer pages, blog, static content).
+Styling — Tailwind CSS with a custom design-tokens layer; CSS variables for theming and RTL support.
+State management — React Query (server state) and Zustand or Redux Toolkit (client state).
+Forms and validation — React Hook Form with Zod (or Yup) schemas.
+Internationalization — next-intl or react-intl, with locale-based routing (/en, /ar) and full RTL support via dir=&apos;rtl&apos;.
+Image handling — next/image with CDN-backed origins; responsive srcset; lazy loading; AVIF/WebP.
+Testing — Jest and React Testing Library (unit); Playwright (end-to-end).
+Bundling and CI — Vercel or self-hosted Node runtime; Lighthouse budgets enforced in CI.
+5.2 Page Inventory (Web)
+Page
+Path Pattern
+Audience
+Home
+/{locale}/
+Public
+Buy / Browse Used Cars
+/{locale}/used-cars
+Public
+Brand Listings
+/{locale}/used-cars/{brand}
+Public
+Body-Type Listings
+/{locale}/used-cars/Type/{type}/{typeId}
+Public
+Price-Range Listings
+/{locale}/used-cars/Price/from-KWD-{min}-to-KWD-{max}
+Public
+Monthly-Payment Listings
+/{locale}/used-cars/MonthlyPayment/from-KWD-{min}-to-KWD-{max}
+Public
+Compare Vehicles
+/{locale}/compare?ids={id1,id2,id3}
+Public
+Car Detail (VDP)
+/{locale}/car-details/{slug}/{id}
+Public
+Reserve Vehicle (deposit)
+/{locale}/reserve/{listingId}
+Authenticated
+Purchase Wizard (7 steps)
+/{locale}/checkout/{orderId}
+Authenticated
+Order Confirmation
+/{locale}/orders/{orderId}
+Authenticated
+Sell a Car
+/{locale}/sell-your-car
+Public
+Instant Online Valuation
+/{locale}/sell-your-car/instant-valuation
+Public
+Trade-In Flow
+/{locale}/trade-in
+Authenticated
+Value Tracker
+/{locale}/value-tracker
+Authenticated
+Self-Service Listing Wizard
+/{locale}/sell-your-car/self-service
+Authenticated
+Car Services Home
+/{locale}/car-services
+Public
+Service Details
+/{locale}/car-service-details/{slug}/{id}
+Public
+Purchase Car Service
+/{locale}/PurchaseCarService
+Authenticated
+Pre-Approved Finance
+/{locale}/preapproved-finance
+Public
+Insurance Quote
+/{locale}/insurance/quote/{listingId}
+Authenticated
+Deliveries
+/{locale}/account/deliveries
+Authenticated
+Delivery Tracking
+/{locale}/account/deliveries/{id}/track
+Authenticated
+Returns Center
+/{locale}/account/returns
+Authenticated
+Initiate Return
+/{locale}/account/returns/new?orderId={id}
+Authenticated
+Maintenance Pickup
+/{locale}/account/maintenance/new
+Authenticated
+Maintenance History
+/{locale}/account/maintenance
+Authenticated
+Document Vault
+/{locale}/account/documents
+Authenticated
+Financing Schedule
+/{locale}/account/financing
+Authenticated
+Saved Searches
+/{locale}/account/saved-searches
+Authenticated
+Favorites
+/{locale}/account/favorites
+Authenticated
+Recently Viewed
+/{locale}/account/recently-viewed
+Authenticated
+Referrals
+/{locale}/account/referrals
+Authenticated
+How it Works
+/{locale}/Howitworks
+Public
+Car Dealerships
+/{locale}/car-dealerships
+Public
+Car Showrooms
+/{locale}/car-showrooms
+Public
+Dealership Cars
+/{locale}/dealership-cars/{slug}/{id}
+Public
+Dealer Registration
+/{locale}/dealer-register
+Public
+B2B Portal Home
+/{locale}/b2b
+B2B Dealer
+B2B Registration
+/{locale}/b2b/register
+Public
+B2B Auction Calendar
+/{locale}/b2b/auctions
+B2B Dealer
+B2B Auction Lot
+/{locale}/b2b/auctions/{lotId}
+B2B Dealer
+B2B Watchlist
+/{locale}/b2b/watchlist
+B2B Dealer
+B2B My Bids
+/{locale}/b2b/bids
+B2B Dealer
+B2B Won Lots and Invoices
+/{locale}/b2b/wins
+B2B Dealer
+B2B Dealer Dashboard
+/{locale}/b2b/dashboard
+B2B Dealer
+B2B Quotation Portal
+/{locale}/b2b/quotations
+B2B Dealer
+Customer Reviews
+/{locale}/customer-reviews
+Public
+About
+/{locale}/about-us
+Public
+Blog
+/{locale}/blog
+Public
+Blog Post
+/{locale}/blog/{slug}
+Public
+FAQs
+/{locale}/faqs
+Public
+Contact Us
+/{locale}/contact-us
+Public
+Privacy Policy
+/{locale}/privacy-policy
+Public
+Terms and Conditions
+/{locale}/terms-and-conditions
+Public
+Sign In / Sign Up
+/{locale}/Signup
+Public
+My Account / Profile / Addresses
+/{locale}/account/*
+Authenticated
+5.3 Mobile Frontend Architecture
+Approach — Single React Native codebase (TypeScript) shipped to iOS, Google Play and Huawei AppGallery. Alternatively, two native codebases (Swift / Kotlin) may be chosen — to be decided in the technical design phase.
+Navigation — React Navigation v6 with native stack and bottom tabs (Home, Buy, Sell, Services, Account).
+Networking — Axios or fetch with React Query for caching and retries.
+Storage — MMKV or Async Storage for tokens, settings and offline cache.
+Push — Firebase Cloud Messaging on Android, APNs on iOS, and Huawei Push Kit on Huawei AppGallery.
+Deep links — Universal links (iOS), App Links (Android), and Huawei App Linking — to open car detail pages from external sources.
+Crash reporting — Firebase Crashlytics or Sentry.
+Build &amp; release — Fastlane for iOS/Android, with separate release tracks for AppGallery.
+5.4 Design System and UI/UX Principles
+A reusable component library (Buttons, Inputs, Cards, Badges, Filters, Modals, Toasts, Skeletons, Galleries) shall be built atop the chosen styling layer.
+Mobile-first responsive design with a 4 px base spacing scale and 8-column / 12-column grids.
+Brand palette anchored on a primary accent color (e.g. yellow/gold cue similar to the reference platform), neutral grays, and clear status colors.
+Typography: a humanist sans-serif for Latin script and a complementary Arabic typeface with proper kashida and shaping (e.g. Cairo, Tajawal, or Noto Sans Arabic).
+Iconography: a single icon set (e.g. Lucide or Phosphor) with mirroring rules for RTL.
+Empty states, loading skeletons and error states designed for every list and detail screen.
+Motion: meaningful, subtle transitions; respect &apos;prefers-reduced-motion&apos;.
+Accessibility: keyboard navigation, focus rings, ARIA roles, screen-reader labels, sufficient contrast (4.5:1 for text).
+5.5 SEO Requirements (Web)
+Server-rendered HTML for all public pages.
+Per-page meta title, description, canonical, Open Graph and Twitter Card tags.
+schema.org structured data (Vehicle, Product, Offer, BreadcrumbList, FAQPage, Article, Organization).
+XML sitemaps generated automatically for listings, dealers, brands, body types and blog content; submitted to Google and Bing webmaster tools.
+Robots.txt with sensible defaults; staging and admin domains excluded from indexing.
+Optimized Core Web Vitals — LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 on the home and detail pages at the 75th percentile.
+5.6 Performance Budgets (Web)
+Metric
+Target
+Page Scope
+LCP
+≤ 2.5 s
+Home, Listings, Car Detail
+INP
+≤ 200 ms
+All interactive pages
+CLS
+≤ 0.10
+All pages
+First-byte (TTFB)
+≤ 600 ms
+All pages
+JavaScript shipped (gzip)
+≤ 200 KB on first load
+All public pages
+Images (above-the-fold)
+AVIF/WebP, responsive, lazy below the fold
+All pages
+
+6. Backend Specifications
+6.1 Architectural Approach
+The backend shall follow a modular service-oriented architecture. Initial implementation may be a modular monolith (one deployable, clearly separated modules) to minimize early operational overhead, with the ability to extract high-traffic domains (Listings, Search, Notifications) into independent services as scale demands.
+API gateway (e.g. Kong, AWS API Gateway, or NGINX with rate-limit plugins) sits in front of all backend services.
+Each module exposes versioned REST APIs (e.g. /v1/...) and a stable contract documented with OpenAPI.
+Inter-module communication uses asynchronous messaging (e.g. Amazon SQS / RabbitMQ / Kafka) for non-blocking workflows (publish listing, send notification, generate report).
+Background workers handle long-running jobs: report generation, image processing, indexing, finance partner submissions.
+Search is powered by Elasticsearch / OpenSearch, kept up to date via outbox events.
+Caching: Redis for hot reads (popular listings, configuration, session blacklists).
+CDN: cached static assets and image variants served from edge.
+6.2 Recommended Technology Stack
+Layer
+Primary Choice
+Alternative
+Language / Runtime
+Node.js 20 LTS with TypeScript (NestJS framework)
+ASP.NET Core (C# 12), Spring Boot (Java 21), or Django (Python)
+API Style
+REST + OpenAPI 3.1; GraphQL optional for internal admin
+GraphQL Federation
+Database (OLTP)
+PostgreSQL 16 (managed)
+Amazon Aurora PostgreSQL
+Search
+OpenSearch 2.x / Elasticsearch 8.x
+Algolia (SaaS)
+Cache &amp; Queues
+Redis 7 + RabbitMQ or Amazon SQS/SNS
+Apache Kafka
+Object Storage
+Amazon S3 or Azure Blob behind a CDN
+Bunny CDN (consistent with reference platform)
+Container Orchestration
+Kubernetes (EKS/AKS/GKE)
+AWS ECS Fargate
+CI/CD
+GitHub Actions or GitLab CI + ArgoCD
+Azure DevOps Pipelines
+Observability
+OpenTelemetry → Prometheus + Grafana, Loki for logs, Tempo/Jaeger for traces
+Datadog
+Secrets Management
+AWS Secrets Manager / Azure Key Vault / HashiCorp Vault
+
+Background Jobs
+BullMQ (Node) or Hangfire (.NET)
+Temporal.io for orchestrations
+6.3 Domain Modules / Services
+Module
+Responsibilities
+Identity
+Authentication, registration, OTP, social login, sessions, RBAC, dealer KYC, B2B dealer verification, admin users.
+Catalog
+Brands, models, trims, body types, color/spec taxonomies, drivetrain options, regional specs, features and equipment.
+Listings
+Car listings CRUD, moderation workflow, badges, pricing, expiry, promotion add-ons, retail vs. auction channel routing.
+Pricing &amp; Aging
+Automatic aging-discount rules, price-change history, admin overrides, price-drop event broadcasting.
+Search &amp; Recommendations
+Indexing, query, filter, sort, similar-cars, personalized rails, recently viewed, compare.
+Inspection
+Inspection templates, scheduling, mobile capture, PDF report generation, third-party partner integration, history.
+Reservation
+Deposit collection, hold timer, transition to checkout, expiry/refund.
+Checkout &amp; Orders
+7-step purchase wizard state machine, order lifecycle, contracts, payment orchestration.
+E-Signature
+Contract template rendering, signing orchestration with the e-signature provider, signed-PDF retention.
+Sell Requests
+Concierge pipeline, self-service workflow, instant-valuation flow, status transitions, advisor assignment.
+Trade-In &amp; Valuation
+Indicative valuation engine, photo-refined offers, final guaranteed offer, Value Tracker subscriptions.
+Financing
+Loan calculator, pre-qualification, multi-bank fan-out, applications, document vault, status, payment schedule.
+Insurance
+Quote, bind, policy issuance, document storage, renewal reminders.
+Delivery
+Slot inventory, scheduling, driver assignment, live GPS broadcast, digital handover.
+Returns
+Return-window tracking, initiation, pickup, condition inspection, refund orchestration.
+Maintenance
+Pickup requests, workshop dispatch, cost estimates, customer approvals, real-time status.
+Auction
+B2B auction lots, timed windows, live bidding, proxy bids, Buy Now, Make-an-Offer, anti-snipe, invoicing, pickup, arbitration.
+Services Marketplace
+Service categories, vendors, slots, bookings, payments, payouts.
+Payments &amp; Ledger
+KNET, Visa/Mastercard, bank transfer, deposits, refunds, payouts, double-entry ledger.
+Notifications
+Push, email, SMS, WhatsApp Business, in-app — templates, preferences, throttling, behavioural triggers.
+Messaging / Leads / CS
+Chats, masked-number calls, lead CRM, WhatsApp deep links, in-app WhatsApp CS chat.
+Reviews and Referrals
+Star ratings, comments, referral codes and rewards tracking.
+CMS
+Static pages, blog, FAQs, banners, home-page rails, multi-language.
+Analytics &amp; Reporting
+KPIs, dashboards, conversion funnel, GPU, inventory aging, attribution, exports.
+Audit &amp; Compliance
+Immutable audit logs of admin and security-critical events.
+6.4 Data Model (Logical) – Key Entities
+The logical data model defines the principal entities and their relationships. Detailed physical schema (column types, indexes, constraints) shall be produced in the technical design phase.
+Entity
+Key Attributes
+Relations
+User
+id, role, name, email, mobile, locale, status, created_at, last_login_at
+→ Listings, Favorites, Offers, Reviews, LoanApplications, ServiceBookings, Reservations, Orders, ReturnRequests, MaintenanceRequests
+Address
+id, user_id, label, line1, line2, governorate, area, block, street, building, lat, lng, default
+→ User, DeliveryAssignment, MaintenanceRequest, ReturnRequest
+Dealer
+id, business_name, license_number, address, brands[], rating, subscription_plan, channel (retail/b2b), verified_at
+→ Users (sub-users), Listings, B2BDealerProfile
+B2BDealerProfile
+id, dealer_id, trade_license_url, deposit_balance, status (pending/active/suspended), verified_by, verified_at
+→ Dealer, Bid, AuctionWin
+Brand / Model / Trim
+id, name_en, name_ar, parent_id (for hierarchy), specs
+→ Listing
+BodyType
+id, name_en, name_ar
+→ Listing
+Listing
+id, type (platform/dealer/private), channel (retail/auction), seller_id, brand, model, trim, year, mileage_km, price_kwd, transmission, fuel, color, vin_masked, status (draft/pending/active/reserved/sold/expired), badges[], regional_specs, listed_at, sold_at
+→ ListingPhoto, ListingVideo, InspectionReport, Offers, Favorites, Reservation, AuctionLot
+ListingPhoto
+id, listing_id, url, order, kind (gallery/360/interior/hotspot), hotspot_data?
+→ Listing
+ListingVideo
+id, listing_id, url (HLS), duration_sec, captions_url
+→ Listing
+PriceHistory
+id, listing_id, price_kwd, changed_by, changed_at, reason (manual/aging/promotion)
+→ Listing
+SellRequest
+id, seller_id, listing_id, channel (concierge/self/instant), status_pipeline, advisor_id, sla_deadline_at
+→ Listing, User
+InspectionTemplate
+id, version, points[], partner_id?
+→ InspectionReport
+InspectionReport
+id, listing_id, template_version, score, statuses_by_point[], photos[], video_url, hotspots[], pdf_url, completed_at, source (in-house/al-daman/other)
+→ Listing
+TradeInOffer
+id, user_id, vehicle_data, indicative_low, indicative_high, photos[], inspection_id?, final_offer_kwd, valid_until, status (indicative/inspected/offered/accepted/declined/expired)
+→ User, InspectionReport, Order
+ValueTracker
+id, user_id, vehicle_data, frequency_months, last_sent_at, current_value_kwd, opt_in_at
+→ User
+Reservation
+id, listing_id, buyer_id, deposit_payment_id, started_at, expires_at, status (active/converted/expired/cancelled/refunded)
+→ Listing, User, Payment, Order
+Order
+id, buyer_id, listing_id, reservation_id, total_kwd, breakdown (vehicle, trade_in, addons, fees, insurance, financing), payment_method, status (wizard_in_progress/contract_pending/signed/paid/scheduled/delivered/closed/returned), created_at
+→ User, Listing, Payment, ContractDocument, DeliveryAssignment, InsurancePolicy, LoanApplication
+AddOn
+id, name_en, name_ar, category (warranty/protection/tint/ceramic/gap/other), price_kwd, eligibility_rules
+→ Order
+ContractDocument
+id, order_id, type (sale/finance/insurance/return), template_id, signed_pdf_url, signing_status, audit_trail_url, signed_at
+→ Order
+LoanApplication
+id, buyer_id, listing_id (optional), order_id (optional), amount, tenure_months, status, bank_partner_ids[], documents[], schedule[]
+→ User, Listing, Document, FinancePartner, Order
+Document
+id, owner_id, type, file_url, encrypted, expires_at
+→ User / LoanApplication / Dealer / Order
+FinancePartner
+id, name, api_config, fee_schedule, active
+→ LoanApplication
+InsurancePartner
+id, name, api_config, rate_card, active
+→ InsurancePolicy
+InsurancePolicy
+id, order_id, buyer_id, partner_id, coverage_type (third_party/comprehensive), premium_kwd, effective_from, expires_at, policy_number, pdf_url, status
+→ Order, User, InsurancePartner
+DeliveryAssignment
+id, order_id, address_id, slot_start, slot_end, driver_id, status (scheduled/confirmed/out_for_delivery/delivered/failed), gps_track[], handover_checklist, pod_signature_url, pod_photos[]
+→ Order, Driver, Address
+Driver
+id, name, mobile, vehicle, status (available/on_route/off_duty), current_lat, current_lng
+→ DeliveryAssignment
+ReturnRequest
+id, order_id, buyer_id, reason, mileage_km_at_return, days_since_delivery, photos[], status (initiated/picked_up/inspected/approved/declined/refunded/closed), refund_id?
+→ Order, Refund
+Refund
+id, order_id, original_payment_id, amount_kwd, deductions[], status, processed_at
+→ Order, Payment
+MaintenanceRequest
+id, user_id, vehicle_id, service_type (routine/repair/body/ac/tires/other), description, photos[], videos[], pickup_address_id, pickup_slot, status (requested/confirmed/picked_up/in_workshop/estimate_issued/awaiting_approval/in_progress/ready/delivered_back), assigned_workshop_id, work_order_id
+→ User, WorkOrder
+WorkOrder
+id, maintenance_request_id, workshop_id, line_items[] (part/labor, qty, unit_kwd), total_kwd, estimate_status (issued/approved/declined), customer_approved_at, invoice_id?
+→ MaintenanceRequest, Workshop, Invoice
+Workshop
+id, name, services[], rating, location
+→ WorkOrder
+Invoice
+id, source (order/workorder/auction), amount_kwd, tax_kwd, currency, pdf_url, status, due_at
+→ Order / WorkOrder / AuctionWin
+AuctionLot
+id, listing_id, start_at, end_at, reserve_price_kwd, buy_now_kwd?, current_bid_kwd, current_bidder_id?, status (scheduled/live/closed/sold/unsold), anti_snipe_seconds
+→ Listing, Bid, AuctionWin
+Bid
+id, lot_id, bidder_id, amount_kwd, type (manual/proxy/buy_now/make_offer), max_proxy_kwd?, placed_at, ip, accepted (bool)
+→ AuctionLot, B2BDealerProfile
+AuctionWin
+id, lot_id, winner_id, amount_kwd, invoice_id, pickup_slot, status (invoiced/paid/picked_up/disputed/closed)
+→ AuctionLot, B2BDealerProfile, Invoice
+AuctionDispute
+id, win_id, raised_at, reason, photos[], resolution (refund/partial_credit/rejected/accepted), resolved_at
+→ AuctionWin
+QuotationRequest
+id, dealer_id, specs (make/model/year/budget), status, offers[]
+→ B2BDealerProfile
+Service
+id, category, name_en, name_ar, description, base_price_kwd, vendor_ids[]
+→ ServiceBooking
+Vendor
+id, name, services[], rating, location, slots_config
+→ ServiceBooking
+ServiceBooking
+id, user_id, service_id, vendor_id, car_id, scheduled_at, status, price_kwd, payment_id
+→ Payment, Review
+Payment
+id, user_id, amount_kwd, channel (KNET/Visa/MC/bank_transfer/cash), purpose (deposit/balance/service/workorder/auction), status, gateway_ref, created_at
+→ Order / ServiceBooking / WorkOrder / AuctionWin
+Lead
+id, listing_id, buyer_id, channel (chat/call/whatsapp/form), disposition, owner_id
+→ Listing, User
+Message
+id, thread_id, sender_id, body, attachments[], read_at
+→ Lead
+Review
+id, source (buy/sell/service/delivery/workorder/auction), user_id, target_id, stars, comment, created_at, status
+→ User, Listing, Vendor, Order
+Referral
+id, referrer_id, referee_id, code, status (invited/registered/converted), reward_kwd, created_at
+→ User
+Notification
+id, user_id, channel, template_id, payload, status, sent_at
+→ User
+AuditLog
+id, actor_id, action, target_type, target_id, payload_hash, ip, ua, created_at
+(immutable)
+6.5 REST API Catalog (Representative)
+APIs shall be versioned under /v1 and documented with OpenAPI 3.1. JSON over HTTPS. All write endpoints require an authenticated bearer token and CSRF protection where applicable. Listing of representative endpoints follows; the complete contract is delivered as a separate OpenAPI file.
+Method &amp; Path
+Description
+POST /v1/auth/register
+Register a new user with mobile or email + OTP.
+POST /v1/auth/login
+Authenticate user and return access + refresh tokens.
+POST /v1/auth/otp/request
+Request a one-time password.
+POST /v1/auth/otp/verify
+Verify a one-time password and complete an auth step.
+POST /v1/auth/refresh
+Exchange a refresh token for a new access token.
+GET /v1/me
+Return the authenticated user’s profile.
+GET /v1/me/addresses
+List the authenticated user’s saved addresses.
+POST /v1/me/addresses
+Add a saved address.
+GET /v1/me/recently-viewed
+Return the user’s recently viewed listings.
+GET /v1/listings
+Search and filter car listings. Query parameters include the full filter set in FR-BUY-011 plus a monthly_payment_min/max filter.
+GET /v1/listings/{id}
+Get a car listing detail with photos, video, specs, badges, dealer, inspection summary, and insurance estimate.
+GET /v1/listings/compare
+Side-by-side comparison of up to 3 listings: /v1/listings/compare?ids=1,2,3.
+POST /v1/listings
+Create a self-service listing (authenticated).
+PATCH /v1/listings/{id}
+Edit one of the caller’s listings.
+DELETE /v1/listings/{id}
+Soft-delete a listing.
+POST /v1/listings/{id}/favorite
+Toggle favorite (authenticated).
+POST /v1/listings/{id}/offers
+Make an offer on a listing.
+POST /v1/reservations
+Reserve a listing with a KWD 100 deposit; returns reservation id, hold timer, payment intent.
+GET /v1/reservations/{id}
+Get a reservation with its hold status and remaining time.
+DELETE /v1/reservations/{id}
+Cancel a reservation and trigger deposit refund.
+POST /v1/orders
+Create an order from a reservation and begin the 7-step purchase wizard.
+GET /v1/orders/{id}
+Get an order, its wizard step, breakdown and timeline.
+PATCH /v1/orders/{id}/wizard-step
+Advance the wizard step (payment method, trade-in, add-ons, documents, contract, delivery).
+POST /v1/orders/{id}/contracts/sign
+Initiate e-signature on the order’s contracts.
+POST /v1/orders/{id}/pay
+Initiate final payment for the order.
+POST /v1/orders/{id}/cancel
+Cancel an order subject to policy.
+GET /v1/sell-requests/instant-valuation
+Return an indicative valuation for a vehicle from form inputs.
+POST /v1/sell-requests/concierge
+Create a concierge sell request (initial submission).
+POST /v1/trade-in/offers
+Create a trade-in / sell-only offer request.
+GET /v1/trade-in/offers/{id}
+Retrieve a trade-in offer including its final guaranteed price and validity.
+POST /v1/value-tracker/subscribe
+Subscribe to monthly Value Tracker emails.
+GET /v1/inspections/{id}
+Get inspection details and report.
+POST /v1/finance/calc
+Compute monthly installment given price, down payment and tenure.
+POST /v1/finance/pre-qualify
+Run a soft pre-qualification check and return indicative offers.
+POST /v1/finance/applications
+Submit a loan application with documents.
+GET /v1/finance/applications/{id}
+Status, multiple bank offers and timeline of a loan application.
+GET /v1/finance/schedule/{loanId}
+Return the loan payment schedule (date, amount, principal, interest, balance, paid?).
+GET /v1/insurance/quote
+Return indicative insurance quotes for a vehicle and customer.
+POST /v1/insurance/activate
+Activate an insurance policy at purchase.
+GET /v1/insurance/policies/{id}
+Get a policy and its PDF.
+GET /v1/deliveries
+List the user’s deliveries.
+GET /v1/deliveries/{id}
+Get a delivery and (when in transit) the driver GPS feed.
+GET /v1/deliveries/{id}/track
+Open a WebSocket / SSE for live driver GPS updates.
+POST /v1/deliveries/{id}/handover
+Complete the digital handover (driver app).
+GET /v1/returns
+List the user’s return requests.
+POST /v1/returns
+Initiate a return on an eligible order.
+GET /v1/returns/{id}
+Get a return request and its refund timeline.
+POST /v1/maintenance/requests
+Create a maintenance pickup request.
+GET /v1/maintenance/requests/{id}
+Get a maintenance request status and history.
+POST /v1/maintenance/requests/{id}/approve-estimate
+Approve or decline a cost estimate.
+GET /v1/services
+List service categories.
+GET /v1/services/{id}/vendors
+List vendors and slots for a service.
+POST /v1/service-bookings
+Create a service booking.
+POST /v1/payments/intent
+Create a payment intent (KNET, Visa, Mastercard, bank transfer instructions).
+POST /v1/payments/webhook
+Gateway → System payment notification (server-to-server).
+GET /v1/dealers
+List dealerships (retail channel).
+GET /v1/dealers/{id}
+Get a dealer profile.
+POST /v1/dealers/register
+Submit a dealer registration.
+POST /v1/b2b/register
+Submit a B2B dealer registration (with trade-license upload).
+GET /v1/b2b/auctions
+List upcoming and live auction lots (B2B authenticated).
+GET /v1/b2b/auctions/{lotId}
+Get a single auction lot with condition report and current bid.
+POST /v1/b2b/auctions/{lotId}/bids
+Place a bid (manual or proxy max).
+POST /v1/b2b/auctions/{lotId}/buy-now
+Win the lot at the Buy-Now price.
+POST /v1/b2b/auctions/{lotId}/offer
+Submit a Make-an-Offer outside the auction.
+POST /v1/b2b/watchlist/{lotId}
+Add a lot to watchlist.
+GET /v1/b2b/wins
+List the dealer’s won lots, invoices and pickup status.
+POST /v1/b2b/disputes
+Raise an arbitration / dispute on a won lot.
+GET /v1/b2b/quotations
+List quotation requests.
+POST /v1/b2b/quotations
+Create a quotation request.
+GET /v1/reviews
+List reviews with filtering and pagination.
+POST /v1/reviews
+Create a review after a completed transaction.
+POST /v1/referrals
+Generate or apply a referral code.
+GET /v1/cms/pages/{slug}
+Get a static or blog page by slug and locale.
+GET /v1/notifications
+List the authenticated user’s notifications.
+POST /v1/notifications/preferences
+Update notification preferences.
+POST /v1/admin/listings/{id}/moderate
+Approve, reject or request changes on a listing (admin).
+POST /v1/admin/pricing/aging-rules
+Configure aging-discount rules.
+GET /v1/admin/pipeline
+Return the vehicle pipeline tracker board.
+GET /v1/admin/sell-requests
+Pipeline view of sell requests with filters (admin).
+GET /v1/admin/finance/applications
+Loan pipeline for finance officers.
+GET /v1/admin/deliveries
+Delivery queue with assignment controls.
+GET /v1/admin/returns
+Return processing queue.
+GET /v1/admin/maintenance
+Maintenance pickup queue and workshop dispatch.
+GET /v1/admin/auctions
+Auction operations console.
+GET /v1/admin/b2b/dealers
+B2B dealer roster with approval actions.
+GET /v1/admin/analytics/kpis
+Real-time KPIs for the admin dashboard.
+GET /v1/admin/analytics/funnel
+Conversion funnel report.
+GET /v1/admin/analytics/inventory-aging
+Inventory aging report.
+GET /v1/admin/analytics/attribution
+Marketing attribution report.
+6.6 Authentication, Authorization and Sessions
+Access tokens shall be short-lived JSON Web Tokens (15 minutes) signed with RS256 or ES256.
+Refresh tokens shall be opaque, rotated on use, stored hashed in the database with revocation support.
+Authorization shall use role-based access control with per-resource scopes (e.g. dealer:listing:edit).
+Sensitive admin endpoints shall require a TOTP-based second factor.
+All authentication events shall be sent to a SIEM and reflected in the audit log.
+6.7 File Storage and Media Pipeline
+Uploads shall stream directly to object storage via pre-signed URLs.
+Images shall be processed asynchronously: orientation, watermark, EXIF strip, AVIF/WebP variants at multiple widths (160, 320, 640, 1024, 1600).
+Documents shall be encrypted at rest and accessible only via short-lived signed URLs.
+Public images shall be served via CDN with appropriate cache headers and immutable filenames.
+6.8 Background Jobs and Workflows
+Image processing (per upload).
+Search indexing (on listing create/update/delete).
+Email/SMS/push delivery (with retries and backoff).
+PDF inspection report generation.
+Saved-search alert fan-out.
+Listing-expiry sweeper (daily).
+Bank-partner submission and status polling.
+Daily KPI rollups and data-warehouse ETL.
+6.9 Logging, Monitoring and Observability
+Structured JSON logging from every service; correlation IDs propagated end-to-end.
+Metrics: RED (Rate, Errors, Duration) per service; saturation metrics for queues and database.
+Distributed tracing for at least the hot paths (browse, detail, offer, booking, payment).
+SLO dashboards: 99.9% monthly availability target for the public web and APIs.
+Alerting: PagerDuty / Opsgenie integration with severity-based escalation.
+6.10 Backups and Disaster Recovery
+Database backups: continuous WAL archiving plus daily snapshots, retained 35 days; quarterly restore drills.
+Object storage versioning enabled; lifecycle rules for cost optimization.
+RPO (Recovery Point Objective) ≤ 5 minutes; RTO (Recovery Time Objective) ≤ 1 hour for core services.
+Disaster-recovery runbook reviewed semi-annually.
+
+7. Non-Functional Requirements
+7.1 Performance
+ID
+Requirement
+Target
+NFR-PRF-001
+Public API p95 response time for cached GET endpoints.
+≤ 200 ms
+NFR-PRF-002
+Public API p95 response time for search and listings.
+≤ 800 ms
+NFR-PRF-003
+Concurrent active users supported without degradation.
+≥ 10,000
+NFR-PRF-004
+Listings index update latency (publish to searchable).
+≤ 30 s
+NFR-PRF-005
+Page Time-to-Interactive on 4G mobile (mid-range device).
+≤ 3.5 s
+NFR-PRF-006
+Push notification delivery latency (median).
+≤ 5 s
+NFR-PRF-007
+Image upload throughput per user.
+≥ 5 MB/s typical
+NFR-PRF-008
+Live count of matching vehicles update latency as filters change.
+≤ 300 ms
+NFR-PRF-009
+Auction bid acceptance and broadcast latency to all connected bidders.
+≤ 1 s end-to-end
+NFR-PRF-010
+Concurrent bidders supported per active auction lot without degradation.
+≥ 500
+NFR-PRF-011
+Delivery driver GPS broadcast frequency to customer.
+Every 10 s (configurable)
+NFR-PRF-012
+Deposit auto-refund processing upon reservation expiry.
+≤ 5 min from expiry event
+NFR-PRF-013
+Instant Online Valuation indicative-range response time.
+≤ 5 s
+7.2 Security
+ID
+Requirement
+NFR-SEC-001
+The System shall comply with OWASP ASVS Level 2.
+NFR-SEC-002
+All client-server communication shall use TLS 1.2 or higher; HSTS enabled with a 1-year max-age.
+NFR-SEC-003
+Passwords shall be hashed using a memory-hard function (Argon2id or bcrypt with cost ≥ 12).
+NFR-SEC-004
+All PII at rest shall be encrypted with envelope encryption using a managed KMS.
+NFR-SEC-005
+Payment data shall not be stored on the System; tokenization shall be used via PCI-DSS compliant gateways.
+NFR-SEC-006
+The System shall implement rate limiting, brute-force protection, IP blocklists and bot detection on authentication endpoints.
+NFR-SEC-007
+Input shall be validated server-side; output encoding shall mitigate XSS; parameterized queries shall mitigate SQL injection.
+NFR-SEC-008
+CSRF protection shall be enforced for cookie-based sessions; SameSite=Lax or Strict cookies shall be used.
+NFR-SEC-009
+All admin actions shall produce immutable audit log entries.
+NFR-SEC-010
+Vulnerability scans (SAST, SCA, DAST) shall run in CI; container images shall be scanned before deployment.
+NFR-SEC-011
+Annual third-party penetration testing shall be conducted; critical findings remediated within 30 days.
+NFR-SEC-012
+The System shall implement Content Security Policy headers and the recommended OWASP secure headers set.
+NFR-SEC-013
+Secrets shall never be committed; they shall be stored in a managed secrets manager and rotated periodically.
+7.3 Reliability and Availability
+Monthly uptime SLO of 99.9% for the public web, APIs and mobile back-end.
+Monthly uptime SLO of 99.5% for the admin portal.
+Active-active multi-AZ database deployment with automated failover.
+Stateless application services deployed in at least two availability zones.
+Health checks and graceful shutdown to support zero-downtime deploys.
+7.4 Scalability
+Horizontal scaling of stateless services through Kubernetes HPA or equivalent.
+Search index sized to accommodate 1 million active listings and 100 RPS sustained search load.
+Background workers shall scale independently per queue depth.
+CDN shall absorb at least 80% of static asset and image traffic.
+7.5 Usability
+Adherence to WCAG 2.1 Level AA accessibility guidelines.
+Onboarding (registration and first interaction) shall be achievable in five steps or fewer.
+Each user-visible error message shall be actionable and translated into Arabic and English.
+Usability testing with at least eight participants per major release.
+7.6 Maintainability and Quality
+All code shall pass linting, type checks, unit tests and integration tests in CI before merge.
+Minimum 80% line coverage on backend services; minimum 70% on frontend components.
+Documentation (OpenAPI for APIs, README and ADRs for services) shall be kept current.
+Feature flags shall be used for risky or staged rollouts.
+Trunk-based development with short-lived feature branches and code review by at least one peer.
+7.7 Compliance and Regulatory
+Compliance with CITRA Regulation No. 26 of 2024 (Kuwait Data Privacy Protection).
+Compliance with Central Bank of Kuwait disclosure requirements for consumer credit.
+Compliance with PCI-DSS through certified payment gateways.
+Cookie consent banner aligned with applicable privacy law.
+Right of access, rectification, deletion and portability for data subjects.
+7.8 Internationalization and Localization
+All copy, error messages and templates externalized to translation files.
+Right-to-left UI parity for every screen in Arabic.
+Locale-aware number, date and currency formatting.
+
+8. Use Cases
+This section captures representative use cases. Each use case lists the actor, preconditions, main flow, alternative flows and postconditions. Detailed sequence diagrams will be produced in the technical design phase.
+UC-01 — Buyer Searches and Views a Car
+Field
+Detail
+Actor
+Guest or Registered Buyer
+Preconditions
+User has access to the web or mobile app.
+Main Flow
+1) User opens Home. 2) User applies brand and price filters. 3) System returns matching listings. 4) User opens a car. 5) System displays detail page with photos, specs, inspection summary, financing widget.
+Alternative Flows
+3a) No results — System suggests broader filters. 4a) Car has sold — System shows similar cars.
+Postconditions
+Listing impression recorded for analytics.
+UC-02 — Buyer Makes an Offer
+Field
+Detail
+Actor
+Registered Buyer
+Preconditions
+User is authenticated; the listing is active.
+Main Flow
+1) User taps &apos;Make an Offer&apos;. 2) System shows the offer form (amount in KWD, optional message). 3) User submits. 4) System validates and records the offer. 5) Seller / advisor is notified.
+Alternative Flows
+3a) Amount below floor — System warns. 3b) User unverified — System routes to OTP step.
+Postconditions
+Offer recorded; lead created.
+UC-03 — Seller Submits a Concierge Sell Request
+Field
+Detail
+Actor
+Registered Seller
+Preconditions
+User is authenticated.
+Main Flow
+1) User opens &apos;Sell a car&apos;. 2) User selects &apos;Concierge&apos;. 3) User provides make, model, year, contact. 4) System creates a SellRequest and assigns an advisor. 5) Advisor schedules an inspection.
+Alternative Flows
+3a) Validation error — user corrects and resubmits.
+Postconditions
+SellRequest visible in the user&apos;s dashboard; advisor task created.
+UC-04 — Seller Creates a Self-Service Listing
+Field
+Detail
+Actor
+Registered Seller
+Preconditions
+User is authenticated.
+Main Flow
+1) User opens self-service wizard. 2) User enters specs and uploads ≥ 8 photos. 3) User reviews preview. 4) User submits for moderation. 5) Admin approves or requests changes. 6) Listing goes live.
+Alternative Flows
+5a) Admin rejects with reasons — user edits and resubmits.
+Postconditions
+Listing live and discoverable; seller receives leads.
+UC-05 — Inspector Performs a 71-Point Inspection
+Field
+Detail
+Actor
+Inspection Officer
+Preconditions
+Inspection booked.
+Main Flow
+1) Inspector arrives at site or hosts the seller at a certified garage. 2) Inspector captures status, severity, notes and photos for each of the 71 points using the inspector app. 3) Inspector uploads 25+ HD photos and a 360° spin. 4) Inspector submits. 5) System generates the PDF report.
+Alternative Flows
+1a) On-site only — System flags chassis re-inspection for the day of sale.
+Postconditions
+Inspection report attached to the listing and visible to the seller.
+UC-06 — Buyer Applies for a Car Loan
+Field
+Detail
+Actor
+Registered Buyer
+Preconditions
+User authenticated; a car may or may not be selected.
+Main Flow
+1) User opens &apos;Apply for Loan&apos;. 2) System collects personal, employment and contact details. 3) User uploads Civil ID, salary certificate, last 3 bank statements (passport if expat). 4) Finance Officer submits to one or more partner banks. 5) System tracks decisioning and informs the user.
+Alternative Flows
+3a) Documents missing — System prompts for upload. 5a) Rejected — Officer offers alternate banks or revised amount.
+Postconditions
+Application timeline visible in the user&apos;s dashboard; if approved, viewing/test-drive scheduling unlocked.
+UC-07 — User Books a Car Service
+Field
+Detail
+Actor
+Registered User
+Preconditions
+User authenticated.
+Main Flow
+1) User opens Services. 2) User selects a category. 3) User picks a vendor and time slot. 4) User pays via KNET / card. 5) Vendor confirms. 6) Service is performed and marked complete. 7) User leaves a review.
+Alternative Flows
+5a) Vendor cannot fulfill — System refunds and suggests alternatives.
+Postconditions
+Booking history updated; vendor commission and payout calculated.
+UC-08 — Dealer Onboards and Lists Inventory
+Field
+Detail
+Actor
+Dealer Owner
+Preconditions
+Dealer has commercial license.
+Main Flow
+1) Dealer registers with business details and documents. 2) Admin verifies and approves. 3) Dealer logs into the portal. 4) Dealer creates listings manually or via bulk CSV import. 5) Listings go live after moderation.
+Alternative Flows
+2a) Admin requests further documents. 4a) Bulk import has errors — System returns row-level error report.
+Postconditions
+Dealer page live; lead inbox active.
+UC-09 — Admin Reviews a Listing
+Field
+Detail
+Actor
+Sales Agent / Moderator
+Preconditions
+Listing in pending state.
+Main Flow
+1) Moderator opens queue. 2) Moderator opens the listing. 3) Moderator reviews photos, specs and pricing. 4) Moderator approves, rejects with reason, or requests changes. 5) Seller is notified.
+Alternative Flows
+—
+Postconditions
+Listing state updated; audit log entry created.
+UC-10 — User Switches Language
+Field
+Detail
+Actor
+Any user
+Preconditions
+User on web or mobile.
+Main Flow
+1) User opens language switcher. 2) User selects Arabic or English. 3) System applies the new locale and direction (RTL/LTR). 4) Preference is persisted.
+Alternative Flows
+—
+Postconditions
+Subsequent sessions open in the user&apos;s chosen locale.
+UC-11 — Buyer Reserves a Vehicle and Completes the 7-Step Purchase Wizard
+Field
+Detail
+Actor
+Registered Buyer
+Preconditions
+User is authenticated and verified; the listing is operator-owned and in &apos;Active&apos; status.
+Main Flow
+1) User taps &apos;Reserve Now&apos; on the VDP. 2) System initiates a KWD 100 KNET payment. 3) On success, System places a 48-hour hold and starts the visible hold timer. 4) User enters the purchase wizard. 5) Step 1 — User chooses payment method (cash / financing / hybrid). 6) Step 2 — User applies a trade-in offer (optional). 7) Step 3 — User selects add-ons (warranty, paint protection, tinting, ceramic, GAP). 8) Step 4 — User uploads Civil ID, license, and salary documents (if financing). 9) Step 5 — User reviews and e-signs the sale, finance and insurance contracts. 10) Step 6 — User selects a delivery slot and address. 11) Step 7 — System shows the order confirmation, charges breakdown and timeline.
+Alternative Flows
+3a) Payment fails — reservation not created; user is prompted to retry or use a different card. 3b) Hold expires without progress — deposit is auto-refunded and the vehicle returns to open inventory. 9a) E-signature provider returns error — System pauses the wizard; user is notified and resumes when ready. 10a) No available delivery slot in the user&apos;s chosen window — System offers the next available slots.
+Postconditions
+Order created in &apos;Paid&apos; or &apos;Scheduled&apos; status; vehicle marked &apos;Purchase Pending&apos;; downstream services (delivery scheduling, insurance binding, ownership-transfer initiation) are triggered.
+UC-12 — Customer Activates Motor Insurance During Checkout
+Field
+Detail
+Actor
+Registered Buyer
+Preconditions
+User has an order in &apos;Wizard In Progress&apos; status; the partner insurer API is available.
+Main Flow
+1) During wizard Step 1 or Step 3, System displays indicative insurance quotes (Third-Party and Comprehensive). 2) User selects a coverage option. 3) System adds the premium to the order total. 4) User signs the policy alongside the sale contract in Step 5. 5) On final payment, System calls the insurer API to bind the policy. 6) Policy is stored in the customer document vault with effective-date = delivery date.
+Alternative Flows
+2a) User skips insurance — wizard proceeds without it. 5a) Insurer API fails — Maintenance Coordinator (Admin) is alerted; System retries; if persistent, the customer is offered to bind on delivery day. 6a) Renewal reminders are scheduled 30 and 7 days before expiry.
+Postconditions
+Policy active from delivery; PDF certificate visible in the customer dashboard; renewal reminders queued.
+UC-13 — Customer Receives Home Delivery with Live GPS Tracking
+Field
+Detail
+Actor
+Registered Buyer, Delivery Driver, Delivery Dispatcher
+Preconditions
+Order is in &apos;Scheduled&apos; status with a chosen slot and address.
+Main Flow
+1) Dispatcher assigns the order to a driver. 2) On the slot day, driver marks &apos;Out for Delivery&apos;. 3) System opens a live driver GPS feed to the customer through a tracking page. 4) On arrival, driver runs the Digital Handover Checklist (condition, documents, keys, fuel, customer ID). 5) Driver captures customer signature and time-stamped photos as proof-of-delivery. 6) System marks the order &apos;Delivered&apos; and triggers: insurance activation, ownership-transfer initiation, financing funding (if applicable), and the start of the 3-day / 300-km return window.
+Alternative Flows
+2a) Driver cannot start — Dispatcher reassigns and notifies customer. 4a) Customer not present or ID mismatch — Driver records failed delivery with reason code; reschedule offered. 5a) Customer disputes condition — Driver records the dispute; case escalates to Customer Service.
+Postconditions
+Order is &apos;Delivered&apos;; return window has started; KPI counters updated; customer is invited to rate the delivery.
+UC-14 — Customer Initiates a 3-Day / 300 km Return from the Dashboard
+Field
+Detail
+Actor
+Registered Buyer
+Preconditions
+Order is &apos;Delivered&apos; and within the return window (&lt; 3 days since delivery AND &lt; 300 km driven since delivery).
+Main Flow
+1) User opens the order in the dashboard and taps &apos;Initiate Return&apos;. 2) User selects a reason, optionally uploads photos/videos, and chooses a pickup slot. 3) System schedules the return pickup and dispatches a driver. 4) On collection, driver completes the return handover checklist (condition, mileage, accessories). 5) System inspects within thresholds: if within policy, refund is approved and processed to the original payment instrument; if over thresholds (excess mileage, damage), System presents deductions for customer acknowledgment before processing. 6) Dashboard shows status: Initiated → Picked Up → Inspected → Refund Approved → Refund Sent → Closed.
+Alternative Flows
+1a) Window already closed — UI disables the action and explains the policy. 2a) User chooses drop-off instead of pickup — System provides facility address and operating hours. 5a) Customer declines deductions — case escalates to Customer Service for negotiation.
+Postconditions
+Order marked &apos;Returned&apos;; refund recorded in the ledger; vehicle returns to inventory after reconditioning.
+UC-15 — Customer Requests a Maintenance Pickup and Approves the Cost Estimate
+Field
+Detail
+Actor
+Registered Buyer, Maintenance Coordinator, Workshop Technician
+Preconditions
+Customer has a vehicle on file (purchased through the platform or registered for aftercare).
+Main Flow
+1) User opens &apos;Maintenance&apos; and taps &apos;Request Pickup&apos;. 2) User selects service type (Routine / Repair / Body / AC / Tires / Other), date, time, address, and describes the issue with optional photos/videos. 3) Coordinator confirms the request and dispatches the driver. 4) Driver collects the vehicle; status moves to &apos;Picked Up&apos; → &apos;In Workshop&apos;. 5) Technician inspects and issues an itemized Cost Estimate. 6) System notifies the customer via push, SMS, email and WhatsApp. 7) Customer approves or declines individual line items in the dashboard. 8) On approval, Technician performs the work and marks &apos;Ready&apos;. 9) Vehicle is returned to the customer with a &apos;Delivered Back&apos; status. 10) System requests a service rating.
+Alternative Flows
+5a) No issue found — Estimate may include only diagnostic fee; customer can decline further work. 7a) Customer declines all — Vehicle is returned without work; only the inspection/pickup fee applies. 8a) Additional issues discovered mid-repair — Technician issues a supplementary estimate and pauses awaiting approval.
+Postconditions
+Maintenance request closed; invoice paid; service history log updated with parts, labor and photos.
+UC-16 — B2B Dealer Registers, Places a Proxy Bid, and Wins an Auction Lot
+Field
+Detail
+Actor
+B2B Auction Bidder, Auction Operator
+Preconditions
+Dealer has a verified business and a valid trade license.
+Main Flow
+1) Dealer opens the B2B portal and submits registration with trade license. 2) Auction Operator verifies and approves the dealer. 3) Dealer logs into the B2B portal and browses the Auction Calendar. 4) Dealer opens a lot, reviews the 40+ photo condition report and inspection findings, and adds it to the watchlist. 5) Lot goes live; Dealer places a proxy bid with a maximum amount. 6) System bids on Dealer&apos;s behalf in increments as competing bids arrive, respecting anti-snipe extensions in the final 2 minutes. 7) Auction closes; Dealer is the highest bidder above the reserve. 8) System notifies Dealer (SMS, email, in-portal) and generates a winning invoice. 9) Dealer pays the invoice and schedules a pickup slot. 10) Dealer collects the vehicle at the operator&apos;s facility.
+Alternative Flows
+5a) Bid below reserve at close — Lot marked &apos;Unsold&apos;; the operator may relist. 7a) Tied maximum — earliest proxy timestamp wins. 9a) Dealer fails to pay within the policy window — Operator may forfeit the lot and apply penalty. 10a) Dealer disputes a defect not disclosed in the condition report — Arbitration process is initiated; outcomes (refund, partial credit, accepted, rejected) are recorded.
+Postconditions
+Auction lot marked &apos;Sold&apos;; invoice settled; vehicle handed over; dealer&apos;s bid log and dashboard updated.
+UC-17 — Customer Obtains an Instant Online Valuation and Trades in their Car
+Field
+Detail
+Actor
+Registered Buyer/Seller
+Preconditions
+User is authenticated; user has a vehicle to value.
+Main Flow
+1) User opens Sell Your Car → Instant Online Valuation. 2) User enters make, model, year, trim, mileage, regional specs and a condition self-assessment. 3) System returns an indicative price range within 5 seconds. 4) User optionally uploads photos to refine the offer. 5) System updates the range. 6) User schedules a pickup or visit for a full physical inspection. 7) Following inspection, System presents a Final Offer valid for 7 days. 8) User chooses Sell-Only or Trade-In. 9) For Trade-In, the offer is automatically available to apply in any purchase wizard during the validity window. 10) User optionally subscribes to monthly Value Tracker emails.
+Alternative Flows
+3a) Vehicle not in dataset — System routes to the Concierge sell flow. 7a) Final Offer is below the indicative range — System explains key deductions; user may accept, negotiate via the advisor, or decline. 8a) Customer declines the offer — Lead is preserved; customer may return within 30 days to reconsider.
+Postconditions
+Trade-In or Sell-Only offer recorded; if applied to a purchase, the trade-in value reduces the order total in wizard Step 2.
+
+9. Data Model Overview
+The following text-based entity-relationship overview supplements the Logical Data Model table in §6.4. Cardinalities use crow&apos;s-foot semantics in shorthand: &apos;1 — *&apos; meaning one-to-many.
+User 1 — * Listing
+User 1 — * Address
+User 1 — * Favorite
+User 1 — * Recently-Viewed
+User 1 — * SellRequest
+User 1 — * LoanApplication
+User 1 — * ServiceBooking
+User 1 — * Review
+User 1 — * Referral
+User 1 — * Reservation
+User 1 — * Order
+User 1 — * TradeInOffer
+User 1 — * MaintenanceRequest
+User 1 — * ReturnRequest
+User 1 — 0..1 ValueTracker
+User 1 — * InsurancePolicy
+Dealer 1 — * User (dealer sub-users)
+Dealer 1 — * Listing
+Dealer 1 — 0..1 B2BDealerProfile
+B2BDealerProfile 1 — * Bid
+B2BDealerProfile 1 — * AuctionWin
+B2BDealerProfile 1 — * QuotationRequest
+Brand 1 — * Model 1 — * Trim
+Listing 1 — * ListingPhoto
+Listing 1 — 0..1 ListingVideo
+Listing 1 — * PriceHistory
+Listing 1 — 1 InspectionReport (optional)
+Listing 1 — * Offer
+Listing 1 — * Lead — * Message
+Listing 1 — 0..1 Reservation
+Listing 1 — 0..1 AuctionLot
+InspectionTemplate 1 — * InspectionReport
+Reservation 1 — 1 Order (when converted)
+Reservation 1 — 1 Payment (deposit)
+Order 1 — * ContractDocument (sale / finance / insurance / return)
+Order 1 — * AddOn
+Order 1 — 1 DeliveryAssignment
+Order 1 — 0..1 InsurancePolicy
+Order 1 — 0..1 LoanApplication
+Order 1 — 0..1 ReturnRequest
+Order 1 — * Payment
+DeliveryAssignment * — 1 Driver
+DeliveryAssignment * — 1 Address
+ReturnRequest 1 — 1 Refund
+Refund * — 1 Payment (original)
+TradeInOffer * — 0..1 InspectionReport
+TradeInOffer * — 0..1 Order (when applied)
+MaintenanceRequest 1 — 1 WorkOrder
+Workshop 1 — * WorkOrder
+WorkOrder 1 — 1 Invoice
+AuctionLot 1 — * Bid
+AuctionLot 1 — 0..1 AuctionWin
+AuctionWin 1 — 1 Invoice
+AuctionWin 1 — 0..1 AuctionDispute
+InsurancePartner 1 — * InsurancePolicy
+FinancePartner 1 — * LoanApplication
+LoanApplication 1 — * Document
+Service 1 — * Vendor (M:N via ServiceVendor)
+Vendor 1 — * ServiceBooking
+ServiceBooking 1 — 1 Payment (optional)
+ServiceBooking 1 — 0..1 Review
+User 1 — * Notification
+AuditLog (immutable, references actor and target by id)
+A formal ERD diagram (PNG/SVG) shall accompany this SRS as a separate artifact in the technical design package.
+
+10. Appendices
+A. Inspection Point Coverage (Sample Grouping)
+The inspection template comprises 71 points. The categories below illustrate coverage; the exact point list is maintained in the Inspection Module configuration and may be versioned.
+Group
+Sample Points
+Exterior (≈15)
+Front bumper, rear bumper, hood, roof, doors (4), fenders, alloys, paint thickness, calibers, scratches, dents, glass exterior, headlights, taillights.
+Mechanical (≈18)
+Engine condition, oil level, leaks, transmission, differential, cooling system, radiator, shocks/absorbers, suspension bushings, exhaust, brakes (pads/discs), drivetrain, battery, alternator, starter, belts, mounts, fluids.
+Electronic (≈12)
+ECU codes, infotainment, A/C cooling, A/C heating, airbags, ABS, traction control, parking sensors, cameras, lights and indicators, power windows, central locking.
+Interior (≈14)
+Dashboard, steering wheel, seats (front/rear), upholstery, headliner, carpets, trunk, mirrors, sun-visors, glove box, controls and switches, smell, wear-and-tear notes, equipment audit.
+Test Drive (≈12)
+Cold start, idle, acceleration, gear shifts, braking distance, wheel alignment, steering response, suspension feel, road noise, tire condition, parking maneuvers, highway behavior.
+B. Loan Application Document Checklist
+Copy of Civil ID (front and back).
+Continuing-employment salary certificate from current employer.
+Salary bank statement for the last three months.
+Copy of company’s authorization signature (for private-company employees).
+Copy of Civil ID of the company’s legal representative (for private-company employees).
+Copy of passport (for expatriate applicants).
+C. Sample KPIs for Operational Dashboards
+Daily / weekly / monthly active users (DAU/WAU/MAU).
+New listings, approved, rejected, sold (by source: Platform, Dealer, Private).
+Average days-to-first-offer for concierge sells.
+Average days-on-market by brand and price band.
+Lead-to-sale conversion (overall and per dealer).
+Finance application volume, approval rate and time-to-approval by partner bank.
+Service booking volume and revenue by category and vendor.
+NPS / CSAT from customer reviews.
+API error rate, latency p95/p99, and availability per service.
+CDN cache hit ratio and average payload size.
+D. Glossary of Local Terms
+Term
+Meaning in Context
+Wakala / Showroom
+A car showroom (commonly used in Kuwait).
+Trafik
+Colloquial for the Traffic Department at the Ministry of Interior, responsible for vehicle ownership transfer.
+Mulkiya
+Vehicle registration document required for ownership.
+Murur
+Traffic Department; same as Trafik.
+GCC Specs
+Vehicle manufactured to Gulf Cooperation Council specifications (hot-climate cooling, etc.).
+E. Open Questions / To Be Confirmed
+Which partner banks will be onboarded for launch, and via which integration channel (API vs. portal upload)?
+Will inspector compensation include per-inspection bonuses recorded in the System?
+Will the platform offer extended warranties as a paid product at launch?
+Will the platform support cross-border listings to Saudi Arabia or the UAE in a future release?
+Will a chatbot or AI-assisted advisor be included in v1 or deferred?
+F. Acceptance Criteria Summary
+This SRS is considered accepted when each functional requirement above has been traced to a test case and a passing automated check in the staging environment, and when the security, performance and accessibility budgets in §7 are met in two consecutive release candidates.
+G. B2B Auction Condition Report — Photo Coverage (40+)
+Every B2B auction lot shall include at minimum the following photo coverage, supplementing the structured condition grading and inspection report. The exact list may be expanded by Auction Operations and is versioned in the Inspection Module.
+Group
+Required Shots
+Exterior — Walkaround (10)
+Front 3/4 left, front straight-on, front 3/4 right, right side full, rear 3/4 right, rear straight-on, rear 3/4 left, left side full, roof (overhead or angled), undercarriage angle.
+Exterior — Close-up (8)
+Front bumper, rear bumper, hood, both front fenders, both rear quarter panels, trunk lid.
+Wheels and Tires (5)
+Each of the four wheels with visible tread, and a close-up of any spare or accessory wheel.
+Engine Bay (3)
+Engine bay overall, VIN plate, fluid reservoirs and battery.
+Interior (8)
+Dashboard / cluster, steering wheel, center console / infotainment, driver seat, passenger seat, rear seat row, headliner, trunk / cargo area.
+Defect Documentation (6+)
+Close-up photos of any disclosed defects — dents, scratches, paint touch-ups, interior wear, mechanical issues — with location and severity annotation.
+H. Reservation, Refund and Return-Policy Schedule
+The following schedule summarizes baseline timeline rules; specific values are configurable in System settings and may be varied by promotion or regulation.
+Item
+Rule
+Reservation Deposit Amount
+KWD 100, fully refundable subject to the rules below.
+Reservation Hold Duration
+48 hours from successful deposit (configurable).
+Auto-Refund on Hold Expiry
+Full deposit refunded to the original instrument within 5 minutes of expiry.
+Buyer-Initiated Cancellation Before Contract Signing
+Full deposit refunded.
+Buyer-Initiated Cancellation After Contract Signing, Before Delivery
+Subject to a contract-cancellation fee per Terms; remainder refunded.
+Return Window
+3 days OR 300 km since delivery, whichever occurs first.
+Return Within Policy Thresholds
+Full refund to the original payment instrument, less only any explicitly disclosed re-stocking fee (where applicable).
+Return Over Mileage Threshold
+Per-km deduction applied per the policy schedule, with customer acknowledgment required before the refund proceeds.
+Return With Damage
+Damage repair-cost deduction itemized with photo evidence, with customer acknowledgment required before refund proceeds.
+Refund Processing Time
+Approved refunds dispatched to the original payment instrument within 5 business days of approval (excluding bank processing time).
+B2B Auction — Winning Payment Window
+Configurable (default 3 business days from invoice).
+B2B Auction — Pickup Window
+Configurable (default 7 calendar days from payment).
+B2B Auction — Dispute Window
+Configurable (default 48 hours from physical pickup).

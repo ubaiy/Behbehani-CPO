@@ -1,0 +1,81 @@
+<!--
+  Sprint 4 — Inspection module mockups (Behbehani internal team)
+
+  IMPORTANT: Inspection is performed by Behbehani's INTERNAL team, NOT a
+  third-party (Al Daman is OUT — see project_inspection_internal.md memory).
+
+  Files:
+    01-inspections-queue.html   — /inspections (inspector dashboard, kind filter)
+    02-inspection-edit.html     — /inspections/:id (multi-section form)
+    03-inspection-signoff.html  — /inspections/:id?signoff=1 (review + e-sign,
+                                  branches for Concierge customer signature)
+    04-listing-edit-tab.html    — listing-edit "Inspection" tab embedded view
+    05-customer-sign.html       — public /inspection-sign/:token (mobile-friendly
+                                  customer signing page for Concierge remote-link flow)
+
+  Two inspection KINDS (both performed by Behbehani's internal team):
+    CPO      — Behbehani inventory. Inspector signs only. Facility-based.
+    Concierge — Customer wants to sell their car. Inspector goes ON-SITE
+               to the customer's address. Inspector signs + CUSTOMER signs
+               (drawn signature pad + typed acknowledgment + audit trail).
+               Storefront promise: 71-point inspection (rubric expanded to match).
+
+  Locked rules applied:
+    - White + blue palette only (brand-*, slate-*, red-* for warn). NO amber/
+      yellow/gold/emerald/green. Pass status uses brand-* not green.
+    - Role gating: inspection_officer owns the queue + form. operations_manager,
+      general_manager have read access. customer_support/sales_agent see the
+      summary on listing-edit only.
+    - Sensitive actions (sign-off) go through ConfirmModal pattern with
+      requireTyped='SIGN OFF'.
+    - Money/percentage rules don't apply here — scores are 0-100 integers.
+
+  Inspection rubric — 71 items (to align with the storefront's "71-point
+  inspection" promise on the Concierge sell-your-car page):
+    - Exterior      (14 items) body panels (hood/trunk/4 doors/2 fenders),
+                               bumpers F+R, paint, glass, lights (headlight,
+                               taillight, indicators), tires (4), wheels, mirrors,
+                               underbody/corrosion
+    - Interior      (12 items) seats (driver/passenger/rear), dashboard,
+                               steering wheel + controls, infotainment, climate
+                               control, headliner, carpet/mats, door panels,
+                               sun visors, gear knob/console, parking brake
+    - Engine/Drive  (14 items) engine bay, engine performance, transmission,
+                               brakes (pads/rotors/fluid), suspension, steering
+                               feel, exhaust, fluids (oil/coolant/transmission/
+                               brake/PS), CV joints/drive shaft, motor mounts
+    - Electrical    (10 items) battery, alternator, starter, lighting harness,
+                               power windows, central locking, sensors (parking
+                               /lane), wiring visible damage, cruise control,
+                               Bluetooth/USB connectivity
+    - Safety        (11 items) airbags warning, seatbelts (4), ABS, traction/
+                               stability, TPMS, backup camera, blind-spot,
+                               emergency brake, child locks, spare/jack/tools
+    - Documentation (10 items) registration card, service history, owner's
+                               manual, vehicle history, accident records,
+                               ownership chain, insurance current, MOI status,
+                               customs papers, finance lien check, recall records
+    Total: 71 items.
+    Per-item status: PASS / ADVISORY / FAIL.
+    Each item: optional notes (max 280 chars) + optional photo evidence (up to 3).
+    Overall score: weighted avg — PASS=100, ADVISORY=60, FAIL=0; PDF auto-generated.
+
+  NOTE on rubric content: the exact item list above is a proposed default I'll
+  refine if Behbehani has an authoritative checklist they want to mirror. The
+  rubric is exposed as a typed constant in shared-types so it can evolve without
+  schema migrations (item IDs are stable; labels can change; new items append).
+
+  Workflow states (InspectionReport.status):
+    draft           → just created, no items scored
+    in_progress     → some items scored, sign-off button disabled
+    awaiting_signoff→ all items scored, ready for inspector sign-off
+    signed_off      → final, immutable, PDF generated, vehicle eligible for `listed` stage
+
+  Routes (proposed):
+    GET  /v1/admin/inspections                   list queue, paginated
+    POST /v1/admin/listings/:listingId/inspections  create inspection for a listing
+    GET  /v1/admin/inspections/:id               read full report
+    PATCH /v1/admin/inspections/:id              save progress (items array)
+    POST /v1/admin/inspections/:id/signoff       finalize (requires all items scored)
+    POST /v1/admin/inspections/:id/items/:itemId/photo/presign  S3 presign per item
+-->

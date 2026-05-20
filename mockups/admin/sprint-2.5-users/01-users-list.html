@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behbehani CPO · Back Office — Users &amp; Access</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* Sidebar scrollbar */
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    /* Drawer overlay + panel */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(15,23,42,0.35);
+      z-index: 40;
+    }
+    .drawer-panel {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: 440px;
+      background: #fff;
+      z-index: 50;
+      display: flex; flex-direction: column;
+      box-shadow: -4px 0 32px rgba(15,23,42,0.14);
+    }
+
+    /* Password strength meter */
+    .strength-bar { height: 4px; border-radius: 9999px; background: #e2e8f0; overflow: hidden; }
+    .strength-fill { height: 100%; border-radius: 9999px; width: 45%; background: #f59e0b; }
+
+    /* Annotation overlay cards */
+    .annot {
+      position: absolute;
+      background: #fefce8;
+      border: 1px solid #fde047;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #713f12;
+      max-width: 220px;
+      z-index: 30;
+      pointer-events: none;
+    }
+    .annot::before {
+      content: 'Note';
+      display: block;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      color: #a16207;
+      margin-bottom: 2px;
+    }
+
+    /* Role chip — multi-select visual */
+    .role-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 9px; border-radius: 9999px;
+      font-size: 11px; font-weight: 600;
+      cursor: pointer; user-select: none;
+      transition: background 0.1s, border-color 0.1s;
+      border: 1.5px solid transparent;
+    }
+    .role-chip.selected { background: #dbeafe; border-color: #3b82f6; color: #1d4ed8; }
+    .role-chip.unselected { background: #f1f5f9; border-color: #e2e8f0; color: #64748b; }
+
+    /* Collapsible role reference */
+    .ref-body { display: none; }
+    .ref-body.open { display: block; }
+  </style>
+</head>
+<body class="h-full bg-slate-100 font-sans antialiased">
+
+<div class="flex h-screen overflow-hidden">
+
+  <!-- ═══════════════════════════════════════════
+       LEFT SIDEBAR
+  ════════════════════════════════════════════ -->
+  <aside class="w-60 flex-shrink-0 bg-slate-900 flex flex-col h-full">
+
+    <!-- Brand mark -->
+    <div class="flex items-center gap-2.5 px-4 py-4 border-b border-slate-800">
+      <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0">
+        <svg class="w-4 h-4 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 1.5L3 4.5v5c0 4.14 2.97 8.01 7 8.96 4.03-.95 7-4.82 7-8.96v-5L10 1.5zm-1 10.5H7V6h2v6zm2 0h-1V6h1a2 2 0 010 4h-1v1.5H11V12z" clip-rule="evenodd"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold tracking-widest text-brand-400 uppercase leading-none">Behbehani CPO</p>
+        <p class="text-xs text-slate-500 leading-tight mt-0.5">Back Office</p>
+      </div>
+    </div>
+
+    <!-- Nav groups -->
+    <nav class="flex-1 overflow-y-auto sidebar-scroll px-2 py-3 space-y-5" aria-label="Main navigation">
+
+      <!-- Dashboard -->
+      <div>
+        <a href="../sprint-1/02-shell.html" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+          <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          Dashboard
+        </a>
+      </div>
+
+      <!-- Inventory -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Inventory</p>
+        <div class="space-y-0.5">
+          <a href="../sprint-1/03-vehicles-list.html" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            Listings
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5l7 7-7 7-7-7V3z"/></svg>
+            Brands &amp; Models
+          </a>
+          <a href="../sprint-2/03-pricing-rules.html" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Pricing Rules
+          </a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <span class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+              Pipeline
+            </span>
+            <span class="text-xs font-semibold bg-blue-600 text-white rounded-full px-1.5 py-0.5 leading-none">14</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Sales -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Sales</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Reservations</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>Orders</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>Trade-Ins</a>
+        </div>
+      </div>
+
+      <!-- Operations -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Operations</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>Deliveries</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Maintenance</a>
+        </div>
+      </div>
+
+      <!-- Customers -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Customers</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Customers</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>Reviews</a>
+          <a href="#" class="flex items-center justify-between px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <span class="flex items-center gap-2.5"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>Support</span>
+            <span class="text-xs font-semibold bg-red-500 text-white rounded-full px-1.5 py-0.5 leading-none">7</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Finance -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Finance</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Financing Apps</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>Invoices</a>
+        </div>
+      </div>
+
+      <!-- Insights -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Insights</p>
+        <div class="space-y-0.5">
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Analytics</a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"><svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Reports</a>
+        </div>
+      </div>
+
+      <!-- Admin — super_admin gated. In Angular: *adminRole="'super_admin'" structural directive hides these for all other roles. No lock icons; simply not rendered. -->
+      <div>
+        <p class="px-3 mb-1 text-xs font-semibold tracking-wider text-slate-500 uppercase">Admin</p>
+        <div class="space-y-0.5">
+          <!-- Users — ACTIVE item for this mockup -->
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium bg-brand-700 text-white">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            Users
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Roles &amp; Permissions
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            Audit Log
+          </a>
+          <a href="#" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Settings
+          </a>
+        </div>
+      </div>
+
+    </nav>
+
+    <!-- User profile footer — showing super_admin for this mockup state -->
+    <div class="border-t border-slate-800 px-3 py-3">
+      <div class="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-slate-800 cursor-pointer transition-colors">
+        <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+          <span class="text-xs font-bold text-white">KA</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-medium text-slate-200 truncate">Khalid Al-Ansari</p>
+          <p class="text-xs text-slate-500 truncate">Super Admin</p>
+        </div>
+        <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4"/></svg>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN COLUMN
+  ════════════════════════════════════════════ -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="flex-shrink-0 h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 gap-4">
+      <div class="flex-1 max-w-md">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="search" placeholder="Search VIN, order, customer…" class="w-full pl-9 pr-3 py-1.5 text-sm rounded-md border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white placeholder-slate-400 text-slate-700"/>
+          <kbd class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 bg-slate-100 border border-slate-200 rounded px-1 py-0.5 font-mono">/</kbd>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="relative p-2 rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors" aria-label="Notifications">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+        </button>
+        <span class="hidden lg:inline-flex items-center rounded-full border bg-blue-50 border-blue-200 px-2.5 py-0.5 text-xs font-medium text-blue-700">Staging</span>
+        <button class="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100 transition-colors">
+          <div class="w-7 h-7 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0">
+            <span class="text-xs font-bold text-white">KA</span>
+          </div>
+          <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA — scrollable -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-6">
+
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-1.5 text-xs text-slate-500 mb-4" aria-label="Breadcrumb">
+        <a href="../sprint-1/02-shell.html" class="hover:text-slate-700">Home</a>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-slate-700">Admin</span>
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        <span class="text-slate-800 font-medium">Users</span>
+      </nav>
+
+      <!-- RBAC note banner -->
+      <div class="mb-5 bg-brand-50 border border-brand-200 rounded-lg px-4 py-2.5 flex items-start gap-2.5">
+        <svg class="w-4 h-4 text-brand-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="text-xs text-brand-800">
+          <span class="font-semibold">Mockup state: super_admin.</span>
+          All controls are visible. <span class="font-medium">general_manager</span> sees the table read-only; lock / edit / create buttons are hidden for that role (not disabled — the Angular *adminRole directive removes them from the DOM entirely).
+        </p>
+      </div>
+
+      <!-- Header strip -->
+      <div class="flex items-start justify-between mb-5 gap-4 flex-wrap">
+        <div>
+          <h1 class="text-xl font-semibold text-slate-800">Users &amp; Access</h1>
+          <p class="text-sm text-slate-500 mt-1 max-w-2xl">Manage staff accounts, admin roles, and account status. Customer accounts are managed in a separate section.</p>
+        </div>
+        <!-- + Create user — super_admin only -->
+        <button
+          onclick="openDrawer()"
+          class="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Create user
+        </button>
+      </div>
+
+      <!-- Filter strip -->
+      <div class="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+        <div class="flex flex-wrap items-end gap-3">
+
+          <!-- Search -->
+          <div class="flex-1 min-w-56">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Search</label>
+            <div class="relative">
+              <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input type="search" placeholder="Search by name, email, or mobile…" class="w-full pl-8 pr-3 py-1.5 text-sm rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white placeholder-slate-400"/>
+            </div>
+          </div>
+
+          <!-- Role filter -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Admin roles</label>
+            <div class="relative">
+              <button class="flex items-center gap-2 py-1.5 pl-3 pr-8 text-sm rounded-md border border-slate-300 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 whitespace-nowrap" onclick="toggleRoleDropdown()">
+                <span>All roles</span>
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+              <!-- Role multi-select dropdown -->
+              <div id="role-dropdown" class="hidden absolute left-0 top-full mt-1 z-20 bg-white border border-slate-200 rounded-lg shadow-lg p-3 w-72">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Select roles to filter</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <span class="role-chip unselected">super_admin</span>
+                  <span class="role-chip unselected">general_manager</span>
+                  <span class="role-chip unselected">operations_manager</span>
+                  <span class="role-chip unselected">sales_agent</span>
+                  <span class="role-chip unselected">inspection_officer</span>
+                  <span class="role-chip unselected">auction_operator</span>
+                  <span class="role-chip unselected">delivery_dispatcher</span>
+                  <span class="role-chip unselected">maintenance_coordinator</span>
+                  <span class="role-chip unselected">finance_officer</span>
+                  <span class="role-chip unselected">customer_support</span>
+                  <span class="role-chip unselected">content_editor</span>
+                  <span class="role-chip unselected">technical_support</span>
+                  <span class="role-chip selected" style="background:#dbeafe;border-color:#2563eb;color:#1e40af;">pricing_manager <span class="text-brand-600 font-normal">new</span></span>
+                </div>
+                <div class="flex items-center justify-between mt-3 pt-2 border-t border-slate-100">
+                  <button class="text-xs text-slate-400 hover:text-slate-600">Clear all</button>
+                  <button class="text-xs font-semibold text-brand-600 hover:text-brand-700">Apply</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status filter chips -->
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Status</label>
+            <div class="flex items-center gap-1">
+              <button class="px-3 py-1.5 rounded-md text-xs font-semibold bg-brand-600 text-white">All</button>
+              <button class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 text-slate-600 hover:bg-slate-50">Active</button>
+              <button class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 text-slate-600 hover:bg-slate-50">Locked</button>
+              <button class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white border border-slate-300 text-slate-600 hover:bg-slate-50">Disabled</button>
+            </div>
+          </div>
+
+          <!-- Reset -->
+          <div class="flex items-end pb-0.5">
+            <a href="#" class="text-sm text-slate-400 hover:text-brand-600 font-medium whitespace-nowrap">Reset filters</a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Results summary -->
+      <div class="flex items-center justify-between mb-2 px-1">
+        <p class="text-sm text-slate-500">Showing <span class="font-medium text-slate-700">1–8</span> of <span class="font-medium text-slate-700">23</span> users</p>
+        <div class="flex items-center gap-2">
+          <label class="text-xs text-slate-500">Sort by:</label>
+          <select class="text-xs rounded border border-slate-300 py-1 px-2 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <option>Last sign-in</option>
+            <option>Name A–Z</option>
+            <option>Created (newest)</option>
+            <option>Role</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- USERS TABLE -->
+      <div class="bg-white rounded-xl border border-slate-200 overflow-hidden relative">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200">
+                <th class="w-8 px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">User</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Mobile</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Admin roles</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Status</th>
+                <th class="px-3 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Last sign-in</th>
+                <th class="px-3 py-3 text-center text-xs font-semibold text-slate-500 uppercase tracking-wide w-24">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+
+              <!-- Row 1 — Khalid Al-Ansari — super_admin — Active — 2h ago -->
+              <tr class="hover:bg-slate-50 transition-colors group">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-brand-700">KA</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-800 leading-tight">Khalid Al-Ansari</p>
+                      <p class="text-xs text-slate-400 mt-0.5">khalid@behbehani.com</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-sm text-slate-600 whitespace-nowrap">+965 5012 3456</td>
+                <td class="px-3 py-3">
+                  <div class="flex flex-wrap gap-1">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700">super_admin</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">Active</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">2h ago</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition-colors" title="Edit user">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </button>
+                    <div class="relative">
+                      <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" title="More actions" onclick="toggleMenu('um-1')">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+                      </button>
+                      <div id="um-1" class="hidden absolute right-0 z-20 mt-1 w-48 rounded-lg bg-white shadow-lg border border-slate-200 py-1 text-sm">
+                        <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50"><svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>View audit log</a>
+                        <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50"><svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Lock account</a>
+                        <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50"><svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>Reset password</a>
+                        <hr class="my-1 border-slate-100"/>
+                        <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-500 hover:bg-slate-50"><svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>Disable account</a>
+                        <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Delete user <span class="ml-auto text-xs text-red-400">(typed confirm)</span></a>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 2 — Ahmed Al-Sabah — operations_manager + sales_agent — Active — 5m ago -->
+              <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30 group">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-brand-700">AS</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-800 leading-tight">Ahmed Al-Sabah</p>
+                      <p class="text-xs text-slate-400 mt-0.5">ahmed.sabah@behbehani.com</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-sm text-slate-600 whitespace-nowrap">+965 5523 8871</td>
+                <td class="px-3 py-3">
+                  <div class="flex flex-wrap gap-1">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700">operations_manager</span>
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700">sales_agent</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">Active</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">5m ago</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition-colors" title="Edit user"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                    <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleMenu('um-2')"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+                    <div id="um-2" class="hidden absolute right-6 z-20 w-48 rounded-lg bg-white shadow-lg border border-slate-200 py-1 text-sm">
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50">View audit log</a>
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50">Lock account</a>
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50">Reset password</a>
+                      <hr class="my-1 border-slate-100"/>
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-500 hover:bg-slate-50">Disable account</a>
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50">Delete user</a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 3 — Sara Al-Khalifa — finance_officer + pricing_manager — Active — yesterday -->
+              <tr class="hover:bg-slate-50 transition-colors group">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-brand-700">SK</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-800 leading-tight">Sara Al-Khalifa</p>
+                      <p class="text-xs text-slate-400 mt-0.5">sara.khalifa@behbehani.com</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-sm text-slate-600 whitespace-nowrap">+965 5641 2209</td>
+                <td class="px-3 py-3">
+                  <div class="flex flex-wrap gap-1">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700">finance_officer</span>
+                    <!-- pricing_manager — new role highlight -->
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-300">pricing_manager</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">Active</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">Yesterday</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                    <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleMenu('um-3')"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+                    <div id="um-3" class="hidden absolute right-6 z-20 w-48 rounded-lg bg-white shadow-lg border border-slate-200 py-1 text-sm"><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">View audit log</a><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Lock account</a><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Reset password</a><hr class="my-1 border-slate-100"/><a href="#" class="block px-3 py-1.5 text-slate-500 hover:bg-slate-50">Disable account</a><a href="#" class="block px-3 py-1.5 text-red-600 hover:bg-red-50">Delete user</a></div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 4 — Mohammed Al-Rashid — content_editor — LOCKED — 1h ago (annotation target) -->
+              <tr class="hover:bg-red-50/30 transition-colors bg-red-50/20 group" id="locked-row">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-red-700">MR</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-800 leading-tight">Mohammed Al-Rashid</p>
+                      <p class="text-xs text-slate-400 mt-0.5">m.rashid@behbehani.com</p>
+                      <p class="text-xs text-red-600 mt-0.5 font-medium">Locked until 14:35 today (5 failed sign-ins)</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-sm text-slate-600 whitespace-nowrap">+965 5788 3310</td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700">content_editor</span>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-red-50 text-red-700 border border-red-200">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    Locked
+                  </span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">1h ago</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                    <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleMenu('um-4')"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+                    <div id="um-4" class="hidden absolute right-6 z-20 w-52 rounded-lg bg-white shadow-lg border border-slate-200 py-1 text-sm">
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50">View audit log</a>
+                      <!-- Unlock — clears lockedUntil + failedLoginCount -->
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-brand-700 font-medium hover:bg-brand-50">
+                        <svg class="w-3.5 h-3.5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                        Unlock account (confirm modal)
+                      </a>
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-700 hover:bg-slate-50">Reset password</a>
+                      <hr class="my-1 border-slate-100"/>
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-slate-500 hover:bg-slate-50">Disable account</a>
+                      <a href="#" class="flex items-center gap-2 px-3 py-1.5 text-red-600 hover:bg-red-50">Delete user</a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 5 — Fatima Al-Mutairi — customer_support — Active — never -->
+              <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30 group">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-brand-700">FM</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-800 leading-tight">Fatima Al-Mutairi</p>
+                      <p class="text-xs text-slate-400 mt-0.5">fatima.m@behbehani.com</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-sm text-slate-600 whitespace-nowrap">+965 5901 1143</td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700">customer_support</span>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">Active</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-400 whitespace-nowrap italic">Never (newly created)</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                    <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleMenu('um-5')"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+                    <div id="um-5" class="hidden absolute right-6 z-20 w-48 rounded-lg bg-white shadow-lg border border-slate-200 py-1 text-sm"><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">View audit log</a><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Lock account</a><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Reset password</a><hr class="my-1 border-slate-100"/><a href="#" class="block px-3 py-1.5 text-slate-500 hover:bg-slate-50">Disable account</a><a href="#" class="block px-3 py-1.5 text-red-600 hover:bg-red-50">Delete user</a></div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 6 — Yousef Al-Otaibi — delivery_dispatcher — Active — 3d ago -->
+              <tr class="hover:bg-slate-50 transition-colors group">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-brand-700">YO</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-800 leading-tight">Yousef Al-Otaibi</p>
+                      <p class="text-xs text-slate-400 mt-0.5">yousef@behbehani.com</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-sm text-slate-600 whitespace-nowrap">+965 5344 9920</td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-brand-100 text-brand-700">delivery_dispatcher</span>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">Active</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">3d ago</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                    <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleMenu('um-6')"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+                    <div id="um-6" class="hidden absolute right-6 z-20 w-48 rounded-lg bg-white shadow-lg border border-slate-200 py-1 text-sm"><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">View audit log</a><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Lock account</a><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Reset password</a><hr class="my-1 border-slate-100"/><a href="#" class="block px-3 py-1.5 text-slate-500 hover:bg-slate-50">Disable account</a><a href="#" class="block px-3 py-1.5 text-red-600 hover:bg-red-50">Delete user</a></div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 7 — Demo Customer — no admin roles — Active — 12h ago -->
+              <tr class="hover:bg-slate-50 transition-colors bg-slate-50/30 group">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-slate-500">DC</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-800 leading-tight">Demo Customer</p>
+                      <p class="text-xs text-slate-400 mt-0.5">demo@example.com</p>
+                      <p class="text-xs text-slate-400 mt-0.5">Customer account — no admin roles</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-sm text-slate-400 whitespace-nowrap italic">—</td>
+                <td class="px-3 py-3">
+                  <span class="text-xs text-slate-400 italic">None (customer)</span>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-brand-50 text-brand-700">Active</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-500 whitespace-nowrap">12h ago</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                    <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleMenu('um-7')"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+                    <div id="um-7" class="hidden absolute right-6 z-20 w-48 rounded-lg bg-white shadow-lg border border-slate-200 py-1 text-sm"><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">View audit log</a><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Lock account</a><a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Reset password</a><hr class="my-1 border-slate-100"/><a href="#" class="block px-3 py-1.5 text-slate-500 hover:bg-slate-50">Disable account</a><a href="#" class="block px-3 py-1.5 text-red-600 hover:bg-red-50">Delete user</a></div>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 8 — Hanan Al-Saleh — general_manager + finance_officer — DISABLED — 17d ago -->
+              <tr class="hover:bg-slate-50 transition-colors group opacity-70">
+                <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500"/></td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
+                      <span class="text-xs font-bold text-slate-400">HS</span>
+                    </div>
+                    <div>
+                      <p class="font-medium text-slate-600 leading-tight">Hanan Al-Saleh</p>
+                      <p class="text-xs text-slate-400 mt-0.5">hanan.saleh@behbehani.com</p>
+                      <p class="text-xs text-slate-400 mt-0.5">Disabled 2026-04-30 by Khalid Al-Ansari</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-3 text-sm text-slate-400 whitespace-nowrap">+965 5211 6640</td>
+                <td class="px-3 py-3">
+                  <div class="flex flex-wrap gap-1">
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-slate-100 text-slate-500">general_manager</span>
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-slate-100 text-slate-500">finance_officer</span>
+                  </div>
+                </td>
+                <td class="px-3 py-3">
+                  <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-slate-100 text-slate-600">Disabled</span>
+                </td>
+                <td class="px-3 py-3 text-xs text-slate-400 whitespace-nowrap">17d ago</td>
+                <td class="px-3 py-3">
+                  <div class="flex items-center justify-center gap-1">
+                    <button class="p-1.5 rounded hover:bg-brand-50 text-slate-400 hover:text-brand-600 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                    <button class="p-1.5 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleMenu('um-8')"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg></button>
+                    <div id="um-8" class="hidden absolute right-6 z-20 w-48 rounded-lg bg-white shadow-lg border border-slate-200 py-1 text-sm">
+                      <a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">View audit log</a>
+                      <a href="#" class="block px-3 py-1.5 text-brand-700 font-medium hover:bg-brand-50">Enable account</a>
+                      <a href="#" class="block px-3 py-1.5 text-slate-700 hover:bg-slate-50">Reset password</a>
+                      <hr class="my-1 border-slate-100"/>
+                      <a href="#" class="block px-3 py-1.5 text-red-600 hover:bg-red-50">Delete user</a>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="flex items-center justify-between px-4 py-3 border-t border-slate-200">
+          <div class="flex items-center gap-2">
+            <p class="text-sm text-slate-500">Showing <span class="font-medium text-slate-700">1–8</span> of <span class="font-medium text-slate-700">23</span> users</p>
+            <span class="text-slate-300 mx-1">|</span>
+            <label class="text-xs text-slate-500">Per page:</label>
+            <select class="text-xs rounded border border-slate-300 py-1 px-2 bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
+              <option>25</option>
+              <option>50</option>
+              <option>100</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-1">
+            <button class="px-2 py-1 text-xs rounded border border-slate-300 bg-white text-slate-400" disabled>
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="px-2.5 py-1 text-xs rounded border border-brand-600 bg-brand-600 text-white font-semibold">1</button>
+            <button class="px-2.5 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">2</button>
+            <button class="px-2.5 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">3</button>
+            <button class="px-2 py-1 text-xs rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /table card -->
+
+      <!-- ANNOTATION — locked row (security warning → red palette) -->
+      <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2.5">
+        <svg class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <p class="text-xs text-red-800">
+          <span class="font-semibold">Annotation — Row 4 (Locked):</span>
+          Lockout from 5/10 min rule (FR-AUTH-006). Admin can manually unlock via the "..." menu, which clears <code class="font-mono bg-red-100 px-0.5 rounded">lockedUntil</code> and <code class="font-mono bg-red-100 px-0.5 rounded">failedLoginCount</code>. Unlock action opens the reusable confirm modal (see <code class="font-mono bg-red-100 px-0.5 rounded">sprint-2/04-confirm-modal.html</code>).
+        </p>
+      </div>
+
+      <!-- ROLE REFERENCE — collapsible -->
+      <div class="mt-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <button
+          onclick="toggleRefCard()"
+          class="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+        >
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Role reference
+          </div>
+          <svg id="ref-chevron" class="w-4 h-4 text-slate-400 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="ref-body" class="ref-body">
+          <div class="px-4 pb-4">
+            <p class="text-xs text-slate-400 mb-3 italic">These role permissions are hardcoded in the API. Future feature: editable permission matrix.</p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs">
+                <thead>
+                  <tr class="border-b border-slate-100">
+                    <th class="py-2 pr-4 text-left font-semibold text-slate-600 whitespace-nowrap">Role</th>
+                    <th class="py-2 text-left font-semibold text-slate-600">What they can do</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap font-semibold">super_admin</td><td class="py-1.5 text-slate-600">Full system access: manage users, roles, audit logs, all modules.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">general_manager</td><td class="py-1.5 text-slate-600">Read access to all modules; cannot create, edit, or delete records.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">operations_manager</td><td class="py-1.5 text-slate-600">Manage pipeline stages, deliveries, maintenance, and operations flow.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">sales_agent</td><td class="py-1.5 text-slate-600">Create and manage reservations, orders, and customer interactions.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">inspection_officer</td><td class="py-1.5 text-slate-600">Submit inspection reports, flag issues, advance vehicles through inspection stage.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">auction_operator</td><td class="py-1.5 text-slate-600">Manage auction listings, bids, and auction-stage vehicles.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">delivery_dispatcher</td><td class="py-1.5 text-slate-600">Assign and track delivery slots; confirm delivery completion.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">maintenance_coordinator</td><td class="py-1.5 text-slate-600">Create and manage maintenance jobs; update reconditioning status.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">finance_officer</td><td class="py-1.5 text-slate-600">View and process financing applications, invoices, and refunds.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">customer_support</td><td class="py-1.5 text-slate-600">Handle support tickets; view customer and order data in read-heavy mode.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">content_editor</td><td class="py-1.5 text-slate-600">Edit vehicle listings, descriptions, photos, and marketing copy.</td></tr>
+                  <tr><td class="py-1.5 pr-4 font-mono text-brand-700 whitespace-nowrap">technical_support</td><td class="py-1.5 text-slate-600">Access system logs, diagnostics, and integration status pages.</td></tr>
+                  <tr class="bg-blue-50">
+                    <td class="py-1.5 pr-4 font-mono text-blue-800 whitespace-nowrap font-semibold">pricing_manager <span class="text-brand-600 font-sans text-xs font-normal ml-1">NEW</span></td>
+                    <td class="py-1.5 text-slate-600">Read and write access to Pricing Rules module (aging discount tiers). Carry-over from Sprint 2 reviewer D3.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /main column -->
+
+</div><!-- /flex h-screen -->
+
+<!-- ═══════════════════════════════════════════
+     DRAWER OVERLAY + PANEL (rendered open)
+════════════════════════════════════════════ -->
+<div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
+
+<div id="drawer-panel" class="drawer-panel">
+
+  <!-- Drawer header -->
+  <div class="flex-shrink-0 flex items-start justify-between px-5 pt-5 pb-4 border-b border-slate-200">
+    <div>
+      <h2 class="text-base font-semibold text-slate-800">Create user</h2>
+      <p class="text-xs text-slate-500 mt-1 max-w-xs leading-relaxed">The new user receives credentials out-of-band; email invitations land in Sprint 11.</p>
+    </div>
+    <button onclick="closeDrawer()" class="p-1.5 rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors ml-4 flex-shrink-0">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- Drawer body — scrollable -->
+  <div class="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+
+    <!-- Full name -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-700 mb-1.5">Full name <span class="text-red-500">*</span></label>
+      <input type="text" placeholder="e.g. Ahmed Al-Sabah" class="w-full px-3 py-2 text-sm rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder-slate-400"/>
+    </div>
+
+    <!-- Email -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-700 mb-1.5">Email <span class="text-slate-400 font-normal">(optional if mobile provided)</span></label>
+      <input type="email" placeholder="name@behbehani.com" class="w-full px-3 py-2 text-sm rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder-slate-400"/>
+    </div>
+
+    <!-- Mobile -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-700 mb-1.5">Mobile <span class="text-slate-400 font-normal">(optional if email provided)</span></label>
+      <div class="flex items-center gap-2">
+        <span class="flex-shrink-0 px-3 py-2 text-sm rounded-md border border-slate-300 bg-slate-50 text-slate-600 font-mono">+965</span>
+        <input type="tel" placeholder="5XXX XXXX" class="flex-1 px-3 py-2 text-sm rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder-slate-400 font-mono"/>
+      </div>
+      <p class="text-xs text-slate-400 mt-1">Kuwait format: +965 5XXX XXXX</p>
+    </div>
+
+    <!-- Account type -->
+    <div>
+      <label class="block text-xs font-semibold text-slate-700 mb-2">Account type <span class="text-red-500">*</span></label>
+      <div class="flex gap-3">
+        <label class="flex items-center gap-2.5 cursor-pointer flex-1 p-3 rounded-lg border-2 border-brand-500 bg-brand-50">
+          <input type="radio" name="acct-type" checked class="text-brand-600 focus:ring-brand-500"/>
+          <div>
+            <p class="text-sm font-semibold text-brand-700">Staff (admin)</p>
+            <p class="text-xs text-brand-600 mt-0.5">Assign one or more admin roles</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-2.5 cursor-pointer flex-1 p-3 rounded-lg border-2 border-slate-200 hover:border-slate-300 bg-white">
+          <input type="radio" name="acct-type" class="text-brand-600 focus:ring-brand-500"/>
+          <div>
+            <p class="text-sm font-semibold text-slate-700">Customer</p>
+            <p class="text-xs text-slate-400 mt-0.5">No admin access</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Admin roles multi-select — shown when Staff selected -->
+    <div class="relative">
+      <div class="flex items-center justify-between mb-2">
+        <label class="text-xs font-semibold text-slate-700">Admin roles</label>
+        <span class="text-xs text-slate-400">2 selected</span>
+      </div>
+      <div class="flex flex-wrap gap-1.5 p-3 rounded-lg border border-slate-300 bg-white min-h-12">
+        <span class="role-chip selected">operations_manager <button class="ml-1 text-brand-500 hover:text-brand-700 leading-none" type="button">x</button></span>
+        <span class="role-chip selected">sales_agent <button class="ml-1 text-brand-500 hover:text-brand-700 leading-none" type="button">x</button></span>
+        <span class="role-chip unselected">super_admin</span>
+        <span class="role-chip unselected">general_manager</span>
+        <span class="role-chip unselected">inspection_officer</span>
+        <span class="role-chip unselected">auction_operator</span>
+        <span class="role-chip unselected">delivery_dispatcher</span>
+        <span class="role-chip unselected">maintenance_coordinator</span>
+        <span class="role-chip unselected">finance_officer</span>
+        <span class="role-chip unselected">customer_support</span>
+        <span class="role-chip unselected">content_editor</span>
+        <span class="role-chip unselected">technical_support</span>
+        <!-- pricing_manager: new role annotation target -->
+        <span class="role-chip unselected" style="border-color:#2563eb;color:#1e40af;">pricing_manager <span class="text-brand-600 text-xs ml-0.5">new</span></span>
+      </div>
+      <!-- Annotation: pricing_manager -->
+      <div class="mt-2 p-2.5 bg-blue-50 border border-blue-200 rounded-md">
+        <p class="text-xs text-blue-800"><span class="font-semibold">Annotation:</span> <code class="font-mono bg-blue-100 px-0.5 rounded">pricing_manager</code> is a NEW role being added in this sprint. Carry-over from Sprint 2 reviewer D3.</p>
+      </div>
+    </div>
+
+    <!-- Password mode -->
+    <div class="relative">
+      <label class="block text-xs font-semibold text-slate-700 mb-2">Password</label>
+      <!-- Toggle: Generate vs Set manually -->
+      <div class="flex rounded-lg border border-slate-300 overflow-hidden mb-3">
+        <button id="pwmode-gen" onclick="setPwMode('generate')" class="flex-1 px-3 py-2 text-xs font-semibold bg-brand-600 text-white transition-colors">Generate temporary</button>
+        <button id="pwmode-set" onclick="setPwMode('manual')" class="flex-1 px-3 py-2 text-xs font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors">Set manually</button>
+      </div>
+
+      <!-- Generated password display -->
+      <div id="pw-generate-ui">
+        <div class="flex items-center gap-2 p-3 rounded-lg border border-slate-200 bg-slate-50">
+          <code id="gen-pw" class="flex-1 font-mono text-sm text-slate-800 tracking-wide select-all">Bh!7kQm#2xLp</code>
+          <button onclick="regeneratePw()" class="p-1.5 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors flex-shrink-0" title="Regenerate">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+          <button onclick="copyPw()" class="p-1.5 rounded hover:bg-slate-200 text-slate-500 hover:text-brand-600 transition-colors flex-shrink-0" title="Copy">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          </button>
+        </div>
+        <!-- Annotation: out-of-band delivery -->
+        <div class="mt-2 p-2.5 bg-blue-50 border border-blue-200 rounded-md">
+          <p class="text-xs text-blue-800"><span class="font-semibold">Annotation:</span> Out-of-band delivery — admin reads the generated password to the new user. Email invite + magic link arrive Sprint 7+11.</p>
+        </div>
+      </div>
+
+      <!-- Manual password input (hidden by default) -->
+      <div id="pw-manual-ui" class="hidden space-y-2">
+        <input type="password" placeholder="Enter password" class="w-full px-3 py-2 text-sm rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono"/>
+        <!-- Strength meter -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs text-slate-500">Strength</span>
+            <span class="text-xs font-semibold text-slate-600">Fair</span>
+          </div>
+          <div class="strength-bar"><div class="strength-fill"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Require password change -->
+    <label class="flex items-start gap-3 cursor-pointer">
+      <input type="checkbox" checked class="mt-0.5 rounded border-slate-300 text-brand-600 focus:ring-brand-500 flex-shrink-0"/>
+      <div>
+        <p class="text-sm font-medium text-slate-700">Require password change on next sign-in</p>
+        <p class="text-xs text-slate-400 mt-0.5">User must set a new password before accessing the back office.</p>
+      </div>
+    </label>
+
+  </div><!-- /drawer body -->
+
+  <!-- Drawer footer -->
+  <div class="flex-shrink-0 flex items-center justify-end gap-3 px-5 py-4 border-t border-slate-200 bg-white">
+    <button onclick="closeDrawer()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors">
+      Cancel
+    </button>
+    <button class="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-brand-600 rounded-md hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      Create user
+    </button>
+  </div>
+
+</div><!-- /drawer panel -->
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+  // ── Table row action menus ──────────────────────
+  function toggleMenu(id) {
+    document.querySelectorAll('[id^="um-"]').forEach(el => {
+      if (el.id !== id) el.classList.add('hidden');
+    });
+    document.getElementById(id).classList.toggle('hidden');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('button[onclick*="toggleMenu"]') && !e.target.closest('[id^="um-"]')) {
+      document.querySelectorAll('[id^="um-"]').forEach(el => el.classList.add('hidden'));
+    }
+  });
+
+  // ── Role filter dropdown ────────────────────────
+  function toggleRoleDropdown() {
+    document.getElementById('role-dropdown').classList.toggle('hidden');
+  }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('[onclick="toggleRoleDropdown()"]') && !e.target.closest('#role-dropdown')) {
+      const dd = document.getElementById('role-dropdown');
+      if (dd) dd.classList.add('hidden');
+    }
+  });
+
+  // ── Drawer open / close ─────────────────────────
+  function openDrawer() {
+    document.getElementById('drawer-overlay').style.display = 'block';
+    document.getElementById('drawer-panel').style.display = 'flex';
+  }
+  function closeDrawer() {
+    document.getElementById('drawer-overlay').style.display = 'none';
+    document.getElementById('drawer-panel').style.display = 'none';
+  }
+  // Drawer is rendered OPEN for the mockup by default
+
+  // ── Password mode toggle ────────────────────────
+  function setPwMode(mode) {
+    const genUI  = document.getElementById('pw-generate-ui');
+    const manUI  = document.getElementById('pw-manual-ui');
+    const genBtn = document.getElementById('pwmode-gen');
+    const setBtn = document.getElementById('pwmode-set');
+    if (mode === 'generate') {
+      genUI.classList.remove('hidden');
+      manUI.classList.add('hidden');
+      genBtn.classList.add('bg-brand-600','text-white');
+      genBtn.classList.remove('text-slate-600','bg-white');
+      setBtn.classList.remove('bg-brand-600','text-white');
+      setBtn.classList.add('text-slate-600','bg-white');
+    } else {
+      genUI.classList.add('hidden');
+      manUI.classList.remove('hidden');
+      setBtn.classList.add('bg-brand-600','text-white');
+      setBtn.classList.remove('text-slate-600','bg-white');
+      genBtn.classList.remove('bg-brand-600','text-white');
+      genBtn.classList.add('text-slate-600','bg-white');
+    }
+  }
+
+  // ── Password copy / regenerate ─────────────────
+  const passwords = ['Bh!7kQm#2xLp', 'Xp#9vRn!4wQz', 'Tz&3mLp!8kNx', 'Yr!5bWq#7jMk'];
+  let pwIdx = 0;
+  function regeneratePw() {
+    pwIdx = (pwIdx + 1) % passwords.length;
+    document.getElementById('gen-pw').textContent = passwords[pwIdx];
+  }
+  function copyPw() {
+    const pw = document.getElementById('gen-pw').textContent;
+    navigator.clipboard?.writeText(pw).catch(() => {});
+    const btn = event.currentTarget;
+    btn.title = 'Copied!';
+    setTimeout(() => { btn.title = 'Copy'; }, 1500);
+  }
+
+  // ── Role reference expand/collapse ─────────────
+  function toggleRefCard() {
+    const body    = document.getElementById('ref-body');
+    const chevron = document.getElementById('ref-chevron');
+    body.classList.toggle('open');
+    chevron.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+{
+  "app": {
+    "name": "بهبهاني للسيارات المعتمدة — لوحة الإدارة"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "inventory": "المخزون",
+    "pipeline": "خط الإنتاج",
+    "orders": "الطلبات",
+    "customers": "العملاء",
+    "deliveries": "التوصيل",
+    "returns": "المرتجعات",
+    "maintenance": "الصيانة",
+    "tradeIn": "المقايضة",
+    "financing": "التمويل",
+    "auditLog": "سجل التدقيق",
+    "settings": "الإعدادات"
+  },
+  "auth": {
+    "signIn": "تسجيل الدخول",
+    "signOut": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "submit": "تسجيل الدخول"
+  },
+  "common": {
+    "language": "English",
+    "currency": "د.ك",
+    "loading": "جاري التحميل…"
+  }
+}

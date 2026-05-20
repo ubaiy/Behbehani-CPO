@@ -1,0 +1,234 @@
+<!-- ── Page header ──────────────────────────────────────────────── -->
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-xl font-semibold text-slate-800">Pipeline</h1>
+    <p class="text-sm text-slate-500 mt-0.5">Drag a card to move a vehicle to the next stage.</p>
+  </div>
+  <a
+    routerLink="/inventory/listings"
+    class="inline-flex items-center gap-1.5 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+  >
+    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+    </svg>
+    Switch to list view
+  </a>
+</div>
+
+<!-- ── Cap banner ────────────────────────────────────────────────── -->
+@if (showCapBanner()) {
+  <div class="mb-3 rounded-lg border border-brand-200 bg-brand-50 px-4 py-2.5 text-sm text-brand-700">
+    Showing 100 of {{ total() }} — refine filters to load more.
+  </div>
+}
+
+<!-- ── Error banner ──────────────────────────────────────────────── -->
+@if (error()) {
+  <div class="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    {{ error() }}
+  </div>
+}
+
+<!-- ── Filter strip ──────────────────────────────────────────────── -->
+<div class="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+
+  <!-- Brand multi-select pills -->
+  <div class="flex flex-wrap items-center gap-1.5">
+    <span class="text-xs font-medium text-slate-500 mr-1">Brand:</span>
+    @for (brand of brands(); track brand.id) {
+      <button
+        type="button"
+        (click)="toggleBrand(brand.id)"
+        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border transition-colors"
+        [class.bg-brand-600]="isBrandSelected(brand.id)"
+        [class.text-white]="isBrandSelected(brand.id)"
+        [class.border-brand-600]="isBrandSelected(brand.id)"
+        [class.bg-white]="!isBrandSelected(brand.id)"
+        [class.text-slate-600]="!isBrandSelected(brand.id)"
+        [class.border-slate-300]="!isBrandSelected(brand.id)"
+        [class.hover:bg-slate-50]="!isBrandSelected(brand.id)"
+      >
+        {{ brand.nameEn }}
+      </button>
+    }
+  </div>
+
+  <div class="h-4 w-px bg-slate-200"></div>
+
+  <!-- Age bracket dropdown -->
+  <div class="flex items-center gap-1.5">
+    <label class="text-xs font-medium text-slate-500" for="age-bracket-select">Age:</label>
+    <select
+      id="age-bracket-select"
+      class="rounded border border-slate-300 bg-white py-1 px-2 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-brand-500"
+      [value]="ageBracket()"
+      (change)="onAgeBracketChange($any($event.target).value)"
+    >
+      <option value="all">All ages</option>
+      <option value="lt20">&lt; 20 days</option>
+      <option value="20to44">20 – 44 days</option>
+      <option value="gte45">45+ days</option>
+    </select>
+  </div>
+
+  <div class="h-4 w-px bg-slate-200"></div>
+
+  <!-- Stage hide-toggles -->
+  <div class="flex flex-wrap items-center gap-1.5">
+    <span class="text-xs font-medium text-slate-500 mr-1">Hide:</span>
+    @for (stage of LISTING_STAGES; track stage) {
+      <button
+        type="button"
+        (click)="toggleStageVisibility(stage)"
+        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border transition-colors"
+        [class.bg-slate-800]="isStageHidden(stage)"
+        [class.text-white]="isStageHidden(stage)"
+        [class.border-slate-800]="isStageHidden(stage)"
+        [class.bg-white]="!isStageHidden(stage)"
+        [class.text-slate-600]="!isStageHidden(stage)"
+        [class.border-slate-300]="!isStageHidden(stage)"
+        [class.hover:bg-slate-50]="!isStageHidden(stage)"
+      >
+        {{ STAGE_LABELS[stage] }}
+      </button>
+    }
+  </div>
+</div>
+
+<!-- ── Board ─────────────────────────────────────────────────────── -->
+@if (loading()) {
+  <div class="flex items-center justify-center h-64 text-slate-400 text-sm">
+    Loading pipeline&hellip;
+  </div>
+} @else {
+  <div class="overflow-x-auto pb-4" style="scrollbar-width: thin; scrollbar-color: #cbd5e1 #f1f5f9;">
+    <div class="flex gap-3" style="min-width: max-content;">
+
+      @for (stage of visibleStages(); track stage) {
+        <!-- ── Column ──────────────────────────────────────── -->
+        <div
+          class="flex flex-col rounded-xl border border-slate-200 overflow-hidden transition-colors"
+          [class.border-brand-300]="isDragOver(stage)"
+          [class.bg-brand-50]="isDragOver(stage)"
+          style="width: 220px; min-width: 220px;"
+          (dragover)="onDragOver($event, stage)"
+          (dragleave)="onDragLeave(stage)"
+          (drop)="onDrop($event, stage)"
+        >
+          <!-- Column header -->
+          <div class="flex items-center justify-between px-3 py-2.5 bg-brand-50 border-b border-brand-100">
+            <span class="text-xs font-semibold text-brand-800 uppercase tracking-wide">{{ STAGE_LABELS[stage] }}</span>
+            <span class="rounded-full bg-brand-100 text-brand-700 text-xs font-bold px-2 py-0.5 leading-none">
+              {{ getColumnCount(stage) }}
+            </span>
+          </div>
+
+          <!-- Cards list -->
+          <div class="flex flex-col gap-2 p-2 flex-1 bg-white min-h-32">
+
+            <!-- Drop placeholder when dragging over -->
+            @if (isDragOver(stage)) {
+              <div class="rounded-lg h-24 flex-shrink-0 drop-placeholder"></div>
+            }
+
+            @if (getColumnItems(stage).length === 0 && !isDragOver(stage)) {
+              <!-- Empty state -->
+              <div class="flex flex-col items-center justify-center py-8 text-center">
+                <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center mb-2">
+                  <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                  </svg>
+                </div>
+                <p class="text-xs text-slate-400">No vehicles</p>
+              </div>
+            }
+
+            @for (item of getColumnItems(stage); track item.id) {
+              <!-- ── Card ─────────────────────────── -->
+              <div
+                class="rounded-lg border border-slate-200 bg-white shadow-sm select-none transition-opacity"
+                [attr.draggable]="true"
+                [class.opacity-50]="isDragging(item.id)"
+                (dragstart)="onDragStart($event, item.id)"
+                (dragend)="onDragEnd()"
+              >
+
+                <!-- Thumbnail -->
+                <div class="relative w-full h-28 rounded-t-lg overflow-hidden bg-slate-100">
+                  @if (item.heroPhotoUrl) {
+                    <img
+                      [src]="item.heroPhotoUrl"
+                      [alt]="item.titleEn"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  } @else {
+                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-50 to-slate-100">
+                      <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                      </svg>
+                    </div>
+                  }
+
+                  <!-- Drag handle — WRITE roles only -->
+                  <ng-container *adminRole="WRITE_ROLES">
+                    <div
+                      class="absolute top-1.5 right-1.5 w-6 h-6 rounded bg-black/30 flex items-center justify-center cursor-grab active:cursor-grabbing"
+                      title="Drag to move stage"
+                    >
+                      <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M7 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 2zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 7 14zm6-8a2 2 0 1 0-.001-4.001A2 2 0 0 0 13 6zm0 2a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 8zm0 6a2 2 0 1 0 .001 4.001A2 2 0 0 0 13 14z"/>
+                      </svg>
+                    </div>
+                  </ng-container>
+                </div>
+
+                <!-- Card body -->
+                <div class="px-2.5 py-2">
+                  <!-- Title -->
+                  <a
+                    [routerLink]="['/inventory/listings', item.id]"
+                    class="block text-xs font-semibold text-slate-800 hover:text-brand-600 leading-tight mb-1 line-clamp-2"
+                  >
+                    {{ item.titleEn }}
+                  </a>
+
+                  <!-- Masked VIN -->
+                  <p class="font-mono text-xs text-slate-400 mb-1.5">{{ item.vinMasked }}</p>
+
+                  <!-- Price -->
+                  <p class="text-xs font-semibold text-slate-800 tabular-nums mb-1.5">
+                    {{ formatPrice(item.priceFils) }}
+                  </p>
+
+                  <!-- Age + aging chip -->
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs text-slate-500">{{ item.daysOnLot }}d</span>
+                    @if (agingChipClass(item.daysOnLot)) {
+                      <span
+                        class="inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-semibold leading-none"
+                        [ngClass]="agingChipClass(item.daysOnLot)"
+                      >
+                        @if (item.daysOnLot >= 45) { 45+d } @else { 20+d }
+                      </span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+}
+
+<!-- ── Stage transition confirm modal ───────────────────────────── -->
+<admin-stage-transition-modal
+  [from]="modalFrom()"
+  [to]="modalTo()"
+  [open]="modalOpen"
+  (confirm)="onModalConfirm($event)"
+  (cancel)="onModalCancel()"
+/>

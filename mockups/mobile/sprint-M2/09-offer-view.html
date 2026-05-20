@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>09 — Offer view — Behbehani Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: {
+        50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',
+        500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E3A8A',900:'#1E2563'
+      }},
+      fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], arabic:['Tajawal','sans-serif'] }
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex justify-center">
+
+  <div class="w-[390px] min-h-[844px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative">
+
+    <!-- Status bar -->
+    <div class="absolute top-0 inset-x-0 h-11 flex items-center justify-between px-6 pt-2 z-30 text-white">
+      <span class="text-[14px] font-semibold drop-shadow">9:41</span>
+      <div class="flex items-center gap-1.5 drop-shadow">
+        <svg viewBox="0 0 20 12" class="w-4 h-3" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+        <svg viewBox="0 0 16 12" class="w-4 h-3" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5z"/></svg>
+        <svg viewBox="0 0 26 12" class="w-6 h-3" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <!-- Scroll -->
+    <main class="flex-1 overflow-y-auto pb-36">
+
+      <!-- Hero with offer amount -->
+      <section class="relative bg-gradient-to-br from-brand-900 via-brand-800 to-brand-900 px-5 pt-14 pb-8 text-white overflow-hidden">
+        <div class="absolute -right-8 -bottom-6 opacity-10 pointer-events-none">
+          <svg viewBox="0 0 400 200" class="w-72 h-44 text-white" fill="currentColor">
+            <ellipse cx="200" cy="160" rx="180" ry="14"/>
+            <path d="M40 145 C40 145 55 100 100 85 C145 70 180 65 220 65 C260 65 290 75 330 90 C360 100 380 130 380 145 Z"/>
+            <circle cx="100" cy="148" r="22"/>
+            <circle cx="300" cy="148" r="22"/>
+          </svg>
+        </div>
+
+        <button class="w-11 h-11 -ms-2 rounded-full bg-white/15 backdrop-blur flex items-center justify-center text-white relative z-10" aria-label="Back">
+          <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+
+        <div class="relative z-10 mt-4">
+          <span class="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur text-white text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-300 animate-pulse"></span>
+            Concierge offer · BMC-CON-001234
+          </span>
+          <h1 class="text-[24px] font-extrabold leading-tight mt-3">Your offer is ready</h1>
+          <p class="text-[13px] text-brand-100 mt-2 leading-relaxed">Based on the Behbehani Motors inspection completed Mon, 19 May.</p>
+
+          <!-- Offer amount card -->
+          <div class="mt-5 bg-white/10 backdrop-blur rounded-2xl border border-white/15 p-5">
+            <p class="text-[11px] uppercase tracking-widest text-brand-200 font-bold">Our offer</p>
+            <p class="text-[40px] font-extrabold leading-tight mt-1 tabular-nums">KWD 4,850.000</p>
+            <div class="mt-3 flex items-center gap-2 text-[12px] text-brand-100">
+              <svg viewBox="0 0 24 24" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>Valid until <span class="font-semibold text-white">Mon, 26 May · 23:59</span> · <span class="text-brand-200">6d 14h left</span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Inspection summary link -->
+      <section class="px-5 pt-5">
+        <a href="./04-vdp.html" class="flex items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white active:bg-slate-50 min-h-[60px]">
+          <div class="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center flex-shrink-0">
+            <svg viewBox="0 0 24 24" class="w-6 h-6 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-[14px] font-bold text-slate-900">Inspection report</p>
+            <p class="text-[12px] text-slate-500">71 points · overall score 88 / 100</p>
+          </div>
+          <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-400 rtl:rotate-180 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </section>
+
+      <!-- Vehicle context -->
+      <section class="px-5 pt-4">
+        <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Your car</p>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4">
+          <p class="text-[15px] font-bold text-slate-900">2020 Toyota Camry GLE</p>
+          <div class="grid grid-cols-2 gap-y-2 mt-3 text-[12px] text-slate-600">
+            <p>Mileage</p><p class="text-end text-slate-900 font-medium">42,500 km</p>
+            <p>VIN</p><p class="text-end text-slate-900 font-mono">··· ··· A12345</p>
+            <p>Transmission</p><p class="text-end text-slate-900 font-medium">Automatic</p>
+            <p>Governorate</p><p class="text-end text-slate-900 font-medium">Hawalli</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Terms note -->
+      <section class="px-5 pt-4">
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3">
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            <span class="font-semibold text-slate-900">Accept</span> reserves a Behbehani Motors pickup slot. <span class="font-semibold text-slate-900">Decline</span> closes the offer. By accepting you agree to the <a href="#" class="text-brand-700 font-semibold underline">Sale Terms</a>.
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Sticky decision footer — 3 CTAs: Accept / Counter / Decline -->
+    <footer class="absolute bottom-0 inset-x-0 bg-white border-t border-slate-200 px-5 pt-4 pb-8 z-20">
+      <!-- Accept — primary brand-700 -->
+      <a href="./09c-offer-accepted.html"
+         class="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-brand-700 text-white font-bold text-[15px] active:bg-brand-800 shadow-sm">
+        Accept — KWD 4,850.000
+        <svg viewBox="0 0 24 24" class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+      </a>
+      <!-- Counter — white + brand border -->
+      <a href="./09b-offer-counter.html"
+         class="flex items-center justify-center w-full h-12 rounded-xl border-2 border-brand-700 text-brand-700 font-semibold text-[14px] mt-3 bg-white active:bg-brand-50">
+        Counter offer
+      </a>
+      <!-- Decline — text-only -->
+      <a href="./09d-offer-declined.html"
+         class="flex items-center justify-center w-full h-11 text-slate-500 font-medium text-[13px] mt-1 active:text-slate-700">
+        Decline this offer
+      </a>
+    </footer>
+
+  </div>
+</body>
+</html>

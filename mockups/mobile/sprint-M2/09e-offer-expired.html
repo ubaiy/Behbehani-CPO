@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>09e — Offer expired — Behbehani Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: {
+        50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',
+        500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E3A8A',900:'#1E2563'
+      }},
+      fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], arabic:['Tajawal','sans-serif'] }
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex justify-center">
+
+  <div class="w-[390px] min-h-[844px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative">
+
+    <!-- Status bar -->
+    <div class="absolute top-0 inset-x-0 h-11 flex items-center justify-between px-6 pt-2 z-30 text-slate-900">
+      <span class="text-[14px] font-semibold">9:41</span>
+      <div class="flex items-center gap-1.5">
+        <svg viewBox="0 0 20 12" class="w-4 h-3" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+        <svg viewBox="0 0 16 12" class="w-4 h-3" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5z"/></svg>
+        <svg viewBox="0 0 26 12" class="w-6 h-3" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <!-- Scroll area -->
+    <main class="flex-1 overflow-y-auto pt-14 pb-10 px-5">
+
+      <!-- Hero: slate clock icon + headline -->
+      <div class="flex flex-col items-center text-center pt-6 pb-2">
+        <div class="w-[60px] h-[60px] rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center mb-5">
+          <svg class="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h1 class="text-[24px] font-extrabold text-slate-800 leading-tight">Offer expired</h1>
+        <p class="text-[14px] text-slate-500 mt-2 leading-relaxed">
+          This offer expired on <span class="font-semibold text-slate-700">Mon, 26 May · 23:59</span>
+        </p>
+      </div>
+
+      <!-- Explanation card -->
+      <div class="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
+        <p class="text-[13px] text-slate-600 leading-relaxed">
+          Don't worry — Behbehani may re-issue at a different price. Request a new inspection or contact us and we'll see what we can do.
+        </p>
+      </div>
+
+      <!-- 2 CTAs -->
+      <div class="mt-5 space-y-3">
+        <!-- Request new inspection — brand-700 primary -->
+        <a href="./08-sell-yourcar.html"
+           class="flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-brand-700 text-white font-bold text-[14px] active:bg-brand-800 shadow-sm">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16m8-8H4"/></svg>
+          Request new inspection
+        </a>
+        <!-- Contact Customer Service — white + brand border -->
+        <a href="https://wa.me/96522200000"
+           class="flex items-center justify-center gap-2 w-full h-12 rounded-xl border-2 border-brand-700 text-brand-700 font-semibold text-[14px] bg-white active:bg-brand-50">
+          Contact Customer Service
+        </a>
+      </div>
+
+      <!-- Back to account -->
+      <div class="mt-6 text-center">
+        <a href="./06-account.html" class="text-[13px] text-slate-500 font-medium hover:text-slate-700">
+          Back to account
+        </a>
+      </div>
+
+    </main>
+
+  </div>
+</body>
+</html>

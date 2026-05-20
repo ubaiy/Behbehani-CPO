@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offer Declined — Behbehani Motors</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    /* Count-up for textarea char count — tiny JS */
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+  <!-- Minimal nav -->
+  <header class="bg-white border-b border-slate-200 px-6 py-4">
+    <a href="#" class="text-base font-extrabold text-brand-900 tracking-tight">Behbehani Motors</a>
+  </header>
+
+  <main class="max-w-lg mx-auto px-4 sm:px-6 py-12">
+
+    <!-- Icon — quiet, no celebratory tones -->
+    <div class="mb-6 flex justify-center">
+      <div class="w-20 h-20 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center">
+        <!-- Neutral "acknowledged" hand-wave icon -->
+        <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.05 4.575a1.575 1.575 0 10-3.15 0v3m3.15-3v-1.5a1.575 1.575 0 013.15 0v1.5m-3.15 0l.075 5.925m3.075.75V4.575m0 0a1.575 1.575 0 013.15 0V15M6.9 7.575a1.575 1.575 0 10-3.15 0v8.175a6.75 6.75 0 006.75 6.75h2.018a5.25 5.25 0 003.712-1.538l1.732-1.732a5.25 5.25 0 001.538-3.712l.003-2.024a.668.668 0 01.198-.471 1.575 1.575 0 10-2.228-2.228 3.818 3.818 0 00-1.12 2.687M6.9 7.575V12m6.27 4.318A4.49 4.49 0 0116.35 15m0 0h-7.5"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Headline — measured, respectful tone -->
+    <div class="text-center mb-8">
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-3">
+        Understood — we appreciate the time you've given us.
+      </h1>
+      <p class="text-sm text-slate-500 leading-relaxed">
+        Your Concierge inspection is complete and the detailed report is yours to keep. We hope the process was useful and that you find the right outcome for your vehicle.
+      </p>
+    </div>
+
+    <!-- Optional feedback (helps improve) -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
+      <p class="text-sm font-semibold text-slate-700 mb-1">Care to share why? <span class="font-normal text-slate-400">(optional)</span></p>
+      <p class="text-xs text-slate-500 mb-3">This helps us improve our offers and process. Your response won't change anything about your booking.</p>
+      <div class="space-y-2 mb-4">
+        <!-- Quick-select reasons -->
+        <label class="flex items-center gap-2.5 cursor-pointer">
+          <input type="radio" name="decline-reason" class="w-4 h-4 text-brand-700 border-slate-300 focus:ring-brand-500" />
+          <span class="text-sm text-slate-700">The offer was too low for my expectations</span>
+        </label>
+        <label class="flex items-center gap-2.5 cursor-pointer">
+          <input type="radio" name="decline-reason" class="w-4 h-4 text-brand-700 border-slate-300 focus:ring-brand-500" />
+          <span class="text-sm text-slate-700">I received a better offer elsewhere</span>
+        </label>
+        <label class="flex items-center gap-2.5 cursor-pointer">
+          <input type="radio" name="decline-reason" class="w-4 h-4 text-brand-700 border-slate-300 focus:ring-brand-500" />
+          <span class="text-sm text-slate-700">I've decided not to sell right now</span>
+        </label>
+        <label class="flex items-center gap-2.5 cursor-pointer">
+          <input type="radio" name="decline-reason" class="w-4 h-4 text-brand-700 border-slate-300 focus:ring-brand-500" />
+          <span class="text-sm text-slate-700">Other reason</span>
+        </label>
+      </div>
+      <!-- Open text -->
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1.5" for="decline-comment">
+          Additional comments <span class="text-slate-400">(optional)</span>
+        </label>
+        <textarea
+          id="decline-comment"
+          rows="3"
+          maxlength="300"
+          oninput="document.getElementById('char-count').textContent = this.value.length"
+          placeholder="Tell us anything you'd like us to know…"
+          class="w-full text-sm rounded-xl border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none bg-white"
+        ></textarea>
+        <p class="text-xs text-slate-400 text-right mt-1"><span id="char-count">0</span> / 300</p>
+      </div>
+      <button type="button" class="mt-3 rounded-xl bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-800 min-h-[44px] transition-colors">
+        Submit feedback
+      </button>
+    </div>
+
+    <!-- Browse cars CTA — gentle redirect, not pushy -->
+    <div class="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-6 text-center">
+      <p class="text-sm font-semibold text-slate-700 mb-1">Looking to buy instead?</p>
+      <p class="text-xs text-slate-500 mb-4">Explore our certified pre-owned inventory — every vehicle is inspected and backed by the Behbehani CPO guarantee.</p>
+      <a href="/en/buy"
+        class="inline-flex items-center gap-2 rounded-xl bg-brand-700 px-6 py-3 text-sm font-bold text-white hover:bg-brand-800 min-h-[44px] transition-colors">
+        Browse CPO cars
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+
+    <!-- Support -->
+    <div class="text-center text-xs text-slate-400 space-y-1">
+      <p>Need help or have a question?</p>
+      <p>
+        <a href="tel:+96522200000" class="text-brand-700 font-semibold hover:underline">+965 2220 0000</a>
+        <span class="mx-2">·</span>
+        <a href="mailto:sell@bmckw.com" class="text-brand-700 font-semibold hover:underline">sell@bmckw.com</a>
+      </p>
+    </div>
+
+  </main>
+
+</body>
+</html>

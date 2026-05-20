@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>10e — Saved addresses — Behbehani Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: {
+        50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',
+        500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E3A8A',900:'#1E2563'
+      }},
+      fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], arabic:['Tajawal','sans-serif'] }
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col items-center py-6 gap-8">
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- VARIANT 1 — List view (with saved addresses)    -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="flex flex-col items-center">
+    <p class="text-[11px] font-bold uppercase tracking-widest text-brand-700 mb-2">Variant 1 · list (with saved addresses)</p>
+    <div class="w-[375px] min-h-[812px] bg-white shadow-2xl overflow-hidden flex flex-col relative">
+
+      <!-- Status bar -->
+      <div class="absolute top-0 inset-x-0 h-11 flex items-center justify-between px-6 pt-2 z-30 text-slate-900">
+        <span class="text-[14px] font-semibold">9:41</span>
+        <div class="flex items-center gap-1.5">
+          <svg viewBox="0 0 20 12" class="w-4 h-3" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 12" class="w-4 h-3" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+          <svg viewBox="0 0 26 12" class="w-6 h-3" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- Sticky header -->
+      <header class="sticky top-0 z-20 bg-white border-b border-slate-200 pt-11">
+        <div class="h-14 min-h-[44px] flex items-center px-3 gap-2">
+          <button class="w-11 h-11 -ms-1 rounded-full flex items-center justify-center text-slate-700 active:bg-slate-100" aria-label="Back">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h1 class="flex-1 text-[17px] font-bold text-slate-900">Saved addresses</h1>
+          <button class="h-11 min-h-[44px] px-3 rounded-full text-brand-700 text-[14px] font-bold flex items-center gap-1 active:bg-brand-50">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add
+          </button>
+        </div>
+      </header>
+
+      <!-- Scroll -->
+      <main class="flex-1 overflow-y-auto pb-6">
+        <section class="px-4 py-4 space-y-3">
+
+          <!-- Card 1 — Home · Default -->
+          <article class="rounded-2xl border-2 border-brand-700 bg-white p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-center flex-shrink-0">
+                <svg viewBox="0 0 24 24" class="w-5 h-5 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <p class="text-[15px] font-bold text-slate-900">Home</p>
+                  <span class="text-[10px] font-bold uppercase tracking-wider bg-brand-700 text-white px-2 py-0.5 rounded-full">Default</span>
+                </div>
+                <p class="text-[13px] text-slate-700 mt-1.5 leading-relaxed">Salmiya, Block 4, Street 1, Building 12, Apt 6</p>
+                <p class="text-[11px] text-slate-500 mt-1">Hawalli Governorate</p>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2">
+              <button class="h-11 min-h-[44px] flex-1 rounded-xl border border-slate-200 text-slate-700 text-[13px] font-semibold flex items-center justify-center gap-1.5 active:bg-slate-50">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+              <button class="h-11 min-h-[44px] w-11 rounded-xl border border-red-200 text-red-700 flex items-center justify-center active:bg-red-50" aria-label="Delete">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Card 2 — Office (non-default) -->
+          <article class="rounded-2xl border border-slate-200 bg-white p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0">
+                <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 21V9h6v12M3 9h18"/></svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-[15px] font-bold text-slate-900">Office</p>
+                <p class="text-[13px] text-slate-700 mt-1.5 leading-relaxed">Capital, Block 2, Salem Al Mubarak St, Tower 5</p>
+                <p class="text-[11px] text-slate-500 mt-1">Capital Governorate</p>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2">
+              <button class="h-11 min-h-[44px] flex-1 rounded-xl text-brand-700 text-[13px] font-bold flex items-center justify-center gap-1.5 active:bg-brand-50">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                Set as default
+              </button>
+              <button class="h-11 min-h-[44px] w-11 rounded-xl border border-slate-200 text-slate-700 flex items-center justify-center active:bg-slate-50" aria-label="Edit">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="h-11 min-h-[44px] w-11 rounded-xl border border-red-200 text-red-700 flex items-center justify-center active:bg-red-50" aria-label="Delete">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 01-2 2H9a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+              </button>
+            </div>
+          </article>
+
+          <!-- Footer note -->
+          <p class="text-[11px] text-slate-500 px-2 pt-2 leading-relaxed">
+            Default address pre-fills delivery and inspection forms. You can add up to 5 addresses.
+          </p>
+
+        </section>
+      </main>
+
+    </div>
+  </section>
+
+  <!-- Divider banner — Empty state -->
+  <div class="w-[600px] max-w-[90%]">
+    <div class="rounded-xl bg-brand-50 border border-brand-200 px-4 py-3 text-center">
+      <p class="text-[11px] font-bold uppercase tracking-widest text-brand-700">Empty state preview</p>
+      <p class="text-[12px] text-brand-900 mt-1">Rendered when <code class="bg-white border border-brand-200 px-1.5 py-0.5 rounded text-[11px] font-mono">addresses.length === 0</code></p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- VARIANT 2 — Empty state                          -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="flex flex-col items-center">
+    <p class="text-[11px] font-bold uppercase tracking-widest text-brand-700 mb-2">Variant 2 · empty state</p>
+    <div class="w-[375px] min-h-[812px] bg-white shadow-2xl overflow-hidden flex flex-col relative">
+
+      <!-- Status bar -->
+      <div class="absolute top-0 inset-x-0 h-11 flex items-center justify-between px-6 pt-2 z-30 text-slate-900">
+        <span class="text-[14px] font-semibold">9:41</span>
+        <div class="flex items-center gap-1.5">
+          <svg viewBox="0 0 20 12" class="w-4 h-3" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 12" class="w-4 h-3" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+          <svg viewBox="0 0 26 12" class="w-6 h-3" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- Sticky header -->
+      <header class="sticky top-0 z-20 bg-white border-b border-slate-200 pt-11">
+        <div class="h-14 min-h-[44px] flex items-center px-3 gap-2">
+          <button class="w-11 h-11 -ms-1 rounded-full flex items-center justify-center text-slate-700 active:bg-slate-100" aria-label="Back">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h1 class="flex-1 text-[17px] font-bold text-slate-900">Saved addresses</h1>
+        </div>
+      </header>
+
+      <!-- Empty state -->
+      <main class="flex-1 flex flex-col items-center justify-center text-center px-8 pb-16">
+        <div class="w-20 h-20 rounded-2xl bg-brand-50 border border-brand-200 flex items-center justify-center mb-5">
+          <svg viewBox="0 0 24 24" class="w-10 h-10 text-brand-700" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <h2 class="text-[18px] font-bold text-slate-900">No saved addresses yet</h2>
+        <p class="text-[13px] text-slate-500 mt-2 leading-relaxed max-w-[260px]">
+          Save your home, office or pickup spot so we can pre-fill it for inspections and deliveries.
+        </p>
+        <button class="mt-6 h-12 min-h-[48px] px-6 rounded-2xl bg-brand-900 text-white text-[15px] font-bold flex items-center gap-2 active:bg-brand-800">
+          <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add your first address
+        </button>
+      </main>
+
+    </div>
+  </section>
+
+  <!-- Divider banner — Add form -->
+  <div class="w-[600px] max-w-[90%]">
+    <div class="rounded-xl bg-brand-50 border border-brand-200 px-4 py-3 text-center">
+      <p class="text-[11px] font-bold uppercase tracking-widest text-brand-700">Add address form</p>
+      <p class="text-[12px] text-brand-900 mt-1">Same layout used for edit; "Save address" replaces "Save changes" on edit.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- VARIANT 3 — Add / edit form                      -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <section class="flex flex-col items-center">
+    <p class="text-[11px] font-bold uppercase tracking-widest text-brand-700 mb-2">Variant 3 · add address form</p>
+    <div class="w-[375px] min-h-[812px] bg-white shadow-2xl overflow-hidden flex flex-col relative">
+
+      <!-- Status bar -->
+      <div class="absolute top-0 inset-x-0 h-11 flex items-center justify-between px-6 pt-2 z-30 text-slate-900">
+        <span class="text-[14px] font-semibold">9:41</span>
+        <div class="flex items-center gap-1.5">
+          <svg viewBox="0 0 20 12" class="w-4 h-3" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+          <svg viewBox="0 0 16 12" class="w-4 h-3" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+          <svg viewBox="0 0 26 12" class="w-6 h-3" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- Sticky header -->
+      <header class="sticky top-0 z-20 bg-white border-b border-slate-200 pt-11">
+        <div class="h-14 min-h-[44px] flex items-center px-3 gap-2">
+          <button class="w-11 h-11 -ms-1 rounded-full flex items-center justify-center text-slate-700 active:bg-slate-100" aria-label="Back">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h1 class="flex-1 text-[17px] font-bold text-slate-900">Add address</h1>
+        </div>
+      </header>
+
+      <!-- Scroll -->
+      <main class="flex-1 overflow-y-auto pb-32">
+        <section class="px-5 py-4 space-y-4">
+
+          <!-- Label -->
+          <label class="block">
+            <span class="text-[12px] font-semibold text-slate-700">Label <span class="text-red-600">*</span></span>
+            <input type="text" placeholder="Home, Office, or custom" value="Home"
+              class="mt-1 w-full h-12 min-h-[44px] px-4 rounded-2xl bg-slate-50 border border-slate-200 text-[14px] text-slate-900 focus:outline-none focus:border-brand-700 focus:bg-white" />
+            <p class="text-[10px] text-slate-500 mt-1">A short name to identify this address (max 32 chars).</p>
+          </label>
+
+          <!-- Governorate picker -->
+          <div class="block">
+            <span class="text-[12px] font-semibold text-slate-700">Governorate <span class="text-red-600">*</span></span>
+            <div class="mt-2 grid grid-cols-2 gap-2">
+              <label class="flex flex-col items-center justify-center min-h-[44px] py-2 px-2 rounded-xl border-[1.5px] border-slate-300 text-slate-700 cursor-pointer active:bg-slate-50">
+                <input type="radio" name="gov" class="sr-only">
+                <span class="text-[13px] font-semibold">Capital</span>
+                <span class="text-[10px] text-slate-500 font-arabic" dir="rtl">العاصمة</span>
+              </label>
+              <label class="flex flex-col items-center justify-center min-h-[44px] py-2 px-2 rounded-xl border-[1.5px] border-brand-700 bg-brand-50 text-brand-900 cursor-pointer">
+                <input type="radio" name="gov" class="sr-only" checked>
+                <span class="text-[13px] font-bold">Hawalli</span>
+                <span class="text-[10px] text-brand-700 font-arabic" dir="rtl">حولي</span>
+              </label>
+              <label class="flex flex-col items-center justify-center min-h-[44px] py-2 px-2 rounded-xl border-[1.5px] border-slate-300 text-slate-700 cursor-pointer active:bg-slate-50">
+                <input type="radio" name="gov" class="sr-only">
+                <span class="text-[13px] font-semibold">Farwaniya</span>
+                <span class="text-[10px] text-slate-500 font-arabic" dir="rtl">الفروانية</span>
+              </label>
+              <label class="flex flex-col items-center justify-center min-h-[44px] py-2 px-2 rounded-xl border-[1.5px] border-slate-300 text-slate-700 cursor-pointer active:bg-slate-50">
+                <input type="radio" name="gov" class="sr-only">
+                <span class="text-[13px] font-semibold text-center leading-tight">Mubarak<br>Al-Kabeer</span>
+                <span class="text-[10px] text-slate-500 font-arabic" dir="rtl">مبارك الكبير</span>
+              </label>
+              <label class="flex flex-col items-center justify-center min-h-[44px] py-2 px-2 rounded-xl border-[1.5px] border-slate-300 text-slate-700 cursor-pointer active:bg-slate-50">
+                <input type="radio" name="gov" class="sr-only">
+                <span class="text-[13px] font-semibold">Ahmadi</span>
+                <span class="text-[10px] text-slate-500 font-arabic" dir="rtl">الأحمدي</span>
+              </label>
+              <label class="flex flex-col items-center justify-center min-h-[44px] py-2 px-2 rounded-xl border-[1.5px] border-slate-300 text-slate-700 cursor-pointer active:bg-slate-50">
+                <input type="radio" name="gov" class="sr-only">
+                <span class="text-[13px] font-semibold">Jahra</span>
+                <span class="text-[10px] text-slate-500 font-arabic" dir="rtl">الجهراء</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Area -->
+          <label class="block">
+            <span class="text-[12px] font-semibold text-slate-700">Area <span class="text-red-600">*</span></span>
+            <input type="text" placeholder="e.g. Salmiya, Mahboula, Jabriya" value="Salmiya"
+              class="mt-1 w-full h-12 min-h-[44px] px-4 rounded-2xl bg-slate-50 border border-slate-200 text-[14px] text-slate-900 focus:outline-none focus:border-brand-700 focus:bg-white" />
+          </label>
+
+          <!-- Block / Street / Building (compact 3-up) -->
+          <div class="grid grid-cols-3 gap-2">
+            <label class="block">
+              <span class="text-[12px] font-semibold text-slate-700">Block <span class="text-red-600">*</span></span>
+              <input type="text" inputmode="numeric" value="4"
+                class="mt-1 w-full h-12 min-h-[44px] px-3 rounded-2xl bg-slate-50 border border-slate-200 text-[14px] font-semibold text-slate-900 text-center focus:outline-none focus:border-brand-700 focus:bg-white" />
+            </label>
+            <label class="block">
+              <span class="text-[12px] font-semibold text-slate-700">Street <span class="text-red-600">*</span></span>
+              <input type="text" value="1"
+                class="mt-1 w-full h-12 min-h-[44px] px-3 rounded-2xl bg-slate-50 border border-slate-200 text-[14px] font-semibold text-slate-900 text-center focus:outline-none focus:border-brand-700 focus:bg-white" />
+            </label>
+            <label class="block">
+              <span class="text-[12px] font-semibold text-slate-700">Building <span class="text-red-600">*</span></span>
+              <input type="text" value="12"
+                class="mt-1 w-full h-12 min-h-[44px] px-3 rounded-2xl bg-slate-50 border border-slate-200 text-[14px] font-semibold text-slate-900 text-center focus:outline-none focus:border-brand-700 focus:bg-white" />
+            </label>
+          </div>
+
+          <!-- Unit (optional) -->
+          <label class="block">
+            <span class="text-[12px] font-semibold text-slate-700">Unit <span class="text-slate-400 font-medium">(optional)</span></span>
+            <input type="text" placeholder="Apartment, floor, or unit number" value="Apt 6"
+              class="mt-1 w-full h-12 min-h-[44px] px-4 rounded-2xl bg-slate-50 border border-slate-200 text-[14px] text-slate-900 focus:outline-none focus:border-brand-700 focus:bg-white" />
+            <p class="text-[10px] text-slate-500 mt-1">Common in high-rises.</p>
+          </label>
+
+          <!-- Default toggle -->
+          <div class="rounded-2xl border border-slate-200 p-4 flex items-center gap-3">
+            <div class="flex-1">
+              <p class="text-[14px] font-semibold text-slate-900">Set as default address</p>
+              <p class="text-[11px] text-slate-500 mt-0.5">Used to pre-fill inspections and deliveries.</p>
+            </div>
+            <!-- Toggle switch (≥44px tap area) -->
+            <button role="switch" aria-checked="true" class="relative inline-flex items-center w-12 h-7 min-h-[44px] flex-shrink-0">
+              <span class="absolute inset-y-[10px] inset-x-0 rounded-full bg-brand-700 transition-colors"></span>
+              <span class="absolute top-[10px] end-[2px] w-6 h-6 rounded-full bg-white shadow transition-transform"></span>
+            </button>
+          </div>
+
+        </section>
+      </main>
+
+      <!-- Sticky CTA -->
+      <div class="absolute bottom-0 inset-x-0 bg-white border-t border-slate-200 px-4 pt-3 pb-[max(env(safe-area-inset-bottom),24px)] z-30">
+        <div class="flex items-center gap-2">
+          <button class="h-12 min-h-[48px] px-5 rounded-2xl border border-slate-300 text-slate-700 text-[14px] font-semibold flex-shrink-0">Cancel</button>
+          <button class="flex-1 h-12 min-h-[48px] rounded-2xl bg-brand-900 text-white text-[15px] font-bold flex items-center justify-center gap-2 active:bg-brand-800">
+            Save address
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</body>
+</html>

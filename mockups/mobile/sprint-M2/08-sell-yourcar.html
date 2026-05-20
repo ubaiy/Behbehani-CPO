@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>08 — Sell your car — Concierge wizard — Behbehani Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: {
+        50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',
+        500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E3A8A',900:'#1E2563'
+      }},
+      fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], arabic:['Tajawal','sans-serif'] }
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* Map placeholder gradient */
+    .map-stub {
+      background-image: linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 100%),
+        repeating-linear-gradient(45deg, transparent, transparent 16px, rgba(255,255,255,.35) 16px, rgba(255,255,255,.35) 17px);
+    }
+    /* Autocomplete dropdown z positioning */
+    .autocomplete-drop { position:absolute; left:0; right:0; top:calc(100% + 4px); z-index:20; }
+    details summary::-webkit-details-marker { display: none; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex justify-center">
+
+<!-- ═══════════════════════════════════════════════════════
+     08 SELL YOUR CAR — Concierge Wizard (3-step)
+     Sprint M2 · sell-flow re-alignment
+     Mirrors: mockups/sprint-4-redesign/sell-concierge-v2.html (web authority)
+     Compacted for 375×844. Palette: white + Royal Blue only.
+     NO amber/yellow/gold/emerald/green. Trust-strip checks = brand-300.
+     RTL-safe: ps-* / me-* / text-start / rtl:rotate-180 throughout.
+     ═══════════════════════════════════════════════════════ -->
+
+  <div class="w-[375px] min-h-[812px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative">
+
+    <!-- ─── STATUS BAR (over hero — white text) ─── -->
+    <div class="absolute top-0 inset-x-0 h-11 flex items-center justify-between px-6 pt-2 z-30 text-white pointer-events-none">
+      <span class="text-[14px] font-semibold drop-shadow">9:41</span>
+      <div class="flex items-center gap-1.5 drop-shadow">
+        <svg viewBox="0 0 20 12" class="w-4 h-3" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+        <svg viewBox="0 0 16 12" class="w-4 h-3" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+        <svg viewBox="0 0 26 12" class="w-6 h-3" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+      </div>
+    </div>
+
+    <!-- ─── SCROLLABLE BODY ─── -->
+    <main class="flex-1 overflow-y-auto pb-24">
+
+      <!-- ═══════════════════════════════════════════════
+           STEP 1 — WHERE + WHEN
+           ═══════════════════════════════════════════════ -->
+      <section id="step1">
+
+        <!-- HERO (brand-900 via brand-700 to brand-600, ~140px) -->
+        <div class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 px-5 pt-14 pb-5 text-white">
+
+          <!-- Back + eyebrow -->
+          <div class="flex items-center gap-2">
+            <button class="w-10 h-10 -ms-2 rounded-full bg-white/15 backdrop-blur flex items-center justify-center text-white" aria-label="Back">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span class="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur text-white text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+              <svg viewBox="0 0 24 24" class="w-3 h-3" fill="currentColor"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z"/></svg>
+              Concierge service
+            </span>
+          </div>
+
+          <!-- Title + subline -->
+          <h1 class="text-[22px] font-extrabold leading-tight mt-3">Schedule your inspection</h1>
+          <p class="text-[13px] text-white/85 mt-1">Three minutes. We'll come to you within 24 hours.</p>
+
+          <!-- Trust strip — horizontally scrollable pills; brand-300 check icons (NO emerald) -->
+          <div class="flex gap-2 overflow-x-auto no-scrollbar mt-3 pb-1">
+            <span class="inline-flex flex-shrink-0 items-center gap-1.5 bg-white/10 backdrop-blur text-white text-[11px] font-semibold px-3 py-1.5 rounded-full">
+              <svg viewBox="0 0 20 20" class="w-3.5 h-3.5 text-brand-300 flex-shrink-0" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Completely free
+            </span>
+            <span class="inline-flex flex-shrink-0 items-center gap-1.5 bg-white/10 backdrop-blur text-white text-[11px] font-semibold px-3 py-1.5 rounded-full">
+              <svg viewBox="0 0 20 20" class="w-3.5 h-3.5 text-brand-300 flex-shrink-0" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              71-point inspection at your door
+            </span>
+            <span class="inline-flex flex-shrink-0 items-center gap-1.5 bg-white/10 backdrop-blur text-white text-[11px] font-semibold px-3 py-1.5 rounded-full">
+              <svg viewBox="0 0 20 20" class="w-3.5 h-3.5 text-brand-300 flex-shrink-0" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              Guaranteed cash offer in 24h
+            </span>
+          </div>
+
+          <!-- 3-step stepper — Step 1 active -->
+          <div class="mt-4">
+            <p class="text-[11px] font-semibold text-white/70">Step 1 of 3</p>
+            <ol class="mt-2 flex gap-2">
+              <!-- Step 1 — active (white bg, brand text) -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl bg-white px-2.5 py-2 text-brand-700">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-brand-700 text-white text-[10px] font-bold">1</span>
+                <span class="text-[11px] font-semibold leading-tight">Where + When</span>
+              </li>
+              <!-- Step 2 — future -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm px-2.5 py-2 text-white">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-white/20 text-[10px] font-bold">2</span>
+                <span class="text-[11px] font-semibold leading-tight">Contact</span>
+              </li>
+              <!-- Step 3 — future -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm px-2.5 py-2 text-white">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-white/20 text-[10px] font-bold">3</span>
+                <span class="text-[11px] font-semibold leading-tight">Review</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+        <!-- /HERO -->
+
+        <!-- Vehicle preview card (always-visible, data captured upstream) -->
+        <!-- Vehicle data captured upstream (sell entry screen — out of scope for this wizard mockup) -->
+        <div class="mx-4 mt-4 flex items-center gap-3 rounded-2xl border border-brand-100 bg-brand-50 p-3">
+          <span class="inline-grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl bg-white text-brand-700 shadow-sm">
+            <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+          </span>
+          <div class="flex-1 min-w-0">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-brand-700">Your car</p>
+            <p class="text-[13px] font-semibold text-slate-900 truncate">2021 Toyota Camry · 42,000 km</p>
+          </div>
+          <a href="#" class="flex-shrink-0 text-[12px] font-semibold text-brand-700">Edit</a>
+        </div>
+
+        <!-- CARD 1A — Address -->
+        <div class="mx-4 mt-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 class="text-[16px] font-bold text-slate-900">Where should we come?</h2>
+          <p class="text-[12px] text-slate-500 mt-0.5">Your inspector arrives at your address.</p>
+
+          <!-- Address search with autocomplete stub -->
+          <div class="relative mt-3">
+            <div class="flex items-center gap-2 rounded-xl border-2 border-brand-200 bg-white px-3 py-2.5 focus-within:border-brand-500">
+              <svg viewBox="0 0 24 24" class="w-4 h-4 text-brand-700 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+              <input type="text" placeholder="Search your address (Block, Street, House)" value="Block 4, Salem"
+                class="flex-1 bg-transparent text-[13px] text-slate-900 outline-none placeholder:text-slate-400" />
+            </div>
+            <!-- Autocomplete dropdown (mocked open) -->
+            <div class="autocomplete-drop rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+              <button class="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-slate-50 text-start active:bg-slate-100">
+                <svg viewBox="0 0 24 24" class="w-4 h-4 text-brand-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Block 4, Salem Al Mubarak St, House 12</p>
+                  <p class="text-[11px] text-slate-500">Salmiya · Hawalli</p>
+                </div>
+              </button>
+              <button class="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-slate-50 text-start border-t border-slate-100 active:bg-slate-100">
+                <svg viewBox="0 0 24 24" class="w-4 h-4 text-brand-700 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+                <div class="flex-1 min-w-0">
+                  <p class="text-[13px] font-semibold text-slate-900 truncate">Block 4, Street 12</p>
+                  <p class="text-[11px] text-slate-500">Bayan · Hawalli</p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Use my current location -->
+          <button class="mt-3 w-full h-11 min-h-[44px] flex items-center justify-center gap-2 rounded-xl bg-brand-50 text-brand-700 text-[13px] font-semibold border border-brand-200 active:bg-brand-100">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+            Use my current location
+          </button>
+
+          <!-- Map preview stub -->
+          <div class="mt-3 rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="map-stub h-32 relative">
+              <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
+                <div class="bg-brand-700 text-white rounded-full p-1.5 shadow-sm">
+                  <svg viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+                </div>
+              </div>
+              <p class="absolute bottom-1.5 start-2 text-[10px] bg-white/90 backdrop-blur px-1.5 py-0.5 rounded text-slate-500">Map · OpenStreetMap</p>
+            </div>
+          </div>
+
+          <!-- Optional notes collapsible -->
+          <details class="mt-3 group">
+            <summary class="flex cursor-pointer list-none items-center gap-1.5 text-[12px] font-semibold text-brand-700">
+              <svg viewBox="0 0 24 24" class="w-3 h-3 transition-transform group-open:rotate-90 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
+              Add parking instructions or gate code
+              <span class="text-[11px] font-normal text-slate-400">(optional)</span>
+            </summary>
+            <textarea rows="2" placeholder="e.g. Gated compound, call at the gate. Parking inside."
+              class="mt-2 w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-[13px] text-slate-900 focus:outline-none focus:border-brand-500 resize-none"></textarea>
+          </details>
+        </div>
+        <!-- /CARD 1A -->
+
+        <!-- CARD 1B — Schedule -->
+        <div class="mx-4 mt-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 class="text-[16px] font-bold text-slate-900">When works for you?</h2>
+          <p class="text-[12px] text-slate-500 mt-0.5">Pick a day and rough window. Our team confirms the exact time within 24h.</p>
+
+          <!-- Horizontal date strip — 7 days -->
+          <div class="flex gap-2 overflow-x-auto no-scrollbar mt-3 pb-1 -mx-1 px-1">
+            <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-slate-200 bg-white px-2 py-2.5 active:bg-slate-50">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-brand-700">Today</span>
+              <span class="text-[20px] font-extrabold text-slate-900 leading-none mt-0.5">19</span>
+              <span class="text-[10px] text-slate-400">May</span>
+            </button>
+            <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-slate-200 bg-white px-2 py-2.5 active:bg-slate-50">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-brand-700">Tomorrow</span>
+              <span class="text-[20px] font-extrabold text-slate-900 leading-none mt-0.5">20</span>
+              <span class="text-[10px] text-slate-400">May</span>
+            </button>
+            <!-- SELECTED -->
+            <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border-2 border-brand-700 bg-brand-50 px-2 py-2.5">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-brand-700">Wed</span>
+              <span class="text-[20px] font-extrabold text-brand-900 leading-none mt-0.5">21</span>
+              <span class="text-[10px] text-brand-700">May</span>
+            </button>
+            <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-slate-200 bg-white px-2 py-2.5 active:bg-slate-50">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Thu</span>
+              <span class="text-[20px] font-extrabold text-slate-900 leading-none mt-0.5">22</span>
+              <span class="text-[10px] text-slate-400">May</span>
+            </button>
+            <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-slate-200 bg-white px-2 py-2.5 active:bg-slate-50">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Fri</span>
+              <span class="text-[20px] font-extrabold text-slate-900 leading-none mt-0.5">23</span>
+              <span class="text-[10px] text-slate-400">May</span>
+            </button>
+            <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-slate-200 bg-white px-2 py-2.5 active:bg-slate-50">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Sat</span>
+              <span class="text-[20px] font-extrabold text-slate-900 leading-none mt-0.5">24</span>
+              <span class="text-[10px] text-slate-400">May</span>
+            </button>
+            <button class="flex-shrink-0 flex flex-col items-center justify-center w-[68px] rounded-2xl border border-slate-200 bg-white px-2 py-2.5 active:bg-slate-50">
+              <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Sun</span>
+              <span class="text-[20px] font-extrabold text-slate-900 leading-none mt-0.5">25</span>
+              <span class="text-[10px] text-slate-400">May</span>
+            </button>
+          </div>
+
+          <!-- Time window pills — per Concierge contract v0.2 §3a: Morning / Afternoon / Evening -->
+          <div class="mt-3 flex gap-2">
+            <label class="flex flex-1 flex-col items-center justify-center min-h-[72px] rounded-2xl border-2 border-slate-200 bg-white cursor-pointer active:bg-slate-50 p-2 text-center">
+              <input type="radio" name="window" class="sr-only">
+              <span class="text-[13px] font-bold text-slate-900">Morning</span>
+              <span class="text-[10px] text-slate-400 mt-0.5">8–12</span>
+            </label>
+            <!-- SELECTED -->
+            <label class="flex flex-1 flex-col items-center justify-center min-h-[72px] rounded-2xl border-2 border-brand-700 bg-brand-50 cursor-pointer p-2 text-center">
+              <input type="radio" name="window" class="sr-only" checked>
+              <span class="text-[13px] font-bold text-brand-900">Afternoon</span>
+              <span class="text-[10px] text-brand-700 mt-0.5">12–4</span>
+            </label>
+            <label class="flex flex-1 flex-col items-center justify-center min-h-[72px] rounded-2xl border-2 border-slate-200 bg-white cursor-pointer active:bg-slate-50 p-2 text-center">
+              <input type="radio" name="window" class="sr-only">
+              <span class="text-[13px] font-bold text-slate-900">Evening</span>
+              <span class="text-[10px] text-slate-400 mt-0.5">4–8</span>
+            </label>
+          </div>
+        </div>
+        <!-- /CARD 1B -->
+
+        <!-- Sticky-bottom CTA (Step 1 → Step 2) -->
+        <div class="mx-4 mt-4 mb-2">
+          <a href="#step2" class="flex w-full items-center justify-center gap-2 h-12 min-h-[48px] rounded-2xl bg-brand-700 text-white text-[15px] font-bold active:bg-brand-800 shadow-sm">
+            Continue → Contact
+            <svg viewBox="0 0 24 24" class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+      </section>
+      <!-- /STEP 1 -->
+
+      <!-- ═══════════════════════════════════════════════
+           STEP 2 — CONTACT
+           ═══════════════════════════════════════════════ -->
+      <section id="step2" class="border-t-4 border-slate-100">
+
+        <!-- HERO (step 2) -->
+        <div class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 px-5 pt-14 pb-5 text-white">
+
+          <div class="flex items-center gap-2">
+            <button class="w-10 h-10 -ms-2 rounded-full bg-white/15 backdrop-blur flex items-center justify-center text-white" aria-label="Back">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <a href="#step1" class="text-[12px] font-semibold text-white/85">← Back to Where + When</a>
+          </div>
+
+          <h1 class="text-[22px] font-extrabold leading-tight mt-3">Who should we contact?</h1>
+
+          <!-- Stepper — step 2 active -->
+          <div class="mt-4">
+            <p class="text-[11px] font-semibold text-white/70">Step 2 of 3</p>
+            <ol class="mt-2 flex gap-2">
+              <!-- Step 1 — done (checkmark) -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm px-2.5 py-2 text-white">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-white/20 text-[10px]">
+                  <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                </span>
+                <span class="text-[11px] font-semibold leading-tight">Where + When</span>
+              </li>
+              <!-- Step 2 — active -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl bg-white px-2.5 py-2 text-brand-700">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-brand-700 text-white text-[10px] font-bold">2</span>
+                <span class="text-[11px] font-semibold leading-tight">Contact</span>
+              </li>
+              <!-- Step 3 — future -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm px-2.5 py-2 text-white">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-white/20 text-[10px] font-bold">3</span>
+                <span class="text-[11px] font-semibold leading-tight">Review</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+        <!-- /HERO step 2 -->
+
+        <!-- Contact form card -->
+        <div class="mx-4 mt-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
+
+          <!-- Full name -->
+          <label class="block">
+            <span class="text-[12px] font-semibold text-slate-700">Full name <span class="text-red-600">*</span></span>
+            <input type="text" placeholder="Abbas Behbehani" value=""
+              class="mt-1.5 w-full h-12 min-h-[44px] px-4 rounded-xl bg-slate-50 border border-slate-200 text-[14px] text-slate-900 focus:outline-none focus:border-brand-500 focus:bg-white" />
+          </label>
+
+          <!-- Mobile: +965 chip + 8-digit -->
+          <label class="block">
+            <span class="text-[12px] font-semibold text-slate-700">Mobile <span class="text-red-600">*</span></span>
+            <div class="mt-1.5 flex items-stretch rounded-xl border border-slate-200 bg-slate-50 focus-within:border-brand-500 focus-within:bg-white overflow-hidden">
+              <span class="inline-flex items-center border-e border-slate-200 px-3 text-[13px] font-bold text-slate-500 bg-slate-100">+965</span>
+              <input type="tel" inputmode="numeric" placeholder="5XXX XXXX" pattern="[569][0-9]{7}" maxlength="8"
+                class="flex-1 h-12 min-h-[44px] px-3 bg-transparent text-[14px] text-slate-900 focus:outline-none" />
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1">Kuwait mobile starts with 5/6/9 — 8 digits</p>
+          </label>
+
+          <!-- Email -->
+          <label class="block">
+            <span class="text-[12px] font-semibold text-slate-700">Email <span class="text-slate-400 font-normal">(optional)</span></span>
+            <input type="email" placeholder="you@example.com"
+              class="mt-1.5 w-full h-12 min-h-[44px] px-4 rounded-xl bg-slate-50 border border-slate-200 text-[14px] text-slate-900 focus:outline-none focus:border-brand-500 focus:bg-white" />
+          </label>
+
+          <!-- Privacy reassurance -->
+          <div class="rounded-xl bg-slate-50 border border-slate-200 p-3 flex items-start gap-2">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 text-slate-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <p class="text-[12px] text-slate-700">
+              Your details stay private until you accept an offer. We never share with third parties.
+            </p>
+          </div>
+        </div>
+
+        <!-- Back + Continue CTA -->
+        <div class="mx-4 mt-4 mb-2 flex items-center gap-2">
+          <a href="#step1" class="h-12 min-h-[48px] px-4 rounded-2xl border border-slate-300 text-slate-700 text-[14px] font-semibold flex items-center justify-center flex-shrink-0">
+            Back
+          </a>
+          <a href="#step3" class="flex flex-1 items-center justify-center gap-2 h-12 min-h-[48px] rounded-2xl bg-brand-700 text-white text-[14px] font-bold active:bg-brand-800 shadow-sm">
+            Continue → Review
+            <svg viewBox="0 0 24 24" class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+
+      </section>
+      <!-- /STEP 2 -->
+
+      <!-- ═══════════════════════════════════════════════
+           STEP 3 — REVIEW
+           ═══════════════════════════════════════════════ -->
+      <section id="step3" class="border-t-4 border-slate-100">
+
+        <!-- HERO (step 3) -->
+        <div class="bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600 px-5 pt-14 pb-5 text-white">
+
+          <div class="flex items-center gap-2">
+            <button class="w-10 h-10 -ms-2 rounded-full bg-white/15 backdrop-blur flex items-center justify-center text-white" aria-label="Back">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <a href="#step2" class="text-[12px] font-semibold text-white/85">← Back to Contact</a>
+          </div>
+
+          <h1 class="text-[22px] font-extrabold leading-tight mt-3">One last check</h1>
+          <p class="text-[13px] text-white/85 mt-1">Make sure everything looks right, then we'll send your inspector.</p>
+
+          <!-- Stepper — step 3 active -->
+          <div class="mt-4">
+            <p class="text-[11px] font-semibold text-white/70">Step 3 of 3</p>
+            <ol class="mt-2 flex gap-2">
+              <!-- Step 1 — done -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm px-2.5 py-2 text-white">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-white/20 text-[10px]">
+                  <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                </span>
+                <span class="text-[11px] font-semibold leading-tight">Where + When</span>
+              </li>
+              <!-- Step 2 — done -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm px-2.5 py-2 text-white">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-white/20 text-[10px]">
+                  <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+                </span>
+                <span class="text-[11px] font-semibold leading-tight">Contact</span>
+              </li>
+              <!-- Step 3 — active -->
+              <li class="flex flex-1 items-center gap-1.5 rounded-xl bg-white px-2.5 py-2 text-brand-700">
+                <span class="inline-grid h-5 w-5 flex-shrink-0 place-items-center rounded-full bg-brand-700 text-white text-[10px] font-bold">3</span>
+                <span class="text-[11px] font-semibold leading-tight">Review</span>
+              </li>
+            </ol>
+          </div>
+        </div>
+        <!-- /HERO step 3 -->
+
+        <!-- CARD 1 — Review your booking -->
+        <div class="mx-4 mt-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm space-y-0 divide-y divide-slate-100">
+
+          <!-- Vehicle -->
+          <!-- TODO: link to /sell entry once that screen exists -->
+          <div class="flex items-center gap-3 py-3">
+            <span class="inline-grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2"/></svg>
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Vehicle</p>
+              <p class="text-[13px] font-semibold text-slate-900 truncate">2021 Toyota Camry · 42,000 km · Auto · petrol</p>
+            </div>
+            <a href="#" class="flex-shrink-0 text-[12px] font-semibold text-brand-700">Edit</a>
+          </div>
+
+          <!-- Where -->
+          <div class="flex items-center gap-3 py-3">
+            <span class="inline-grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Where</p>
+              <p class="text-[13px] font-semibold text-slate-900 truncate">Block 4, Salem Al Mubarak St, House 12 · Salmiya · Hawalli</p>
+            </div>
+            <a href="#step1" class="flex-shrink-0 text-[12px] font-semibold text-brand-700">Edit</a>
+          </div>
+
+          <!-- When -->
+          <div class="flex items-center gap-3 py-3">
+            <span class="inline-grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">When</p>
+              <p class="text-[13px] font-semibold text-slate-900">Wed 21 May · Afternoon (12–4)</p>
+            </div>
+            <a href="#step1" class="flex-shrink-0 text-[12px] font-semibold text-brand-700">Edit</a>
+          </div>
+
+          <!-- Contact -->
+          <div class="flex items-center gap-3 py-3">
+            <span class="inline-grid h-9 w-9 flex-shrink-0 place-items-center rounded-xl bg-brand-50 text-brand-700">
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.12.96.34 1.9.66 2.81a2 2 0 01-.45 2.11L8 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.32 1.85.54 2.81.66A2 2 0 0122 16.92z"/></svg>
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Contact</p>
+              <p class="text-[13px] font-semibold text-slate-900 truncate">Abbas Behbehani · +965 5XXX XXXX · abbas@example.com</p>
+            </div>
+            <a href="#step2" class="flex-shrink-0 text-[12px] font-semibold text-brand-700">Edit</a>
+          </div>
+        </div>
+
+        <!-- CARD 2 — What happens next -->
+        <div class="mx-4 mt-3 rounded-3xl border border-brand-200 bg-brand-50 p-4 shadow-sm">
+          <p class="text-[12px] font-bold uppercase tracking-wider text-brand-700 mb-3">What happens next</p>
+          <ol class="space-y-3">
+            <li class="flex items-start gap-3">
+              <span class="text-[18px] leading-none flex-shrink-0 mt-0.5">⌚</span>
+              <p class="text-[13px] text-brand-900">Our team confirms your slot within 24 hours.</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-[18px] leading-none flex-shrink-0 mt-0.5">🔧</span>
+              <p class="text-[13px] text-brand-900">Inspector arrives, does 71-point check + photos (~30 min).</p>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-[18px] leading-none flex-shrink-0 mt-0.5">💰</span>
+              <p class="text-[13px] text-brand-900">You receive a cash offer within 24 hours of inspection.</p>
+            </li>
+          </ol>
+        </div>
+
+        <!-- T&Cs checkbox -->
+        <label class="mx-4 mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 active:bg-white">
+          <input type="checkbox" class="mt-0.5 h-4 w-4 flex-shrink-0 rounded border-slate-300 text-brand-700 focus:ring-brand-500" />
+          <span class="text-[12px] leading-relaxed text-slate-700">
+            I agree to the inspection T&Cs and consent to Behbehani Motors processing my booking details.
+          </span>
+        </label>
+
+        <!-- Back + Book CTA -->
+        <div class="mx-4 mt-4 mb-4 flex items-center gap-2">
+          <a href="#step2" class="h-12 min-h-[48px] px-4 rounded-2xl border border-slate-300 text-slate-700 text-[14px] font-semibold flex items-center justify-center flex-shrink-0">
+            Back
+          </a>
+          <button class="flex flex-1 items-center justify-center gap-2 h-12 min-h-[48px] rounded-2xl bg-brand-700 text-white text-[15px] font-bold active:bg-brand-800 shadow-sm">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            Book my inspection
+          </button>
+        </div>
+
+        <!-- ─── POST-SUBMIT SUCCESS STATE ─── -->
+        <div class="mx-4 mb-6 rounded-3xl border border-brand-200 bg-brand-50 overflow-hidden shadow-sm">
+          <div class="bg-brand-700 px-4 py-3 text-white text-[12px] font-bold uppercase tracking-wider text-center">
+            Booking confirmed
+          </div>
+          <div class="p-4">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-brand-700 mb-2">Booking ref</p>
+            <div class="flex items-center gap-3">
+              <p class="text-[20px] font-extrabold text-brand-900 font-mono tracking-tight">BMC-CON-001234</p>
+              <button class="flex items-center gap-1 text-[11px] font-semibold text-brand-700 border border-brand-300 px-2 py-1 rounded-full min-h-[44px]">
+                <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+            <p class="text-[12px] text-brand-900 mt-2">We'll confirm your inspector visit by SMS within 30 minutes.</p>
+          </div>
+        </div>
+
+      </section>
+      <!-- /STEP 3 -->
+
+    </main>
+    <!-- /SCROLLABLE BODY -->
+
+    <!-- ─── BOTTOM TAB BAR ─── -->
+    <div class="absolute bottom-0 inset-x-0 bg-white border-t border-slate-200 flex items-center px-2 pt-2 pb-[max(env(safe-area-inset-bottom),16px)] z-30">
+
+      <!-- Home -->
+      <a class="flex flex-1 flex-col items-center gap-1 py-1 text-slate-400 active:text-brand-700" href="#">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+        <span class="text-[10px] font-semibold">Home</span>
+      </a>
+
+      <!-- Buy -->
+      <a class="flex flex-1 flex-col items-center gap-1 py-1 text-slate-400 active:text-brand-700" href="#">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 001.97-1.67L23 6H6"/></svg>
+        <span class="text-[10px] font-semibold">Buy</span>
+      </a>
+
+      <!-- Sell — ACTIVE -->
+      <a class="flex flex-1 flex-col items-center gap-1 py-1 text-brand-700" href="#">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        <span class="text-[10px] font-bold">Sell</span>
+      </a>
+
+      <!-- Services -->
+      <a class="flex flex-1 flex-col items-center gap-1 py-1 text-slate-400 active:text-brand-700" href="#">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+        <span class="text-[10px] font-semibold">Services</span>
+      </a>
+
+      <!-- Account -->
+      <a class="flex flex-1 flex-col items-center gap-1 py-1 text-slate-400 active:text-brand-700" href="#">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="text-[10px] font-semibold">Account</span>
+      </a>
+
+      <!-- More -->
+      <a class="flex flex-1 flex-col items-center gap-1 py-1 text-slate-400 active:text-brand-700" href="#">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="12" cy="12" r="1" fill="currentColor"/><circle cx="19" cy="12" r="1" fill="currentColor"/></svg>
+        <span class="text-[10px] font-semibold">More</span>
+      </a>
+
+    </div>
+    <!-- /TAB BAR -->
+
+  </div>
+
+</body>
+</html>

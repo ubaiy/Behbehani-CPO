@@ -1,0 +1,27 @@
+{
+  "name": "data-access-mobile",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/data-access-mobile/src",
+  "projectType": "library",
+  "tags": ["scope:mobile", "type:data-access"],
+  "targets": {
+    "typecheck": {
+      "command": "tsc --noEmit",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    },
+    "lint": {
+      "command": "eslint src --ext .ts",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    },
+    "test": {
+      "command": "jest --passWithNoTests --config jest.config.cts",
+      "options": {
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}

@@ -1,0 +1,950 @@
+// Behbehani CPO — Phase 1 schema (Sprint 1 scope) + Sprint 2 media/pricing/aging
+// References: master plan §"Database — Phase 1 entities" and SRS §6.4.
+// Entities for later sprints (Reservation, Order, LoanApplication, …) will be
+// added in their owning sprint to keep this file load-bearing only for what
+// the current code touches.
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Roles ─────────────────────────────────────────────────────────────────
+
+// Top-level role on a User. Admin staff carry a separate `adminRoles[]` set
+// (RBAC granularity from SRS FR-ADM-002).
+enum UserRole {
+  customer
+  dealer // reserved for Phase 2 B2B
+  admin
+}
+
+// 12 admin sub-roles per SRS FR-ADM-002. A staff user can hold multiple.
+enum AdminRole {
+  super_admin
+  general_manager
+  operations_manager
+  sales_agent
+  inspection_officer
+  auction_operator // Phase 2 — table stays
+  delivery_dispatcher
+  maintenance_coordinator
+  finance_officer
+  pricing_manager
+  customer_support
+  content_editor
+  technical_support
+}
+
+enum Locale {
+  en
+  ar
+}
+
+// ─── Users & audit ─────────────────────────────────────────────────────────
+
+// v1.3.0 §4 — account lifecycle state.
+enum UserStatus {
+  active
+  suspended
+  pending_verification
+}
+
+// v1.3.0 §4 — Kuwait governorate codes for Address.
+enum KuwaitGovernorate {
+  capital
+  hawalli
+  ahmadi
+  jahra
+  farwaniya
+  mubarak_al_kabeer
+}
+
+model User {
+  id               String      @id @default(uuid()) @db.Uuid
+  email            String?     @unique
+  mobile           String?     @unique
+  // Nullable as of v1.2 (CONTRACT v1.2.0 §1 Q2). Ghost rows store NULL
+  // (previously `''`). Backfill applied in migration 20260520000001_v1_2_auth.
+  passwordHash     String?
+  fullName         String
+  role             UserRole    @default(customer)
+  adminRoles       AdminRole[] @default([])
+  locale           Locale      @default(en)
+  emailVerifiedAt  DateTime?
+  mobileVerifiedAt DateTime?
+  // Google OAuth — v1.2.0 §4. Stable per-Google-account `sub` claim.
+  googleSub               String?     @unique
+  // v1.3.0 §5 — avatar S3 key (CDN prefix added in toPublic).
+  avatarUrl               String?
+  // v1.3.0 §5 — account lifecycle status.
+  status                  UserStatus  @default(active)
+  // v1.3.0 §5 — per-channel notification preferences (push, email, sms).
+  notificationPreferences Json?
+  failedLoginCount        Int         @default(0)
+  lockedUntil      DateTime?
+  lastSignInAt     DateTime?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  deletedAt        DateTime?
+
+  auditEntries         AuditLog[]         @relation("AuditActor")
+  createdListings      Listing[]          @relation("ListingCreatedBy")
+  assignedListings     Listing[]          @relation("ListingAssignedSales")
+  priceHistory         PriceHistory[]     @relation("PriceChangedBy")
+  uploadedPhotos       ListingPhoto[]     @relation("PhotoUploadedBy")
+  uploadedVideos       ListingVideo[]     @relation("VideoUploadedBy")
+  uploadedMedia360     Listing360[]       @relation("Media360UploadedBy")
+  triggeredAgingRuns   AgingEngineRun[]   @relation("AgingRunTriggeredBy")
+  // Concierge inspections where this user is the customer being inspected
+  customerInspections  InspectionReport[] @relation("CustomerInspection")
+  // Inspections this user (inspection_officer) personally conducted
+  conductedInspections InspectionReport[] @relation("InspectorInspection")
+  // Offers (Phase 4)
+  offers               Offer[]            @relation("CustomerOffer")
+  createdOffers        Offer[]            @relation("OfferCreatedBy")
+  // OTP codes (v1.2). Nullable userId on OtpCode so first-time registration
+  // OTPs (no User yet) don't FK-bind.
+  otpCodes             OtpCode[]          @relation("UserOtpCodes")
+  // Saved listings (v1.2). Customer favourites for the my-bookings page.
+  savedListings        SavedListing[]     @relation("CustomerSavedListings")
+  // v1.3.0 §4 — customer address book.
+  addresses            Address[]          @relation("UserAddresses")
+  // v1.3.0 §3 — device sessions for refresh-token tracking.
+  deviceSessions       UserDeviceSession[] @relation("UserDeviceSessions")
+  // v1.3.4 — Coming-Soon shell waitlist opt-ins.
+  featureWaitlists     FeatureWaitlist[]   @relation("UserFeatureWaitlists")
+  // v1.4 — Push notification device tokens (FCM + APNs registry).
+  pushTokens           PushToken[]         @relation("UserPushTokens")
+  // v1.4 — Customer document vault (sale contracts, inspection reports, etc.)
+  documents            Document[]          @relation("UserDocuments")
+  // v1.4 — Orders placed by this customer.
+  orders               Order[]             @relation("UserOrders")
+}
+
+// Append-only audit trail (FR-ADM-021).
+model AuditLog {
+  id         BigInt   @id @default(autoincrement())
+  actorId    String?  @db.Uuid
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id])
+  action     String
+  resource   String
+  resourceId String?
+  before     Json?
+  after      Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([resource, resourceId])
+  @@index([actorId, createdAt])
+}
+
+// ─── Vehicle catalog ───────────────────────────────────────────────────────
+
+model Brand {
+  id        String   @id @default(uuid()) @db.Uuid
+  slug      String   @unique
+  nameEn    String
+  nameAr    String
+  logoUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  models   Model[]
+  listings Listing[]
+}
+
+model Model {
+  id        String   @id @default(uuid()) @db.Uuid
+  brandId   String   @db.Uuid
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  slug      String
+  nameEn    String
+  nameAr    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trims    Trim[]
+  listings Listing[]
+
+  @@unique([brandId, slug])
+}
+
+model Trim {
+  id        String   @id @default(uuid()) @db.Uuid
+  modelId   String   @db.Uuid
+  model     Model    @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings Listing[]
+
+  @@unique([modelId, name])
+}
+
+model BodyType {
+  id        String   @id @default(uuid()) @db.Uuid
+  slug      String   @unique // sedan, suv, hatchback, coupe, pickup, van, …
+  nameEn    String
+  nameAr    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings Listing[]
+}
+
+// ─── Listings ──────────────────────────────────────────────────────────────
+
+// 10-stage pipeline per FR-ADM-005.
+enum ListingStage {
+  acquired
+  inbound
+  inspection
+  photoshoot
+  reconditioning
+  listed
+  reserved
+  sold
+  delivered
+  closed
+}
+
+enum Transmission {
+  automatic
+  manual
+  cvt
+  dct
+}
+
+enum FuelType {
+  petrol
+  diesel
+  hybrid
+  electric
+}
+
+enum Drivetrain {
+  fwd
+  rwd
+  awd
+  four_wd
+}
+
+model Listing {
+  id              String       @id @default(uuid()) @db.Uuid
+  // Human-friendly stock number e.g. "BCPO-2026-0001".
+  stockNumber     String       @unique
+  // VIN is stored full; UI masks all but last 6.
+  vin             String       @unique
+  titleEn         String
+  titleAr         String?
+  slug            String       @unique
+  brandId         String       @db.Uuid
+  brand           Brand        @relation(fields: [brandId], references: [id])
+  modelId         String       @db.Uuid
+  model           Model        @relation(fields: [modelId], references: [id])
+  trimId          String?      @db.Uuid
+  trim            Trim?        @relation(fields: [trimId], references: [id])
+  bodyTypeId      String       @db.Uuid
+  bodyType        BodyType     @relation(fields: [bodyTypeId], references: [id])
+  year            Int
+  mileageKm       Int
+  exteriorColor   String
+  interiorColor   String
+  transmission    Transmission
+  fuelType        FuelType
+  engineCc        Int?
+  cylinders       Int?
+  drivetrain      Drivetrain
+  seats           Int
+  doors           Int
+  gccSpec         Boolean      @default(true)
+  previousOwners  Int          @default(1)
+  serviceHistory  Boolean      @default(false)
+  accidentHistory Boolean      @default(false)
+  accidentNotes   String?
+
+  // Pricing — stored in fils (1 KWD = 1000 fils) to avoid floats.
+  priceFils            BigInt
+  // Optional internal cost/floor price — only visible to Finance roles.
+  costFils             BigInt?
+  // Aging-discount rule applies once `listed` time passes thresholds; engine
+  // is implemented in Sprint 2.
+  agingDiscountEnabled Boolean @default(true)
+
+  descriptionEn String? @db.Text
+  descriptionAr String? @db.Text
+
+  stage      ListingStage @default(acquired)
+  listedAt   DateTime?
+  reservedAt DateTime?
+  soldAt     DateTime?
+  // Operator-curated "Featured" flag — surfaces on the storefront hero rail
+  // and the home-page featured carousel. Stored as a timestamp so we can
+  // sort newest-featured-first without a separate column. Null = not featured.
+  featuredAt DateTime?
+
+  createdById     String  @db.Uuid
+  createdBy       User    @relation("ListingCreatedBy", fields: [createdById], references: [id])
+  assignedSalesId String? @db.Uuid
+  assignedSales   User?   @relation("ListingAssignedSales", fields: [assignedSalesId], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  // Acquisition source lineage (set when Listing is auto-created from Concierge
+  // offer acceptance per Phase 4 §16 D5). Carries { source, inspectionId,
+  // offerId, customerId, bookingRef } — queryable for reporting.
+  acquisitionSourceJson Json?
+
+  photos           ListingPhoto[]
+  videos           ListingVideo[]
+  priceHistory     PriceHistory[]
+  inspectionReport InspectionReport?
+  media360         Listing360?
+  appliedDiscounts AppliedDiscount[]
+  // Saved listings (v1.2) — customers who favourited this listing.
+  savedBy          SavedListing[]    @relation("ListingSavedBy")
+  // v1.4 — Orders placed against this listing.
+  orders           Order[]           @relation("ListingOrders")
+
+  @@index([stage, listedAt])
+  @@index([brandId, modelId])
+  @@index([priceFils])
+  @@index([featuredAt])
+}
+
+model ListingPhoto {
+  id           String   @id @default(uuid()) @db.Uuid
+  listingId    String   @db.Uuid
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  // S3 key — actual upload pipeline lands in Sprint 2.
+  s3Key        String
+  cdnUrl       String?
+  altEn        String?
+  altAr        String?
+  isHero       Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  bytes        Int?
+  mimeType     String?
+  width        Int?
+  height       Int?
+  uploadStatus String   @default("pending")
+  uploadedById String?  @db.Uuid
+  uploadedBy   User?    @relation("PhotoUploadedBy", fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([listingId, sortOrder])
+}
+
+model ListingVideo {
+  id           String   @id @default(uuid()) @db.Uuid
+  listingId    String   @db.Uuid
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  s3Key        String
+  cdnUrl       String?
+  durationS    Int?
+  bytes        Int?
+  mimeType     String?
+  posterS3Key  String?
+  uploadStatus String   @default("pending")
+  uploadedById String?  @db.Uuid
+  uploadedBy   User?    @relation("VideoUploadedBy", fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+model Listing360 {
+  id           String   @id @default(uuid()) @db.Uuid
+  listingId    String   @unique @db.Uuid
+  listing      Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  archiveS3Key String // .zip or .mp4 of frames
+  frameCount   Int?
+  bytes        Int?
+  mimeType     String?
+  uploadStatus String   @default("pending")
+  uploadedById String?  @db.Uuid
+  uploadedBy   User?    @relation("Media360UploadedBy", fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PriceHistory {
+  id          BigInt   @id @default(autoincrement())
+  listingId   String   @db.Uuid
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  fromFils    BigInt
+  toFils      BigInt
+  reason      String?
+  changedById String?  @db.Uuid
+  changedBy   User?    @relation("PriceChangedBy", fields: [changedById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([listingId, createdAt])
+}
+
+// Inspection report (CPO + Concierge). Performed by Behbehani's internal team.
+// CPO: vehicle in Behbehani inventory (listingId required). Inspector signs only.
+// Concierge: customer-owned vehicle being sold to Behbehani (no Listing at
+//            inspection time). Inspector AND customer both sign.
+// See CONCIERGE_INSPECTION_API_CONTRACT.md at project root for joint contract
+// with the storefront session.
+enum InspectionKind {
+  cpo
+  concierge
+}
+
+enum InspectionStatus {
+  draft
+  in_progress
+  awaiting_inspector_signoff
+  awaiting_customer_signature // concierge only
+  signed_off
+}
+
+enum CustomerSignatureMethod {
+  in_person
+  remote_link
+}
+
+enum PreferredWindow {
+  morning // 09:00–12:00
+  afternoon // 12:00–17:00
+  evening // 17:00–21:00
+}
+
+model InspectionReport {
+  id String @id @default(uuid()) @db.Uuid
+
+  // ── Discriminator ───────────────────────────────────────────────────────
+  kind InspectionKind @default(cpo)
+
+  // ── CPO-specific (nullable for Concierge) ──────────────────────────────
+  listingId   String?  @unique @db.Uuid
+  listing     Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  externalRef String?  @unique // legacy field — kept for back-compat
+
+  // ── Concierge-specific (nullable for CPO) ──────────────────────────────
+  /// Human-readable booking ref shown to the customer, e.g. "BMC-CON-000042".
+  /// Customers reference this over the phone; mirrors Listing.stockNumber.
+  bookingRef              String?          @unique
+  customerId              String?          @db.Uuid
+  customer                User?            @relation("CustomerInspection", fields: [customerId], references: [id])
+  // Vehicle snapshot — captured at booking time when no Listing exists.
+  // If Behbehani later buys the car and creates a Listing, the listingId
+  // gets set and these snapshot fields stay as the historical record.
+  vehicleYear             Int?
+  vehicleBrandName        String?
+  vehicleModelName        String?
+  vehicleVin              String?
+  vehicleMileageKm        Int?
+  vehicleTransmission     String?
+  // On-site inspection location (Concierge)
+  locationAddress         String?
+  locationGovernorate     String?
+  locationLat             Float?
+  locationLng             Float?
+  /// Customer-chosen calendar date (no exact time at booking).
+  customerPreferredDate   DateTime?        @db.Date
+  /// Customer-chosen window (morning/afternoon/evening).
+  customerPreferredWindow PreferredWindow?
+  /// Admin-confirmed exact slot — set when an inspection_officer accepts the booking.
+  scheduledFor            DateTime?
+  /// Customer access/parking notes — "gated community, call at gate", etc. 500-char cap.
+  customerNotes           String?
+  /// Storefront wizard extras (trim, regionalSpecs, exteriorColor, interiorColor,
+  /// accidents). Inspector reads as context but never authoritative.
+  customerDeclaredJson    Json?
+
+  // ── Inspector assignment + content ─────────────────────────────────────
+  inspectorId  String?          @db.Uuid
+  inspector    User?            @relation("InspectorInspection", fields: [inspectorId], references: [id])
+  status       InspectionStatus @default(draft)
+  /// Item scores + notes — typed in shared-types as InspectionReportJson.
+  /// Shape: { items: Array<{ itemId, status: 'pass'|'advisory'|'fail', notes?, photoKeys: string[] }> }
+  reportJson   Json?
+  overallScore Int?
+  reportPdfKey String?
+  /// LEGACY — kept for back-compat with apps/api/src/listings/listings-public.controller.ts
+  /// (session A's). At sign-off the service mirrors `inspectorSignedAt` into this
+  /// column so existing readers keep working. Future cleanup can drop this once
+  /// the parallel storefront session migrates to read `inspectorSignedAt` directly.
+  inspectedAt  DateTime?
+
+  // ── Inspector sign-off ─────────────────────────────────────────────────
+  inspectorSignedAt   DateTime?
+  inspectorSignedById String?   @db.Uuid
+
+  // ── Customer signature (Concierge only) ────────────────────────────────
+  customerSignatureMethod     CustomerSignatureMethod?
+  customerSignatureDrawnKey   String? // S3 key for drawn signature SVG
+  customerSignatureTypedName  String?
+  customerCivilIdLast4        String? // optional, 4 chars
+  customerSignedAt            DateTime?
+  customerSignedIp            String?
+  customerSignedUserAgent     String?
+  customerSignToken           String?                  @unique // 64-char hex (remote-link)
+  customerSignTokenExpiresAt  DateTime?
+  /// Last time the SMS+email signing link was dispatched. Used to rate-limit
+  /// the /resend-link endpoint to at most one send per 60 seconds.
+  customerSignTokenLastSentAt DateTime?
+
+  // ── Audit ──────────────────────────────────────────────────────────────
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // ── Offer back-relation (Phase 4) ──────────────────────────────────────
+  offers Offer[]
+  // ── Document back-relation (v1.4 Day 2) ────────────────────────────────
+  documents Document[] @relation("InspectionDocuments")
+
+  @@index([kind, status])
+  @@index([customerId])
+  @@index([inspectorId])
+  @@index([scheduledFor])
+  @@index([customerPreferredDate])
+}
+
+// ─── Pricing tiers & aging engine ─────────────────────────────────────────
+
+model PricingTier {
+  id               String            @id @default(uuid()) @db.Uuid
+  name             String            @unique
+  daysThresholdMin Int // >= this many days on lot to qualify
+  discountBps      Int // -200 = -2.0%; stored as basis points
+  // JSON array of ListingStage strings the tier applies to.
+  stagesAffected   Json
+  autoApply        Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  updatedById      String?           @db.Uuid
+  deletedAt        DateTime?
+  applied          AppliedDiscount[]
+
+  @@index([daysThresholdMin])
+}
+
+enum AgingRunStatus {
+  running
+  success
+  skipped
+  error
+}
+
+model AgingEngineRun {
+  id                 String            @id @default(uuid()) @db.Uuid
+  startedAt          DateTime          @default(now())
+  finishedAt         DateTime?
+  status             AgingRunStatus    @default(running)
+  processedCount     Int               @default(0)
+  appliedCount       Int               @default(0)
+  totalReductionFils BigInt            @default(0)
+  errorMessage       String?
+  triggeredById      String?           @db.Uuid // null = scheduled
+  triggeredBy        User?             @relation("AgingRunTriggeredBy", fields: [triggeredById], references: [id])
+  applied            AppliedDiscount[]
+
+  @@index([startedAt])
+}
+
+model AppliedDiscount {
+  id          BigInt         @id @default(autoincrement())
+  listingId   String         @db.Uuid
+  listing     Listing        @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  tierId      String         @db.Uuid
+  tier        PricingTier    @relation(fields: [tierId], references: [id])
+  runId       String         @db.Uuid
+  run         AgingEngineRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  fromFils    BigInt
+  toFils      BigInt
+  discountBps Int
+  appliedAt   DateTime       @default(now())
+  revertedAt  DateTime?
+
+  @@index([listingId, appliedAt])
+  @@index([runId])
+}
+
+// ─── Offer module (Phase 4) ────────────────────────────────────────────────
+
+// Full offer status enum per spec §3 + §16 D1 override (countered_by_admin added).
+enum OfferStatus {
+  drafted
+  sent
+  countered_by_customer
+  countered_by_admin
+  accepted
+  declined
+  expired
+  withdrawn
+}
+
+model Offer {
+  id String @id @default(uuid()) @db.Uuid
+
+  // ── Inspection link ──────────────────────────────────────────────────────
+  // NOT unique — allows re-issuance after decline/expiry.
+  inspectionId String           @db.Uuid
+  inspection   InspectionReport @relation(fields: [inspectionId], references: [id])
+
+  // Denormalised for fast public lookup (avoids a join on the token-gated path).
+  bookingRef String // mirrors InspectionReport.bookingRef at creation time
+
+  // ── Customer ─────────────────────────────────────────────────────────────
+  customerId String @db.Uuid
+  customer   User   @relation("CustomerOffer", fields: [customerId], references: [id])
+
+  // ── Offer amount (KWD stored as fils, 1 KWD = 1000 fils) ────────────────
+  offerAmountFils BigInt
+  validUntil      DateTime
+
+  // ── Status ───────────────────────────────────────────────────────────────
+  status OfferStatus @default(drafted)
+
+  // ── Admin internal notes (never exposed via public endpoints) ────────────
+  notes String? @db.Text
+
+  // ── Customer counter ─────────────────────────────────────────────────────
+  counterAmountFils BigInt? // populated when customer counters
+  counterNotes      String? @db.Text
+
+  // ── Admin counter (§16 D1 — countered_by_admin status) ──────────────────
+  adminCounterAmountFils BigInt? // populated when admin issues a counter
+  adminCounterNotes      String? @db.Text
+
+  // ── Public token (customer-facing) ───────────────────────────────────────
+  publicToken          String   @unique // 64-char hex
+  publicTokenExpiresAt DateTime
+
+  // ── Actor + response metadata ────────────────────────────────────────────
+  createdById String @db.Uuid
+  createdBy   User   @relation("OfferCreatedBy", fields: [createdById], references: [id])
+
+  respondedAt        DateTime? // when customer responded (any response)
+  respondedIp        String?
+  respondedUserAgent String?
+
+  // ── Re-issuance chain ────────────────────────────────────────────────────
+  // Self-FK: links a new offer back to the declined/expired offer it replaces.
+  // Preserves full audit history without mutating the original row.
+  previousOfferId  String? @db.Uuid
+  previousOffer    Offer?  @relation("OfferChain", fields: [previousOfferId], references: [id])
+  subsequentOffers Offer[] @relation("OfferChain")
+
+  // ── Timestamps ───────────────────────────────────────────────────────────
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([inspectionId])
+  @@index([customerId, status])
+  @@index([status, validUntil]) // used by daily expiry sweep
+  @@index([publicToken]) // covered by @unique but explicit for clarity
+}
+
+// Self-service waitlist — customers who hit the "I'll list it myself" option
+// on the storefront sell-choose page register their interest here. Used by
+// session A's controller in apps/api/src/inspections/inspections-public...
+// no, scratch that — wired under apps/api/src/notifications. v0.7 §2 item 3.
+model SelfServiceWaitlist {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  locale    String?  @db.VarChar(8)
+  referrer  String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// ─── v1.2 — Customer auth (OTP + ghost reconciliation + favourites) ────────
+// Locked in CONCIERGE_INSPECTION_API_CONTRACT.md v1.2.0 §1 / §4 and v1.2.1.
+
+enum OtpPurpose {
+  registration  // first-time signup OTP (User may not exist yet)
+  signin        // passwordless login
+  mobile_verify // verify mobile change on an existing account (LEGACY — kept for back-compat per v1.3.0 §4)
+  password_reset // schema-ready, no flow in v1.2
+  mobile_change // v1.3 — OTP to authorise mobile number change on existing account
+  email_change  // v1.3 — OTP to authorise email address change on existing account
+}
+
+enum OtpChannel {
+  sms
+  email
+}
+
+// OTP codes — bcrypt-hashed, 5-min TTL, 5-attempt cap, 60s resend gate.
+model OtpCode {
+  id         String     @id @default(uuid()) @db.Uuid
+  // E.164 mobile (KW) or email — whichever channel issued the code.
+  identifier String
+  channel    OtpChannel
+  purpose    OtpPurpose
+  // bcrypt hash of the 6-digit code; raw never stored.
+  codeHash   String
+  // FK populated when OTP is bound to a known User (signin / mobile_verify /
+  // password_reset). Null for first-time registration since the User may not
+  // exist yet — we resolve at verify time.
+  userId     String?    @db.Uuid
+  user       User?      @relation("UserOtpCodes", fields: [userId], references: [id], onDelete: Cascade)
+  // Audit
+  ip         String?
+  userAgent  String?
+  // Lifecycle
+  attempts   Int        @default(0)
+  consumedAt DateTime?
+  // Resend cooldown gate (CONTRACT v1.2.0 §1 Q1 — column-based, no Redis dep).
+  lastSentAt DateTime?
+  expiresAt  DateTime
+  createdAt  DateTime   @default(now())
+
+  @@index([identifier, purpose, createdAt])
+  @@index([expiresAt]) // sweep job for stale rows
+}
+
+// Customer-favourited listings — composite PK so each (customer, listing) is
+// unique, idempotent save/unsave semantics.
+model SavedListing {
+  customerId String   @db.Uuid
+  customer   User     @relation("CustomerSavedListings", fields: [customerId], references: [id], onDelete: Cascade)
+  listingId  String   @db.Uuid
+  listing    Listing  @relation("ListingSavedBy", fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@id([customerId, listingId])
+  @@index([customerId, createdAt]) // my-favourites page ordering
+  @@index([listingId]) // future social-proof count (v1.4)
+}
+
+// ─── v1.3 — Customer address book ─────────────────────────────────────────
+// CONTRACT v1.3.0 §4. One default per user enforced by partial unique index
+// (hand-authored in migration — not expressible in Prisma DSL).
+
+model Address {
+  id          String             @id @default(uuid()) @db.Uuid
+  userId      String             @db.Uuid
+  user        User               @relation("UserAddresses", fields: [userId], references: [id], onDelete: Cascade)
+  label       String             @db.VarChar(80)  // e.g. "Home", "Work"
+  governorate KuwaitGovernorate
+  area        String             @db.VarChar(120)
+  block       String             @db.VarChar(40)
+  street      String             @db.VarChar(120)
+  building    String             @db.VarChar(120)
+  unit        String?            @db.VarChar(40)  // apartment / villa number
+  lat         Float?             @db.DoublePrecision
+  lng         Float?             @db.DoublePrecision
+  isDefault   Boolean            @default(false)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  @@index([userId])
+}
+
+// ─── v1.3 — Device sessions (refresh-token registry) ──────────────────────
+// CONTRACT v1.3.0 §3. Tracks active refresh tokens per device so that
+// sign-out, suspicious-login detection, and per-device revocation work
+// without a Redis dep.
+
+model UserDeviceSession {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @db.Uuid
+  user             User      @relation("UserDeviceSessions", fields: [userId], references: [id], onDelete: Cascade)
+  // jti (JWT ID) of the refresh token — NULL when row is rotated out (revoked).
+  // v1.3.0 §3: nullable so revoked rows lose their JTI reference.
+  refreshTokenJti  String?   @unique @db.VarChar(128)
+  revokedAt        DateTime?
+  deviceLabel      String?   @db.VarChar(200)  // "iPhone 15 Pro" (from UA parse)
+  platform         String?   @db.VarChar(40)   // e.g. "iOS 17"
+  ipFirstSeen      String?   @db.VarChar(45)   // IPv6 max 45 chars
+  ipLastSeen       String?   @db.VarChar(45)
+  createdAt        DateTime  @default(now())
+  lastActiveAt     DateTime  @default(now())
+
+  @@index([userId])
+  @@index([refreshTokenJti])
+}
+
+// ─── v1.3 — Feature waitlist (Coming-Soon shell opt-in capture) ──────────
+// CONTRACT v1.3.4+ — guests can subscribe to be notified when a deferred
+// SRS §7 feature ships. Idempotent on (featurePath, email).
+model FeatureWaitlist {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String?  @db.Uuid                  // NULL when guest
+  user        User?    @relation("UserFeatureWaitlists", fields: [userId], references: [id], onDelete: SetNull)
+  featurePath String   @db.VarChar(120)          // e.g. "/account/maintenance"
+  email       String   @db.VarChar(254)
+  createdAt   DateTime @default(now())           @db.Timestamp(3)
+
+  @@unique([featurePath, email])
+  @@index([userId])
+}
+
+// ─── v1.4 — Push tokens (FCM + APNs registry) ────────────────────────────
+// CONTRACT v1.4.2 §3. Customer-owned device tokens for push dispatch.
+// Idempotent on (userId, token): re-register updates lastSeenAt.
+
+enum PushPlatform {
+  ios
+  android
+}
+
+model PushToken {
+  id          String       @id @default(uuid()) @db.Uuid
+  userId      String       @db.Uuid
+  user        User         @relation("UserPushTokens", fields: [userId], references: [id], onDelete: Cascade)
+
+  token       String       @unique @db.VarChar(512)  // FCM/APNs token; APNs hex tokens are 64 chars, FCM longer
+  platform    PushPlatform
+  deviceLabel String?      @db.VarChar(200)          // parsed UA: "iPhone 15 / iOS 17"
+
+  createdAt   DateTime     @default(now())           @db.Timestamp(3)
+  lastSeenAt  DateTime     @default(now())           @db.Timestamp(3)
+
+  @@index([userId])
+}
+
+// ─── v1.4 — Customer document vault ──────────────────────────────────────
+// CONTRACT v1.4.2 §3 + §5 Day 2. Read-only in v1.4: admin-uploaded sale
+// contracts, insurance policies, warranties, plus existing inspection PDFs
+// backfilled into Document rows during the v1.4 migration.
+
+enum DocumentKind {
+  inspection_report
+  sale_contract
+  insurance_policy
+  warranty
+  invoice
+  other
+}
+
+model Document {
+  id           String       @id @default(uuid()) @db.Uuid
+  customerId   String       @db.Uuid
+  customer     User         @relation("UserDocuments", fields: [customerId], references: [id], onDelete: Cascade)
+
+  kind         DocumentKind
+  title        String       @db.VarChar(200)
+  fileKey      String       @db.VarChar(500)   // S3 relative key per S3_CONVENTIONS.md
+  thumbnailKey String?      @db.VarChar(500)   // optional generated thumbnail S3 key
+  mimeType     String       @db.VarChar(80)    // "application/pdf", "image/jpeg", etc.
+  fileSizeBytes Int
+
+  // Optional links to source entities for "View related listing/order"
+  listingId    String?      @db.Uuid
+  // orderId has no FK constraint in v1.4 — Order model doesn't exist until Day 4.
+  // Day 4 migration adds the FK via ALTER TABLE.
+  orderId      String?      @db.Uuid
+  // InspectionReport exists in this schema — use a real FK.
+  inspectionId String?      @db.Uuid
+  inspection   InspectionReport? @relation("InspectionDocuments", fields: [inspectionId], references: [id], onDelete: SetNull)
+
+  uploadedAt   DateTime     @default(now())    @db.Timestamp(3)
+  uploadedById String?      @db.Uuid           // admin who uploaded; null for system-backfilled
+
+  @@index([customerId])
+  @@index([customerId, kind])
+  @@index([orderId])
+  @@index([inspectionId])
+}
+
+// ─── v1.4 — Orders / Payments ────────────────────────────────────────────────
+// CONTRACT v1.4.2 §3 + §4. KNET via Otto Payment Services aggregator (locked
+// per v1.4.2 §1 row 3 + v1.4.4 §4). Reservation hold 24h.
+
+enum OrderStatus {
+  reservation_pending
+  confirmed
+  payment_pending
+  paid
+  delivery_scheduled
+  delivered
+  completed
+  cancelled
+}
+
+enum PaymentMethod {
+  knet
+  card
+  apple_pay
+  google_pay
+  bank_transfer
+  financing
+  cash_on_delivery
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+  refunded
+}
+
+model Order {
+  id                    String      @id @default(uuid()) @db.Uuid
+  customerId            String      @db.Uuid
+  customer              User        @relation("UserOrders", fields: [customerId], references: [id])
+  listingId             String      @db.Uuid
+  listing               Listing     @relation("ListingOrders", fields: [listingId], references: [id])
+  // Denormalised for receipts even after listing changes.
+  stockNumber           String      @db.VarChar(40)
+
+  status                OrderStatus @default(reservation_pending)
+  reservationAmountFils BigInt
+  totalAmountFils       BigInt
+  paidAmountFils        BigInt      @default(0)
+
+  reservedAt            DateTime    @default(now()) @db.Timestamp(3)
+  // 24h after reservedAt.
+  reservationExpiresAt  DateTime    @db.Timestamp(3)
+  completedAt           DateTime?   @db.Timestamp(3)
+  cancelledAt           DateTime?   @db.Timestamp(3)
+  cancellationReason    String?     @db.VarChar(500)
+
+  // Idempotency key supplied by client to prevent double-create on retry.
+  idempotencyKey        String      @unique @db.VarChar(80)
+
+  payments              Payment[]   @relation("OrderPayments")
+
+  createdAt             DateTime    @default(now()) @db.Timestamp(3)
+  updatedAt             DateTime    @updatedAt      @db.Timestamp(3)
+
+  @@index([customerId])
+  @@index([listingId])
+  @@index([status])
+  @@index([reservationExpiresAt])
+}
+
+model Payment {
+  id            String        @id @default(uuid()) @db.Uuid
+  orderId       String        @db.Uuid
+  order         Order         @relation("OrderPayments", fields: [orderId], references: [id], onDelete: Cascade)
+
+  amountFils    BigInt
+  method        PaymentMethod
+  status        PaymentStatus @default(pending)
+
+  // Otto provider payload. Per v1.4.2 §1 row 4 the field is JSONB:
+  // {ottoSessionId, ottoTransactionId, ottoRail: 'knet'|'card'|'apple_pay'|'google_pay'}
+  providerRef   Json?
+
+  // Idempotency on initiation (separate key from Order to allow retries on the same order).
+  idempotencyKey String?      @unique @db.VarChar(80)
+
+  initiatedAt   DateTime      @default(now()) @db.Timestamp(3)
+  paidAt        DateTime?     @db.Timestamp(3)
+  failedAt      DateTime?     @db.Timestamp(3)
+  refundedAt    DateTime?     @db.Timestamp(3)
+
+  @@index([orderId])
+  @@index([status])
+}

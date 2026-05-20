@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>15 — Inspection Report — Behbehani Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: {
+        50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',
+        500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E40AF',900:'#1E3A8A'
+      }},
+      fontFamily: { sans:['"Plus Jakarta Sans"','system-ui','sans-serif'], arabic:['Tajawal','sans-serif'] }
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* Collapsible category cards */
+    details summary { list-style: none; }
+    details summary::-webkit-details-marker { display: none; }
+    details[open] .chevron { transform: rotate(180deg); }
+    .chevron { transition: transform 0.2s ease; }
+    /* Photo thumbnail placeholder gradient */
+    .photo-thumb { background: linear-gradient(135deg, #BFDBFE 0%, #93C5FD 50%, #DBEAFE 100%); }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex justify-center">
+
+<!-- ═══════════════════════════════════════════════════════
+     15 · v1.4 · Inspection Report Viewer (customer-facing)
+     Sprint M2 sell-flow re-alignment
+     Screen: 375×844 (iPhone-13 baseline)
+     Palette: white + Royal Blue (#1E3A8A) + slate. Red-500 ONLY for FAIL indicators.
+     No amber / yellow / gold / emerald / green.
+     Fonts: Plus Jakarta Sans (Latin) · Tajawal (Arabic)
+     KWD: 3 decimals. VIN: last-6 masked on customer surfaces.
+     Touch targets ≥ 44px. RTL-safe: ps-* / me-* / rtl:rotate-180.
+     ═══════════════════════════════════════════════════════ -->
+
+  <div class="w-[375px] min-h-[844px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative">
+
+    <!-- ─── 1. STATUS BAR ─── -->
+    <div class="h-11 bg-white flex items-center justify-between px-6 pt-2 flex-shrink-0">
+      <span class="text-[14px] font-semibold text-slate-900">9:41</span>
+      <div class="flex items-center gap-1.5">
+        <!-- Signal bars -->
+        <svg viewBox="0 0 20 12" class="w-4 h-3 text-slate-900" fill="currentColor" aria-hidden="true">
+          <rect x="0" y="8" width="3" height="4" rx="0.5"/>
+          <rect x="5" y="6" width="3" height="6" rx="0.5"/>
+          <rect x="10" y="3" width="3" height="9" rx="0.5"/>
+          <rect x="15" y="0" width="3" height="12" rx="0.5"/>
+        </svg>
+        <!-- WiFi -->
+        <svg viewBox="0 0 16 12" class="w-4 h-3 text-slate-900" fill="currentColor" aria-hidden="true">
+          <path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/>
+        </svg>
+        <!-- Battery -->
+        <svg viewBox="0 0 26 12" class="w-6 h-3 text-slate-900" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true">
+          <rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/>
+          <rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/>
+          <rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- ─── 2. STICKY HEADER ─── -->
+    <header class="bg-white border-b border-slate-200 flex items-center px-4 py-3 gap-3 flex-shrink-0">
+      <!-- Back arrow: 44px tap target -->
+      <a href="./06-account.html" class="w-11 h-11 -ms-1 flex items-center justify-center text-slate-700 flex-shrink-0" aria-label="Back">
+        <svg viewBox="0 0 24 24" class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </a>
+      <!-- Title -->
+      <h1 class="flex-1 text-[17px] font-bold text-slate-900 leading-tight text-center">Inspection report</h1>
+      <!-- Share button -->
+      <button
+        class="w-11 h-11 flex items-center justify-center text-brand-700 flex-shrink-0"
+        aria-label="Share inspection report"
+        onclick="navigator.share && navigator.share({ title: 'Inspection Report — 2021 Toyota Camry GLE', url: window.location.href })">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="18" cy="5" r="3"/>
+          <circle cx="6" cy="12" r="3"/>
+          <circle cx="18" cy="19" r="3"/>
+          <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- ─── SCROLLABLE BODY ─── -->
+    <main class="flex-1 overflow-y-auto pb-24 bg-slate-50 no-scrollbar">
+
+      <!-- ─── 3. VEHICLE HEADER CARD ─── -->
+      <div class="mx-4 mt-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <!-- Vehicle name + mileage -->
+        <p class="text-[16px] font-extrabold text-slate-900 leading-tight">2021 Toyota Camry GLE</p>
+        <p class="text-[13px] text-slate-500 mt-0.5 font-medium">42,500 km &middot; Automatic &middot; Pearl White</p>
+        <!-- Meta row -->
+        <div class="mt-3 space-y-1.5">
+          <!-- VIN — last-6 masked per customer-surface rule -->
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">VIN</span>
+            <span class="text-[12px] font-mono font-semibold text-slate-700">&middot;&middot;&middot; &middot;&middot;&middot; A12345</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Booking ref</span>
+            <span class="text-[12px] font-mono font-semibold text-slate-700">BMC-CON-001234</span>
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-[11px] text-slate-400 font-medium uppercase tracking-wider mt-0.5">Inspected</span>
+            <span class="text-[12px] font-semibold text-slate-700 text-end">Mon, 19 May 2026 &middot; Ahmed K.</span>
+          </div>
+        </div>
+        <!-- Certified badge -->
+        <div class="mt-3 pt-3 border-t border-slate-100">
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 border border-brand-200 px-2.5 py-1 text-[11px] font-semibold text-brand-700">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            Behbehani Certified Pre-Owned
+          </span>
+        </div>
+      </div>
+
+      <!-- ─── 4. OVERALL SCORE GAUGE ─── -->
+      <div class="mx-4 mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex items-center gap-5">
+          <!-- SVG circular gauge — replace with react-native-svg in W3 -->
+          <!-- 88/100 → dasharray: 0.88 * 2π * 46 ≈ 254.3 / 289.0 -->
+          <!-- svgComment: replace with react-native-svg in W3 -->
+          <div class="relative w-[112px] h-[112px] flex-shrink-0" aria-label="Overall inspection score: 88 out of 100">
+            <svg class="w-[112px] h-[112px] -rotate-90" viewBox="0 0 112 112" aria-hidden="true">
+              <!-- Track -->
+              <circle cx="56" cy="56" r="46" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+              <!-- Score arc: 88/100 → 254.3 of 289.0 -->
+              <circle cx="56" cy="56" r="46" fill="none" stroke="#1D4ED8" stroke-width="8"
+                stroke-dasharray="254.3 289.0" stroke-linecap="round"/>
+            </svg>
+            <!-- Score label (centered over SVG) -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-[28px] font-extrabold text-slate-900 leading-none tabular-nums">88</span>
+              <span class="text-[10px] text-slate-400 font-semibold mt-0.5">out of 100</span>
+            </div>
+          </div>
+
+          <!-- Verdict + summary stats -->
+          <div class="flex-1 min-w-0">
+            <!-- Verdict pill -->
+            <div class="inline-flex items-center rounded-full bg-brand-50 border border-brand-200 px-3 py-1 mb-2">
+              <span class="text-[12px] font-bold text-brand-700">Very good condition</span>
+            </div>
+            <!-- Point summary -->
+            <div class="flex flex-wrap gap-x-3 gap-y-1 text-[12px]">
+              <span class="flex items-center gap-1 text-slate-700">
+                <span class="w-2 h-2 rounded-full bg-brand-700 flex-shrink-0"></span>
+                <strong>63</strong>&nbsp;Pass
+              </span>
+              <span class="flex items-center gap-1 text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-slate-400 flex-shrink-0"></span>
+                <strong>7</strong>&nbsp;Advisory
+              </span>
+              <span class="flex items-center gap-1 text-slate-600">
+                <span class="w-2 h-2 rounded-full bg-red-500 flex-shrink-0"></span>
+                <strong>1</strong>&nbsp;Fail
+              </span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1.5">71 total checks &middot; exceeds 80-pt CPO threshold</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 5. CATEGORY BREAKDOWN (5 collapsible cards) ─── -->
+      <div class="mx-4 mt-4 space-y-2">
+        <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest ps-1">Category breakdown</p>
+
+        <!-- ── Exterior ── 92/100 ── -->
+        <details class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <summary class="flex items-center gap-3 px-4 py-3.5 cursor-pointer min-h-[52px]">
+            <!-- Category icon -->
+            <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-bold text-slate-800">Exterior</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <!-- Mini progress bar -->
+                <div class="flex-1 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-600" style="width:92%"></div>
+                </div>
+                <span class="text-[11px] font-bold text-brand-700 tabular-nums flex-shrink-0">92/100</span>
+              </div>
+            </div>
+            <svg class="w-4 h-4 text-slate-400 chevron flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </summary>
+          <!-- Expanded content -->
+          <div class="border-t border-slate-100 px-4 py-3 space-y-2">
+            <!-- Items: check=pass, dot=N/A, X=fail -->
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Body panels</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Paint uniformity</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Glass &amp; windscreen</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Tires</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Exterior lights</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <!-- Fail item (red-500 only allowed for fails) -->
+            <div class="flex items-start justify-between text-[13px] gap-2">
+              <div class="flex-1">
+                <span class="text-slate-700">Rear bumper</span>
+                <p class="text-[11px] text-slate-500 mt-0.5">Minor scuff on driver-side rear bumper visible (see photo 14).</p>
+              </div>
+              <svg class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Fail"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </div>
+            <p class="text-[11px] text-slate-400 italic pt-1">Inspector note: Cosmetic only. No structural damage detected.</p>
+          </div>
+        </details>
+
+        <!-- ── Mechanical ── 85/100 ── -->
+        <details class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <summary class="flex items-center gap-3 px-4 py-3.5 cursor-pointer min-h-[52px]">
+            <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-bold text-slate-800">Mechanical</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <div class="flex-1 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-600" style="width:85%"></div>
+                </div>
+                <span class="text-[11px] font-bold text-brand-700 tabular-nums flex-shrink-0">85/100</span>
+              </div>
+            </div>
+            <svg class="w-4 h-4 text-slate-400 chevron flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </summary>
+          <div class="border-t border-slate-100 px-4 py-3 space-y-2">
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Engine</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Transmission</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Suspension</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Brakes</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Battery</span>
+              <!-- Advisory: slate-400 dot, no amber -->
+              <span class="w-2 h-2 rounded-full bg-slate-400" aria-label="Advisory"></span>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Belts &amp; fluids</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <p class="text-[11px] text-slate-400 italic pt-1">Advisory: Battery voltage at 87% — monitor; replace within 12 months.</p>
+          </div>
+        </details>
+
+        <!-- ── Electronic ── 90/100 ── -->
+        <details class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <summary class="flex items-center gap-3 px-4 py-3.5 cursor-pointer min-h-[52px]">
+            <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-bold text-slate-800">Electronic</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <div class="flex-1 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-600" style="width:90%"></div>
+                </div>
+                <span class="text-[11px] font-bold text-brand-700 tabular-nums flex-shrink-0">90/100</span>
+              </div>
+            </div>
+            <svg class="w-4 h-4 text-slate-400 chevron flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </summary>
+          <div class="border-t border-slate-100 px-4 py-3 space-y-2">
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Infotainment</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">A/C system</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Safety sensors</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Interior lights</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">ECU error codes</span>
+              <span class="w-2 h-2 rounded-full bg-slate-400" aria-label="Advisory"></span>
+            </div>
+            <p class="text-[11px] text-slate-400 italic pt-1">Advisory: 1 non-critical ECU code cleared during inspection. No action required.</p>
+          </div>
+        </details>
+
+        <!-- ── Interior ── 88/100 ── -->
+        <details class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <summary class="flex items-center gap-3 px-4 py-3.5 cursor-pointer min-h-[52px]">
+            <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="13" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 21h8M12 17v4"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-bold text-slate-800">Interior</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <div class="flex-1 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-600" style="width:88%"></div>
+                </div>
+                <span class="text-[11px] font-bold text-brand-700 tabular-nums flex-shrink-0">88/100</span>
+              </div>
+            </div>
+            <svg class="w-4 h-4 text-slate-400 chevron flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </summary>
+          <div class="border-t border-slate-100 px-4 py-3 space-y-2">
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Seats &amp; upholstery</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Dashboard</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Carpets &amp; floor mats</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Door trims</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Headliner</span>
+              <span class="w-2 h-2 rounded-full bg-slate-400" aria-label="N/A"></span>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Sun visor &amp; mirrors</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+          </div>
+        </details>
+
+        <!-- ── Test Drive ── 86/100 ── -->
+        <details class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <summary class="flex items-center gap-3 px-4 py-3.5 cursor-pointer min-h-[52px]">
+            <div class="w-8 h-8 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-4 h-4 text-brand-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v6a1 1 0 001 1h1m0 0a2 2 0 104 0m-4 0a2 2 0 114 0m6 0V9a1 1 0 00-1-1h-1.172a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0013.172 6H13m4 10a2 2 0 100-4 2 2 0 000 4z"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[14px] font-bold text-slate-800">Test Drive</p>
+              <div class="flex items-center gap-2 mt-0.5">
+                <div class="flex-1 h-1.5 rounded-full bg-slate-100">
+                  <div class="h-1.5 rounded-full bg-brand-600" style="width:86%"></div>
+                </div>
+                <span class="text-[11px] font-bold text-brand-700 tabular-nums flex-shrink-0">86/100</span>
+              </div>
+            </div>
+            <svg class="w-4 h-4 text-slate-400 chevron flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </summary>
+          <div class="border-t border-slate-100 px-4 py-3 space-y-2">
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Acceleration</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Braking response</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Steering feel</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Wheel alignment</span>
+              <span class="w-2 h-2 rounded-full bg-slate-400" aria-label="Advisory"></span>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Cabin noise</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+              <span class="text-slate-700">Idle smoothness</span>
+              <svg class="w-4 h-4 text-brand-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-label="Pass"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <p class="text-[11px] text-slate-400 italic pt-1">Advisory: Minor pull to right at speed. Alignment recommended at next service.</p>
+          </div>
+        </details>
+      </div>
+
+      <!-- ─── 6. PHOTO GALLERY ─── -->
+      <div class="mt-5 mx-4">
+        <div class="flex items-center justify-between mb-2.5">
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Photos &middot; 25 photos</p>
+          <a href="#" class="text-[12px] font-semibold text-brand-700">View all</a>
+        </div>
+        <!-- Horizontal scroll strip: FlatList stub — replace with actual FlatList in W3 -->
+        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          <!-- 8 thumbnail tiles -->
+          <div class="flex-shrink-0 w-20 h-20 rounded-xl photo-thumb border border-slate-200 overflow-hidden"></div>
+          <div class="flex-shrink-0 w-20 h-20 rounded-xl photo-thumb border border-slate-200 overflow-hidden" style="background: linear-gradient(135deg, #93C5FD 0%, #BFDBFE 100%);"></div>
+          <div class="flex-shrink-0 w-20 h-20 rounded-xl photo-thumb border border-slate-200 overflow-hidden" style="background: linear-gradient(135deg, #BFDBFE 0%, #DBEAFE 100%);"></div>
+          <div class="flex-shrink-0 w-20 h-20 rounded-xl photo-thumb border border-slate-200 overflow-hidden" style="background: linear-gradient(135deg, #DBEAFE 0%, #EFF6FF 100%);"></div>
+          <div class="flex-shrink-0 w-20 h-20 rounded-xl photo-thumb border border-slate-200 overflow-hidden" style="background: linear-gradient(135deg, #1D4ED8 0%, #BFDBFE 100%); opacity:0.5;"></div>
+          <div class="flex-shrink-0 w-20 h-20 rounded-xl photo-thumb border border-slate-200 overflow-hidden" style="background: linear-gradient(135deg, #93C5FD 0%, #EFF6FF 100%);"></div>
+          <div class="flex-shrink-0 w-20 h-20 rounded-xl photo-thumb border border-slate-200 overflow-hidden" style="background: linear-gradient(135deg, #BFDBFE 0%, #93C5FD 100%);"></div>
+          <!-- Last tile: +17 overlay -->
+          <div class="flex-shrink-0 w-20 h-20 rounded-xl border border-slate-200 overflow-hidden relative" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 100%);">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-white text-[14px] font-extrabold">+17</span>
+            </div>
+          </div>
+        </div>
+        <a href="#" class="mt-2 block text-center text-[12px] font-semibold text-brand-700">View all 25 photos</a>
+      </div>
+
+      <!-- ─── 7. INSPECTOR NOTES ─── -->
+      <div class="mx-4 mt-5 rounded-2xl bg-brand-50 border border-brand-200 p-4">
+        <p class="text-[10px] font-bold text-brand-700 uppercase tracking-widest mb-2">Inspector notes</p>
+        <!-- Notes text with "Read more" pattern -->
+        <details>
+          <summary class="list-none cursor-pointer">
+            <p class="text-[13px] italic text-slate-700 leading-relaxed line-clamp-4">
+              Vehicle is in very good overall condition. Single owner, full service history with Toyota dealer.
+              Minor scuff on driver-side rear bumper (visible in photo 14). All electronics functional.
+              Recommended for CPO certification.
+            </p>
+            <span class="text-[12px] font-semibold text-brand-700 mt-1 inline-block">Read more</span>
+          </summary>
+          <p class="text-[13px] italic text-slate-700 leading-relaxed mt-2">
+            Service history shows regular Toyota dealer servicing at 10k, 20k, 30k and 40k km intervals.
+            No accident history reported. Paint scan shows original factory paint on all panels.
+            Rear bumper scuff is cosmetic and does not affect structural integrity.
+          </p>
+        </details>
+        <!-- Inspector sign-off -->
+        <div class="mt-3 pt-3 border-t border-brand-200 flex items-center justify-between gap-2">
+          <div>
+            <p class="text-[13px] font-bold text-brand-800">Ahmed K.</p>
+            <p class="text-[11px] text-brand-600">Senior Inspector &middot; Behbehani Motors</p>
+          </div>
+          <div class="text-end">
+            <p class="text-[10px] text-brand-600 font-medium">Signed</p>
+            <p class="text-[10px] text-slate-500">Mon 19 May 16:42</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 8. CUSTOMER SIGNATURE CONFIRMATION ─── -->
+      <!-- Banner divider marking the customer-signed variant section -->
+      <div class="mx-4 mt-5">
+        <div class="border-t border-slate-200 pt-4">
+          <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest text-center mb-3">Customer signature</p>
+        </div>
+
+        <!-- 8a. PRE-SIGNED STATE (awaiting signature) -->
+        <div class="rounded-2xl bg-slate-100 border border-slate-300 p-4 mb-3">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0 mt-0.5 border border-slate-200">
+              <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[13px] font-bold text-slate-700 leading-tight">Awaiting your signature</p>
+              <p class="text-[12px] text-slate-600 mt-1 leading-relaxed">Your inspector will collect your signature at the visit, or you can sign remotely.</p>
+              <a href="/inspection-sign/TOKEN_PLACEHOLDER" class="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold text-brand-700">
+                Sign remotely via link
+                <svg class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8b. SIGNED CONFIRMATION STATE -->
+        <div class="rounded-2xl bg-brand-50 border border-brand-200 p-4">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-brand-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-[13px] font-bold text-brand-800 leading-tight">Signed by Abbas Behbehani</p>
+              <p class="text-[11px] text-brand-600 mt-0.5">Mon 19 May 16:48 &middot; in-person on inspector tablet</p>
+              <p class="text-[11px] text-slate-500 mt-1">Concierge inspection &middot; Customer-acknowledged condition report</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── 9. ACTION BUTTONS ─── -->
+      <div class="mx-4 mt-5 space-y-2.5">
+        <!-- Primary: Download PDF -->
+        <a href="#"
+          class="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-brand-700 text-white text-[14px] font-bold shadow-sm active:bg-brand-800">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Download PDF
+        </a>
+        <!-- Secondary: Share report -->
+        <button
+          class="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-white border-2 border-brand-700 text-brand-700 text-[14px] font-bold active:bg-brand-50"
+          onclick="navigator.share && navigator.share({ title: 'Inspection Report', url: window.location.href })">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98"/>
+          </svg>
+          Share report
+        </button>
+        <!-- Tertiary text-link -->
+        <div class="text-center pt-1">
+          <a href="#" class="text-[13px] font-medium text-slate-500">Report an issue</a>
+        </div>
+      </div>
+
+      <!-- ─── 10. LINKED OFFER CARD ─── -->
+      <div class="mx-4 mt-5 rounded-2xl border border-brand-200 bg-brand-50 p-4">
+        <p class="text-[10px] font-bold text-brand-600 uppercase tracking-widest mb-1.5">Offer issued</p>
+        <p class="text-[16px] font-extrabold text-brand-900 leading-tight tabular-nums">KWD 4,850.000</p>
+        <p class="text-[12px] text-brand-700 mt-0.5">Valid for 7 days &middot; expires Mon 26 May 2026</p>
+        <div class="mt-3 pt-3 border-t border-brand-200">
+          <a href="./09-offer-view.html"
+            class="flex items-center justify-center gap-1.5 w-full h-10 rounded-xl bg-brand-700 text-white text-[13px] font-bold">
+            View offer
+            <svg class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- ─── 11. BOTTOM SAFE-AREA PADDING ─── -->
+      <div class="pb-24"></div>
+
+    </main>
+  </div>
+
+</body>
+</html>

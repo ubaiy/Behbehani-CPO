@@ -1,0 +1,186 @@
+<div [formGroup]="form" class="space-y-6">
+
+  <!-- Appearance card -->
+  <div class="bg-white rounded-xl border border-slate-200 p-6">
+    <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+      <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+      Appearance
+    </h2>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Exterior colour <span class="text-red-500">*</span></label>
+        <input
+          type="text"
+          formControlName="exteriorColor"
+          placeholder="e.g. Pearl White"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Interior colour <span class="text-red-500">*</span></label>
+        <input
+          type="text"
+          formControlName="interiorColor"
+          placeholder="e.g. Black"
+          class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Drivetrain & Technical card -->
+  <div class="bg-white rounded-xl border border-slate-200 p-6">
+    <h2 class="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+      <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Drivetrain &amp; Technical
+    </h2>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Transmission <span class="text-red-500">*</span></label>
+        <select formControlName="transmission" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          @for (t of TRANSMISSIONS; track t) {
+            <option [value]="t">{{ t | titlecase }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Fuel type <span class="text-red-500">*</span></label>
+        <select formControlName="fuelType" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          @for (f of FUEL_TYPES; track f) {
+            <option [value]="f">{{ f | titlecase }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Engine (cc)</label>
+        <input type="number" formControlName="engineCc" min="500" max="9000" placeholder="e.g. 2500" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"/>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Cylinders</label>
+        <select formControlName="cylinders" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          <option [ngValue]="null">— select —</option>
+          @for (c of [3,4,6,8,10,12,16]; track c) {
+            <option [value]="c">{{ c }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Drivetrain <span class="text-red-500">*</span></label>
+        <select formControlName="drivetrain" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          @for (d of DRIVETRAINS; track d) {
+            <option [value]="d">{{ d.toUpperCase() }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Seats <span class="text-red-500">*</span></label>
+        <select formControlName="seats" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          @for (s of [2,4,5,7,8,9]; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Doors <span class="text-red-500">*</span></label>
+        <select formControlName="doors" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+          @for (d of [2,3,4,5,6]; track d) {
+            <option [value]="d">{{ d }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-600 mb-1">Previous owners</label>
+        <input type="number" formControlName="previousOwners" min="0" max="20" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"/>
+      </div>
+    </div>
+
+    <!-- Toggle rows -->
+    <div class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+
+      <!-- GCC Spec -->
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-slate-700">GCC Specification</p>
+          <p class="text-xs text-slate-400 mt-0.5">Vehicle meets GCC market specifications</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          [attr.aria-checked]="form.get('gccSpec')?.value"
+          (click)="form.get('gccSpec')?.setValue(!form.get('gccSpec')?.value)"
+          class="relative inline-flex h-6 w-10 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          [class.bg-blue-600]="form.get('gccSpec')?.value"
+          [class.bg-slate-300]="!form.get('gccSpec')?.value"
+        >
+          <span
+            class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+            [class.translate-x-4]="form.get('gccSpec')?.value"
+            [class.translate-x-0]="!form.get('gccSpec')?.value"
+          ></span>
+        </button>
+      </div>
+
+      <!-- Service history -->
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-medium text-slate-700">Service history available</p>
+          <p class="text-xs text-slate-400 mt-0.5">Full documented service records on file</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          [attr.aria-checked]="form.get('serviceHistory')?.value"
+          (click)="form.get('serviceHistory')?.setValue(!form.get('serviceHistory')?.value)"
+          class="relative inline-flex h-6 w-10 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          [class.bg-blue-600]="form.get('serviceHistory')?.value"
+          [class.bg-slate-300]="!form.get('serviceHistory')?.value"
+        >
+          <span
+            class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+            [class.translate-x-4]="form.get('serviceHistory')?.value"
+            [class.translate-x-0]="!form.get('serviceHistory')?.value"
+          ></span>
+        </button>
+      </div>
+
+      <!-- Accident history -->
+      <div>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-slate-700">Accident history</p>
+            <p class="text-xs text-slate-400 mt-0.5">Vehicle has been in a recorded accident</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            [attr.aria-checked]="form.get('accidentHistory')?.value"
+            (click)="form.get('accidentHistory')?.setValue(!form.get('accidentHistory')?.value)"
+            class="relative inline-flex h-6 w-10 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            [class.bg-blue-600]="form.get('accidentHistory')?.value"
+            [class.bg-slate-300]="!form.get('accidentHistory')?.value"
+          >
+            <span
+              class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+              [class.translate-x-4]="form.get('accidentHistory')?.value"
+              [class.translate-x-0]="!form.get('accidentHistory')?.value"
+            ></span>
+          </button>
+        </div>
+        @if (form.get('accidentHistory')?.value) {
+          <div class="mt-3">
+            <label class="block text-xs font-medium text-slate-600 mb-1">Accident details</label>
+            <textarea
+              formControlName="accidentNotes"
+              rows="3"
+              maxlength="2000"
+              placeholder="Describe the incident, damage repaired, and documentation…"
+              class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white placeholder-slate-400 resize-none"
+            ></textarea>
+          </div>
+        }
+      </div>
+
+    </div>
+  </div>
+
+</div>

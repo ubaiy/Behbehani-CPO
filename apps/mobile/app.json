@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "Behbehani CPO",
+    "slug": "behbehani-cpo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1E3A8A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.behbehani.cpo",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Use Face ID to securely sign in to your account."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1E3A8A"
+      },
+      "package": "com.behbehani.cpo"
+    },
+    "web": {},
+    "scheme": "behbehani-cpo",
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Use Face ID to securely sign in to your account."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#1E3A8A",
+          "sounds": []
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

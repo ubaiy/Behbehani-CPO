@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behbehani CPO · Certified Pre-Owned Vehicles Kuwait</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:  '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Hide scrollbar on horizontal rails while keeping functionality ── */
+    .scroll-rail::-webkit-scrollbar { height: 4px; }
+    .scroll-rail::-webkit-scrollbar-track { background: transparent; }
+    .scroll-rail::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* ── Hero car SVG silhouette base ── */
+    .hero-car { opacity: 0.12; }
+
+    /* ── Smooth card hover lift ── */
+    .listing-card { transition: box-shadow 0.18s ease, transform 0.18s ease; }
+    .listing-card:hover { box-shadow: 0 12px 32px rgba(37,99,235,.13); transform: translateY(-2px); }
+
+    /* ── Inspection pill shimmer (static stand-in) ── */
+    .daman-pill { letter-spacing: 0.03em; }
+
+    /* ── Sticky topbar ── */
+    /* NOTE TO DEV: add `position: sticky; top: 0; z-index: 50;` in Angular via class or CSS.
+       Tailwind classes `sticky top-0 z-50` are applied directly on the <header> element below. */
+  </style>
+</head>
+<body class="bg-white font-sans antialiased text-slate-800">
+
+<!-- ════════════════════════════════════════════════════════════
+     BREAKPOINT ANNOTATION CARD
+     (Remove before production — for design review only)
+════════════════════════════════════════════════════════════ -->
+<div class="fixed bottom-4 right-4 z-[9999] bg-slate-900 text-white text-xs rounded-xl shadow-2xl p-4 w-64 leading-relaxed">
+  <p class="font-bold text-brand-400 mb-2 uppercase tracking-widest text-[10px]">Breakpoint Guide</p>
+  <div class="space-y-1 text-slate-300">
+    <p><span class="font-semibold text-white">sm (640px)</span> — search fields stack 2-col</p>
+    <p><span class="font-semibold text-white">md (768px)</span> — topbar nav visible, hero inline-search</p>
+    <p><span class="font-semibold text-white">lg (1024px)</span> — body-type grid 6-col, rails show 4 cards</p>
+    <p><span class="font-semibold text-white">xl (1280px)</span> — max-width container locks at 1200px</p>
+    <p class="text-slate-500 text-[10px] mt-2">Horizontal rails scroll on mobile, grid on lg+</p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     TOPBAR — sticky, subtle bottom border
+     Collapses: md (768px) shows full nav; below = hamburger placeholder
+════════════════════════════════════════════════════════════ -->
+<!-- sticky top-0 z-50 handles sticky scroll behavior in Angular SSR -->
+<header class="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center h-16 gap-6">
+
+      <!-- Logo lockup -->
+      <a href="/en/" class="flex items-center gap-3 flex-shrink-0" aria-label="Behbehani CPO home">
+        <div class="w-9 h-9 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0">
+          <!-- Shield-check mark -->
+          <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="hidden sm:block leading-tight">
+          <p class="text-sm font-bold text-slate-900 leading-none">Behbehani CPO</p>
+          <p class="text-[10px] font-medium text-brand-600 uppercase tracking-widest leading-tight mt-0.5">Certified Pre-Owned</p>
+        </div>
+      </a>
+
+      <!-- Center nav — hidden below md -->
+      <nav class="hidden md:flex items-center gap-1 flex-1 justify-center" aria-label="Main navigation">
+        <a href="/en/browse" class="px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:text-brand-700 hover:bg-brand-50 transition-colors">Browse cars</a>
+        <a href="/en/sell" class="px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:text-brand-700 hover:bg-brand-50 transition-colors">Sell your car</a>
+        <a href="/en/how-it-works" class="px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:text-brand-700 hover:bg-brand-50 transition-colors">How it works</a>
+        <a href="/en/finance" class="px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:text-brand-700 hover:bg-brand-50 transition-colors">Finance</a>
+        <a href="/en/about" class="px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:text-brand-700 hover:bg-brand-50 transition-colors">About</a>
+      </nav>
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-2 ml-auto">
+        <!-- Language toggle -->
+        <a href="/ar/" lang="ar" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 text-sm font-medium text-slate-600 hover:border-brand-300 hover:text-brand-700 transition-colors" aria-label="Switch to Arabic">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/>
+          </svg>
+          العربية
+        </a>
+
+        <!-- Favorites -->
+        <button type="button" class="relative p-2 rounded-full text-slate-500 hover:text-brand-600 hover:bg-brand-50 transition-colors" aria-label="Saved favorites">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          <!-- Badge placeholder -->
+          <span class="absolute top-1 right-1 w-2 h-2 bg-brand-500 rounded-full" aria-hidden="true"></span>
+        </button>
+
+        <!-- Sign in (signed-out state) -->
+        <a href="/en/auth/login" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          Sign in
+        </a>
+
+        <!-- Mobile hamburger placeholder — shown below md -->
+        <button type="button" class="md:hidden p-2 rounded-md text-slate-500 hover:text-brand-600 hover:bg-brand-50 transition-colors" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     HERO SECTION
+     — Full-width brand-gradient background with SVG car silhouette
+     — Inline quick-search: stacked on mobile, row on md+
+     Collapses: 4 fields go 1-col on <sm, 2-col on sm, 4-col on md+
+════════════════════════════════════════════════════════════ -->
+<section class="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-800 to-brand-700 pt-16 pb-20 px-4 sm:px-6 lg:px-8" aria-labelledby="hero-heading">
+
+  <!-- Decorative car SVG silhouette -->
+  <div class="hero-car absolute inset-0 flex items-center justify-end pr-8 pointer-events-none select-none" aria-hidden="true">
+    <svg viewBox="0 0 800 360" class="w-full max-w-3xl text-white" fill="currentColor">
+      <!-- Simplified sedan silhouette -->
+      <ellipse cx="400" cy="280" rx="380" ry="30"/>
+      <!-- Body -->
+      <path d="M80 260 C80 260 100 200 160 180 C220 160 260 150 320 145 C380 140 400 135 460 140 C510 143 560 150 600 165 C640 178 680 200 710 230 C730 248 740 260 740 260 Z"/>
+      <!-- Cabin -->
+      <path d="M240 180 C255 155 285 130 330 120 C375 110 430 108 470 115 C510 122 545 138 570 155 C585 164 600 175 610 180 Z"/>
+      <!-- Wheels -->
+      <circle cx="210" cy="265" r="42"/>
+      <circle cx="210" cy="265" r="22" fill="#1e3a8a"/>
+      <circle cx="590" cy="265" r="42"/>
+      <circle cx="590" cy="265" r="22" fill="#1e3a8a"/>
+      <!-- Windshield highlight -->
+      <path d="M265 175 C275 155 300 135 335 126 C370 117 420 115 455 121 C490 127 520 140 540 155 L530 165 C510 150 480 138 450 132 C420 126 375 124 340 132 C305 140 282 158 270 178 Z" fill="rgba(255,255,255,0.15)"/>
+    </svg>
+  </div>
+
+  <!-- Decorative circles -->
+  <div class="absolute -top-16 -left-16 w-72 h-72 bg-brand-600 rounded-full opacity-20 blur-3xl pointer-events-none" aria-hidden="true"></div>
+  <div class="absolute -bottom-20 -right-20 w-96 h-96 bg-brand-500 rounded-full opacity-15 blur-3xl pointer-events-none" aria-hidden="true"></div>
+
+  <div class="relative max-w-4xl mx-auto text-center">
+    <!-- Badge -->
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-brand-100 text-sm font-medium mb-6">
+      <span class="w-2 h-2 bg-brand-300 rounded-full animate-pulse" aria-hidden="true"></span>
+      143 cars available today
+    </div>
+
+    <!-- Headline -->
+    <h1 id="hero-heading" class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight tracking-tight mb-4">
+      Certified pre-owned vehicles.<br class="hidden sm:block"/>
+      <span class="text-brand-300">Inspected, warrantied, delivered.</span>
+    </h1>
+
+    <!-- Subline -->
+    <p class="text-base sm:text-lg text-brand-100 mb-10 max-w-2xl mx-auto leading-relaxed">
+      Free 7-day returns &nbsp;·&nbsp; Al Daman 200-point inspection &nbsp;·&nbsp; Bank finance in 24h
+    </p>
+
+    <!-- ── Quick-search card ── -->
+    <!-- Mobile: 1-col. sm: 2-col. md+: 4-col inline + button -->
+    <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-5 max-w-3xl mx-auto">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+
+        <!-- Body type -->
+        <div class="flex flex-col gap-1">
+          <label for="qs-body" class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-1">Body type</label>
+          <select id="qs-body" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none cursor-pointer">
+            <option value="">Any body type</option>
+            <option>Sedan</option>
+            <option>SUV</option>
+            <option>Hatchback</option>
+            <option>Coupé</option>
+            <option>Pickup</option>
+            <option>Van</option>
+          </select>
+        </div>
+
+        <!-- Brand -->
+        <div class="flex flex-col gap-1">
+          <label for="qs-brand" class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-1">Brand</label>
+          <select id="qs-brand" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none cursor-pointer">
+            <option value="">Any brand</option>
+            <option>Toyota</option>
+            <option>Lexus</option>
+            <option>BMW</option>
+            <option>Mercedes-Benz</option>
+            <option>Kia</option>
+            <option>Hyundai</option>
+          </select>
+        </div>
+
+        <!-- Price range -->
+        <div class="flex flex-col gap-1">
+          <label for="qs-price" class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-1">Price range</label>
+          <select id="qs-price" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none cursor-pointer">
+            <option value="">Any price</option>
+            <option>Under KWD 5,000</option>
+            <option>KWD 5,000 – 10,000</option>
+            <option>KWD 10,000 – 15,000</option>
+            <option>KWD 15,000 – 20,000</option>
+            <option>Over KWD 20,000</option>
+          </select>
+        </div>
+
+        <!-- Year range -->
+        <div class="flex flex-col gap-1">
+          <label for="qs-year" class="text-xs font-semibold text-slate-500 uppercase tracking-wider pl-1">Year range</label>
+          <select id="qs-year" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent appearance-none cursor-pointer">
+            <option value="">Any year</option>
+            <option>2024 – 2025</option>
+            <option>2022 – 2023</option>
+            <option>2020 – 2021</option>
+            <option>2018 – 2019</option>
+            <option>Before 2018</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Search button — full-width on mobile, right-aligned below on sm+ -->
+      <div class="mt-3">
+        <a href="/en/browse" class="flex items-center justify-center gap-2 w-full px-6 py-3 rounded-xl bg-brand-600 text-white font-semibold text-sm hover:bg-brand-700 transition-colors shadow-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+          </svg>
+          Search cars
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     BODY-TYPE RAIL
+     — horizontal scroll on mobile (<lg), 6-col grid on lg+
+     Collapses: lg (1024px)
+════════════════════════════════════════════════════════════ -->
+<section class="py-12 px-4 sm:px-6 lg:px-8 bg-white" aria-labelledby="body-type-heading">
+  <div class="max-w-7xl mx-auto">
+    <h2 id="body-type-heading" class="text-xl font-bold text-slate-900 mb-6">Browse by body type</h2>
+
+    <!-- Scroll rail on mobile, grid on lg+ -->
+    <!-- NOTE: on lg+ this becomes a 6-column grid. Below lg it's a horizontal scroll container. -->
+    <div class="flex lg:grid lg:grid-cols-6 gap-3 overflow-x-auto scroll-rail pb-2 lg:overflow-visible lg:pb-0">
+
+      <!-- Sedan -->
+      <a href="/en/browse?bodyType=sedan" class="flex-shrink-0 w-36 lg:w-auto flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-brand-100 group-hover:bg-brand-200 transition-colors flex items-center justify-center">
+          <svg class="w-7 h-7 text-brand-600" viewBox="0 0 48 28" fill="currentColor" aria-hidden="true">
+            <path d="M6 22 C6 22 8 14 14 11 C18 9 22 8 28 8 C34 8 36 9 40 11 C44 13 46 18 46 22 Z"/>
+            <path d="M17 11 C18 6 22 4 28 4 C33 4 36 7 37 11 Z"/>
+            <circle cx="13" cy="23" r="4"/><circle cx="35" cy="23" r="4"/>
+          </svg>
+        </div>
+        <div class="text-center">
+          <p class="text-sm font-semibold text-slate-800 group-hover:text-brand-700">Sedan</p>
+          <p class="text-xs text-slate-500 mt-0.5">32 cars</p>
+        </div>
+      </a>
+
+      <!-- SUV -->
+      <a href="/en/browse?bodyType=suv" class="flex-shrink-0 w-36 lg:w-auto flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-brand-100 group-hover:bg-brand-200 transition-colors flex items-center justify-center">
+          <svg class="w-7 h-7 text-brand-600" viewBox="0 0 48 28" fill="currentColor" aria-hidden="true">
+            <path d="M4 22 C4 22 5 12 12 9 C16 7 20 6 28 6 C35 6 38 8 42 12 C45 15 46 20 46 22 Z"/>
+            <path d="M14 9 C14 5 18 3 28 3 C37 3 40 6 40 9 Z"/>
+            <circle cx="12" cy="23" r="4.5"/><circle cx="36" cy="23" r="4.5"/>
+          </svg>
+        </div>
+        <div class="text-center">
+          <p class="text-sm font-semibold text-slate-800 group-hover:text-brand-700">SUV</p>
+          <p class="text-xs text-slate-500 mt-0.5">48 cars</p>
+        </div>
+      </a>
+
+      <!-- Hatchback -->
+      <a href="/en/browse?bodyType=hatchback" class="flex-shrink-0 w-36 lg:w-auto flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-brand-100 group-hover:bg-brand-200 transition-colors flex items-center justify-center">
+          <svg class="w-7 h-7 text-brand-600" viewBox="0 0 48 28" fill="currentColor" aria-hidden="true">
+            <path d="M5 22 C5 22 6 14 13 11 C17 9 21 8 28 8 C35 8 38 10 42 14 C44 17 45 20 45 22 Z"/>
+            <path d="M16 11 C17 7 21 5 28 5 C34 5 38 8 38 11 Z"/>
+            <circle cx="13" cy="23" r="4"/><circle cx="35" cy="23" r="4"/>
+          </svg>
+        </div>
+        <div class="text-center">
+          <p class="text-sm font-semibold text-slate-800 group-hover:text-brand-700">Hatchback</p>
+          <p class="text-xs text-slate-500 mt-0.5">19 cars</p>
+        </div>
+      </a>
+
+      <!-- Coupé -->
+      <a href="/en/browse?bodyType=coupe" class="flex-shrink-0 w-36 lg:w-auto flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-brand-100 group-hover:bg-brand-200 transition-colors flex items-center justify-center">
+          <svg class="w-7 h-7 text-brand-600" viewBox="0 0 48 28" fill="currentColor" aria-hidden="true">
+            <path d="M5 22 C5 22 7 15 14 12 C19 10 24 9 30 9 C37 9 40 11 43 15 C45 18 45 21 45 22 Z"/>
+            <path d="M18 12 C20 7 25 5 32 6 C38 7 41 10 41 12 Z"/>
+            <circle cx="13" cy="23" r="4"/><circle cx="36" cy="23" r="4"/>
+          </svg>
+        </div>
+        <div class="text-center">
+          <p class="text-sm font-semibold text-slate-800 group-hover:text-brand-700">Coupé</p>
+          <p class="text-xs text-slate-500 mt-0.5">11 cars</p>
+        </div>
+      </a>
+
+      <!-- Pickup -->
+      <a href="/en/browse?bodyType=pickup" class="flex-shrink-0 w-36 lg:w-auto flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-brand-100 group-hover:bg-brand-200 transition-colors flex items-center justify-center">
+          <svg class="w-7 h-7 text-brand-600" viewBox="0 0 48 28" fill="currentColor" aria-hidden="true">
+            <path d="M4 22 L4 16 L10 16 L12 10 L26 10 L28 16 L44 16 L44 22 Z"/>
+            <path d="M12 10 L12 6 L24 6 L26 10 Z"/>
+            <circle cx="11" cy="23" r="4"/><circle cx="37" cy="23" r="4"/>
+          </svg>
+        </div>
+        <div class="text-center">
+          <p class="text-sm font-semibold text-slate-800 group-hover:text-brand-700">Pickup</p>
+          <p class="text-xs text-slate-500 mt-0.5">8 cars</p>
+        </div>
+      </a>
+
+      <!-- Van -->
+      <a href="/en/browse?bodyType=van" class="flex-shrink-0 w-36 lg:w-auto flex flex-col items-center gap-3 p-4 rounded-2xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-brand-100 group-hover:bg-brand-200 transition-colors flex items-center justify-center">
+          <svg class="w-7 h-7 text-brand-600" viewBox="0 0 48 28" fill="currentColor" aria-hidden="true">
+            <path d="M4 22 L4 8 L36 8 L44 14 L44 22 Z"/>
+            <rect x="5" y="9" width="14" height="8" rx="1" fill="rgba(255,255,255,0.3)"/>
+            <rect x="21" y="9" width="13" height="8" rx="1" fill="rgba(255,255,255,0.3)"/>
+            <circle cx="12" cy="23" r="4"/><circle cx="36" cy="23" r="4"/>
+          </svg>
+        </div>
+        <div class="text-center">
+          <p class="text-sm font-semibold text-slate-800 group-hover:text-brand-700">Van</p>
+          <p class="text-xs text-slate-500 mt-0.5">5 cars</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     LISTING CARD COMPONENT — reusable inner template
+     Used by Featured Deals and New Arrivals rails below.
+     NOTE TO DEV: Extract to `<app-listing-card>` Angular component.
+     VIN is NEVER included in the public DTO or any template here.
+     costFils is NEVER rendered client-side.
+════════════════════════════════════════════════════════════ -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FEATURED DEALS RAIL
+     Collapses: horizontal scroll on <lg, grid hint at lg+
+════════════════════════════════════════════════════════════ -->
+<section class="py-12 px-4 sm:px-6 lg:px-8 bg-slate-50" aria-labelledby="featured-heading">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Section header -->
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 id="featured-heading" class="text-xl font-bold text-slate-900">Featured this week</h2>
+        <p class="text-sm text-slate-500 mt-0.5">Hand-picked deals from our certified inventory</p>
+      </div>
+      <a href="/en/browse?sort=featured" class="text-sm font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1 transition-colors">
+        View all
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Horizontal scroll on mobile, visible grid at xl -->
+    <div class="flex gap-4 overflow-x-auto scroll-rail pb-3 xl:grid xl:grid-cols-4 xl:overflow-visible xl:pb-0">
+
+      <!-- Card 1: Toyota Camry -->
+      <article class="listing-card flex-shrink-0 w-72 xl:w-auto bg-white rounded-2xl border border-slate-200 overflow-hidden" aria-label="2022 Toyota Camry Grande listing">
+        <!-- Photo placeholder — 16:10 ratio -->
+        <div class="relative bg-gradient-to-br from-brand-100 to-brand-200 aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <svg class="w-24 h-24 text-brand-400 opacity-60" viewBox="0 0 80 48" fill="currentColor" aria-hidden="true">
+            <path d="M8 38 C8 38 10 26 18 22 C23 19 28 18 40 18 C52 18 56 20 62 24 C68 28 70 34 70 38 Z"/>
+            <path d="M24 22 C25 14 30 11 40 11 C50 11 54 14 55 22 Z"/>
+            <circle cx="19" cy="39" r="6"/><circle cx="59" cy="39" r="6"/>
+          </svg>
+          <!-- Favorite button -->
+          <button type="button" class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" aria-label="Save to favorites">
+            <svg class="w-4 h-4 text-slate-500 hover:text-brand-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+          <!-- Inspection pill -->
+          <div class="daman-pill absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 rounded-full border border-slate-200 shadow-sm">
+            <svg class="w-3 h-3 text-brand-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 1L1 3v4c0 2.5 1.8 4.8 5 5.5 3.2-.7 5-3 5-5.5V3L6 1z"/>
+              <path d="M4 6l1.5 1.5L8 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="text-[10px] font-semibold text-slate-700">Inspected by Al Daman</span>
+          </div>
+        </div>
+
+        <!-- Card body -->
+        <div class="p-4">
+          <!-- Title -->
+          <h3 class="font-bold text-slate-900 text-sm leading-tight mb-2">2022 Toyota Camry Grande 2.5L</h3>
+          <!-- Spec strip -->
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap">
+            <span class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+              48,200 km
+            </span>
+            <span class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Petrol
+            </span>
+            <span class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h8M12 8v8"/></svg>
+              Automatic
+            </span>
+          </div>
+          <!-- Price -->
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 4,250.000</p>
+            <p class="text-xs text-slate-500 mt-0.5">From <span class="font-semibold text-brand-600">KWD 75.000/mo</span> &mdash; est.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2: Lexus ES -->
+      <article class="listing-card flex-shrink-0 w-72 xl:w-auto bg-white rounded-2xl border border-slate-200 overflow-hidden" aria-label="2021 Lexus ES 350 listing">
+        <div class="relative bg-gradient-to-br from-slate-100 to-slate-200 aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <svg class="w-24 h-24 text-slate-400 opacity-60" viewBox="0 0 80 48" fill="currentColor" aria-hidden="true">
+            <path d="M8 38 C8 38 10 26 18 22 C23 19 28 18 40 18 C52 18 56 20 62 24 C68 28 70 34 70 38 Z"/>
+            <path d="M24 22 C25 14 30 11 40 11 C50 11 54 14 55 22 Z"/>
+            <circle cx="19" cy="39" r="6"/><circle cx="59" cy="39" r="6"/>
+          </svg>
+          <button type="button" class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" aria-label="Save to favorites">
+            <svg class="w-4 h-4 text-brand-500" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 20.364l-7.682-7.682a4.5 4.5 0 116.364-6.364L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364z"/>
+            </svg>
+          </button>
+          <div class="daman-pill absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 rounded-full border border-slate-200 shadow-sm">
+            <svg class="w-3 h-3 text-brand-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 1L1 3v4c0 2.5 1.8 4.8 5 5.5 3.2-.7 5-3 5-5.5V3L6 1z"/>
+              <path d="M4 6l1.5 1.5L8 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="text-[10px] font-semibold text-slate-700">Inspected by Al Daman</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-tight mb-2">2021 Lexus ES 350 F Sport</h3>
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap">
+            <span>31,500 km</span>
+            <span>Petrol</span>
+            <span>Automatic</span>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 9,100.000</p>
+            <p class="text-xs text-slate-500 mt-0.5">From <span class="font-semibold text-brand-600">KWD 158.000/mo</span> &mdash; est.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3: BMW 5 Series -->
+      <article class="listing-card flex-shrink-0 w-72 xl:w-auto bg-white rounded-2xl border border-slate-200 overflow-hidden" aria-label="2020 BMW 520i listing">
+        <div class="relative bg-gradient-to-br from-zinc-100 to-zinc-200 aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <svg class="w-24 h-24 text-zinc-400 opacity-60" viewBox="0 0 80 48" fill="currentColor" aria-hidden="true">
+            <path d="M8 38 C8 38 10 26 18 22 C23 19 28 18 40 18 C52 18 56 20 62 24 C68 28 70 34 70 38 Z"/>
+            <path d="M24 22 C25 14 30 11 40 11 C50 11 54 14 55 22 Z"/>
+            <circle cx="19" cy="39" r="6"/><circle cx="59" cy="39" r="6"/>
+          </svg>
+          <button type="button" class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" aria-label="Save to favorites">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+          <div class="daman-pill absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 rounded-full border border-slate-200 shadow-sm">
+            <svg class="w-3 h-3 text-brand-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 1L1 3v4c0 2.5 1.8 4.8 5 5.5 3.2-.7 5-3 5-5.5V3L6 1z"/>
+              <path d="M4 6l1.5 1.5L8 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="text-[10px] font-semibold text-slate-700">Inspected by Al Daman</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-tight mb-2">2020 BMW 520i M Sport</h3>
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap">
+            <span>62,800 km</span>
+            <span>Petrol</span>
+            <span>Automatic</span>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 7,450.000</p>
+            <p class="text-xs text-slate-500 mt-0.5">From <span class="font-semibold text-brand-600">KWD 130.000/mo</span> &mdash; est.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 4: Kia Telluride -->
+      <article class="listing-card flex-shrink-0 w-72 xl:w-auto bg-white rounded-2xl border border-slate-200 overflow-hidden" aria-label="2023 Kia Telluride listing">
+        <div class="relative bg-gradient-to-br from-brand-50 to-slate-100 aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <!-- SUV silhouette variant -->
+          <svg class="w-24 h-24 text-brand-300 opacity-60" viewBox="0 0 80 48" fill="currentColor" aria-hidden="true">
+            <path d="M6 38 C6 38 7 22 16 17 C21 14 26 13 40 13 C54 13 58 16 64 21 C70 26 72 33 72 38 Z"/>
+            <path d="M20 17 C20 11 26 9 40 9 C54 9 58 12 58 17 Z"/>
+            <circle cx="17" cy="39" r="6.5"/><circle cx="61" cy="39" r="6.5"/>
+          </svg>
+          <button type="button" class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" aria-label="Save to favorites">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+          <div class="daman-pill absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 rounded-full border border-slate-200 shadow-sm">
+            <svg class="w-3 h-3 text-brand-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 1L1 3v4c0 2.5 1.8 4.8 5 5.5 3.2-.7 5-3 5-5.5V3L6 1z"/>
+              <path d="M4 6l1.5 1.5L8 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="text-[10px] font-semibold text-slate-700">Inspected by Al Daman</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-tight mb-2">2023 Kia Telluride EX 3.8L AWD</h3>
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap">
+            <span>14,100 km</span>
+            <span>Petrol</span>
+            <span>Automatic</span>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 12,800.000</p>
+            <p class="text-xs text-slate-500 mt-0.5">From <span class="font-semibold text-brand-600">KWD 222.000/mo</span> &mdash; est.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     NEW ARRIVALS RAIL
+     Same card pattern — "Just added" heading
+     Collapses: same as featured deals rail
+════════════════════════════════════════════════════════════ -->
+<section class="py-12 px-4 sm:px-6 lg:px-8 bg-white" aria-labelledby="arrivals-heading">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="inline-block w-2 h-2 bg-brand-500 rounded-full animate-pulse" aria-hidden="true"></span>
+          <h2 id="arrivals-heading" class="text-xl font-bold text-slate-900">Just added</h2>
+        </div>
+        <p class="text-sm text-slate-500">Fresh to the lot in the last 7 days</p>
+      </div>
+      <a href="/en/browse?sort=newest" class="text-sm font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1 transition-colors">
+        View all &rarr; newest
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="flex gap-4 overflow-x-auto scroll-rail pb-3 xl:grid xl:grid-cols-4 xl:overflow-visible xl:pb-0">
+
+      <!-- New arrival card 1 -->
+      <article class="listing-card flex-shrink-0 w-72 xl:w-auto bg-white rounded-2xl border border-slate-200 overflow-hidden" aria-label="2024 Hyundai Tucson listing">
+        <div class="relative bg-gradient-to-br from-slate-50 to-brand-100 aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <svg class="w-24 h-24 text-brand-300 opacity-50" viewBox="0 0 80 48" fill="currentColor" aria-hidden="true">
+            <path d="M6 38 C6 38 7 22 16 17 C21 14 26 13 40 13 C54 13 58 16 64 21 C70 26 72 33 72 38 Z"/>
+            <path d="M20 17 C20 11 26 9 40 9 C54 9 58 12 58 17 Z"/>
+            <circle cx="17" cy="39" r="6.5"/><circle cx="61" cy="39" r="6.5"/>
+          </svg>
+          <!-- "New" badge -->
+          <div class="absolute top-3 left-3 px-2 py-0.5 bg-brand-600 text-white text-[10px] font-bold rounded uppercase tracking-wider">New in</div>
+          <button type="button" class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" aria-label="Save to favorites">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+          <div class="daman-pill absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 rounded-full border border-slate-200 shadow-sm">
+            <svg class="w-3 h-3 text-brand-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 1L1 3v4c0 2.5 1.8 4.8 5 5.5 3.2-.7 5-3 5-5.5V3L6 1z"/>
+              <path d="M4 6l1.5 1.5L8 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="text-[10px] font-semibold text-slate-700">Inspected by Al Daman</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-tight mb-2">2024 Hyundai Tucson N Line 1.6T</h3>
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap">
+            <span>8,400 km</span>
+            <span>Petrol</span>
+            <span>Automatic</span>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 6,900.000</p>
+            <p class="text-xs text-slate-500 mt-0.5">From <span class="font-semibold text-brand-600">KWD 120.000/mo</span> &mdash; est.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- New arrival card 2 -->
+      <article class="listing-card flex-shrink-0 w-72 xl:w-auto bg-white rounded-2xl border border-slate-200 overflow-hidden" aria-label="2023 Mercedes-Benz C200 listing">
+        <div class="relative bg-gradient-to-br from-zinc-50 to-zinc-100 aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <svg class="w-24 h-24 text-zinc-300 opacity-60" viewBox="0 0 80 48" fill="currentColor" aria-hidden="true">
+            <path d="M8 38 C8 38 10 26 18 22 C23 19 28 18 40 18 C52 18 56 20 62 24 C68 28 70 34 70 38 Z"/>
+            <path d="M24 22 C25 14 30 11 40 11 C50 11 54 14 55 22 Z"/>
+            <circle cx="19" cy="39" r="6"/><circle cx="59" cy="39" r="6"/>
+          </svg>
+          <div class="absolute top-3 left-3 px-2 py-0.5 bg-brand-600 text-white text-[10px] font-bold rounded uppercase tracking-wider">New in</div>
+          <button type="button" class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" aria-label="Save to favorites">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+          <div class="daman-pill absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 rounded-full border border-slate-200 shadow-sm">
+            <svg class="w-3 h-3 text-brand-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 1L1 3v4c0 2.5 1.8 4.8 5 5.5 3.2-.7 5-3 5-5.5V3L6 1z"/>
+              <path d="M4 6l1.5 1.5L8 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="text-[10px] font-semibold text-slate-700">Inspected by Al Daman</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-tight mb-2">2023 Mercedes-Benz C200 AMG Line</h3>
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap">
+            <span>22,100 km</span>
+            <span>Petrol</span>
+            <span>Automatic</span>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 11,500.000</p>
+            <p class="text-xs text-slate-500 mt-0.5">From <span class="font-semibold text-brand-600">KWD 200.000/mo</span> &mdash; est.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- New arrival card 3 -->
+      <article class="listing-card flex-shrink-0 w-72 xl:w-auto bg-white rounded-2xl border border-slate-200 overflow-hidden" aria-label="2022 Toyota Land Cruiser listing">
+        <div class="relative bg-gradient-to-br from-brand-100 to-brand-50 aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <svg class="w-24 h-24 text-brand-400 opacity-50" viewBox="0 0 80 48" fill="currentColor" aria-hidden="true">
+            <path d="M4 38 C4 38 5 20 14 15 C20 12 26 11 40 11 C54 11 60 14 66 19 C72 24 74 32 74 38 Z"/>
+            <path d="M18 15 C18 9 26 7 40 7 C54 7 60 10 60 15 Z"/>
+            <circle cx="15" cy="39" r="7"/><circle cx="63" cy="39" r="7"/>
+          </svg>
+          <div class="absolute top-3 left-3 px-2 py-0.5 bg-brand-600 text-white text-[10px] font-bold rounded uppercase tracking-wider">New in</div>
+          <button type="button" class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" aria-label="Save to favorites">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+          <div class="daman-pill absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 rounded-full border border-slate-200 shadow-sm">
+            <svg class="w-3 h-3 text-brand-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 1L1 3v4c0 2.5 1.8 4.8 5 5.5 3.2-.7 5-3 5-5.5V3L6 1z"/>
+              <path d="M4 6l1.5 1.5L8 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="text-[10px] font-semibold text-slate-700">Inspected by Al Daman</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-tight mb-2">2022 Toyota Land Cruiser GX 4.0L V6</h3>
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap">
+            <span>39,600 km</span>
+            <span>Petrol</span>
+            <span>Automatic</span>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 19,500.000</p>
+            <p class="text-xs text-slate-500 mt-0.5">From <span class="font-semibold text-brand-600">KWD 339.000/mo</span> &mdash; est.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- New arrival card 4 -->
+      <article class="listing-card flex-shrink-0 w-72 xl:w-auto bg-white rounded-2xl border border-slate-200 overflow-hidden" aria-label="2024 Honda Accord listing">
+        <div class="relative bg-gradient-to-br from-slate-100 to-brand-50 aspect-[16/10] flex items-center justify-center overflow-hidden">
+          <svg class="w-24 h-24 text-slate-300 opacity-60" viewBox="0 0 80 48" fill="currentColor" aria-hidden="true">
+            <path d="M8 38 C8 38 10 26 18 22 C23 19 28 18 40 18 C52 18 56 20 62 24 C68 28 70 34 70 38 Z"/>
+            <path d="M24 22 C25 14 30 11 40 11 C50 11 54 14 55 22 Z"/>
+            <circle cx="19" cy="39" r="6"/><circle cx="59" cy="39" r="6"/>
+          </svg>
+          <div class="absolute top-3 left-3 px-2 py-0.5 bg-brand-600 text-white text-[10px] font-bold rounded uppercase tracking-wider">New in</div>
+          <button type="button" class="absolute top-3 right-3 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow hover:bg-white transition-colors" aria-label="Save to favorites">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </button>
+          <div class="daman-pill absolute bottom-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white/95 rounded-full border border-slate-200 shadow-sm">
+            <svg class="w-3 h-3 text-brand-600" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M6 1L1 3v4c0 2.5 1.8 4.8 5 5.5 3.2-.7 5-3 5-5.5V3L6 1z"/>
+              <path d="M4 6l1.5 1.5L8 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="text-[10px] font-semibold text-slate-700">Inspected by Al Daman</span>
+          </div>
+        </div>
+        <div class="p-4">
+          <h3 class="font-bold text-slate-900 text-sm leading-tight mb-2">2024 Honda Accord Sport 1.5T</h3>
+          <div class="flex items-center gap-3 text-xs text-slate-500 mb-3 flex-wrap">
+            <span>5,200 km</span>
+            <span>Petrol</span>
+            <span>CVT</span>
+          </div>
+          <div class="border-t border-slate-100 pt-3">
+            <p class="text-lg font-extrabold text-slate-900">KWD 5,750.000</p>
+            <p class="text-xs text-slate-500 mt-0.5">From <span class="font-semibold text-brand-600">KWD 100.000/mo</span> &mdash; est.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     TRUST STRIP — 4-up value props
+     Collapses: 1-col on mobile, 2-col sm, 4-col md+
+════════════════════════════════════════════════════════════ -->
+<section class="py-14 px-4 sm:px-6 lg:px-8 bg-brand-900" aria-labelledby="trust-heading">
+  <div class="max-w-7xl mx-auto">
+    <h2 id="trust-heading" class="sr-only">Why Behbehani CPO</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+
+      <!-- Free 7-day return -->
+      <div class="flex flex-col items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition-colors">
+        <div class="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-white text-sm mb-1">Free 7-day return</h3>
+          <p class="text-brand-200 text-xs leading-relaxed">Not satisfied? Return within 7 days, no questions asked.</p>
+        </div>
+      </div>
+
+      <!-- Al Daman 200-point -->
+      <div class="flex flex-col items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition-colors">
+        <div class="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-white text-sm mb-1">Al Daman 200-point inspection</h3>
+          <p class="text-brand-200 text-xs leading-relaxed">Every vehicle certified by Kuwait's independent inspection standard.</p>
+        </div>
+      </div>
+
+      <!-- Finance in 24h -->
+      <div class="flex flex-col items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition-colors">
+        <div class="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-white text-sm mb-1">Bank financing in 24h</h3>
+          <p class="text-brand-200 text-xs leading-relaxed">Pre-approved by leading Kuwaiti banks. Apply online in minutes.</p>
+        </div>
+      </div>
+
+      <!-- KNET-secured payment -->
+      <div class="flex flex-col items-start gap-4 p-6 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/8 transition-colors">
+        <div class="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center flex-shrink-0">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-white text-sm mb-1">KNET-secured payment</h3>
+          <p class="text-brand-200 text-xs leading-relaxed">Safe, local payment via KNET — Kuwait's national payment network.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     BRAND STRIP
+     Monochrome brand logo placeholders (SVG initials circles)
+     Collapses: wraps naturally; no breakpoint-specific layout needed
+════════════════════════════════════════════════════════════ -->
+<section class="py-12 px-4 sm:px-6 lg:px-8 bg-white border-t border-slate-100" aria-labelledby="brands-heading">
+  <div class="max-w-7xl mx-auto">
+    <p id="brands-heading" class="text-xs font-semibold text-slate-400 uppercase tracking-widest text-center mb-8">Top brands in our inventory</p>
+
+    <div class="flex flex-wrap justify-center items-center gap-6 lg:gap-8">
+
+      <!-- Each brand: monochrome circle + initial/abbreviation -->
+      <!-- Toyota -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Toyota">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">T</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Toyota</span>
+      </div>
+
+      <!-- Lexus -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Lexus">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">L</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Lexus</span>
+      </div>
+
+      <!-- BMW -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="BMW">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">BMW</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">BMW</span>
+      </div>
+
+      <!-- Mercedes-Benz -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Mercedes-Benz">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">MB</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Mercedes</span>
+      </div>
+
+      <!-- Kia -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Kia">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">KIA</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Kia</span>
+      </div>
+
+      <!-- Hyundai -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Hyundai">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">H</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Hyundai</span>
+      </div>
+
+      <!-- Nissan -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Nissan">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">N</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Nissan</span>
+      </div>
+
+      <!-- Honda -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Honda">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">H</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Honda</span>
+      </div>
+
+      <!-- Audi -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Audi">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">A</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Audi</span>
+      </div>
+
+      <!-- Chevrolet -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Chevrolet">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">C</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Chevrolet</span>
+      </div>
+
+      <!-- Ford -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Ford">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">F</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Ford</span>
+      </div>
+
+      <!-- Porsche -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Porsche">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">P</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Porsche</span>
+      </div>
+
+      <!-- Land Rover -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Land Rover">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">LR</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Land Rover</span>
+      </div>
+
+      <!-- Infiniti -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Infiniti">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">INF</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Infiniti</span>
+      </div>
+
+      <!-- Genesis -->
+      <div class="flex flex-col items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity" title="Genesis">
+        <div class="w-14 h-14 rounded-full border-2 border-slate-300 flex items-center justify-center bg-white group-hover:border-brand-400 transition-colors">
+          <span class="text-xs font-black text-slate-500 group-hover:text-brand-600">G</span>
+        </div>
+        <span class="text-[10px] font-medium text-slate-400 group-hover:text-slate-600">Genesis</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     FOOTER
+     4 columns: Company / Buy / Sell / Support
+     Collapses: 2-col sm, 4-col md+; stacked on mobile
+════════════════════════════════════════════════════════════ -->
+<footer class="bg-slate-900 text-slate-300 pt-14 pb-8 px-4 sm:px-6 lg:px-8" aria-label="Site footer">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Top row: logo + columns -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-8 mb-10">
+
+      <!-- Logo + tagline -->
+      <div class="md:col-span-1">
+        <div class="flex items-center gap-2.5 mb-4">
+          <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
+              <path d="M9 12l2 2 4-4"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-bold text-white leading-none">Behbehani CPO</p>
+            <p class="text-[10px] text-brand-400 uppercase tracking-widest leading-tight mt-0.5">Certified Pre-Owned</p>
+          </div>
+        </div>
+        <p class="text-xs text-slate-500 leading-relaxed">Kuwait's trusted source for certified pre-owned vehicles. Inspected, warrantied, delivered.</p>
+      </div>
+
+      <!-- Company -->
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-widest mb-4">Company</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="/en/about" class="hover:text-white transition-colors">About us</a></li>
+          <li><a href="/en/careers" class="hover:text-white transition-colors">Careers</a></li>
+          <li><a href="/en/press" class="hover:text-white transition-colors">Press</a></li>
+          <li><a href="/en/contact" class="hover:text-white transition-colors">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Buy -->
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-widest mb-4">Buy</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="/en/browse" class="hover:text-white transition-colors">Browse all cars</a></li>
+          <li><a href="/en/finance" class="hover:text-white transition-colors">Finance calculator</a></li>
+          <li><a href="/en/how-it-works" class="hover:text-white transition-colors">How it works</a></li>
+          <li><a href="/en/al-daman" class="hover:text-white transition-colors">Al Daman inspection</a></li>
+        </ul>
+      </div>
+
+      <!-- Sell -->
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-widest mb-4">Sell</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="/en/sell" class="hover:text-white transition-colors">Sell your car</a></li>
+          <li><a href="/en/sell#valuation" class="hover:text-white transition-colors">Get a valuation</a></li>
+          <li><a href="/en/sell#process" class="hover:text-white transition-colors">Sell process</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div>
+        <h4 class="text-xs font-bold text-white uppercase tracking-widest mb-4">Support</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="/en/help" class="hover:text-white transition-colors">Help centre</a></li>
+          <li><a href="/en/returns" class="hover:text-white transition-colors">Returns policy</a></li>
+          <li><a href="/en/warranty" class="hover:text-white transition-colors">Warranty info</a></li>
+          <li><a href="/en/privacy" class="hover:text-white transition-colors">Privacy policy</a></li>
+          <li><a href="/en/terms" class="hover:text-white transition-colors">Terms of use</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Divider -->
+    <div class="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+
+      <div class="flex items-center gap-4 flex-wrap justify-center sm:justify-start">
+        <!-- Language toggle -->
+        <a href="/ar/" lang="ar" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-700 hover:border-slate-500 text-slate-400 hover:text-slate-200 transition-colors">
+          <svg class="w-3 h-3" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/>
+          </svg>
+          العربية
+        </a>
+        <!-- Currency note -->
+        <span class="text-slate-600">All prices in Kuwaiti Dinar (KWD) — 3 decimal places</span>
+      </div>
+
+      <p class="text-slate-600">&copy; 2026 Behbehani Group. All rights reserved.</p>
+    </div>
+
+  </div>
+</footer>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     JSON-LD PLACEHOLDER
+     TODO: Organization JSON-LD here
+     Place the <script type="application/ld+json"> block below
+     before the closing </body> tag in the Angular SSR template.
+     Schema type: Organization + WebSite + potentially ItemList
+     for the featured listings (use PublicAPI DTO data, NOT costFils).
+════════════════════════════════════════════════════════════ -->
+<!-- TODO: Organization JSON-LD here -->
+
+
+</body>
+</html>

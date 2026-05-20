@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>14 — Coming Soon Shell — Behbehani CPO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: {
+        50:'#EFF6FF',100:'#DBEAFE',200:'#BFDBFE',300:'#93C5FD',400:'#60A5FA',
+        500:'#3B82F6',600:'#2563EB',700:'#1D4ED8',800:'#1E3A8A',900:'#1E2563'
+      }},
+      fontFamily: { sans:['Plus Jakarta Sans','sans-serif'], arabic:['Tajawal','sans-serif'] }
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    [dir="rtl"] body { font-family: 'Tajawal', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen py-4">
+
+<!-- ═══════════════════════════════════════════════════════
+     COMING-SOON SHELL TEMPLATE (Sprint M2+v1.3.2)
+     Single template serves 7 routes per A's v1.3.2 §2:
+       /account/saved-searches (Q3 2026)
+       /account/orders         (Q3 2026)
+       /account/documents      (Q3 2026)
+       /account/maintenance    (Q3 2026)
+       /account/financing      (Q4 2026)
+       /account/returns        (Q4 2026)
+       /account/reviews        (Q4 2026)
+       /account/referrals      (2027)
+     Mobile sibling of A's Angular ComingSoonPageComponent.
+     React Native impl takes route param featureKey; mockup
+     stacks 3 variants for review.
+     Pill color: option (c) from MOBILE_API_CONTRACT.md v0.5 §2
+     (slate-100 bg + brand-700 text + brand-200 border).
+     NO amber per customer brand lock.
+     ═══════════════════════════════════════════════════════ -->
+
+<!-- ─────────────────────────────────────────────────────
+     PAGE HEADER
+     ───────────────────────────────────────────────────── -->
+<div class="max-w-[1200px] mx-auto px-4 mb-6">
+  <h1 class="text-center text-[13px] font-bold text-slate-700 uppercase tracking-widest mt-2">Sprint M2+v1.3.2 · Coming-Soon Shell · 3 Variants</h1>
+  <p class="text-center text-[11px] text-slate-500 mt-1">One template, parametrised per route. All variants: white + Royal Blue + slate palette only.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VARIANT DIVIDER — 1 of 3
+     ═══════════════════════════════════════════════════════ -->
+<div class="max-w-md mx-auto my-4">
+  <p class="text-center text-[11px] font-bold uppercase tracking-widest text-slate-500">Variant 1 of 3 · Q3 2026 ETA · maintenance pickup · wrench illustration</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VARIANT 1 — Maintenance Pickup & Tracking
+     data-feature="/account/maintenance"
+     ═══════════════════════════════════════════════════════ -->
+<div class="flex justify-center">
+<div class="w-[375px] min-h-[812px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative"
+     data-feature="/account/maintenance">
+
+  <!-- Status bar (white bg, dark text — page is white) -->
+  <div class="h-11 bg-white flex items-center justify-between px-6 pt-2">
+    <span class="text-[14px] font-semibold text-slate-900">9:41</span>
+    <div class="flex items-center gap-1.5">
+      <svg viewBox="0 0 20 12" class="w-4 h-3 text-slate-900" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg viewBox="0 0 16 12" class="w-4 h-3 text-slate-900" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+      <svg viewBox="0 0 26 12" class="w-6 h-3 text-slate-900" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+    </div>
+  </div>
+
+  <!-- Sticky header -->
+  <header class="sticky top-0 z-20 bg-white border-b border-slate-200 px-2 h-14 flex items-center justify-between">
+    <a href="06-account.html" class="w-11 h-11 min-h-[44px] flex items-center justify-center" aria-label="Back">
+      <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-900 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h2 class="text-[16px] font-bold text-slate-900 text-center flex-1 px-2">Maintenance pickup &amp; tracking</h2>
+    <div class="w-11"></div>
+  </header>
+
+  <!-- Scroll content -->
+  <main class="flex-1 overflow-y-auto no-scrollbar pb-8">
+
+    <!-- Hero section -->
+    <section class="flex flex-col items-center py-8 px-5">
+
+      <!-- Hero SVG illustration — car + wrench + clipboard -->
+      <div class="w-[180px] h-[180px] rounded-3xl bg-brand-50 flex items-center justify-center mb-5">
+        <svg viewBox="0 0 160 140" class="w-[140px] h-[120px]" fill="none">
+          <!-- Car body -->
+          <g opacity="0.40" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 90 L24 70 C28 58 40 50 60 48 L100 48 C118 48 128 55 134 68 L140 90 Z" stroke-width="3" fill="#BFDBFE" fill-opacity="0.3"/>
+            <path d="M38 68 L55 52 L105 52 L122 68 Z" stroke-width="2.5" fill="#DBEAFE" fill-opacity="0.4"/>
+            <rect x="18" y="90" width="124" height="16" rx="4" stroke-width="3" fill="#BFDBFE" fill-opacity="0.3"/>
+            <!-- Wheels -->
+            <circle cx="44" cy="108" r="14" stroke-width="3"/>
+            <circle cx="44" cy="108" r="7" stroke-width="2"/>
+            <circle cx="116" cy="108" r="14" stroke-width="3"/>
+            <circle cx="116" cy="108" r="7" stroke-width="2"/>
+            <!-- Windows -->
+            <path d="M56 65 L64 54 L96 54 L104 65 Z" stroke-width="2"/>
+            <!-- Headlights -->
+            <rect x="20" y="86" width="12" height="6" rx="2" stroke-width="2"/>
+            <rect x="128" y="86" width="12" height="6" rx="2" stroke-width="2"/>
+          </g>
+          <!-- Wrench -->
+          <g opacity="0.45" stroke="#1E3A8A" stroke-linecap="round" stroke-linejoin="round" stroke-width="3">
+            <path d="M115 18 C122 11 133 11 138 18 C143 25 140 34 133 37 L107 63 C104 60 101 57 98 60 L115 18 Z"/>
+            <path d="M107 63 L98 60 C95 63 95 68 98 71 L103 76 C106 79 111 79 114 76 L117 73 C120 70 120 65 117 62 Z"/>
+          </g>
+          <!-- Clipboard -->
+          <g opacity="0.38" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="16" width="36" height="44" rx="3" stroke-width="2.5" fill="#EFF6FF" fill-opacity="0.5"/>
+            <rect x="22" y="12" width="20" height="8" rx="2" stroke-width="2"/>
+            <line x1="20" y1="30" x2="44" y2="30" stroke-width="2"/>
+            <line x1="20" y1="38" x2="44" y2="38" stroke-width="2"/>
+            <line x1="20" y1="46" x2="36" y2="46" stroke-width="2"/>
+            <!-- Checkmark on clipboard -->
+            <path d="M22 54 L26 58 L34 50" stroke-width="2.5"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ETA pill — option (c): slate-100 bg + brand-700 text + brand-200 border -->
+      <span class="inline-flex items-center bg-slate-100 text-brand-700 border border-brand-200 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest mb-4">
+        Coming Q3 2026
+      </span>
+
+      <!-- Headline -->
+      <h1 class="text-[24px] font-extrabold text-slate-900 text-center leading-tight mb-3">
+        Maintenance pickup &amp; tracking
+      </h1>
+
+      <!-- Subhead -->
+      <p class="text-[13px] text-slate-600 text-center max-w-[280px] mx-auto leading-relaxed">
+        We're building this feature. Tell us if you want early access and we'll email you when it's ready.
+      </p>
+    </section>
+
+    <!-- Teaser bullets card -->
+    <section class="mx-4 mb-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <p class="text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-3">What you'll be able to do</p>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-[14px] text-slate-800 leading-snug">Schedule pickup at your address</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-[14px] text-slate-800 leading-snug">Track your car through service in real time</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-[14px] text-slate-800 leading-snug">Approve repairs digitally with cost estimate</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Notify-me form card -->
+    <section class="mx-4 mb-4">
+      <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4">
+        <p class="text-[14px] font-bold text-slate-900 mb-3">Get a single email when it ships</p>
+        <div id="v1-form" class="space-y-3">
+          <input
+            type="email"
+            inputmode="email"
+            placeholder="you@example.com"
+            class="w-full h-[44px] rounded-xl border border-slate-200 bg-white px-4 text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-300"
+            aria-label="Email address"
+          />
+          <button
+            onclick="document.getElementById('v1-form').classList.add('hidden');document.getElementById('v1-success').classList.remove('hidden');"
+            class="w-full h-[48px] min-h-[48px] rounded-xl bg-brand-700 text-white text-[14px] font-bold active:bg-brand-800 transition-colors"
+          >
+            Notify me
+          </button>
+          <p class="text-[10px] text-slate-500 text-center">We'll only email you about this feature. Unsubscribe anytime.</p>
+        </div>
+        <!-- Success state (hidden until button clicked) -->
+        <div id="v1-success" class="hidden">
+          <div class="rounded-xl bg-brand-100 border border-brand-200 p-4 flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <p class="text-[13px] text-brand-800 font-medium leading-snug">You're on the list. We'll email you when maintenance pickup launches.</p>
+          </div>
+          <p class="text-[10px] text-slate-500 text-center mt-2">Success-state preview</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer link -->
+    <div class="mx-4 mb-2">
+      <a href="06-account.html" class="flex items-center gap-2 h-[44px] min-h-[44px] text-brand-700 text-[14px] font-semibold ps-1">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to account
+      </a>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VARIANT DIVIDER — 2 of 3
+     ═══════════════════════════════════════════════════════ -->
+<div class="max-w-md mx-auto my-6">
+  <p class="text-center text-[11px] font-bold uppercase tracking-widest text-slate-500">Variant 2 of 3 · Q3 2026 ETA · document vault · folders illustration</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VARIANT 2 — Document Vault
+     data-feature="/account/documents"
+     ═══════════════════════════════════════════════════════ -->
+<div class="flex justify-center">
+<div class="w-[375px] min-h-[812px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative"
+     data-feature="/account/documents">
+
+  <!-- Status bar -->
+  <div class="h-11 bg-white flex items-center justify-between px-6 pt-2">
+    <span class="text-[14px] font-semibold text-slate-900">9:41</span>
+    <div class="flex items-center gap-1.5">
+      <svg viewBox="0 0 20 12" class="w-4 h-3 text-slate-900" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg viewBox="0 0 16 12" class="w-4 h-3 text-slate-900" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+      <svg viewBox="0 0 26 12" class="w-6 h-3 text-slate-900" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+    </div>
+  </div>
+
+  <!-- Sticky header -->
+  <header class="sticky top-0 z-20 bg-white border-b border-slate-200 px-2 h-14 flex items-center justify-between">
+    <a href="06-account.html" class="w-11 h-11 min-h-[44px] flex items-center justify-center" aria-label="Back">
+      <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-900 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h2 class="text-[16px] font-bold text-slate-900 text-center flex-1 px-2">Document vault</h2>
+    <div class="w-11"></div>
+  </header>
+
+  <!-- Scroll content -->
+  <main class="flex-1 overflow-y-auto no-scrollbar pb-8">
+
+    <!-- Hero section -->
+    <section class="flex flex-col items-center py-8 px-5">
+
+      <!-- Hero SVG illustration — folders + shield + checkmark -->
+      <div class="w-[180px] h-[180px] rounded-3xl bg-brand-50 flex items-center justify-center mb-5">
+        <svg viewBox="0 0 160 140" class="w-[140px] h-[120px]" fill="none">
+          <g opacity="0.38" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Back folder -->
+            <path d="M20 50 L20 112 C20 115 22 117 25 117 L95 117 C98 117 100 115 100 112 L100 60 C100 57 98 55 95 55 L55 55 L48 47 C47 46 45 45 43 45 L25 45 C22 45 20 47 20 50 Z" stroke-width="2.5" fill="#DBEAFE" fill-opacity="0.35"/>
+            <!-- Front folder -->
+            <path d="M38 62 L38 118 C38 121 40 123 43 123 L128 123 C131 123 133 121 133 118 L133 72 C133 69 131 67 128 67 L78 67 L71 59 C70 58 68 57 66 57 L43 57 C40 57 38 59 38 62 Z" stroke-width="2.5" fill="#BFDBFE" fill-opacity="0.4"/>
+            <!-- Document lines in front folder -->
+            <line x1="52" y1="85" x2="120" y2="85" stroke-width="2"/>
+            <line x1="52" y1="94" x2="120" y2="94" stroke-width="2"/>
+            <line x1="52" y1="103" x2="92" y2="103" stroke-width="2"/>
+          </g>
+          <!-- Shield -->
+          <g opacity="0.42" stroke="#1E3A8A" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M118 14 C118 14 104 20 104 30 L104 44 C104 52 111 59 118 62 C125 59 132 52 132 44 L132 30 C132 20 118 14 118 14 Z" stroke-width="3" fill="#EFF6FF" fill-opacity="0.5"/>
+            <!-- Checkmark inside shield -->
+            <path d="M111 38 L116 43 L125 32" stroke-width="2.5"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ETA pill — option (c): slate-100 bg + brand-700 text + brand-200 border -->
+      <span class="inline-flex items-center bg-slate-100 text-brand-700 border border-brand-200 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest mb-4">
+        Coming Q3 2026
+      </span>
+
+      <!-- Headline -->
+      <h1 class="text-[24px] font-extrabold text-slate-900 text-center leading-tight mb-3">
+        Document vault
+      </h1>
+
+      <!-- Subhead -->
+      <p class="text-[13px] text-slate-600 text-center max-w-[280px] mx-auto leading-relaxed">
+        We're building this feature. Tell us if you want early access and we'll email you when it's ready.
+      </p>
+    </section>
+
+    <!-- Teaser bullets card -->
+    <section class="mx-4 mb-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <p class="text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-3">What you'll be able to do</p>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-[14px] text-slate-800 leading-snug">Contracts, inspections, and insurance in one place</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-[14px] text-slate-800 leading-snug">Download or share securely</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-[14px] text-slate-800 leading-snug">Encrypted at rest in Bahrain</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Notify-me form card -->
+    <section class="mx-4 mb-4">
+      <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4">
+        <p class="text-[14px] font-bold text-slate-900 mb-3">Get a single email when it ships</p>
+        <div id="v2-form" class="space-y-3">
+          <input
+            type="email"
+            inputmode="email"
+            placeholder="you@example.com"
+            class="w-full h-[44px] rounded-xl border border-slate-200 bg-white px-4 text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-300"
+            aria-label="Email address"
+          />
+          <button
+            onclick="document.getElementById('v2-form').classList.add('hidden');document.getElementById('v2-success').classList.remove('hidden');"
+            class="w-full h-[48px] min-h-[48px] rounded-xl bg-brand-700 text-white text-[14px] font-bold active:bg-brand-800 transition-colors"
+          >
+            Notify me
+          </button>
+          <p class="text-[10px] text-slate-500 text-center">We'll only email you about this feature. Unsubscribe anytime.</p>
+        </div>
+        <!-- Success state -->
+        <div id="v2-success" class="hidden">
+          <div class="rounded-xl bg-brand-100 border border-brand-200 p-4 flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <p class="text-[13px] text-brand-800 font-medium leading-snug">You're on the list. We'll email you when Document vault launches.</p>
+          </div>
+          <p class="text-[10px] text-slate-500 text-center mt-2">Success-state preview</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer link -->
+    <div class="mx-4 mb-2">
+      <a href="06-account.html" class="flex items-center gap-2 h-[44px] min-h-[44px] text-brand-700 text-[14px] font-semibold ps-1">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to account
+      </a>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VARIANT DIVIDER — 3 of 3
+     ═══════════════════════════════════════════════════════ -->
+<div class="max-w-md mx-auto my-6">
+  <p class="text-center text-[11px] font-bold uppercase tracking-widest text-slate-500">Variant 3 of 3 · 2027 ETA · referral program · people + gift illustration</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     VARIANT 3 — Referral Program
+     data-feature="/account/referrals"
+     ═══════════════════════════════════════════════════════ -->
+<div class="flex justify-center">
+<div class="w-[375px] min-h-[812px] bg-white shadow-2xl my-4 overflow-hidden flex flex-col relative"
+     data-feature="/account/referrals">
+
+  <!-- Status bar -->
+  <div class="h-11 bg-white flex items-center justify-between px-6 pt-2">
+    <span class="text-[14px] font-semibold text-slate-900">9:41</span>
+    <div class="flex items-center gap-1.5">
+      <svg viewBox="0 0 20 12" class="w-4 h-3 text-slate-900" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="0.5"/><rect x="5" y="6" width="3" height="6" rx="0.5"/><rect x="10" y="3" width="3" height="9" rx="0.5"/><rect x="15" y="0" width="3" height="12" rx="0.5"/></svg>
+      <svg viewBox="0 0 16 12" class="w-4 h-3 text-slate-900" fill="currentColor"><path d="M8 11.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zM3.2 6.2A6.8 6.8 0 018 4.2c1.8 0 3.5.7 4.8 2l-1 1A5.4 5.4 0 008 5.6 5.4 5.4 0 004.2 7.2l-1-1zM.6 3.6A10.4 10.4 0 018 .6c2.8 0 5.4 1.1 7.4 3l-1 1A9 9 0 008 2 9 9 0 001.6 4.6l-1-1z"/></svg>
+      <svg viewBox="0 0 26 12" class="w-6 h-3 text-slate-900" fill="none" stroke="currentColor" stroke-width="1"><rect x="0.5" y="0.5" width="22" height="11" rx="2.5"/><rect x="2" y="2" width="17" height="8" rx="1" fill="currentColor"/><rect x="23.5" y="4" width="1.5" height="4" rx="0.5" fill="currentColor"/></svg>
+    </div>
+  </div>
+
+  <!-- Sticky header -->
+  <header class="sticky top-0 z-20 bg-white border-b border-slate-200 px-2 h-14 flex items-center justify-between">
+    <a href="06-account.html" class="w-11 h-11 min-h-[44px] flex items-center justify-center" aria-label="Back">
+      <svg viewBox="0 0 24 24" class="w-5 h-5 text-slate-900 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </a>
+    <h2 class="text-[16px] font-bold text-slate-900 text-center flex-1 px-2">Referral program</h2>
+    <div class="w-11"></div>
+  </header>
+
+  <!-- Scroll content -->
+  <main class="flex-1 overflow-y-auto no-scrollbar pb-8">
+
+    <!-- Hero section -->
+    <section class="flex flex-col items-center py-8 px-5">
+
+      <!-- Hero SVG illustration — two people + arrow + gift box -->
+      <div class="w-[180px] h-[180px] rounded-3xl bg-brand-50 flex items-center justify-center mb-5">
+        <svg viewBox="0 0 160 140" class="w-[140px] h-[120px]" fill="none">
+          <g opacity="0.40" stroke="#1D4ED8" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Person left -->
+            <circle cx="30" cy="32" r="16" stroke-width="3" fill="#DBEAFE" fill-opacity="0.4"/>
+            <!-- Head detail -->
+            <circle cx="30" cy="27" r="7" stroke-width="2.5" fill="#BFDBFE" fill-opacity="0.5"/>
+            <!-- Body -->
+            <path d="M14 58 C14 46 20 40 30 40 C40 40 46 46 46 58 L46 72 L14 72 Z" stroke-width="2.5" fill="#DBEAFE" fill-opacity="0.35"/>
+
+            <!-- Person right -->
+            <circle cx="130" cy="32" r="16" stroke-width="3" fill="#DBEAFE" fill-opacity="0.4"/>
+            <circle cx="130" cy="27" r="7" stroke-width="2.5" fill="#BFDBFE" fill-opacity="0.5"/>
+            <path d="M114 58 C114 46 120 40 130 40 C140 40 146 46 146 58 L146 72 L114 72 Z" stroke-width="2.5" fill="#DBEAFE" fill-opacity="0.35"/>
+
+            <!-- Connecting arrow -->
+            <line x1="50" y1="48" x2="108" y2="48" stroke-width="2.5"/>
+            <path d="M102 42 L110 48 L102 54" stroke-width="2.5"/>
+          </g>
+          <!-- Gift box -->
+          <g opacity="0.42" stroke="#1E3A8A" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Box body -->
+            <rect x="58" y="92" width="44" height="34" rx="3" stroke-width="3" fill="#EFF6FF" fill-opacity="0.5"/>
+            <!-- Box lid -->
+            <rect x="54" y="84" width="52" height="12" rx="3" stroke-width="2.5" fill="#DBEAFE" fill-opacity="0.4"/>
+            <!-- Ribbon vertical -->
+            <line x1="80" y1="84" x2="80" y2="126" stroke-width="2.5"/>
+            <!-- Ribbon horizontal on lid -->
+            <line x1="54" y1="90" x2="106" y2="90" stroke-width="2.5"/>
+            <!-- Ribbon bow -->
+            <path d="M72 84 C68 76 60 74 62 80 C64 84 72 84 72 84 Z" stroke-width="2" fill="#BFDBFE" fill-opacity="0.4"/>
+            <path d="M88 84 C92 76 100 74 98 80 C96 84 88 84 88 84 Z" stroke-width="2" fill="#BFDBFE" fill-opacity="0.4"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- ETA pill — option (c): slate-100 bg + brand-700 text + brand-200 border -->
+      <span class="inline-flex items-center bg-slate-100 text-brand-700 border border-brand-200 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest mb-4">
+        Coming 2027
+      </span>
+
+      <!-- Headline -->
+      <h1 class="text-[24px] font-extrabold text-slate-900 text-center leading-tight mb-3">
+        Referral program
+      </h1>
+
+      <!-- Subhead -->
+      <p class="text-[13px] text-slate-600 text-center max-w-[280px] mx-auto leading-relaxed">
+        We're building this feature. Tell us if you want early access and we'll email you when it's ready.
+      </p>
+    </section>
+
+    <!-- Teaser bullets card -->
+    <section class="mx-4 mb-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-4">
+        <p class="text-[12px] font-bold uppercase tracking-wider text-slate-500 mb-3">What you'll be able to do</p>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-[14px] text-slate-800 leading-snug">Earn credit when friends buy with Behbehani</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span class="text-[14px] text-slate-800 leading-snug">Track your referrals and credit balance</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Notify-me form card — signed-in variant (email auto-fill semantic) -->
+    <section class="mx-4 mb-4">
+      <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4">
+        <p class="text-[14px] font-bold text-slate-900 mb-3">Get a single email when it ships</p>
+        <div id="v3-form" class="space-y-3">
+          <input
+            type="email"
+            inputmode="email"
+            placeholder="abbas@example.com (your account email)"
+            class="w-full h-[44px] rounded-xl border border-slate-200 bg-white px-4 text-[14px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-300"
+            aria-label="Email address"
+          />
+          <button
+            onclick="document.getElementById('v3-form').classList.add('hidden');document.getElementById('v3-success').classList.remove('hidden');"
+            class="w-full h-[48px] min-h-[48px] rounded-xl bg-brand-700 text-white text-[14px] font-bold active:bg-brand-800 transition-colors"
+          >
+            Notify me
+          </button>
+          <p class="text-[10px] text-slate-500 text-center">We'll only email you about this feature. Unsubscribe anytime.</p>
+        </div>
+        <!-- Success state -->
+        <div id="v3-success" class="hidden">
+          <div class="rounded-xl bg-brand-100 border border-brand-200 p-4 flex items-start gap-3">
+            <svg viewBox="0 0 20 20" class="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <p class="text-[13px] text-brand-800 font-medium leading-snug">You're on the list. We'll email you when the Referral program launches.</p>
+          </div>
+          <p class="text-[10px] text-slate-500 text-center mt-2">Success-state preview</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer link -->
+    <div class="mx-4 mb-2">
+      <a href="06-account.html" class="flex items-center gap-2 h-[44px] min-h-[44px] text-brand-700 text-[14px] font-semibold ps-1">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        Back to account
+      </a>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- Page footer -->
+<div class="max-w-[1200px] mx-auto px-4 my-8 pb-4">
+  <p class="text-center text-[10px] text-slate-400 uppercase tracking-widest">Behbehani CPO · Sprint M2+v1.3.2 · Coming-Soon Shell · Palette: white + Royal Blue + slate only · No amber</p>
+</div>
+
+</body>
+</html>
