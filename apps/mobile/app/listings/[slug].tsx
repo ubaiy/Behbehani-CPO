@@ -24,13 +24,13 @@ import {
   ScrollView,
   TouchableOpacity,
   I18nManager,
-  Alert,
   ActivityIndicator,
   Dimensions,
   Share,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { ListingsPublicApiClient } from '@behbehani-cpo/data-access-mobile';
 import { brand, slate } from '../../src/theme/colors';
@@ -71,6 +71,7 @@ const rtlChevron = I18nManager.isRTL ? { transform: [{ scaleX: -1 }] } : {};
 export default function VDPScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
+  const { t } = useTranslation();
 
   // Gallery state
   const [currentPhoto, setCurrentPhoto] = useState(0);
@@ -98,9 +99,10 @@ export default function VDPScreen() {
   // Cast to extended shape — real API returns a superset
   const detail = listing as ListingDetail | undefined;
 
-  // Photos array — use heroPhotoUrl as fallback
-  const photos: string[] = detail?.photoUrls?.length
-    ? detail.photoUrls
+  // Photos array — extract URLs from the canonical photos[] objects
+  // (PublicListingDetailDto.photos: { url, caption?, isHero?, width?, height? }[])
+  const photos: string[] = detail?.photos?.length
+    ? detail.photos.map((p) => p.url)
     : detail?.heroPhotoUrl
     ? [detail.heroPhotoUrl]
     : [];
@@ -127,15 +129,12 @@ export default function VDPScreen() {
   }, []);
 
   const handleReserve = useCallback(() => {
-    Alert.alert(
-      'Reserve this car',
-      'KWD 100.000 · refundable · 48-hour hold\n\nYour hold will auto-expire in 48 hours if not completed.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Continue', style: 'default', onPress: () => console.log('TODO: navigate to reserve flow') },
-      ],
-    );
-  }, []);
+    // Task G1: route into the single-screen reserve flow which mirrors A's
+    // web v1.4.11 checkout-modal (payment-method picker → POST /orders →
+    // POST /orders/:id/payment-init → Otto hosted-checkout → payment-return).
+    if (!detail?.id) return;
+    router.push(`/reserve/${detail.id}` as Parameters<typeof router.push>[0]);
+  }, [detail?.id]);
 
   const handleViewFullReport = useCallback(() => {
     console.log('TODO: full inspection report for', slug);
@@ -164,9 +163,9 @@ export default function VDPScreen() {
   if (isError || !detail) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>Unable to load vehicle details.</Text>
+        <Text style={styles.errorText}>{t('vdp.errorLoad')}</Text>
         <TouchableOpacity onPress={() => router.back()} style={styles.errorBack}>
-          <Text style={styles.errorBackText}>Go back</Text>
+          <Text style={styles.errorBackText}>{t('vdp.errorGoBack')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -179,14 +178,26 @@ export default function VDPScreen() {
   const downKWD = priceKWD * (downPct / 100);
   const monthlyEst = computeMonthly(priceFils, downPct, tenure);
 
-  const inspCategories: InspectionCategory[] = detail.inspectionCategories ?? [
-    { name: 'Exterior', score: 38, maxScore: 40 },
-    { name: 'Mechanical', score: 40, maxScore: 40 },
-    { name: 'Electronic', score: 30, maxScore: 30 },
-    { name: 'Interior', score: 38, maxScore: 40 },
-    { name: 'Test Drive', score: 46, maxScore: 50 },
-  ];
-  const inspScore = detail.inspectionScore ?? 96;
+  // Map canonical inspectionReport (PublicListingDetailDto) → local InspectionCategory[]
+  // Server returns categories as flat numbers 0-100; we normalise to {score, maxScore=100}.
+  // Category names are translated via vdp.inspCategory* keys.
+  const inspReport = detail.inspectionReport;
+  const inspCategories: InspectionCategory[] = inspReport
+    ? [
+        { name: t('vdp.inspCategoryExterior'),   score: inspReport.categories.exterior,   maxScore: 100 },
+        { name: t('vdp.inspCategoryMechanical'), score: inspReport.categories.mechanical, maxScore: 100 },
+        { name: t('vdp.inspCategoryElectronic'), score: inspReport.categories.electronic, maxScore: 100 },
+        { name: t('vdp.inspCategoryInterior'),   score: inspReport.categories.interior,   maxScore: 100 },
+        { name: t('vdp.inspCategoryTestDrive'),  score: inspReport.categories.testDrive,  maxScore: 100 },
+      ]
+    : [
+        { name: t('vdp.inspCategoryExterior'), score: 38, maxScore: 40 },
+        { name: t('vdp.inspCategoryMechanical'), score: 40, maxScore: 40 },
+        { name: t('vdp.inspCategoryElectronic'), score: 30, maxScore: 30 },
+        { name: t('vdp.inspCategoryInterior'), score: 38, maxScore: 40 },
+        { name: t('vdp.inspCategoryTestDrive'), score: 46, maxScore: 50 },
+      ];
+  const inspScore = inspReport?.overallScore ?? 96;
   const inspGaugePct = inspScore / 100;
 
   const similarItems = (similarData?.items ?? []).filter((i) => i.slug !== slug).slice(0, 5);
@@ -201,7 +212,7 @@ export default function VDPScreen() {
           style={styles.headerCircleBtn}
           onPress={() => router.back()}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          accessibilityLabel="Back"
+          accessibilityLabel={t('vdp.back')}
         >
           <Text style={[styles.chevronText, rtlChevron]}>‹</Text>
         </TouchableOpacity>
@@ -210,7 +221,7 @@ export default function VDPScreen() {
             style={styles.headerCircleBtn}
             onPress={handleShare}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            accessibilityLabel="Share"
+            accessibilityLabel={t('vdp.shareA11y')}
           >
             <ShareIcon />
           </TouchableOpacity>
@@ -218,7 +229,7 @@ export default function VDPScreen() {
             style={styles.headerCircleBtn}
             onPress={handleFavorite}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            accessibilityLabel={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+            accessibilityLabel={isFavorited ? t('vdp.removeFromFavorites') : t('vdp.addToFavorites')}
           >
             <HeartIcon filled={isFavorited} />
           </TouchableOpacity>
@@ -257,7 +268,7 @@ export default function VDPScreen() {
           inspScore={inspScore}
           inspGaugePct={inspGaugePct}
           inspCategories={inspCategories}
-          inspectionDate={detail.inspectionDate}
+          inspectionDate={undefined /* TODO: surface inspectionReport.signedAt when shipped */}
           onViewFullReport={handleViewFullReport}
         />
 

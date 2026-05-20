@@ -4,16 +4,19 @@
  */
 
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 
 interface Props {
   label?: string;
 }
 
-export function ComingSoonPill({ label = 'COMING Q3 2026' }: Props) {
+export function ComingSoonPill({ label }: Props) {
+  const { t } = useTranslation();
+  const resolvedLabel = label ?? t('account.comingSoon.defaultLabel');
   return (
     <View style={styles.pill}>
-      <Text style={styles.pillText}>{label}</Text>
+      <Text style={styles.pillText}>{resolvedLabel}</Text>
     </View>
   );
 }

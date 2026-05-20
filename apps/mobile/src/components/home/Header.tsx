@@ -1,12 +1,14 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, radius, spacing } from '../../theme/theme';
 import { brand, slate } from '../../theme/colors';
 import { TrustBadgeStrip } from './TrustBadgeStrip';
 
 export function Header() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   return (
     <View style={s.header}>
@@ -16,11 +18,11 @@ export function Header() {
           <Text style={s.logoMarkText}>B</Text>
         </View>
         <View style={s.logoText}>
-          <Text style={s.brandName}>Behbehani Motors</Text>
-          <Text style={s.brandSub}>KUWAIT · CERTIFIED</Text>
+          <Text style={s.brandName}>{t('auth.brandName')}</Text>
+          <Text style={s.brandSub}>{t('home.brandSub')}</Text>
         </View>
         {/* Notification bell */}
-        <Pressable style={s.bellButton} accessibilityRole="button" accessibilityLabel="Notifications">
+        <Pressable style={s.bellButton} accessibilityRole="button" accessibilityLabel={t('home.notificationsA11y')}>
           <Text style={s.bellIcon}>🔔</Text>
           <View style={s.bellDot} />
         </Pressable>
@@ -28,8 +30,8 @@ export function Header() {
 
       {/* Greeting */}
       <View style={s.greetingBlock}>
-        <Text style={s.greetingSub}>Good evening, Abbas</Text>
-        <Text style={s.greetingTitle}>Find your next car.</Text>
+        <Text style={s.greetingSub}>{t('home.greetingSub')}</Text>
+        <Text style={s.greetingTitle}>{t('home.greetingTitle')}</Text>
       </View>
 
       {/* Search bar */}
@@ -37,12 +39,12 @@ export function Header() {
         style={s.searchBar}
         onPress={() => router.push('/(tabs)/browse' as never)}
         accessibilityRole="search"
-        accessibilityLabel="Search cars"
+        accessibilityLabel={t('home.searchA11y')}
       >
         <Text style={s.searchIcon}>🔍</Text>
-        <Text style={s.searchPlaceholder}>Search make, model, or budget</Text>
+        <Text style={s.searchPlaceholder}>{t('home.searchPlaceholder')}</Text>
         <View style={s.searchCount}>
-          <Text style={s.searchCountText}>143 cars</Text>
+          <Text style={s.searchCountText}>{t('home.searchCount')}</Text>
         </View>
       </Pressable>
 

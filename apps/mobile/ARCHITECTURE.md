@@ -268,7 +268,7 @@ search.tsx                         → /search                         Standalon
 
 ### Deep-link / universal-link plan
 
-- **Custom scheme:** `behbehani-cpo://` (already in `app.json`). All hidden routes addressable, e.g. `behbehani-cpo://listing/abc-123`.
+- **Custom scheme:** `behbehani-motors://` (in `app.json`; updated v0.12 to match customer brand split + MOBILE_API_CONTRACT.md §4). All hidden routes addressable, e.g. `behbehani-motors://listing/abc-123`.
 - **Universal links:** iOS `apple-app-site-association` and Android `assetlinks.json` will host `behbehani-motors.com` (customer domain — admin domain is irrelevant to mobile). Domain config lives in `app.json` `ios.associatedDomains` and `android.intentFilters` — **stub in W1, populated in W4** when signed certificates exist.
 - **Inspection-sign deep link** is the only no-auth route — accepts a single-use token, looks up the inspection report via public-shared endpoint, presents signature pad, posts back. This route MUST NOT trigger the auth interceptor's 401-redirect (services/http.ts exposes a per-request `skipAuthRefresh: true` flag).
 

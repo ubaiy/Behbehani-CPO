@@ -1,51 +1,20 @@
 /**
  * Shared types for VDP sub-components.
- * Extracted from apps/mobile/app/listings/[slug].tsx
+ *
+ * v0.10 — local ListingDetail interface DROPPED. We now import the canonical
+ * PublicListingDetailDto from @behbehani-cpo/shared-types (shipped by A in
+ * CONCIERGE v1.4.5 §6 closing [ASK C→A] A-2). Sub-components keep importing
+ * `ListingDetail` from this file via the alias below — non-breaking.
  */
 
+import type { PublicListingDetailDto } from '@behbehani-cpo/shared-types';
+
+/** Alias for backward-compat. New code may import PublicListingDetailDto directly. */
+export type ListingDetail = PublicListingDetailDto;
+
+/** Re-exposed for any sub-component that imported InspectionCategory locally. */
 export interface InspectionCategory {
   name: string;
   score: number;
   maxScore: number;
-}
-
-/** Extended detail shape returned by the API (superset of ListingPublicSummary). */
-export interface ListingDetail {
-  id: string;
-  slug: string;
-  titleEn: string;
-  titleAr: string | null;
-  brand: { id: string; slug: string; nameEn: string; nameAr: string; logoUrl: string | null };
-  model: { id: string; nameEn: string; nameAr: string };
-  bodyType: { id: string; slug: string; nameEn: string; nameAr: string };
-  year: number;
-  mileageKm: number;
-  priceFils: string;
-  monthlyFils: string;
-  transmission: string;
-  fuelType: string;
-  heroPhotoUrl: string | null;
-  badge: string | null;
-  inspected: boolean;
-  // Extended detail fields (not yet in shared schema — TODO)
-  trim?: string;
-  exteriorColor?: string;
-  interiorColor?: string;
-  cylinders?: number;
-  drivetrain?: string;
-  regionalSpecs?: string;
-  doors?: number;
-  seats?: number;
-  vin?: string;
-  previousOwners?: number;
-  accidentFlag?: 'none' | 'yes' | 'unknown';
-  serviceHistory?: 'yes' | 'no' | 'unknown';
-  inspectionScore?: number;
-  inspectionDate?: string;
-  inspectionCategories?: InspectionCategory[];
-  photoUrls?: string[];
-  dealerName?: string;
-  dealerLocation?: string;
-  dealerRating?: number;
-  dealerStock?: number;
 }

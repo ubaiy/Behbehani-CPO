@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, spacing, radius } from '../../theme/theme';
 import {
   SLATE_200,
@@ -11,7 +12,15 @@ interface Props {
   strength: PasswordStrength;
 }
 
+const STRENGTH_LABEL_KEY: Record<PasswordStrength, string> = {
+  weak: 'auth.strengthWeak',
+  fair: 'auth.strengthFair',
+  good: 'auth.strengthGood',
+  strong: 'auth.strengthStrong',
+};
+
 export function PasswordStrengthMeter({ strength }: Props) {
+  const { t } = useTranslation();
   const rtlRow = I18nManager.isRTL ? 'row-reverse' : 'row';
   const levels: PasswordStrength[] = ['weak', 'fair', 'good', 'strong'];
 
@@ -32,11 +41,11 @@ export function PasswordStrengthMeter({ strength }: Props) {
         })}
       </View>
       <Text style={styles.hintText}>
-        Strength:{' '}
+        {t('auth.strengthLabel')}{' '}
         <Text style={[styles.hintBold, { color: strengthColor(strength) }]}>
-          {strength.charAt(0).toUpperCase() + strength.slice(1)}
+          {t(STRENGTH_LABEL_KEY[strength])}
         </Text>
-        {strength !== 'strong' && ' · Add a symbol for Strong'}
+        {strength !== 'strong' && t('auth.strengthAddSymbol')}
       </Text>
     </>
   );

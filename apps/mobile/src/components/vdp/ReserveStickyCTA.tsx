@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { ChatIcon, PhoneIcon } from './vdp.icons';
@@ -14,19 +15,20 @@ interface ReserveStickyCTAProps {
 }
 
 export function ReserveStickyCTA({ onReserve }: ReserveStickyCTAProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.stickyCTA}>
-      <Text style={styles.stickyCTACaption}>Refundable hold — auto-expires in 48 hours</Text>
+      <Text style={styles.stickyCTACaption}>{t('vdp.reserveStickyCaption')}</Text>
       <View style={styles.stickyCTARow}>
-        <TouchableOpacity style={styles.stickyCTAIconBtn} accessibilityLabel="Message dealer">
+        <TouchableOpacity style={styles.stickyCTAIconBtn} accessibilityLabel={t('vdp.messageDealerA11y')}>
           <ChatIcon color={slate[700]} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.stickyCTAIconBtn} accessibilityLabel="Call dealer">
+        <TouchableOpacity style={styles.stickyCTAIconBtn} accessibilityLabel={t('vdp.callDealerA11y')}>
           <PhoneIcon />
         </TouchableOpacity>
         <TouchableOpacity style={styles.reserveBtn} onPress={onReserve} activeOpacity={0.85}>
-          <Text style={styles.reserveBtnTitle}>Reserve now</Text>
-          <Text style={styles.reserveBtnSubline}>KWD 100.000 · refundable · 48-hour hold</Text>
+          <Text style={styles.reserveBtnTitle}>{t('vdp.reserveCtaTitle')}</Text>
+          <Text style={styles.reserveBtnSubline}>{t('vdp.reserveCtaSubline')}</Text>
         </TouchableOpacity>
       </View>
     </View>

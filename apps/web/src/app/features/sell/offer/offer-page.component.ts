@@ -102,7 +102,7 @@ type ViewState =
 
             <!-- Countdown chip — only when active and validUntil is in the future -->
             @if (h.validUntilLabel) {
-              <div class="mt-5 inline-flex items-center gap-2 rounded-pill bg-amber-400/20 border border-amber-300/40 px-4 py-2 text-[12px] font-semibold text-amber-100">
+              <div class="mt-5 inline-flex items-center gap-2 rounded-pill bg-brand-700/20 border border-brand-500/40 px-4 py-2 text-[12px] font-semibold text-white">
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
                 {{ h.validUntilLabel }}
               </div>
@@ -131,8 +131,8 @@ type ViewState =
         <div class="rounded-3xl border border-line bg-white p-8 text-center shadow-brand-sm">
           <div
             class="mx-auto inline-grid h-14 w-14 place-items-center rounded-full"
-            [class.bg-amber-50]="t === 'expired' || t === 'network_error'"
-            [class.text-amber-700]="t === 'expired' || t === 'network_error'"
+            [class.bg-brand-50]="t === 'expired' || t === 'network_error'"
+            [class.text-brand-700]="t === 'expired' || t === 'network_error'"
             [class.bg-slate-100]="t === 'not_found' || t === 'withdrawn'"
             [class.text-slate-600]="t === 'not_found' || t === 'withdrawn'"
           >
@@ -160,9 +160,9 @@ type ViewState =
 
       <!-- ─── ACCEPTED CONFIRMATION ───────────────────────────────────── -->
       @if (acceptedState(); as a) {
-        <div class="rounded-3xl border border-emerald-200 bg-white p-6 sm:p-8 shadow-brand">
+        <div class="rounded-3xl border border-brand-200 bg-white p-6 sm:p-8 shadow-brand">
           <div class="text-center">
-            <div class="mx-auto inline-grid h-16 w-16 place-items-center rounded-full bg-emerald-100 text-emerald-700">
+            <div class="mx-auto inline-grid h-16 w-16 place-items-center rounded-full bg-brand-700 text-white">
               <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 13l4 4L19 7"/></svg>
             </div>
             <h2 class="mt-4 font-display text-[24px] font-bold tracking-[-0.025em] text-ink">

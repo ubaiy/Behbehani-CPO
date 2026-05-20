@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { adminAuthGuard } from './core/admin-auth.guard';
+import { adminAuthGuard, adminRoleGuard } from './core/admin-auth.guard';
 
 export const appRoutes: Route[] = [
   {
@@ -144,20 +144,21 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'customers/:customerId/documents',
+        canActivate: [adminRoleGuard(['super_admin', 'general_manager', 'customer_support'])],
         loadComponent: () =>
           import('./features/customer-documents/customer-documents-page.component').then(
             (m) => m.CustomerDocumentsPageComponent,
           ),
       },
       {
-        path: 'orders',
+        path: 'operations/orders',
         loadComponent: () =>
           import('./features/orders/orders-list-page.component').then(
             (m) => m.OrdersListPageComponent,
           ),
       },
       {
-        path: 'orders/:orderId',
+        path: 'operations/orders/:orderId',
         loadComponent: () =>
           import('./features/orders/order-detail-page.component').then(
             (m) => m.OrderDetailPageComponent,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, palette, spacing } from '../../theme/theme';
 
 export interface BrowseErrorRetryProps {
@@ -7,17 +8,16 @@ export interface BrowseErrorRetryProps {
 }
 
 export function BrowseErrorRetry({ onRetry }: BrowseErrorRetryProps) {
+  const { t } = useTranslation();
   return (
     <View style={s.errorWrap}>
       <View style={s.errorIcon}>
         <Text style={s.errorIconText}>!</Text>
       </View>
-      <Text style={s.errorTitle}>Couldn't load cars</Text>
-      <Text style={s.errorSub}>
-        Network error. Check your connection and try again.
-      </Text>
+      <Text style={s.errorTitle}>{t('browse.couldNotLoad')}</Text>
+      <Text style={s.errorSub}>{t('browse.errorNetwork')}</Text>
       <TouchableOpacity style={s.retryBtn} onPress={onRetry}>
-        <Text style={s.retryText}>Retry</Text>
+        <Text style={s.retryText}>{t('common.retryShort')}</Text>
       </TouchableOpacity>
     </View>
   );

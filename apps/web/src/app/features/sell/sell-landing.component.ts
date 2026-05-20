@@ -104,8 +104,8 @@ interface Review {
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </span>
             <div>
-              <div class="text-[11px] font-medium text-muted">Average sale price</div>
-              <div class="text-sm font-bold text-ink">12% higher</div>
+              <div class="text-[11px] font-medium text-muted">{{ 'sell.hero.floatCard1.label' | translate }}</div>
+              <div class="text-sm font-bold text-ink">{{ 'sell.hero.floatCard1.value' | translate }}</div>
             </div>
           </div>
           <div class="rounded-3xl border border-white/15 bg-white/5 p-6 backdrop-blur-sm">
@@ -115,9 +115,9 @@ interface Review {
               class="aspect-[4/3] w-full rounded-2xl object-cover"
               loading="eager"
             />
-            <div class="mt-3 inline-flex items-center gap-2 rounded-pill bg-emerald-500 px-3 py-1 text-[12px] font-semibold text-white">
+            <div class="mt-3 inline-flex items-center gap-2 rounded-pill bg-brand-700 px-3 py-1 text-[12px] font-semibold text-white">
               <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-              Sold in 4 days
+              {{ 'sell.hero.soldBadge' | translate }}
             </div>
           </div>
           <div class="absolute -end-6 bottom-4 z-10 flex w-48 items-center gap-3 rounded-2xl border border-white/10 bg-white/95 p-4 text-ink shadow-brand-lg">
@@ -125,7 +125,7 @@ interface Review {
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .587l3.668 7.431L24 9.748l-6 5.847 1.415 8.254L12 19.897l-7.415 3.953L6 15.595 0 9.748l8.332-1.73z"/></svg>
             </span>
             <div>
-              <div class="text-[11px] font-medium text-muted">Customer rating</div>
+              <div class="text-[11px] font-medium text-muted">{{ 'sell.hero.floatCard2.label' | translate }}</div>
               <div class="text-sm font-bold text-ink">4.9 / 5.0</div>
             </div>
           </div>
@@ -434,8 +434,8 @@ interface Review {
             <p class="mt-2 text-[14px] text-muted">{{ 'sell.help.sub' | translate }}</p>
           </div>
           <div class="grid gap-3">
-            <a href="https://wa.me/96522282282" target="_blank" rel="noopener" class="flex items-center gap-4 rounded-xl border border-line bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-brand active:translate-y-0">
-              <span class="inline-grid h-10 w-10 place-items-center rounded-full bg-emerald-50 text-emerald-600"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.5 0 .14 5.36.14 11.92c0 2.1.55 4.15 1.59 5.95L0 24l6.27-1.65a11.93 11.93 0 0 0 5.79 1.48h.01c6.55 0 11.92-5.36 11.92-11.92 0-3.18-1.24-6.18-3.47-8.43Z"/></svg></span>
+            <a href="https://wa.me/96522282282" target="_blank" rel="noopener" class="flex items-center gap-4 rounded-xl border border-line bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-brand active:translate-y-0">
+              <span class="inline-grid h-10 w-10 place-items-center rounded-full bg-brand-50 text-brand-700"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.06 0C5.5 0 .14 5.36.14 11.92c0 2.1.55 4.15 1.59 5.95L0 24l6.27-1.65a11.93 11.93 0 0 0 5.79 1.48h.01c6.55 0 11.92-5.36 11.92-11.92 0-3.18-1.24-6.18-3.47-8.43Z"/></svg></span>
               <div class="flex-1"><div class="text-[14px] font-bold text-ink">{{ 'sell.help.whatsapp' | translate }}</div><div class="text-[12px] text-muted">{{ 'sell.help.whatsappSub' | translate }}</div></div>
               <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" class="text-muted-2" aria-hidden="true"><path [attr.d]="arrowPath()" /></svg>
             </a>

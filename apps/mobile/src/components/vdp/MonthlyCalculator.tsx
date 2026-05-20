@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { TENURE_OPTIONS } from './vdp.helpers';
@@ -27,18 +28,19 @@ export function MonthlyCalculator({
   onDownPctChange,
   onTenureChange,
 }: MonthlyCalculatorProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.sectionPadded}>
       <View style={styles.card}>
         <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardHeading}>Finance this car</Text>
+          <Text style={styles.cardHeading}>{t('vdp.financeThisCar')}</Text>
           <TouchableOpacity>
-            <Text style={styles.linkText}>Full calculator</Text>
+            <Text style={styles.linkText}>{t('vdp.fullCalculator')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Down payment */}
-        <Text style={styles.calcLabel}>Down payment</Text>
+        <Text style={styles.calcLabel}>{t('vdp.downPayment')}</Text>
         <View style={styles.calcDownRow}>
           <Text style={styles.calcDownValue}>
             KWD {downKWD.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 })}
@@ -61,7 +63,7 @@ export function MonthlyCalculator({
         </View>
 
         {/* Tenure chips */}
-        <Text style={styles.calcLabel}>Tenure</Text>
+        <Text style={styles.calcLabel}>{t('vdp.tenure')}</Text>
         <View style={styles.tenureRow}>
           {TENURE_OPTIONS.map((mo) => (
             <TouchableOpacity
@@ -70,7 +72,7 @@ export function MonthlyCalculator({
               onPress={() => onTenureChange(mo)}
             >
               <Text style={[styles.tenureChipText, tenure === mo ? styles.tenureChipTextActive : null]}>
-                {mo} mo
+                {t('vdp.tenureMo', { mo })}
               </Text>
             </TouchableOpacity>
           ))}
@@ -79,16 +81,14 @@ export function MonthlyCalculator({
         {/* Result */}
         <View style={styles.calcResult}>
           <View>
-            <Text style={styles.calcResultLabel}>Estimated monthly</Text>
+            <Text style={styles.calcResultLabel}>{t('vdp.estimatedMonthly')}</Text>
             <Text style={styles.calcResultValue}>KWD {monthlyEst}</Text>
           </View>
-          <Text style={styles.calcResultNote}>
-            {downPct}% down{'\n'}6.5% APR · {tenure} mo
-          </Text>
+          <Text style={styles.calcResultNote}>{t('vdp.downPaymentNote', { pct: downPct, tenure })}</Text>
         </View>
-        <Text style={styles.calcDisclaimer}>Final rate subject to bank approval</Text>
+        <Text style={styles.calcDisclaimer}>{t('vdp.finalRateDisclaimer')}</Text>
         <TouchableOpacity style={styles.applyLoanBtn} activeOpacity={0.8}>
-          <Text style={styles.applyLoanBtnText}>Apply for Loan</Text>
+          <Text style={styles.applyLoanBtnText}>{t('vdp.applyForLoan')}</Text>
         </TouchableOpacity>
       </View>
     </View>

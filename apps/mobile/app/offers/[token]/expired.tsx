@@ -14,11 +14,14 @@ import {
   Linking,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../../src/theme/colors';
 
 const WHATSAPP_URL = 'whatsapp://send?phone=96522473006&text=Hi%20Behbehani';
 
 export default function OfferExpiredScreen() {
+  const { t } = useTranslation();
+
   const openWhatsApp = () => {
     Linking.openURL(WHATSAPP_URL).catch(() => {
       Linking.openURL('https://wa.me/96522473006?text=Hi%20Behbehani');
@@ -36,9 +39,9 @@ export default function OfferExpiredScreen() {
         <View style={s.iconCircle}>
           <Text style={s.clockIcon}>⏱</Text>
         </View>
-        <Text style={s.heroTitle}>Offer expired</Text>
+        <Text style={s.heroTitle}>{t('offers.expired.heroTitle')}</Text>
         <Text style={s.heroSub}>
-          This offer expired on{' '}
+          {t('offers.expired.heroSub')}{' '}
           <Text style={s.expiredOn}>Mon, 26 May · 23:59</Text>
         </Text>
       </View>
@@ -46,7 +49,7 @@ export default function OfferExpiredScreen() {
       {/* ── Explanation card ──────────────────────────────────────────── */}
       <View style={s.card}>
         <Text style={s.cardText}>
-          Don't worry — Behbehani may re-issue at a different price. Request a new inspection or contact us and we'll see what we can do.
+          {t('offers.expired.cardText')}
         </Text>
       </View>
 
@@ -56,18 +59,18 @@ export default function OfferExpiredScreen() {
         <TouchableOpacity
           style={s.primaryBtn}
           onPress={() => router.push('/(tabs)/sell' as any)}
-          accessibilityLabel="Request new inspection"
+          accessibilityLabel={t('offers.expired.newInspectionA11y')}
         >
-          <Text style={s.primaryBtnText}>Request new inspection</Text>
+          <Text style={s.primaryBtnText}>{t('offers.expired.newInspectionBtn')}</Text>
         </TouchableOpacity>
 
         {/* Contact Customer Service — white + brand border */}
         <TouchableOpacity
           style={s.outlineBtn}
           onPress={openWhatsApp}
-          accessibilityLabel="Contact Customer Service via WhatsApp"
+          accessibilityLabel={t('offers.expired.contactA11y')}
         >
-          <Text style={s.outlineBtnText}>Contact Customer Service</Text>
+          <Text style={s.outlineBtnText}>{t('offers.expired.contactBtn')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -75,9 +78,9 @@ export default function OfferExpiredScreen() {
       <View style={s.footer}>
         <TouchableOpacity
           onPress={() => router.push('/(tabs)/account' as any)}
-          accessibilityLabel="Back to account"
+          accessibilityLabel={t('offers.expired.backToAccountA11y')}
         >
-          <Text style={s.footerLink}>Back to account</Text>
+          <Text style={s.footerLink}>{t('offers.expired.backToAccount')}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

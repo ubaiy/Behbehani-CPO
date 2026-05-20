@@ -12,6 +12,7 @@ export { AuthApiClient } from './lib/auth.client';
 export { ListingsPublicApiClient } from './lib/listings-public.client';
 export { InspectionsPublicApiClient } from './lib/inspections-public.client';
 export { NotificationsPublicApiClient } from './lib/notifications.client';
+export { OrdersPublicApiClient } from './lib/orders.client';
 
 export type {
   InspectionSignTokenResponse,

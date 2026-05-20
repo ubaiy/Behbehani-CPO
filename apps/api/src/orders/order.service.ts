@@ -463,7 +463,13 @@ export async function handleOttoCallback(
     send(payment.order.customerId, 'bookingUpdates', {
       title:    { en: 'Payment received', ar: 'تم استلام الدفع' },
       body:     { en: 'Your order is confirmed.', ar: 'تم تأكيد طلبك.' },
-      deepLink: `/account/orders/${payment.orderId}`,
+      // Mobile push handler expects full URL with `behbehani-motors://` scheme
+      // (mobile IA drops the `/account` prefix that web uses). Per
+      // MOBILE_API_CONTRACT.md §4 + v0.13 §2 (C fixed mobile scheme alignment).
+      // Email/SMS adapter rendering will need to map this to web URLs when those
+      // channels start consuming `deepLink` in v1.4.x — for now push is the only
+      // channel routing on `data.deepLink`.
+      deepLink: `behbehani-motors://orders/${payment.orderId}`,
     }).catch((err) => {
       // eslint-disable-next-line no-console
       console.error('[otto] notification dispatch failed', err);

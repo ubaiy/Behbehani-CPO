@@ -18,10 +18,12 @@
 
 import { useEffect } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { brand, slate } from '../../src/theme/colors';
 
 export default function InspectionSignDeepLink() {
+  const { t } = useTranslation();
   const { token } = useLocalSearchParams<{ token: string }>();
   const router = useRouter();
 
@@ -52,7 +54,7 @@ export default function InspectionSignDeepLink() {
   return (
     <View style={styles.container}>
       <ActivityIndicator size="large" color={brand[700]} />
-      <Text style={styles.label}>Opening signature page…</Text>
+      <Text style={styles.label}>{t('inspection.signBouncer.opening')}</Text>
     </View>
   );
 }

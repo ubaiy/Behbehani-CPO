@@ -102,7 +102,7 @@ const WINDOWS: ReadonlyArray<PreferredWindow> = ['morning', 'afternoon', 'evenin
             <div class="text-[12px] font-semibold text-white/70">
               {{ 'sell.concierge.stepCount' | translate: { current: step(), total: 3 } }}
             </div>
-            <nav aria-label="Booking steps">
+            <nav [attr.aria-label]="'sell.concierge.stepsNav' | translate">
             <ol class="mt-2 flex flex-wrap gap-2 sm:gap-3">
               @for (n of [1, 2, 3]; track n) {
                 <li class="flex flex-1 min-w-[120px] items-center gap-2 rounded-xl border border-white/15 px-3 py-2 backdrop-blur-sm" [attr.aria-current]="step() === n ? 'step' : null" [class.bg-white]="step() === n" [class.text-brand-700]="step() === n" [class.bg-white/10]="step() !== n" [class.text-white]="step() !== n">
@@ -127,8 +127,8 @@ const WINDOWS: ReadonlyArray<PreferredWindow> = ['morning', 'afternoon', 'evenin
       <div class="container-page py-8 sm:py-12">
         <!-- ─── SUCCESS CARD ──────────────────────────────────────── -->
         @if (successResp(); as r) {
-          <div class="mx-auto max-w-2xl rounded-3xl border border-emerald-200 bg-white p-6 shadow-brand sm:p-10">
-            <div class="inline-flex items-center gap-2 rounded-pill bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+          <div class="mx-auto max-w-2xl rounded-3xl border border-brand-200 bg-white p-6 shadow-brand sm:p-10">
+            <div class="inline-flex items-center gap-2 rounded-pill bg-brand-100 px-3 py-1 text-[11px] font-semibold text-brand-700">
               <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
               {{ 'sell.conciergeSuccess.badge' | translate }}
             </div>
@@ -228,7 +228,7 @@ const WINDOWS: ReadonlyArray<PreferredWindow> = ['morning', 'afternoon', 'evenin
                     <span class="text-[12px] font-semibold text-ink-3">{{ 'sell.concierge.location.date' | translate }}</span>
                     <input type="date" [(ngModel)]="form().preferredDate" name="preferredDate" [min]="minPreferredDate" [max]="maxPreferredDate" class="input" />
                   </label>
-                  <fieldset role="group" aria-label="Preferred time window" class="flex flex-col gap-1.5">
+                  <fieldset role="group" [attr.aria-label]="'sell.concierge.location.window' | translate" class="flex flex-col gap-1.5">
                     <legend class="sr-only">{{ 'sell.concierge.location.window' | translate }}</legend>
                     <span class="text-[12px] font-semibold text-ink-3">{{ 'sell.concierge.location.window' | translate }}</span>
                     <div class="grid grid-cols-3 gap-2">

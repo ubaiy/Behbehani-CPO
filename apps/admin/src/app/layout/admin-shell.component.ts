@@ -115,13 +115,14 @@ import { AdminRoleDirective } from '../core/admin-role.directive';
                   Reservations
                 </span>
               </ng-template>
-              <ng-template [adminRole]="['sales_agent']">
-                <span aria-disabled="true" title="Coming in a later sprint" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-500 cursor-not-allowed">
+              <ng-template [adminRole]="['sales_agent','operations_manager','general_manager','finance_officer']">
+                <a routerLink="/operations/orders" routerLinkActive="bg-brand-700 text-white"
+                   class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
                   <svg class="w-4 h-4 flex-shrink-0 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                   </svg>
                   Orders
-                </span>
+                </a>
               </ng-template>
               <ng-template [adminRole]="['sales_agent']">
                 <span aria-disabled="true" title="Coming in a later sprint" class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-slate-500 cursor-not-allowed">

@@ -5,7 +5,7 @@
  * NotificationPayload into FCM message + APNs payload shapes, dispatches via
  * provider SDKs, and prunes invalid tokens.
  *
- * MOCK FALLBACK: if FCM/APNs creds aren't in env (FIREBASE_SERVICE_ACCOUNT_JSON
+ * MOCK FALLBACK: if FCM/APNs creds aren't in env (FIREBASE_SERVICE_ACCOUNT_PATH
  * + APNS_KEY_PATH unset), logs the dispatch to the dev notifications log file
  * (same pattern as notifications.service.ts: apps/api/.dev/notifications.log)
  * and returns success. This keeps v1.4 development unblocked through Day 3-4
@@ -28,7 +28,7 @@ let firebaseAdminLazy: typeof import('firebase-admin') | null = null;
 
 // ─── Credential guards ────────────────────────────────────────────────────
 
-const hasFcmCreds  = (): boolean => Boolean(env.FIREBASE_SERVICE_ACCOUNT_JSON);
+const hasFcmCreds  = (): boolean => Boolean(env.FIREBASE_SERVICE_ACCOUNT_PATH);
 const hasApnsCreds = (): boolean =>
   Boolean(env.APNS_KEY_PATH && env.APNS_KEY_ID && env.APNS_TEAM_ID);
 
@@ -41,8 +41,10 @@ async function getFirebaseAdmin(): Promise<typeof import('firebase-admin')> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mod = (await import('firebase-admin')) as any;
     if (mod.apps.length === 0) {
-      const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT_JSON);
-      mod.initializeApp({ credential: mod.credential.cert(serviceAccount) });
+      // firebase-admin's `cert()` accepts a file path OR a parsed object.
+      // Passing the path keeps the service-account JSON out of the env/process
+      // memory dump and avoids the 2-3KB env-var-bloat-on-every-spawn cost.
+      mod.initializeApp({ credential: mod.credential.cert(env.FIREBASE_SERVICE_ACCOUNT_PATH) });
     }
     firebaseAdminLazy = mod;
   }

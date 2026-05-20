@@ -24,10 +24,10 @@
 import type { AxiosInstance } from 'axios';
 import {
   ListingPublicListResponseSchema,
-  ListingPublicSummarySchema,
+  PublicListingDetailSchema,
   type ListingPublicListResponse,
   type ListingPublicFilter,
-  type ListingPublicSummary,
+  type PublicListingDetailDto,
 } from '@behbehani-cpo/shared-types';
 
 // ─── Client ───────────────────────────────────────────────────────────────────
@@ -83,11 +83,14 @@ export class ListingsPublicApiClient {
    *
    * @param slug URL-safe listing slug, e.g. "2022-toyota-camry-xle-0012"
    * @throws {AxiosError} 404 if slug is unknown or listing is not in 'listed' stage.
+   *
+   * Returns the full VDP detail DTO (17 optional fields beyond the summary
+   * shape — vin, colors, trim, drivetrain, inspectionReport, photos, dealer
+   * info, etc.). Shipped by Session A in CONCIERGE v1.4.5 §6 closing
+   * [ASK C→A] A-2. ACK'd by Session C v0.10.
    */
-  async getBySlug(slug: string): Promise<ListingPublicSummary> {
+  async getBySlug(slug: string): Promise<PublicListingDetailDto> {
     const res = await this.axios.get<unknown>(`/v1/public/listings/${encodeURIComponent(slug)}`);
-    // API returns ListingPublicSummary shape (or extended detail shape that is a superset)
-    // We parse against the summary schema for now; extend when the detail schema lands in shared-types.
-    return ListingPublicSummarySchema.parse(res.data);
+    return PublicListingDetailSchema.parse(res.data);
   }
 }

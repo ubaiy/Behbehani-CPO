@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { ShieldIcon, CreditCardIcon } from './vdp.icons';
@@ -19,13 +20,14 @@ interface VdpTitleBlockProps {
 }
 
 export function VdpTitleBlock({ detail, priceFils, monthlyFils }: VdpTitleBlockProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.titleSection}>
       {/* Inspection badge */}
       {detail.inspected && (
         <View style={styles.inspectedBadge}>
           <ShieldIcon size={12} color={brand[800]} />
-          <Text style={styles.inspectedBadgeText}>Al Daman inspected · 200 pts</Text>
+          <Text style={styles.inspectedBadgeText}>{t('vdp.alDamanInspectedBadge')}</Text>
         </View>
       )}
 
@@ -44,10 +46,10 @@ export function VdpTitleBlock({ detail, priceFils, monthlyFils }: VdpTitleBlockP
       <View style={styles.monthlyPill}>
         <CreditCardIcon />
         <Text style={styles.monthlyPillText}>
-          From KWD {filsToKWD(monthlyFils).toFixed(3)}
-          <Text style={styles.monthlyPillSuffix}>/mo</Text>
+          {t('vdp.fromMonthly', { value: filsToKWD(monthlyFils).toFixed(3) })}
+          <Text style={styles.monthlyPillSuffix}>{t('vdp.monthlySuffix')}</Text>
         </Text>
-        <Text style={styles.monthlyPillNote}>48 mo · 20% down</Text>
+        <Text style={styles.monthlyPillNote}>{t('vdp.monthlyPillNote')}</Text>
       </View>
 
       <TrustBar />

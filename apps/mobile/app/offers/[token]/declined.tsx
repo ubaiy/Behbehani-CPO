@@ -14,11 +14,14 @@ import {
   Linking,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../../src/theme/colors';
 
 const WHATSAPP_URL = 'whatsapp://send?phone=96522473006&text=Hi%20Behbehani';
 
 export default function OfferDeclinedScreen() {
+  const { t } = useTranslation();
+
   const openWhatsApp = () => {
     Linking.openURL(WHATSAPP_URL).catch(() => {
       // Fallback: wa.me deep-link if native scheme unavailable
@@ -37,22 +40,22 @@ export default function OfferDeclinedScreen() {
         <View style={s.iconCircle}>
           <Text style={s.xIcon}>✕</Text>
         </View>
-        <Text style={s.heroTitle}>Offer declined</Text>
-        <Text style={s.heroSub}>You chose not to accept this offer.</Text>
+        <Text style={s.heroTitle}>{t('offers.declined.heroTitle')}</Text>
+        <Text style={s.heroSub}>{t('offers.declined.heroSub')}</Text>
       </View>
 
       {/* ── What happens next card ────────────────────────────────────── */}
       <View style={s.card}>
-        <Text style={s.cardHeading}>What happens next?</Text>
+        <Text style={s.cardHeading}>{t('offers.declined.cardHeading')}</Text>
         <Text style={s.cardText}>
-          If you change your mind, contact us by WhatsApp — we may be able to re-issue the offer at the same or a similar price.
+          {t('offers.declined.cardText')}
         </Text>
       </View>
 
       {/* ── Re-issue note ─────────────────────────────────────────────── */}
       <View style={s.noteCard}>
         <Text style={s.noteText}>
-          Behbehani may also send a new offer if market conditions change. Keep an eye on your notifications.
+          {t('offers.declined.noteText')}
         </Text>
       </View>
 
@@ -60,19 +63,19 @@ export default function OfferDeclinedScreen() {
       <TouchableOpacity
         style={s.whatsappBtn}
         onPress={openWhatsApp}
-        accessibilityLabel="Contact Customer Service via WhatsApp"
+        accessibilityLabel={t('offers.declined.whatsappA11y')}
       >
         <Text style={s.whatsappIcon}>💬</Text>
-        <Text style={s.whatsappText}>Contact Customer Service</Text>
+        <Text style={s.whatsappText}>{t('offers.declined.whatsappBtn')}</Text>
       </TouchableOpacity>
 
       {/* ── Back to account ───────────────────────────────────────────── */}
       <View style={s.footer}>
         <TouchableOpacity
           onPress={() => router.push('/(tabs)/account' as any)}
-          accessibilityLabel="Back to account"
+          accessibilityLabel={t('offers.declined.backToAccountA11y')}
         >
-          <Text style={s.footerLink}>Back to account</Text>
+          <Text style={s.footerLink}>{t('offers.declined.backToAccount')}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

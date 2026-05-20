@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, palette, radius, spacing } from '../../theme/theme';
 
 export interface BrowseEmptyStateProps {
@@ -7,17 +8,16 @@ export interface BrowseEmptyStateProps {
 }
 
 export function BrowseEmptyState({ onReset }: BrowseEmptyStateProps) {
+  const { t } = useTranslation();
   return (
     <View style={s.emptyWrap}>
       <View style={s.emptyIcon}>
         <Text style={s.emptyIconText}>{'◎'}</Text>
       </View>
-      <Text style={s.emptyTitle}>No cars match these filters</Text>
-      <Text style={s.emptySub}>
-        Try removing a filter or expanding your price range.
-      </Text>
+      <Text style={s.emptyTitle}>{t('browse.emptyTitle')}</Text>
+      <Text style={s.emptySub}>{t('browse.emptySub')}</Text>
       <TouchableOpacity style={s.clearBtn} onPress={onReset}>
-        <Text style={s.clearBtnText}>Clear all filters</Text>
+        <Text style={s.clearBtnText}>{t('browse.clearAllFilters')}</Text>
       </TouchableOpacity>
     </View>
   );

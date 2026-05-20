@@ -1,19 +1,32 @@
 import React from 'react';
 import { View, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SectionHeader, GridChip, Chip } from './shared';
 
-const REGIONAL = ['GCC', 'American', 'European', 'Japanese'];
+// Numeric labels (cylinders/seats) and acronyms (FWD/RWD/AWD/4WD) are
+// universal across locales — left as-is. Words (Regional / Seller) are keyed.
 const CYLINDERS = ['4', '6', '8', '12'];
 const DRIVETRAIN = ['FWD', 'RWD', 'AWD', '4WD'];
 const SEATS = ['2', '4', '5', '7+'];
-const SELLER = ['Platform', 'Dealer', 'Private'];
+const REGIONAL: { value: string; tKey: string }[] = [
+  { value: 'GCC', tKey: 'filter.regionGcc' },
+  { value: 'American', tKey: 'filter.regionAmerican' },
+  { value: 'European', tKey: 'filter.regionEuropean' },
+  { value: 'Japanese', tKey: 'filter.regionJapanese' },
+];
+const SELLER: { value: string; tKey: string }[] = [
+  { value: 'Platform', tKey: 'filter.sellerPlatform' },
+  { value: 'Dealer', tKey: 'filter.sellerDealer' },
+  { value: 'Private', tKey: 'filter.sellerPrivate' },
+];
 
 export function RegionalSpecsPicker() {
+  const { t } = useTranslation();
   return (
     <>
       {/* Cylinders */}
       <View style={s.sectionDisabled}>
-        <SectionHeader title="Cylinders" comingSoon />
+        <SectionHeader title={t('filter.cylinders')} comingSoon />
         <View style={s.chipRow}>
           {CYLINDERS.map(c => (
             <Chip key={c} label={c} selected={false} onPress={() => {}} disabled />
@@ -23,7 +36,7 @@ export function RegionalSpecsPicker() {
 
       {/* Drivetrain */}
       <View style={s.sectionDisabled}>
-        <SectionHeader title="Drivetrain" comingSoon />
+        <SectionHeader title={t('filter.drivetrain')} comingSoon />
         <View style={s.drivetrainGrid}>
           {DRIVETRAIN.map(d => (
             <GridChip key={d} label={d} selected={false} onPress={() => {}} disabled />
@@ -33,7 +46,7 @@ export function RegionalSpecsPicker() {
 
       {/* Seats */}
       <View style={s.sectionDisabled}>
-        <SectionHeader title="Seats" comingSoon />
+        <SectionHeader title={t('filter.seats')} comingSoon />
         <View style={s.chipRow}>
           {SEATS.map(s2 => (
             <Chip key={s2} label={s2} selected={false} onPress={() => {}} disabled />
@@ -43,20 +56,20 @@ export function RegionalSpecsPicker() {
 
       {/* Regional specs */}
       <View style={s.sectionDisabled}>
-        <SectionHeader title="Regional specs" comingSoon />
+        <SectionHeader title={t('filter.regionalSpecs')} comingSoon />
         <View style={s.regionalGrid}>
           {REGIONAL.map(r => (
-            <GridChip key={r} label={r} selected={false} onPress={() => {}} disabled />
+            <GridChip key={r.value} label={t(r.tKey)} selected={false} onPress={() => {}} disabled />
           ))}
         </View>
       </View>
 
       {/* Seller type */}
       <View style={s.sectionDisabled}>
-        <SectionHeader title="Seller type" comingSoon />
+        <SectionHeader title={t('filter.sellerType')} comingSoon />
         <View style={s.drivetrainGrid}>
           {SELLER.map(s3 => (
-            <GridChip key={s3} label={s3} selected={false} onPress={() => {}} disabled />
+            <GridChip key={s3.value} label={t(s3.tKey)} selected={false} onPress={() => {}} disabled />
           ))}
         </View>
       </View>

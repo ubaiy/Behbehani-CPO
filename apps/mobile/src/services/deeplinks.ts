@@ -4,10 +4,11 @@
  * Translates incoming URLs (custom scheme or universal links) into typed
  * { route, params } objects that Expo Router can navigate to.
  *
- * Supported schemes (ARCHITECTURE.md §4):
- *   behbehani-cpo://listing/:id       → /listing/:id
- *   behbehani-cpo://inspection-sign/:token → /inspection-sign/:token (no-auth)
- *   behbehani-cpo://auth/sign-in      → /auth/sign-in
+ * Supported schemes (ARCHITECTURE.md §4 + MOBILE_API_CONTRACT.md §4):
+ *   behbehani-motors://listing/:id            → /listing/:id
+ *   behbehani-motors://inspection-sign/:token → /inspection-sign/:token (no-auth)
+ *   behbehani-motors://auth/sign-in           → /auth/sign-in
+ *   behbehani-motors://orders/:id/payment-return → /orders/:id/payment-return (Otto)
  *   https://www.behbehani-motors.com/en/cars/:slug → /listing/:slug (universal link)
  *
  * Used by: app/_layout.tsx (W2) — registers the handler once on mount.
@@ -25,7 +26,16 @@ export interface ParsedDeepLink {
 
 // ─── URL → route mapping ──────────────────────────────────────────────────────
 
-const CUSTOM_SCHEME = 'behbehani-cpo';
+export const CUSTOM_SCHEME = 'behbehani-motors';
+
+/**
+ * Returns true if `url` starts with the app's custom scheme (`behbehani-motors://`).
+ * Used by notificationRouter to guard against malicious push payloads before
+ * passing the URL to Linking.openURL.
+ */
+export function isValidCustomSchemeUrl(url: unknown): url is string {
+  return typeof url === 'string' && url.startsWith(`${CUSTOM_SCHEME}://`);
+}
 
 /**
  * Parses an incoming URL into a { route, params } pair.
@@ -37,7 +47,7 @@ export function parseDeepLink(url: string): ParsedDeepLink | null {
   try {
     const parsed = Linking.parse(url);
 
-    // ── Custom scheme: behbehani-cpo://path ─────────────────────────────────
+    // ── Custom scheme: behbehani-motors://path ──────────────────────────────
     if (parsed.scheme === CUSTOM_SCHEME) {
       const path = parsed.path ?? '';
       const queryParams = (parsed.queryParams ?? {}) as Record<string, string>;

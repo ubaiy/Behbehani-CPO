@@ -4,6 +4,7 @@
  */
 
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import type { Step } from './types';
@@ -63,6 +64,7 @@ interface SellHeroProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function SellHero({ step, isRTL, onBack, onGoToStep }: SellHeroProps) {
+  const { t } = useTranslation();
   const chevronFlip = isRTL ? [] : [{ scaleX: -1 }];
 
   return (
@@ -73,7 +75,7 @@ export function SellHero({ step, isRTL, onBack, onGoToStep }: SellHeroProps) {
           style={ss.backBtn}
           onPress={onBack}
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={t('sell.hero.backA11y')}
           hitSlop={8}
         >
           <Text style={[ss.backChevron, { transform: isRTL ? [] : chevronFlip }]}>‹</Text>
@@ -81,12 +83,12 @@ export function SellHero({ step, isRTL, onBack, onGoToStep }: SellHeroProps) {
 
         {step === 1 ? (
           <View style={ss.eyebrowPill}>
-            <Text style={ss.eyebrowText}>Concierge service</Text>
+            <Text style={ss.eyebrowText}>{t('sell.hero.eyebrow')}</Text>
           </View>
         ) : (
           <Pressable onPress={() => onGoToStep((step - 1) as Step)} hitSlop={6}>
             <Text style={ss.backLabel}>
-              {step === 2 ? '← Back to Where + When' : '← Back to Contact'}
+              {step === 2 ? t('sell.hero.backToWhereWhen') : t('sell.hero.backToContact')}
             </Text>
           </Pressable>
         )}
@@ -94,13 +96,13 @@ export function SellHero({ step, isRTL, onBack, onGoToStep }: SellHeroProps) {
 
       {/* Title + subline */}
       <Text style={ss.heroH1}>
-        {step === 3 ? 'One last check' : 'Schedule your inspection'}
+        {step === 3 ? t('sell.hero.titleReview') : t('sell.hero.titleSchedule')}
       </Text>
       {step !== 2 && (
         <Text style={ss.heroSub}>
           {step === 1
-            ? "Three minutes. We'll come to you within 24 hours."
-            : "Make sure everything looks right, then we'll send your inspector."}
+            ? t('sell.hero.subSchedule')
+            : t('sell.hero.subReview')}
         </Text>
       )}
 
@@ -112,7 +114,7 @@ export function SellHero({ step, isRTL, onBack, onGoToStep }: SellHeroProps) {
           style={ss.trustStrip}
           contentContainerStyle={ss.trustStripContent}
         >
-          {['Completely free', '71-point inspection at your door', 'Guaranteed cash offer in 24h'].map(
+          {[t('sell.hero.trust1'), t('sell.hero.trust2'), t('sell.hero.trust3')].map(
             (label) => (
               <View key={label} style={ss.trustPill}>
                 <Text style={ss.trustCheck}>✓</Text>
@@ -125,11 +127,11 @@ export function SellHero({ step, isRTL, onBack, onGoToStep }: SellHeroProps) {
 
       {/* Step counter + stepper */}
       <View style={ss.stepperWrap}>
-        <Text style={ss.stepCounter}>Step {step} of 3</Text>
+        <Text style={ss.stepCounter}>{t('sell.hero.stepCounter', { step })}</Text>
         <View style={ss.stepperRow}>
-          <StepPill num={1} label="Where + When" active={step === 1} done={step > 1} />
-          <StepPill num={2} label="Contact" active={step === 2} done={step > 2} />
-          <StepPill num={3} label="Review" active={step === 3} done={false} />
+          <StepPill num={1} label={t('sell.hero.stepLabel1')} active={step === 1} done={step > 1} />
+          <StepPill num={2} label={t('sell.hero.stepLabel2')} active={step === 2} done={step > 2} />
+          <StepPill num={3} label={t('sell.hero.stepLabel3')} active={step === 3} done={false} />
         </View>
       </View>
     </View>

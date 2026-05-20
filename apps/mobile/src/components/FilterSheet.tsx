@@ -20,6 +20,7 @@ import {
   Dimensions,
   I18nManager,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, palette, radius, spacing } from '../theme/theme';
 
 import { BrandPicker } from './filter/BrandPicker';
@@ -66,6 +67,7 @@ export function FilterSheet({
   onClose,
   matchCount,
 }: FilterSheetProps) {
+  const { t } = useTranslation();
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>(initialFilters.brand);
   const [selectedBody, setSelectedBody] = useState<string | undefined>(initialFilters.body);
   const [budgetMax, setBudgetMax] = useState<string>(
@@ -118,10 +120,10 @@ export function FilterSheet({
           {/* Sheet header */}
           <View style={ss.sheetHeader}>
             <TouchableOpacity onPress={handleReset} style={ss.resetBtn} hitSlop={8}>
-              <Text style={ss.resetText}>Reset all</Text>
+              <Text style={ss.resetText}>{t('filter.resetAll')}</Text>
             </TouchableOpacity>
-            <Text style={ss.sheetTitle}>Filters</Text>
-            <TouchableOpacity onPress={onClose} style={ss.closeBtn} hitSlop={8} accessibilityLabel="Close">
+            <Text style={ss.sheetTitle}>{t('filter.sheetTitle')}</Text>
+            <TouchableOpacity onPress={onClose} style={ss.closeBtn} hitSlop={8} accessibilityLabel={t('common.closeA11y')}>
               <Text style={ss.closeText}>✕</Text>
             </TouchableOpacity>
           </View>
@@ -140,13 +142,13 @@ export function FilterSheet({
             <View style={[ss.section, ss.sectionDisabled]}>
               <View style={ss.yearRow}>
                 <View style={ss.yearField}>
-                  <Text style={ss.yearLabel}>From</Text>
+                  <Text style={ss.yearLabel}>{t('filter.yearFrom')}</Text>
                   <View style={[ss.yearInput, ss.disabledInput]}>
                     <Text style={ss.disabledText}>2020</Text>
                   </View>
                 </View>
                 <View style={ss.yearField}>
-                  <Text style={ss.yearLabel}>To</Text>
+                  <Text style={ss.yearLabel}>{t('filter.yearTo')}</Text>
                   <View style={[ss.yearInput, ss.disabledInput]}>
                     <Text style={ss.disabledText}>2025</Text>
                   </View>
@@ -157,14 +159,14 @@ export function FilterSheet({
             <BudgetSlider budgetMax={budgetMax} onChangeBudgetMax={setBudgetMax} />
 
             <RangeSliderGreyed
-              title="Monthly payment"
-              minLabel="KWD 0"
-              maxLabel="KWD 500.000 /mo"
+              title={t('filter.monthlyPayment')}
+              minLabel={t('filter.monthlyMin')}
+              maxLabel={t('filter.monthlyMax')}
             />
             <RangeSliderGreyed
-              title="Mileage (km)"
-              minLabel="0 km"
-              maxLabel="150,000+ km"
+              title={t('filter.mileageKm')}
+              minLabel={t('filter.mileageMin')}
+              maxLabel={t('filter.mileageMax')}
             />
 
             <TransmissionPicker />
@@ -175,14 +177,14 @@ export function FilterSheet({
             {/* Vehicle assurance */}
             <View style={ss.section}>
               <ToggleRow
-                label="Al Daman inspected"
-                sublabel="CPO-certified cars only"
+                label={t('filter.alDamanInspectedLabel')}
+                sublabel={t('filter.alDamanInspectedSub')}
                 value={inspectedOnly}
                 onToggle={setInspectedOnly}
               />
               <ToggleRow
-                label="Warranty included"
-                sublabel="Manufacturer or platform warranty"
+                label={t('filter.warrantyIncludedLabel')}
+                sublabel={t('filter.warrantyIncludedSub')}
                 value={warrantyOnly}
                 onToggle={setWarrantyOnly}
               />

@@ -1,49 +1,51 @@
 import { View, Text, StyleSheet, Pressable, Platform, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, spacing, radius } from '../../theme/theme';
 import { SLATE_50, SLATE_200, SLATE_400, SLATE_500 } from './authConstants';
 
 export function ComingSoonStubs() {
+  const { t } = useTranslation();
   const rtlRow = I18nManager.isRTL ? 'row-reverse' : 'row';
 
   return (
     <View style={styles.stubGroup}>
       {/* OTP */}
       <View style={styles.stubButtonWrapper}>
-        <Pressable style={styles.stubButton} disabled accessibilityLabel="Phone OTP — Coming soon">
+        <Pressable style={styles.stubButton} disabled accessibilityLabel={t('auth.comingSoonOtp')}>
           <View style={[styles.stubButtonInner, { flexDirection: rtlRow }]}>
             <Text style={styles.stubIcon}>📱</Text>
-            <Text style={styles.stubButtonText}>Continue with mobile (OTP)</Text>
+            <Text style={styles.stubButtonText}>{t('auth.continueWithMobile')}</Text>
           </View>
         </Pressable>
         <View style={styles.comingSoonPill}>
-          <Text style={styles.comingSoonText}>Coming soon</Text>
+          <Text style={styles.comingSoonText}>{t('auth.comingSoon')}</Text>
         </View>
       </View>
 
       {/* Google */}
       <View style={styles.stubButtonWrapper}>
-        <Pressable style={styles.stubButton} disabled accessibilityLabel="Continue with Google — Coming soon">
+        <Pressable style={styles.stubButton} disabled accessibilityLabel={t('auth.continueWithGoogleA11y')}>
           <View style={[styles.stubButtonInner, { flexDirection: rtlRow }]}>
             <Text style={styles.stubIcon}>G</Text>
-            <Text style={styles.stubButtonText}>Continue with Google</Text>
+            <Text style={styles.stubButtonText}>{t('auth.continueWithGoogle')}</Text>
           </View>
         </Pressable>
         <View style={styles.comingSoonPill}>
-          <Text style={styles.comingSoonText}>Coming soon</Text>
+          <Text style={styles.comingSoonText}>{t('auth.comingSoon')}</Text>
         </View>
       </View>
 
       {/* Apple — iOS only (App Store mandatory when Google offered) */}
       {Platform.OS === 'ios' && (
         <View style={styles.stubButtonWrapper}>
-          <Pressable style={styles.stubButton} disabled accessibilityLabel="Continue with Apple — Coming soon">
+          <Pressable style={styles.stubButton} disabled accessibilityLabel={t('auth.continueWithAppleA11y')}>
             <View style={[styles.stubButtonInner, { flexDirection: rtlRow }]}>
               <Text style={styles.stubIcon}></Text>
-              <Text style={styles.stubButtonText}>Continue with Apple</Text>
+              <Text style={styles.stubButtonText}>{t('auth.continueWithApple')}</Text>
             </View>
           </Pressable>
           <View style={styles.comingSoonPill}>
-            <Text style={styles.comingSoonText}>Coming soon</Text>
+            <Text style={styles.comingSoonText}>{t('auth.comingSoon')}</Text>
           </View>
         </View>
       )}

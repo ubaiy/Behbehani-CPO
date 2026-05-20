@@ -1,7 +1,9 @@
 import React from 'react';
 import { View, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SectionHeader, GridChip } from './shared';
 
+// Brand names are proper nouns — rendered as-is in both locales.
 const BRANDS = [
   'Toyota', 'Lexus', 'Honda', 'Nissan', 'BMW',
   'Mercedes', 'Audi', 'Hyundai', 'Kia', 'Ford',
@@ -13,9 +15,10 @@ export interface BrandPickerProps {
 }
 
 export function BrandPicker({ selected, onToggle }: BrandPickerProps) {
+  const { t } = useTranslation();
   return (
     <View style={s.section}>
-      <SectionHeader title="Brand" rightLabel="See all (24)" />
+      <SectionHeader title={t('filter.brand')} rightLabel={t('filter.brandSeeAll')} />
       <View style={s.brandGrid}>
         {BRANDS.map(brand => (
           <GridChip

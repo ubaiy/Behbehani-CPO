@@ -14,7 +14,7 @@ interface BadgeStyle {
 
 /** Map design car badges → Royal/Gold/Red/Slate variants from styles-base.css `.badge-*`. */
 const BADGE_STYLES: Record<CarBadge, BadgeStyle> = {
-  premium: { cls: 'bg-amber-500 text-white', showShield: false },
+  premium: { cls: 'bg-brand-600 text-white', showShield: false },
   priceDrop: { cls: 'bg-red-600 text-white', showShield: false },
   selfListed: { cls: 'bg-slate-600 text-white', showShield: false },
   inspected: { cls: 'bg-brand-700 text-white', showShield: true },

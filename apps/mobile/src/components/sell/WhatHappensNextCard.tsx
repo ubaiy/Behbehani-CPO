@@ -4,23 +4,26 @@
  */
 
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 
-const STEPS = [
-  { icon: '⌚', text: 'Our team confirms your slot within 24 hours.' },
-  { icon: '🔧', text: 'Inspector arrives, does 71-point check + photos (~30 min).' },
-  { icon: '💰', text: 'You receive a cash offer within 24 hours of inspection.' },
-] as const;
+const STEP_ICONS = ['⌚', '🔧', '💰'] as const;
 
 export function WhatHappensNextCard() {
+  const { t } = useTranslation();
+  const bullets = [
+    t('sell.whatHappensNext.bullet1'),
+    t('sell.whatHappensNext.bullet2'),
+    t('sell.whatHappensNext.bullet3'),
+  ];
   return (
     <View style={ss.nextCard}>
-      <Text style={ss.nextCardTitle}>What happens next</Text>
-      {STEPS.map(({ icon, text }) => (
-        <View key={text} style={ss.nextRow}>
+      <Text style={ss.nextCardTitle}>{t('sell.whatHappensNext.title')}</Text>
+      {STEP_ICONS.map((icon, i) => (
+        <View key={i} style={ss.nextRow}>
           <Text style={ss.nextIcon}>{icon}</Text>
-          <Text style={ss.nextText}>{text}</Text>
+          <Text style={ss.nextText}>{bullets[i]}</Text>
         </View>
       ))}
     </View>

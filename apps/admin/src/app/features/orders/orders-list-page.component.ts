@@ -187,7 +187,7 @@ const STATUS_PILL_CLASS: Record<OrderStatusValue, string> = {
                   >
                     <td class="px-4 py-3 font-mono text-xs text-brand-700 font-semibold">
                       <a
-                        [routerLink]="['/orders', order.id]"
+                        [routerLink]="['/operations/orders', order.id]"
                         class="hover:underline focus:outline-none focus:underline"
                         (click)="$event.stopPropagation()"
                         [attr.aria-label]="'View order ' + order.id.slice(0, 8)"
@@ -340,7 +340,7 @@ export class OrdersListPageComponent implements OnInit, OnDestroy {
   }
 
   protected viewOrder(orderId: string): void {
-    this.router.navigate(['/orders', orderId]);
+    this.router.navigate(['/operations/orders', orderId]);
   }
 
   // ── Private ───────────────────────────────────────────────────────────────

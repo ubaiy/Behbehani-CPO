@@ -1,18 +1,20 @@
 import { View, Text, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, spacing, radius } from '../../theme/theme';
 import { RED_50, RED_200, RED_500, RED_600, RED_700 } from './authConstants';
 
 export function AccountLockoutBanner() {
+  const { t } = useTranslation();
   const rtlRow = I18nManager.isRTL ? 'row-reverse' : 'row';
 
   return (
     <View style={[styles.lockoutBanner, { flexDirection: rtlRow }]}>
       <Text style={styles.lockoutIconText}>🔒</Text>
       <View style={styles.lockoutTextGroup}>
-        <Text style={styles.lockoutTitle}>Account temporarily locked</Text>
+        <Text style={styles.lockoutTitle}>{t('auth.accountLockoutTitle')}</Text>
         <Text style={styles.lockoutBody}>
-          Too many failed sign-in attempts. Try again in{' '}
-          <Text style={styles.lockoutBold}>10 minutes</Text>, or reset your password.
+          {t('auth.accountLockoutBody')}{' '}
+          <Text style={styles.lockoutBold}>{t('auth.accountLockoutMinutes')}</Text>{t('auth.accountLockoutSuffix')}
         </Text>
       </View>
     </View>

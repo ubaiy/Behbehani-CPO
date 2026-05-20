@@ -198,7 +198,16 @@
         "locked": "محاولات كثيرة جداً. يرجى طلب رمز جديد.",
         "rateLimited": "يرجى الانتظار قبل طلب رمز آخر.",
         "networkError": "مشكلة في الاتصال. يرجى المحاولة مرة أخرى."
-      }
+      },
+      "verifying": "جارٍ التحقق"
+    },
+    "social": {
+      "google": "جوجل",
+      "apple": "آبل",
+      "facebook": "فيسبوك",
+      "googleComingSoon": "التسجيل عبر جوجل — قريباً",
+      "appleComingSoon": "التسجيل عبر آبل — قريباً",
+      "facebookComingSoon": "فيسبوك — قريباً"
     },
     "ghostUpgrade": {
       "title": "أهلاً بعودتك!",
@@ -454,6 +463,7 @@
       "savingCta": "جاري الحفظ…",
       "savedToast": "تم حفظ التفضيلات",
       "applyCaption": "تُطبَّق التغييرات خلال ٦٠ ثانية على جميع الأجهزة.",
+      "dirtyHint": "تغييرات غير محفوظة",
       "signInRequired": {
         "title": "يرجى تسجيل الدخول",
         "body": "سجّل الدخول لإدارة تفضيلات الإشعارات."
@@ -597,6 +607,104 @@
       "backLink": "→ العودة إلى حسابي"
     },
     "backToHub": "→ العودة إلى حسابي",
+    "subNav": "التنقل الفرعي للحساب",
+    "orderDetail": {
+      "backToOrders": "العودة إلى الطلبات",
+      "eyebrow": "الطلب",
+      "orderNumber": "طلب رقم #{{num}}",
+      "reservedAgo": "تم الحجز {{when}}",
+      "notFound": {
+        "title": "الطلب غير موجود",
+        "body": "هذا الطلب غير موجود أو ليس لديك صلاحية الوصول إليه."
+      },
+      "countdown": {
+        "label": "ينتهي خلال",
+        "expired": "انتهت صلاحية الحجز",
+        "help": "أكمل الدفع قبل انتهاء العداد لتأمين السيارة."
+      },
+      "summary": {
+        "title": "ملخص الطلب",
+        "stockNumber": "رقم المخزون",
+        "status": "الحالة",
+        "total": "المبلغ الإجمالي",
+        "paid": "المبلغ المدفوع",
+        "reservationFee": "رسوم الحجز",
+        "reservedAt": "تاريخ الحجز",
+        "completedAt": "تاريخ الإتمام",
+        "cancelledAt": "تاريخ الإلغاء"
+      },
+      "payments": {
+        "colMethod": "الطريقة",
+        "colAmount": "المبلغ (د.ك)",
+        "colStatus": "الحالة",
+        "colDate": "التاريخ",
+        "method": {
+          "knet": "كي-نت",
+          "card": "بطاقة",
+          "apple_pay": "Apple Pay",
+          "google_pay": "Google Pay",
+          "bank_transfer": "تحويل بنكي",
+          "financing": "تمويل",
+          "cash_on_delivery": "الدفع عند الاستلام"
+        },
+        "status": {
+          "pending": "قيد المعالجة",
+          "succeeded": "ناجح",
+          "failed": "فاشل",
+          "refunded": "مُسترد"
+        }
+      },
+      "cancel": {
+        "sectionTitle": "إلغاء الحجز",
+        "sectionBody": "سيؤدي الإلغاء إلى تحرير حجز السيارة. سيتم استرداد رسوم الحجز خلال 3-5 أيام عمل.",
+        "button": "إلغاء الحجز",
+        "modalTitle": "إلغاء هذا الحجز؟",
+        "modalBody": "سيتم استرداد رسوم الحجز البالغة {{amount}} خلال 3-5 أيام عمل.",
+        "modalDismiss": "الاحتفاظ بالحجز",
+        "modalConfirm": "نعم، إلغاء"
+      }
+    },
+    "orders": {
+      "title": "طلباتي",
+      "sub": "تتبع الحجوزات والمدفوعات والتسليم.",
+      "signInRequired": {
+        "title": "طلباتي",
+        "body": "يرجى تسجيل الدخول لعرض طلباتك."
+      },
+      "filterLabel": "تصفية حسب الحالة",
+      "statusAll": "الكل",
+      "status": {
+        "reservation_pending": "في انتظار الحجز",
+        "confirmed": "مؤكّد",
+        "payment_pending": "في انتظار الدفع",
+        "paid": "مدفوع",
+        "delivery_scheduled": "موعد التسليم محدد",
+        "delivered": "تم التسليم",
+        "completed": "مكتمل",
+        "cancelled": "ملغى"
+      },
+      "openCta": "الإجمالي",
+      "paidLabel": "المدفوع",
+      "stockLabel": "رقم المخزون #",
+      "empty": {
+        "title": "لا توجد طلبات بعد",
+        "body": "بمجرد حجز سيارة، ستظهر طلباتك هنا.",
+        "browseCta": "تصفح السيارات"
+      },
+      "error": {
+        "body": "حدث خطأ أثناء تحميل طلباتك.",
+        "retry": "حاول مجدداً"
+      },
+      "payments": {
+        "title": "المدفوعات",
+        "none": "لا توجد مدفوعات مسجلة لهذا الطلب."
+      },
+      "pagination": {
+        "prev": "السابق",
+        "next": "التالي",
+        "pageOf": "صفحة {{page}} من {{total}}"
+      }
+    },
     "documents": {
       "metaTitle": "مستنداتي · بهبهاني موتورز",
       "title": "مستنداتي",
@@ -680,10 +788,84 @@
       }
     }
   },
+  "checkout": {
+    "modal": {
+      "title": "احجز سيارتك",
+      "sub": "أتمّ حجزك في دقائق",
+      "close": "إغلاق",
+      "chooseMethod": "اختر طريقة الدفع",
+      "method": {
+        "knet": "كي-نت",
+        "card": "بطاقة ائتمان / خصم",
+        "applePay": "Apple Pay",
+        "googlePay": "Google Pay"
+      },
+      "comingSoon": "قريباً",
+      "reserveCta": "احجز الآن",
+      "reserveHint": "قابل للاسترداد خلال 24 ساعة",
+      "creating": "جارٍ إنشاء الحجز...",
+      "connectingOtto": "جارٍ الاتصال بـ Otto...",
+      "redirecting": "جارٍ فتح صفحة دفع Otto...",
+      "redirectingHint": "سيفتح تبويب جديد قريباً",
+      "confirmed": {
+        "title": "تم إنشاء الحجز",
+        "stock": "رقم المخزون",
+        "reservationFee": "رسوم الحجز",
+        "expiresAt": "ينتهي في",
+        "paymentCta": "المتابعة للدفع",
+        "doLater": "سأدفع لاحقاً"
+      },
+      "error": {
+        "title": "حدث خطأ ما",
+        "alreadyReserved": "تم حجز هذه السيارة للتو.",
+        "notAvailable": "هذه السيارة لم تعد متاحة.",
+        "reservationExpired": "انتهت صلاحية حجزك.",
+        "paymentInitFailed": "تعذّر الاتصال بمزود الدفع.",
+        "unauthenticated": "يرجى تسجيل الدخول للمتابعة.",
+        "networkError": "خطأ في الشبكة. تحقق من اتصالك.",
+        "generic": "حدث خطأ غير متوقع.",
+        "browseSimilar": "تصفّح سيارات مشابهة",
+        "retry": "إعادة المحاولة",
+        "cancel": "إلغاء"
+      }
+    },
+    "return": {
+      "backToBrowse": "العودة للتصفح",
+      "verifying": "جارٍ التحقق من الدفع...",
+      "verifyingHint": "يستغرق هذا عادةً ثوانٍ",
+      "paid": {
+        "title": "تمت عملية الدفع",
+        "sub": "تم حجز سيارتك. سيتواصل فريقنا معك قريباً.",
+        "orderSummary": "ملخص الطلب",
+        "stockNumber": "رقم المخزون",
+        "reservationFee": "رسوم الحجز",
+        "status": "الحالة",
+        "statusPaid": "مدفوع",
+        "viewOrderCta": "عرض طلبي"
+      },
+      "timeout": {
+        "title": "تم استلام الدفع — جارٍ الإتمام",
+        "body": "تم استلام دفعتك. نحن نُتمّ طلبك في الخلفية — تحقق من طلباتي للحالة الأخيرة.",
+        "ordersCta": "الذهاب إلى طلباتي"
+      },
+      "cancelled": {
+        "title": "تم إلغاء الحجز",
+        "body": "لم يكتمل حجزك. لم يتم خصم أي مبلغ.",
+        "browseCta": "تصفّح السيارات",
+        "ordersCta": "طلباتي"
+      },
+      "error": {
+        "title": "تعذّر التحقق من الدفع",
+        "body": "تعذّر التحقق من حالة دفعك. تحقق من طلباتي للحالة الأخيرة.",
+        "ordersCta": "تحقق من طلباتي"
+      }
+    }
+  },
   "common": {
     "language": "English",
     "currency": "د.ك",
     "loading": "جاري التحميل…",
+    "close": "إغلاق",
     "of": "من",
     "cars": "سيارة",
     "from": "من",
@@ -1033,7 +1215,15 @@
       "howItWorks": "كيف يعمل",
       "stat1": "فحص ٧١ نقطة",
       "stat2": "دفع مضمون",
-      "stat3": "نقل ملكية شامل"
+      "stat3": "نقل ملكية شامل",
+      "floatCard1": {
+        "label": "متوسط سعر البيع",
+        "value": "أعلى بـ ١٢٪"
+      },
+      "floatCard2": {
+        "label": "تقييم العملاء"
+      },
+      "soldBadge": "بِيعت خلال ٤ أيام"
     },
     "brands": {
       "title": "ابدأ بماركة سيارتك",
@@ -1234,6 +1424,7 @@
     },
     "concierge": {
       "metaTitle": "احجز فحصك — بهبهاني للسيارات",
+      "stepsNav": "خطوات الحجز",
       "back": "عودة",
       "badge": "خدمة الكونسيرج",
       "title": "احجز فحصك",

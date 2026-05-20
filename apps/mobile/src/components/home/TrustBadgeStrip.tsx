@@ -1,9 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, radius, spacing } from '../../theme/theme';
 import { brand } from '../../theme/colors';
 
-const TRUST_BADGES = ['Inspected', 'Insured', 'Returnable', 'Delivered'] as const;
+const TRUST_BADGE_KEYS = [
+  'home.trustInspected',
+  'home.trustInsured',
+  'home.trustReturnable',
+  'home.trustDelivered',
+] as const;
 
 function CheckBadge({ label }: { label: string }) {
   return (
@@ -15,10 +21,11 @@ function CheckBadge({ label }: { label: string }) {
 }
 
 export function TrustBadgeStrip({ containerStyle }: { containerStyle?: object }) {
+  const { t } = useTranslation();
   return (
     <View style={[stripStyles.strip, containerStyle]}>
-      {TRUST_BADGES.map((badge) => (
-        <CheckBadge key={badge} label={badge} />
+      {TRUST_BADGE_KEYS.map((key) => (
+        <CheckBadge key={key} label={t(key)} />
       ))}
     </View>
   );

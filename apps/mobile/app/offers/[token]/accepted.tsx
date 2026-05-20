@@ -13,12 +13,15 @@ import {
   Platform,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../../src/theme/colors';
 
 const BOOKING_REF = 'BMC-CON-001234';
 const OFFER_AMOUNT = 'KWD 4,850.000';
 
 export default function OfferAcceptedScreen() {
+  const { t } = useTranslation();
+
   return (
     <ScrollView
       style={s.root}
@@ -30,9 +33,9 @@ export default function OfferAcceptedScreen() {
         <View style={s.iconCircle}>
           <Text style={s.checkmark}>✓</Text>
         </View>
-        <Text style={s.heroTitle}>Offer accepted</Text>
+        <Text style={s.heroTitle}>{t('offers.accepted.heroTitle')}</Text>
         <Text style={s.heroSub}>
-          You sold your car at{' '}
+          {t('offers.accepted.heroSub')}{' '}
           <Text style={s.heroAmount}>{OFFER_AMOUNT}</Text>
         </Text>
       </View>
@@ -40,25 +43,25 @@ export default function OfferAcceptedScreen() {
       {/* ── Confirmation card ─────────────────────────────────────────── */}
       <View style={s.confirmCard}>
         <Text style={s.confirmText}>
-          Behbehani Motors will contact you within 24 hours to schedule pickup.
+          {t('offers.accepted.confirmText')}
         </Text>
         <Text style={s.confirmSub}>
-          You'll receive a call at your registered number to confirm the next steps.
+          {t('offers.accepted.confirmSub')}
         </Text>
       </View>
 
       {/* ── Next steps ───────────────────────────────────────────────── */}
       <View style={s.stepsCard}>
-        <Text style={s.stepsLabel}>WHAT HAPPENS NEXT</Text>
+        <Text style={s.stepsLabel}>{t('offers.accepted.stepsLabel')}</Text>
 
         <View style={s.step}>
           <View style={[s.stepNumCircle, s.stepNumActive]}>
             <Text style={[s.stepNum, s.stepNumActiveText]}>1</Text>
           </View>
           <View style={s.stepBody}>
-            <Text style={s.stepTitle}>Pickup scheduled</Text>
+            <Text style={s.stepTitle}>{t('offers.accepted.step1Title')}</Text>
             <Text style={s.stepDesc}>
-              Our team calls to confirm the pickup date and location — no need to bring the car to us.
+              {t('offers.accepted.step1Desc')}
             </Text>
           </View>
         </View>
@@ -68,9 +71,9 @@ export default function OfferAcceptedScreen() {
             <Text style={[s.stepNum, s.stepNumIdleText]}>2</Text>
           </View>
           <View style={s.stepBody}>
-            <Text style={s.stepTitle}>Vehicle handover</Text>
+            <Text style={s.stepTitle}>{t('offers.accepted.step2Title')}</Text>
             <Text style={s.stepDesc}>
-              Inspector collects the car and completes the ownership paperwork on the spot.
+              {t('offers.accepted.step2Desc')}
             </Text>
           </View>
         </View>
@@ -80,9 +83,9 @@ export default function OfferAcceptedScreen() {
             <Text style={[s.stepNum, s.stepNumIdleText]}>3</Text>
           </View>
           <View style={s.stepBody}>
-            <Text style={s.stepTitle}>Payment via Otto</Text>
+            <Text style={s.stepTitle}>{t('offers.accepted.step3Title')}</Text>
             <Text style={s.stepDesc}>
-              {OFFER_AMOUNT} transferred within 2–3 business days after handover.
+              {OFFER_AMOUNT} {t('offers.accepted.step3Desc')}
             </Text>
           </View>
         </View>
@@ -90,8 +93,8 @@ export default function OfferAcceptedScreen() {
 
       {/* ── Booking reference ─────────────────────────────────────────── */}
       <View style={s.refCard}>
-        <TouchableOpacity accessibilityLabel={`View booking reference ${BOOKING_REF}`}>
-          <Text style={s.refLink}>View booking ref {BOOKING_REF}</Text>
+        <TouchableOpacity accessibilityLabel={t('offers.accepted.bookingRefA11y', { ref: BOOKING_REF })}>
+          <Text style={s.refLink}>{t('offers.accepted.bookingRefLink')} {BOOKING_REF}</Text>
         </TouchableOpacity>
       </View>
 
@@ -99,9 +102,9 @@ export default function OfferAcceptedScreen() {
       <View style={s.footer}>
         <TouchableOpacity
           onPress={() => router.push('/(tabs)/account' as any)}
-          accessibilityLabel="Back to account"
+          accessibilityLabel={t('offers.accepted.backToAccountA11y')}
         >
-          <Text style={s.footerLink}>Back to account</Text>
+          <Text style={s.footerLink}>{t('offers.accepted.backToAccount')}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

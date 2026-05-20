@@ -18,17 +18,21 @@ import { useState } from 'react';
 import { View, Text, Pressable, ScrollView, I18nManager } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import { SignInForm } from '../../src/components/auth/SignInForm';
 import { SignUpForm } from '../../src/components/auth/SignUpForm';
 import { ComingSoonStubs } from '../../src/components/auth/ComingSoonStubs';
 import { LanguageToggle } from '../../src/components/auth/LanguageToggle';
 import { screenStyles as styles } from '../../src/components/auth/signInScreenStyles';
+import { AuthService } from '../../src/services/auth';
 
 type LoginError = 'ACCOUNT_LOCKED' | 'INVALID_CREDENTIALS' | null;
 type ScreenMode = 'signin' | 'signup';
 
 export default function SignInScreen() {
+  const { t } = useTranslation();
+
   // Mode toggle
   const [mode, setMode] = useState<ScreenMode>('signin');
 
@@ -36,6 +40,7 @@ export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState<LoginError>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   // Sign-up fields
   const [fullName, setFullName] = useState('');
@@ -46,11 +51,36 @@ export default function SignInScreen() {
 
   const rtlRow = I18nManager.isRTL ? 'row-reverse' : 'row';
 
-  // Sign-in submit — TODO (W2): wire to AuthService.signIn
-  function handleSignIn() {
-    // TODO (W2): call AuthService.signIn({ type: 'email', email, password })
-    // then router.replace('/(tabs)') on success or setLoginError on failure
-    console.warn('[sign-in] TODO W2: connect to AuthService.signIn');
+  // Sign-in submit — wired to AuthService.signIn (W2)
+  async function handleSignIn() {
+    if (loading) return;
+
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !password) {
+      setLoginError('INVALID_CREDENTIALS');
+      return;
+    }
+
+    setLoginError(null);
+    setLoading(true);
+    try {
+      await AuthService.signIn({ type: 'email', email: trimmedEmail, password });
+      router.replace('/(tabs)');
+    } catch (err) {
+      let code: LoginError = 'INVALID_CREDENTIALS';
+      const message = err instanceof Error ? err.message : '';
+      try {
+        const parsed = JSON.parse(message) as { error?: { code?: string } };
+        if (parsed?.error?.code === 'ACCOUNT_LOCKED') {
+          code = 'ACCOUNT_LOCKED';
+        }
+      } catch {
+        // Non-JSON body — default to INVALID_CREDENTIALS.
+      }
+      setLoginError(code);
+    } finally {
+      setLoading(false);
+    }
   }
 
   // Sign-up submit — TODO (W3): wire to AuthService.signUp
@@ -67,7 +97,7 @@ export default function SignInScreen() {
           style={styles.backButton}
           onPress={() => { if (router.canGoBack()) router.back(); }}
           hitSlop={8}
-          accessibilityLabel="Back"
+          accessibilityLabel={t('auth.back')}
         >
           <Text style={[styles.backChevron, I18nManager.isRTL && styles.backChevronRTL]}>‹</Text>
         </Pressable>
@@ -75,7 +105,7 @@ export default function SignInScreen() {
         <View style={[styles.topBarRight, { flexDirection: rtlRow }]}>
           <LanguageToggle />
           <Pressable hitSlop={8} onPress={() => { /* TODO: skip */ }}>
-            <Text style={styles.skipText}>Skip</Text>
+            <Text style={styles.skipText}>{t('auth.skip')}</Text>
           </Pressable>
         </View>
       </View>
@@ -91,17 +121,15 @@ export default function SignInScreen() {
           <View style={styles.crest}>
             <Text style={styles.crestIcon}>🛡</Text>
           </View>
-          <Text style={styles.brandName}>Behbehani Motors</Text>
+          <Text style={styles.brandName}>{t('auth.brandName')}</Text>
         </View>
 
         {/* Heading */}
         <Text style={styles.heading}>
-          {mode === 'signin' ? 'Welcome back' : 'Create account'}
+          {mode === 'signin' ? t('auth.welcomeBack') : t('auth.createAccountTitle')}
         </Text>
         <Text style={styles.subheading}>
-          {mode === 'signin'
-            ? 'Sign in to track reservations, favorites & finance.'
-            : "Join Behbehani Motors — Kuwait's trusted CPO marketplace."}
+          {mode === 'signin' ? t('auth.signInSubtitle') : t('auth.joinSubtitle')}
         </Text>
 
         {mode === 'signin' && (
@@ -112,6 +140,7 @@ export default function SignInScreen() {
             setPassword={setPassword}
             loginError={loginError}
             onSignIn={handleSignIn}
+            loading={loading}
           />
         )}
 
@@ -134,7 +163,7 @@ export default function SignInScreen() {
         {/* Divider */}
         <View style={[styles.dividerRow, { flexDirection: rtlRow }]}>
           <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or continue with</Text>
+          <Text style={styles.dividerText}>{t('auth.dividerOrContinueWith')}</Text>
           <View style={styles.dividerLine} />
         </View>
 
@@ -142,7 +171,7 @@ export default function SignInScreen() {
 
         {/* Sign-up / Sign-in toggle link */}
         <Text style={styles.toggleLinkRow}>
-          {mode === 'signin' ? 'New to Behbehani Motors? ' : 'Already have an account? '}
+          {mode === 'signin' ? t('auth.newToBehbehani') : t('auth.alreadyHaveAccount')}
           <Text
             style={styles.toggleLinkAction}
             onPress={() => {
@@ -151,15 +180,15 @@ export default function SignInScreen() {
             }}
             accessibilityRole="button"
           >
-            {mode === 'signin' ? 'Create an account' : 'Sign in'}
+            {mode === 'signin' ? t('auth.createAnAccount') : t('auth.signInInline')}
           </Text>
         </Text>
 
         {/* Legal */}
         <Text style={styles.legal}>
-          By {mode === 'signin' ? 'signing in' : 'creating an account'} you agree to our{' '}
-          <Text style={styles.legalLink}>Terms</Text> and{' '}
-          <Text style={styles.legalLink}>Privacy policy</Text>.
+          {t('auth.legalPrefix')} {mode === 'signin' ? t('auth.signingIn') : t('auth.creatingAnAccount')} {t('auth.legalSuffix')}{' '}
+          <Text style={styles.legalLink}>{t('auth.termsOfService')}</Text> {t('auth.legalAnd')}{' '}
+          <Text style={styles.legalLink}>{t('auth.privacyPolicy')}</Text>{t('auth.legalPeriod')}
         </Text>
       </ScrollView>
     </SafeAreaView>

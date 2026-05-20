@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, radius, spacing } from '../../theme/theme';
 import { brand } from '../../theme/colors';
 
@@ -8,23 +9,24 @@ type SellYourCarCTAProps = {
 };
 
 export function SellYourCarCTA({ onPress }: SellYourCarCTAProps) {
+  const { t } = useTranslation();
   return (
     <View style={s.ctaSection}>
       <Pressable
         style={({ pressed }) => [ctaStyles.card, pressed && ctaStyles.cardPressed]}
         onPress={onPress}
         accessibilityRole="button"
-        accessibilityLabel="Sell your car — get an instant valuation"
+        accessibilityLabel={t('home.ctaA11y')}
       >
         {/* Decorative background shape */}
         <View style={ctaStyles.decoShape} pointerEvents="none" />
 
         <View>
-          <Text style={ctaStyles.eyebrow}>SELL YOUR CAR</Text>
-          <Text style={ctaStyles.headline}>Get a real cash offer{'\n'}in 60 seconds</Text>
-          <Text style={ctaStyles.sub}>Free inspection · 24-hour payment · No haggling</Text>
+          <Text style={ctaStyles.eyebrow}>{t('home.ctaEyebrow')}</Text>
+          <Text style={ctaStyles.headline}>{t('home.ctaHeadline')}</Text>
+          <Text style={ctaStyles.sub}>{t('home.ctaSub')}</Text>
           <View style={ctaStyles.cta}>
-            <Text style={ctaStyles.ctaText}>Get instant valuation</Text>
+            <Text style={ctaStyles.ctaText}>{t('home.ctaInstantValuation')}</Text>
             <Text style={ctaStyles.ctaArrow}>›</Text>
           </View>
         </View>

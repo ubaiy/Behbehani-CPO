@@ -27,7 +27,7 @@
       "package": "com.behbehani.cpo"
     },
     "web": {},
-    "scheme": "behbehani-cpo",
+    "scheme": "behbehani-motors",
     "plugins": [
       "expo-router",
       "expo-font",

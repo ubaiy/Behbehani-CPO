@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, palette, radius, spacing } from '../../theme/theme';
 
 export interface FilterStickyShowNCarsCTAProps {
@@ -8,10 +9,11 @@ export interface FilterStickyShowNCarsCTAProps {
 }
 
 export function FilterStickyShowNCarsCTA({ matchCount, onApply }: FilterStickyShowNCarsCTAProps) {
+  const { t } = useTranslation();
   return (
     <View style={s.ctaWrap}>
       <TouchableOpacity style={s.ctaBtn} onPress={onApply} activeOpacity={0.85}>
-        <Text style={s.ctaText}>Show {matchCount} cars</Text>
+        <Text style={s.ctaText}>{t('filter.showNCars', { count: matchCount })}</Text>
       </TouchableOpacity>
     </View>
   );

@@ -3,7 +3,7 @@
  *
  * Hidden route (not in tab bar). Reachable via:
  *   • Tapping a ListingCard on the Home/Browse tab
- *   • Deep link: behbehani-cpo://listing/:id
+ *   • Deep link: behbehani-motors://listing/:id
  *   • Universal link: https://www.behbehani-motors.com/en/cars/:slug
  *
  * TODO (W2): Implement full VDP with:

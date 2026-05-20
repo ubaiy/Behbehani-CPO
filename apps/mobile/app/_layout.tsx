@@ -26,6 +26,12 @@ import {
   ensurePushPermission,
   captureAndRegisterPushToken,
 } from '../src/notifications/pushTokens';
+// Task #64: notification tap → deep-link routing.
+import {
+  setupNotificationRouter,
+  extractDeepLink,
+  routeToDeepLink,
+} from '../src/notifications/notificationRouter';
 import {
   PlusJakartaSans_400Regular,
   PlusJakartaSans_500Medium,
@@ -35,37 +41,21 @@ import {
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { I18nextProvider } from 'react-i18next';
 import { initI18n } from '../src/i18n/i18n';
 import i18nInstance from '../src/i18n/i18n';
 import { colors } from '../src/theme/theme';
+import { queryClient, asyncStoragePersister } from '../src/services/queryClient';
 
 // Keep the splash screen visible until we're fully ready.
 SplashScreen.preventAutoHideAsync();
 
 // ─── React Query setup ────────────────────────────────────────────────────────
-// QueryClient is created outside the component so it is stable across hot-reloads.
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      // Stale data is refetched on window focus (app foreground) by default.
-      staleTime: 5 * 60 * 1000,  // 5 min default; overridden per-query where needed
-      retry: 2,
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30_000),
-    },
-  },
-});
-
-// AsyncStorage persister — persists the query cache across app restarts.
-// Provides offline-first reading (FR-MOB-005) for stale data during no-network sessions.
-const asyncStoragePersister = createAsyncStoragePersister({
-  storage: AsyncStorage,
-  key: 'cpo.query-cache',
-});
+// `queryClient` + `asyncStoragePersister` are the SHARED singleton imported from
+// `src/services/queryClient.ts`. The same instance is used by `src/services/http.ts`
+// so the TOKEN_REUSED forced-sign-out path actually evicts the cache the UI reads.
+// See ARCHITECTURE.md §3 for the cache-key registry.
 
 // ─── Root layout ──────────────────────────────────────────────────────────────
 
@@ -97,6 +87,49 @@ export default function RootLayout() {
         console.warn('[RootLayout] i18n init failed, falling back to English.', err);
         setI18nReady(true);
       });
+  }, []);
+
+  // Task #64: wire push notification tap listener (foreground + background taps).
+  // setupNotificationRouter returns an unsubscribe fn — returned for cleanup.
+  useEffect(() => {
+    const unsubscribe = setupNotificationRouter();
+    return unsubscribe;
+  }, []);
+
+  // Task #64: cold-start handler — if the app was launched by tapping a notification
+  // while it was not running, getLastNotificationResponseAsync will return that
+  // response. We check once on mount and route to the deepLink if present.
+  // Guard: do nothing if there is no last response (normal first launch).
+  useEffect(() => {
+    // Import is re-used from the guarded module; if expo-notifications is absent
+    // the module's internal guard already no-ops, so this is safe to call
+    // unconditionally via the notificationRouter helpers.
+    let cancelled = false;
+
+    void (async () => {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
+        const Notifications = require('expo-notifications') as {
+          getLastNotificationResponseAsync(): Promise<
+            { notification: { request: { content: { data: Record<string, unknown> } } } } | null | undefined
+          >;
+        };
+        const lastResponse = await Notifications.getLastNotificationResponseAsync();
+        if (cancelled || !lastResponse) return;
+
+        const url = extractDeepLink(lastResponse as Parameters<typeof extractDeepLink>[0]);
+        if (url) {
+          await routeToDeepLink(url);
+        }
+      } catch {
+        // expo-notifications not installed or getLastNotificationResponseAsync unavailable.
+        // Non-fatal: cold-start routing is best-effort.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -151,6 +184,18 @@ export default function RootLayout() {
           <Stack.Screen name="offers/[token]/declined" options={{ headerShown: false }} />
           <Stack.Screen name="offers/[token]/expired" options={{ headerShown: false }} />
           <Stack.Screen name="inspections/[id]" options={{ headerShown: false }} />
+          {/* Task G1 — customer reserve flow (mirrors web v1.4.11 checkout-modal). */}
+          <Stack.Screen
+            name="reserve/[listingId]"
+            options={{ headerShown: false, presentation: 'modal' }}
+          />
+          {/* Task #65 — customer orders (list / detail / Otto payment-return). */}
+          <Stack.Screen name="orders/index" options={{ headerShown: false }} />
+          <Stack.Screen name="orders/[id]" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="orders/[id]/payment-return"
+            options={{ headerShown: false, gestureEnabled: false }}
+          />
           <Stack.Screen
             name="inspection-sign/[token]"
             options={{ headerShown: false, presentation: 'modal' }}

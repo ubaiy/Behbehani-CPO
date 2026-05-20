@@ -13,7 +13,6 @@ export * from './lib/inspection.schemas.js';
 export * from './lib/notify.public.schemas.js';
 export * from './lib/offer.schemas.js';
 export * from './lib/saved-listings.public.schemas.js';
-export * from './lib/device-token.public.schemas.js';
 export * from './lib/me-account.schemas.js';
 export * from './lib/feature-waitlist.public.schemas.js';
 export * from './lib/push-token.public.schemas.js';

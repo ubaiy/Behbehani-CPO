@@ -109,31 +109,31 @@ function cloneCellGrid(grid: CellGrid): CellGrid {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, TranslateModule],
   template: `
-    <!-- ===== HERO ===== -->
-    <header class="py-6 sm:py-8">
-      <div class="container-page max-w-4xl mx-auto">
-        <div class="rounded-3xl p-6 sm:p-8"
-             style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-          <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
-            {{ 'account.hub.tiles.notifications.title' | translate }}
-          </p>
-          <h1
-            class="font-display font-extrabold text-white text-[clamp(24px,3vw,36px)] leading-tight tracking-[-0.02em]"
-          >
-            {{ 'account.notifications.title' | translate }}
-          </h1>
-          <p class="mt-2 text-white/80 text-[14px]">
-            {{ 'account.notifications.sub' | translate }}
-          </p>
-        </div>
-      </div>
-    </header>
-
     <!-- ===== BACK LINK ===== -->
     <div class="container-page pt-6">
-      <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-        {{ 'account.backToHub' | translate }}
-      </a>
+      <div class="mx-auto max-w-4xl">
+        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
+          {{ 'account.backToHub' | translate }}
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <div class="container-page py-8 mx-auto max-w-4xl">
+      <div class="rounded-3xl p-6 sm:p-8 text-white"
+           style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
+        <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
+          {{ 'account.hub.tiles.notifications.title' | translate }}
+        </p>
+        <h1
+          class="font-display font-extrabold text-white text-[clamp(24px,3vw,36px)] leading-tight tracking-[-0.02em]"
+        >
+          {{ 'account.notifications.title' | translate }}
+        </h1>
+        <p class="mt-2 text-white/80 text-[14px]">
+          {{ 'account.notifications.sub' | translate }}
+        </p>
+      </div>
     </div>
 
     <!-- ===== MAIN ===== -->

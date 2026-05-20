@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, palette, radius, spacing } from '../../theme/theme';
 
 export type ViewMode = 'list' | 'grid';
@@ -13,6 +14,7 @@ export interface ViewToggleProps {
 }
 
 export function ViewToggle({ viewMode, onChangeViewMode }: ViewToggleProps) {
+  const { t } = useTranslation();
   const handlePress = (mode: ViewMode) => {
     onChangeViewMode(mode);
     AsyncStorage.setItem(VIEW_MODE_KEY, mode);
@@ -23,7 +25,7 @@ export function ViewToggle({ viewMode, onChangeViewMode }: ViewToggleProps) {
       <TouchableOpacity
         style={[s.viewToggleBtn, viewMode === 'list' && s.viewToggleBtnActive]}
         onPress={() => handlePress('list')}
-        accessibilityLabel="List view"
+        accessibilityLabel={t('browse.listViewA11y')}
       >
         <Text style={[s.viewToggleIcon, viewMode === 'list' && s.viewToggleIconActive]}>
           {'☰'}
@@ -32,7 +34,7 @@ export function ViewToggle({ viewMode, onChangeViewMode }: ViewToggleProps) {
       <TouchableOpacity
         style={[s.viewToggleBtn, viewMode === 'grid' && s.viewToggleBtnActive]}
         onPress={() => handlePress('grid')}
-        accessibilityLabel="Grid view"
+        accessibilityLabel={t('browse.gridViewA11y')}
       >
         <Text style={[s.viewToggleIcon, viewMode === 'grid' && s.viewToggleIconActive]}>
           {'⊞'}

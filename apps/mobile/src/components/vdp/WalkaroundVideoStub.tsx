@@ -5,11 +5,13 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { PlayIcon } from './vdp.icons';
 
 export function WalkaroundVideoStub() {
+  const { t } = useTranslation();
   return (
     <View style={styles.sectionPadded}>
       <View style={styles.videoCard}>
@@ -17,8 +19,8 @@ export function WalkaroundVideoStub() {
           <PlayIcon />
         </View>
         <View style={styles.videoTextBlock}>
-          <Text style={styles.videoTitle}>Walkaround video · Coming soon</Text>
-          <Text style={styles.videoSubtitle}>Inspector-narrated exterior + interior tour</Text>
+          <Text style={styles.videoTitle}>{t('vdp.videoCardTitle')}</Text>
+          <Text style={styles.videoSubtitle}>{t('vdp.videoCardSubtitle')}</Text>
         </View>
       </View>
     </View>

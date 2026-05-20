@@ -23,6 +23,7 @@ import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { listingsPublicApiClient } from '../../src/services/http';
 import { brand } from '../../src/theme/colors';
 
@@ -67,6 +68,7 @@ function usePriceDropQuery() {
 export default function HomeScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const featuredQuery = useQuery({
     queryKey: ['listings', 'featured'] as const,
@@ -123,7 +125,7 @@ export default function HomeScreen() {
         }
       >
         <ListingRail
-          title="Featured Used"
+          title={t('home.railFeatured')}
           seeAllHref="/(tabs)/browse"
           data={featuredQuery.data as never}
           isLoading={featuredQuery.isLoading}
@@ -139,7 +141,7 @@ export default function HomeScreen() {
         <SellYourCarCTA onPress={() => router.push('/(tabs)/sell' as never)} />
 
         <ListingRail
-          title="Inspected Cars"
+          title={t('home.railInspected')}
           seeAllHref="/(tabs)/browse"
           data={inspectedQuery.data as never}
           isLoading={inspectedQuery.isLoading}
@@ -150,7 +152,7 @@ export default function HomeScreen() {
         />
 
         <ListingRail
-          title="Low-Mileage"
+          title={t('home.railLowMileage')}
           seeAllHref="/(tabs)/browse?sort=mileageAsc"
           data={lowMileageQuery.data as never}
           isLoading={lowMileageQuery.isLoading}
@@ -160,7 +162,7 @@ export default function HomeScreen() {
         />
 
         <ListingRail
-          title="Recently Added"
+          title={t('home.railRecent')}
           seeAllHref="/(tabs)/browse?sort=newest"
           data={recentQuery.data as never}
           isLoading={recentQuery.isLoading}
@@ -171,7 +173,7 @@ export default function HomeScreen() {
         />
 
         <ListingRail
-          title="Price Drops"
+          title={t('home.railPriceDrops')}
           seeAllHref="/(tabs)/browse"
           data={priceDropQuery.data as never}
           isLoading={priceDropQuery.isLoading}

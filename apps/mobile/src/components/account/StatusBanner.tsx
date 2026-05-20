@@ -3,6 +3,7 @@
  */
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand } from '../../theme/colors';
 import type { CustomerStatus } from '@behbehani-cpo/shared-types';
 
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function StatusBanner({ status, onVerify }: Props) {
+  const { t } = useTranslation();
   if (status === 'active') return null;
 
   return (
@@ -20,11 +22,13 @@ export function StatusBanner({ status, onVerify }: Props) {
         <Text style={styles.icon}>{'🛡'}</Text>
       </View>
       <View style={styles.body}>
-        <Text style={styles.title}>Account status: {status.replace('_', ' ')}</Text>
-        <Text style={styles.subtext}>Verify your email address to fully activate your account.</Text>
+        <Text style={styles.title}>
+          {t('account.statusBanner.title', { status: status.replace('_', ' ') })}
+        </Text>
+        <Text style={styles.subtext}>{t('account.statusBanner.unverifiedBody')}</Text>
       </View>
       <Pressable style={styles.cta} onPress={onVerify}>
-        <Text style={styles.ctaText}>Verify</Text>
+        <Text style={styles.ctaText}>{t('account.statusBanner.verifyBtn')}</Text>
       </Pressable>
     </View>
   );

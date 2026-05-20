@@ -5,29 +5,31 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { OfferIcon, CalendarIcon, LoanIcon, ChatIcon } from './vdp.icons';
 
 export function SecondaryCTARow() {
+  const { t } = useTranslation();
   return (
     <View style={styles.sectionPadded}>
       <View style={styles.secondaryCTAGrid}>
         <TouchableOpacity style={styles.secondaryCTA} activeOpacity={0.8}>
           <OfferIcon />
-          <Text style={styles.secondaryCTAText}>Make an offer</Text>
+          <Text style={styles.secondaryCTAText}>{t('vdp.makeAnOffer')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryCTA} activeOpacity={0.8}>
           <CalendarIcon />
-          <Text style={styles.secondaryCTAText}>Book test drive</Text>
+          <Text style={styles.secondaryCTAText}>{t('vdp.bookTestDrive')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryCTA} activeOpacity={0.8}>
           <LoanIcon />
-          <Text style={styles.secondaryCTAText}>Apply for loan</Text>
+          <Text style={styles.secondaryCTAText}>{t('vdp.applyForLoan')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryCTA} activeOpacity={0.8}>
           <ChatIcon />
-          <Text style={styles.secondaryCTAText}>Contact seller</Text>
+          <Text style={styles.secondaryCTAText}>{t('vdp.contactSeller')}</Text>
         </TouchableOpacity>
       </View>
     </View>

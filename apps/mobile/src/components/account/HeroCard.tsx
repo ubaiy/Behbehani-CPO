@@ -6,6 +6,7 @@
  */
 
 import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand } from '../../theme/colors';
 
 // Guarded import — same pattern as expo-image-picker / expo-notifications.
@@ -40,6 +41,7 @@ export function HeroCard({
   lastSignIn,
   onSignOut,
 }: Props) {
+  const { t } = useTranslation();
   return (
     <LinearGradient
       colors={[brand[900], brand[700], brand[600]]}
@@ -60,15 +62,16 @@ export function HeroCard({
           {email && <Text style={styles.heroEmail}>{email}</Text>}
           {mobile && <Text style={styles.heroMobile}>{mobile}</Text>}
           <Text style={styles.heroMeta}>
-            Member since {memberSince}
-            {' · '}Last sign-in {lastSignIn}
+            {t('account.hero.memberSince', { date: memberSince })}
+            {' · '}
+            {t('account.hero.lastSignIn', { ago: lastSignIn })}
           </Text>
         </View>
       </View>
       <Pressable
         style={styles.heroSignOut}
         onPress={onSignOut}
-        accessibilityLabel="Sign out"
+        accessibilityLabel={t('account.hero.signOutA11y')}
         accessibilityRole="button"
       >
         <Text style={styles.heroSignOutIcon}>{'↪'}</Text>

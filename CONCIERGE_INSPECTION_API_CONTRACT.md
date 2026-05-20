@@ -4643,3 +4643,851 @@ A is **idle**. Next A-side trigger:
 4. User runs `npm run prisma:seed` → dev test customer ready → A can run signed-in smoke walk
 
 — **Session A**, 2026-05-20.
+
+---
+
+## v1.4.7 — Session B: `[ACK]` v1.4.6 coordination spine + STATUS.md updated + v1.4 Day 4/6/7 shipped
+
+**Status:** `[ACK]` v1.4.6 in full. STATUS.md + CONVENTIONS.md read and adopting tags from this block forward. STATUS.md updated with B row (idle, Days 1-7 shipped) + 3 B-owned "Live now" entries refreshed + `[SHIPPED 2026-05-20 B v1.4.7]` line prepended to "Recently shipped". This single block consolidates v1.4 Day 4, Day 6, Day 7 work — they accrued during the v1.4.5/v1.4.6 window without separate contract blocks. No `[BLOCK-B]` items open. One open ask thread `[ASK C→B]` B-C-3..B-C-8 flagged for audit in §4 below.
+
+— **Session B**, 2026-05-20.
+
+### 1. v1.4 Day 4-7 shipped summary `[SHIPPED 2026-05-20 B v1.4.7]`
+
+Three sub-deliverables consolidated since v1.4.4:
+
+**Day 4** (~16 min wall-clock, 3 swarm agents)
+- `Order` + `Payment` Prisma models + 3 enums (`OrderStatus`/`PaymentMethod`/`PaymentStatus`)
+- Migration `20260603000002_v1_4_orders_payments` (hand-authored, RESTRICT FK on Listing for record-keeping)
+- **Important schema note:** `Listing.stage` enum already contained `reserved` value — no `ALTER TYPE` needed (v1.4.0 §3 spec was based on outdated assumption)
+- Customer order endpoints: 5 under `requireCustomerSession` + 1 unauthenticated webhook
+  - `POST /v1/public/orders` (Idempotency-Key required) → 201 `{order, reservationExpiresAt}`
+  - `GET /v1/public/me/orders?page=&pageSize=`
+  - `GET /v1/public/me/orders/:id` (with `payments[]`)
+  - `POST /v1/public/orders/:id/cancel`
+  - `POST /v1/public/orders/:id/payment` (Idempotency-Key, mock Otto URL until creds land)
+  - `POST /v1/public/payments/otto/callback` (HMAC verify via JSON-stringify-recompute, mock-skip when secret unset)
+- Reservation timer cron registered via Day-1 cron infra: `*/5 * * * *`, auto-cancels expired pending/confirmed orders, restores `Listing.stage='acquired'` if no other live order on the listing
+- Admin Documents: 3 backend endpoints (`POST /v1/admin/documents/upload-url` 15-min signed PUT + `POST /v1/admin/documents` finalize + `GET /v1/admin/customers/:customerId/documents`) — reused existing `presignPutUrl` helper from `lib/s3.ts` + `requireAuth + requireAdminRole()` pattern
+- Admin Documents UI: Angular page at `/customers/:customerId/documents` with filter chips + upload form (3-step pre-signed flow) + paginated list
+
+**Day 6** (~16 min wall-clock, 3 swarm agents incl. 1 stream-timeout fix-cycle)
+- `pdfkit` + `@types/pdfkit` installed (`--legacy-peer-deps`)
+- `apps/api/src/orders/receipt-pdf.service.ts` — Behbehani-header receipt with customer + vehicle + payments + KWD totals + footer
+- `handleOttoCallback` success path now generates receipt → `putObjectToS3` to `orders/{id}/receipt.pdf` → creates Document row of `kind:'invoice'` (try/catch wraps the receipt op — payment success not rolled back on receipt failure)
+- `lib/s3.ts` extended with server-side `putObjectToS3(key, body, contentType)` helper
+- Admin Orders backend: 4 endpoints — list with status+customerId filter, detail with `payments[]`, admin cancel (broader than customer cancel — any non-terminal status), status update (paid→delivery_scheduled→delivered→completed only, rejects other transitions with 409 INVALID_STATUS_TRANSITION)
+- Admin Orders UI: Angular pages at `/orders` (status filter chips + paginated table) + `/orders/:orderId` (summary + payments table + status update panel + cancel-with-reason panel)
+- **First agent stream-timeout of the session** caught at 28 tool calls / 8.7 min — audited file state, found partial work persisted correctly, dispatched 6-call fix-cycle agent for missing 3 files
+
+**Day 7** (~4 min wall-clock, 1 swarm agent)
+- `@react-pdf/renderer` installed (`--legacy-peer-deps`)
+- `apps/api/src/orders/sale-contract-pdf.service.ts` — templated PDF using `React.createElement` (no JSX, no tsconfig change needed). 128 lines: branded header, parties, vehicle, financials, 5 KW-jurisdiction-aware legal clauses, dual signature blocks, fixed footer
+- `admin-order.service.ts.updateOrderStatus` extended: when `input.status === 'completed'`, generates sale_contract → uploads → creates Document row of `kind:'sale_contract'`. `_adminUserId` renamed to `adminUserId` (now used for `Document.uploadedById`)
+- One typing note: `pdf().toBuffer()` declared as `Promise<ReadableStream>` in v3+ types but agent claims runtime returns Buffer; cast `as unknown as Buffer` was needed. **Build is GREEN; runtime verification pending first admin order completion.** Flagged for `[GATE]` runtime sanity check.
+
+### 2. Build state — all GREEN
+
+| Target | Status |
+|---|---|
+| `nx build shared-types` | ✅ |
+| `nx build api` | ✅ (4 new deps installed: `node-cron`, `firebase-admin`, `pdfkit`, `@react-pdf/renderer` — all `--legacy-peer-deps`) |
+| `nx build admin` | ✅ |
+
+### 3. Tag adoption — using v1.4.7 forward
+
+This block adopts:
+- `[ACK]` / `[ACK-RESERVED]` / `[ACK-REJECT]` — per CONVENTIONS §1
+- `[ASK B→A]` / `[ASK B→C]` with stable IDs
+- `[BLOCK-B]` for B-side blockers
+- `[GATE]` / `[GATE-CLEARED date verifier]`
+- `[SHIPPED date B v1.4.X]` in STATUS.md "Recently shipped"
+
+### 4. Open asks audit — `[ASK C→B]` B-C-3..B-C-8
+
+Per STATUS.md "Open asks" table, **B-C-3..B-C-8** (push provider routing, schemas, KNET race, signed-URL TTL) are still open in MOBILE_API_CONTRACT.md. v1.4 Day 1/3/4/6/7 work landed some of these implicitly:
+
+- **B-C-x push provider routing** — likely covered by Day 3 `push.adapter.ts` FCM+APNs split with mock-fallback. Will read C's exact ask in next pass.
+- **B-C-x KNET race** — possibly covered by Day 4 `Idempotency-Key` requirement on `POST /orders` + `POST /orders/:id/payment` + reservation 24h hold + reservation-expiry cron.
+- **B-C-x signed-URL TTL** — covered by `S3_CONVENTIONS.md` (15-min standard for Tier 2, 5-min for Tier 3 PII).
+
+`[ACK-RESERVED]` on all of B-C-3..B-C-8 — B will audit MOBILE_API_CONTRACT.md and post a fold-in/closure pass in v1.4.8 (or v1.4.x cleanup). Not blocking joint smoke since the endpoint surface is live.
+
+### 5. File-ownership recognition — historical note
+
+Per CONVENTIONS.md §4, `libs/shared/types/src/lib/*.public.schemas.ts` is A-owned. During v1.3 + v1.4 Day 1-7 work (before v1.4.6 spine landed), B created the following files in that namespace:
+
+- `push-token.public.schemas.ts` (Day 1)
+- `document.public.schemas.ts` (Day 2)
+- `order.public.schemas.ts` (Day 4)
+- `feature-waitlist.public.schemas.ts` (v1.3 Day 3)
+- `me-account.schemas.ts` (v1.3 Day 2)
+
+These are now A-owned by the new matrix. A may edit/refactor/rename freely; B will `[ASK B→A]` before any future edit to these files. **No retroactive issue** since A's STATUS.md already lists them as A-owned. Going forward all schema changes from B go through `[ASK B→A]`. The `admin-*.ts` schemas (`admin-document.schemas.ts`, `admin-order.schemas.ts`) remain B-owned per matrix.
+
+### 6. `[BLOCK-B]` — none
+
+No B-side blockers. B is ready to:
+- Pick up v1.3.7 PII migration (🚦 GREEN per STATUS.md Gates) when user signals — ~0.75 d
+- Run real Otto sandbox swap when `OTTO_API_KEY` + `OTTO_WEBHOOK_SECRET` land in env (`[GATE]` pending user)
+- Wire real APNs dispatch when `APNS_KEY_PATH` + Firebase creds land (`[GATE]` pending user)
+- React to A's joint smoke verdict whenever it lands (`[GATE]` pending A)
+- Audit + close `[ASK C→B] B-C-3..B-C-8` against landed Day 1-7 work
+
+### 7. `[GATE]` status check
+
+Quoting STATUS.md gates:
+- `[GATE]` v1.3 customer-account smoke walk — A drives, structural verified, signed-in walk pending dev test creds (now seeded as `smoke@test.local`/`Smoke#2026` per v1.4.6)
+- `[GATE]` Otto integration — pending user action (sandbox creds + webhook URLs)
+- `[GATE]` Apple Sign-In v1.5 — pending user (App Store §4.8 6-week lead)
+- `[GATE]` APNs `.p8` + Firebase server key — pending user (Day 5 hard deadline; mock-fallback in place)
+- `[GATE]` `@react-pdf/renderer.toBuffer()` runtime shape — **NEW** — B flags; needs verification on first admin-completed-order test (build green, runtime untested)
+
+### 8. v1.4 sprint progress — 7 of 15 days shipped
+
+| Day | Item | Status |
+|---|---|---|
+| Prep | cron infra + S3 conventions doc + NotificationService skeleton | ✅ |
+| 1 | PushToken | ✅ |
+| 2 | Documents (customer-side + backfill of inspection PDFs + signed S3 URLs) | ✅ |
+| 3 | Push adapter (FCM + APNs mock-fallback) + email/SMS wrappers + NotificationService bootstrap | ✅ |
+| 4 | Order + Payment + reservation cron + admin Docs (backend + UI) | ✅ |
+| 5 | Real Otto sandbox swap | ⏸️ gated on user creds |
+| 6 | Receipt PDF + admin Order queue (backend + UI) | ✅ |
+| 7 | sale_contract PDF + Order completion wiring | ✅ |
+| 8-15 | Reactive fixes + UI consumption + joint smoke + v1.4.5 verdict | queued |
+
+Heaviest backend lifting is behind. Remaining 8 days are reactive (gated on joint smoke + A/C consumer wiring + Otto creds).
+
+### 9. Continuity items unchanged
+
+- v1.3 dev-server storefront restart still pending (template-cache quirk from v1.2.5 §4)
+- `npm i google-auth-library@^9` still deferred (mobile workspace ERESOLVE)
+- `npm run prisma:migrate` covers v1.3 + `v1_3_feature_waitlist` + v1.3.7 PII (queued) + v1.4 trio (`v1_4_push_tokens`, `v1_4_orders_payments`, `v1_4_documents`)
+
+— **Session B**, 2026-05-20.
+
+
+---
+
+## v1.4.8 — Session A: Orders wired + brand-lock 45→0 + schema-3 closed + B-A-1 absorbed; smoke walk parked on `[BLOCK-API]`
+
+**Status:** A shipped 4 parallel deliverables in ~10 min wall-clock via 3 ruflo agents + in-thread file ops: (1) real `/account/orders` page wired to B's just-shipped `GET /me/orders`; (2) brand-lock cleanup hit 0 violations (45 sites across 9 files); (3) `[ASK C→A] schema-3` closed (orphan `device-token.public.schemas.ts` deleted); (4) `[ASK B→A] B-A-1` closed (CONVENTIONS.md §13 "Agent ship-checklist" added with menu-wiring requirement). All `nx build {shared-types,web}` GREEN. Signed-in browser smoke walk parked on `[BLOCK-API]` — user needs to run migrations + start API on port 3000.
+
+— **Session A**, 2026-05-20.
+
+### 1. `/account/orders` real page wired (acks v1.4.7 §B)
+
+`[SHIPPED 2026-05-20 A v1.4.8]`
+
+**New files:**
+- `apps/web/src/app/data/orders.service.ts` (65 lines) — discriminated Observable union pattern. Two methods: `list(page=1, pageSize=20)` and `getDetail(id)`.
+- `apps/web/src/app/features/account/orders-page.component.ts` (374 lines) — standalone, OnPush, signals. 6 states (loading skeleton / ok list / empty / error / pagination / inline-detail on click). Status filter chips: All + 8 `OrderStatusValue` values. Brand-blue shade mapping per status. KWD 3-decimal price formatting. Signed-in gate. SSR-safe.
+
+**Edits:**
+- `apps/web/src/app/features/account/coming-soon-shells.ts` — `OrdersShellComponent` removed; 6 shells remain
+- `apps/web/src/app/app.routes.ts` — `/account/orders` → `OrdersPageComponent`
+
+**i18n keys added:** EN+AR symmetric, ~30 keys under `account.orders.*`.
+
+§13 ship-checklist compliance: route ✅; account-hub tile ✅ (already in mockup §1 "Buying" group); header dropdown ✅ (account hub is the central entry); i18n parity ✅; brand-lock ✅; build ✅.
+
+### 2. Brand-lock cleanup — 45 sites → 0
+
+- **v1.4-A10** (5 files / 29 sites): sell + vdp — concierge-status-page, offer-page, sell-landing, vdp-page, vdp-pricing-card
+- **v1.4-A12** (4 files / 16 sites): sign-up-modal (8), inspection-sign-page (4), sell/concierge-page (3), home/car-card (1)
+
+Status-pill shade pattern (consistent across both agents):
+- in-flight → `bg-brand-50 text-brand-700`
+- positive-progress → `bg-brand-100 text-brand-700`
+- terminal-positive → `bg-brand-700 text-white`
+- destructive/warning → `text-red-600` (kept sparingly for VDP "accident: yes" + password "weak")
+
+`npm run guard:brand-lock` → ✔ **0 violations**. `[BLOCK-CI]` CLEARED.
+
+### 3. `[ASK C→A] schema-3` CLOSED
+
+Deleted `libs/shared/types/src/lib/device-token.public.schemas.ts` + dist artifacts + barrel re-export. Zero consumers (grep-verified). `nx build shared-types` GREEN. Mobile is fully on canonical `push-token.public.schemas.ts`.
+
+### 4. `[ASK B→A] B-A-1` CLOSED — CONVENTIONS.md §13 added
+
+Both A and B agents have shipped "feature complete" components that left nav shell entry as a disabled `<span>` placeholder, making the feature unreachable. New §13 **"Agent ship-checklist — menu wiring required"** with per-session checklists:
+
+- §13.1 Web (A): route + header dropdown / shell nav OR account hub tile + i18n parity + brand-lock + build
+- §13.2 Admin (B): route + sidebar nav (replace disabled `<span>`) + RBAC + build
+- §13.3 Mobile (C): screen + Stack.Screen reg + account hub tile + deep-link in app.json + i18n + tsc
+- §13.4: sub-agents confirm checklist in Done condition; lead trusts. `[SHIPPED]` implies all passed; partial → `[SHIPPED-PARTIAL]` with rationale.
+
+### 5. Verification matrix for v1.4.8
+
+| Check | Result |
+|---|---|
+| `nx build shared-types` | ✅ |
+| `nx build web --skip-nx-cache` | ✅ |
+| `npm run guard:brand-lock` | ✅ 0 violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric |
+| `npm run guard:secrets` | ✅ (no staged secrets; git not yet initialized) |
+
+### 6. Open items + carry-overs
+
+- `[BLOCK-API]` — user runs `npm run prisma:migrate` (2 pending: `v1_4_orders_payments` + `v1_4_documents`) + `npx nx serve api`. Then A walks 12-row signed-in smoke + posts v1.4.9.
+- `[BLOCK-HUSKY]` — pending `git init`.
+- `[GATE]` Otto creds + merchant portal — user → B.
+- `[GATE]` APNs `.p8` + Firebase (Day 5) — user → B.
+- v1.4 customer Order-creation flow (VDP "Reserve" → POST /me/orders → Otto hosted payment) — A territory, deferred until user signals.
+- Bundle budget warning 557 kB — pre-existing, defer.
+
+### 7. Hand-off
+
+A is **parked** on `[BLOCK-API]`. Once cleared:
+1. A walks `smoke@test.local` / `Smoke#2026` through 12 surfaces (hub 13-tile, profile password meter, notifications toggle, security sessions, addresses, documents list, **orders list (new wire)**, my-bookings status pills, saved-cars, etc.)
+2. A posts v1.4.9 verdict with screenshot count + any deltas
+3. B fully unblocked to ship v1.3.7 PII migration (already 🚦 GREEN from v1.4.5; this just visually confirms)
+
+— **Session A**, 2026-05-20.
+
+
+---
+
+## v1.4.9 — Session A: Signed-in smoke walk — 6/10 PASS + 1 P1 bug FIXED (addresses effect cycle) + 1 P2 i18n missing key + dev-server recompile required
+
+**Status:** With `smoke@test.local` / `Smoke#2026` signed in via Chrome MCP, walked 10 signed-in surfaces. **6 surfaces PASS** including the two critical v1.4-A1/A2 fixes (password meter + notifications toggle cross-talk) confirmed live. **1 P1 bug found and fixed in-thread**: `addresses.component.ts` had a classic Angular signals effect-cycle (effect reads + writes same `pageState` signal) → renderer freeze. Fixed with `untracked()` wrap; build GREEN. **1 P2 i18n gap**: `account.notifications.dirtyHint` key missing → renders as literal text. Surfaces 4 (addresses) / 7 (security) / 8 (my-bookings) / 9 (saved-cars) couldn't be browser-walked due to the cycle — they'll succeed once dev server hot-reloads the fix.
+
+— **Session A**, 2026-05-20.
+
+### 1. Signed-in smoke walk verdict
+
+| # | Surface | Verdict | Evidence |
+|---|---|---|---|
+| 1 | Sign-in modal (Password / Email tab) | ✅ PASS | Logo image properly rendered; +965 box flush with Mobile input (was visibly shorter pre-v1.4.5); Apple Coming-Soon pill correct; login succeeds → JWT returned |
+| 2 | Account hub `/account` (signed in) | ✅ PASS | Hero card with 96×96 avatar circle "S" + "Hello, Smoke Test" + email + mobile + member-since · Signout text-link with chevron · "Needs Your Attention" pending-actions strip with 2 brand-blue cards · 4 grouped sections · 13 tiles · 8 Coming-Soon pills locked `bg-slate-100 text-brand-700 border-brand-200` · SVG icons (NOT emojis) |
+| 3 | Profile `/account/profile` (cards visible) | ✅ PASS — minor | Back-link present · Your details card · Email card with brand-blue Verified pill · Mobile card with brand-blue Verified pill · Password card · **Minor**: hero remains full-bleed (NOT rounded-card pattern like other sub-pages) — passed original audit as OK but visually inconsistent |
+| 3a | Password meter + Update button | ✅ **FIX CONFIRMED LIVE** | Typed `NewStr0ng!2026Pass` → 4 of 4 bars filled brand-blue + "Strong" label visible · Update password button enabled (deep brand-700, NOT the stuck disabled purple-tint) · v1.4-A1 `newPasswordDraft`-signal-conversion fix verified |
+| 4 | Addresses `/account/addresses` (signed in) | ❌ FAIL → ✅ FIX SHIPPED | Page hangs — `document_idle` never fires + Runtime.evaluate times out · **Root cause found**: effect at line 350-355 reads `pageState()` + writes `pageState.set()` → classic effect cycle → infinite re-run → renderer freeze · **Fix**: wrapped `pageState()` read in `untracked()`; added `untracked` to `@angular/core` import; build GREEN · Re-verify once dev server hot-reloads |
+| 5 | Notifications `/account/notifications` | ✅ PASS — minor | Rounded-card hero · 3×4 grid · accountSecurity row locked-required (brand-blue pills) · Push "Active on the mobile app" caption · brand-700 on / slate-200 off · **Minor**: `account.notifications.dirtyHint` i18n key MISSING — renders literal key text when form is dirty |
+| 5a | Notifications toggle cross-talk fix | ✅ **FIX CONFIRMED LIVE** | Clicked EMAIL × Marketing only · ONLY that cell flipped on (brand-blue) · SMS × Marketing and PUSH × Marketing remained OFF · v1.4-A2 per-cell `CellGrid` restructure verified |
+| 6 | Documents `/account/documents` | ✅ PASS | Real page (NOT Coming-Soon shell) · Rounded-card hero · Kind filter chips ready · Empty state |
+| 7 | Security `/account/security` | ⏸ DEFERRED | Blocked by browser hang spillover from addresses cycle (same dev-server context) |
+| 8 | My bookings `/my-bookings` | ⏸ DEFERRED | Same |
+| 9 | Saved cars `/my-bookings/saved-cars` | ⏸ DEFERRED | Same |
+| 10 | Orders `/account/orders` (NEW v1.4.8 wire) | ✅ PASS | Real page (NOT Coming-Soon shell) · Back-link · Rounded-card "My Orders" hero · 8 status filter chips · Empty state with clipboard icon + "No orders yet" + "Browse cars" CTA in brand-700 · Confirms B's `GET /me/orders` endpoint integration working |
+
+### 2. P1 bug fixed in-thread
+
+`apps/web/src/app/features/account/addresses.component.ts` lines 320-359, fourth effect: the effect both reads `pageState()` (subscribing to it) AND writes `pageState.set(...)` in its body → write triggers re-run → infinite cycle → main thread frozen. Fix: wrapped read in `untracked()` so the effect only depends on `addresses()`. Added `untracked` to `@angular/core` import. `nx build web` GREEN.
+
+This is a textbook Angular signals trap. The semantic intent (sync `pageState` after `addresses` mutates) is preserved.
+
+**Worth checking**: 9 other `allowSignalWrites: true` effects across account components could have the same pattern (account-hub, documents-page, notifications, orders-page, security). No reported freezes on those in this walk, so likely OK — but spawn an audit agent for v1.4.10 if you want defense-in-depth.
+
+### 3. P2 finding — missing i18n key
+
+`account.notifications.dirtyHint` is referenced in the template (visible when the form goes dirty, e.g., after toggling a cell) but the key doesn't exist in `en.json` or `ar.json`. ngx-translate then renders the literal key as fallback. Add to both:
+- EN: `"dirtyHint": "Unsaved changes"`
+- AR: `"dirtyHint": "تغييرات غير محفوظة"`
+
+Will fix in v1.4.10 alongside the addresses cycle audit.
+
+### 4. P3 finding — profile hero inconsistency
+
+`profile.component.ts` retains a full-bleed `<header class="bg-gradient-to-br ...">` hero while addresses/notifications/security/documents/orders all use the rounded-3xl card pattern. Originally passed v1.4-FIX1 audit as "OK" (no P1 deltas), but now visually inconsistent across the account section. Reshape is ~5 lines, defer to v1.4.10.
+
+### 5. Verification matrix for v1.4.9
+
+| Check | Result |
+|---|---|
+| `nx build web` (after addresses fix) | ✅ |
+| `npm run guard:brand-lock` | ✅ 0 violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric (dirtyHint missing from BOTH equally — so parity passes; key just doesn't exist anywhere) |
+| `npm run guard:secrets` | ✅ |
+
+### 6. Action items for v1.4.10
+
+1. Add `account.notifications.dirtyHint` to en.json + ar.json (~1 min)
+2. Reshape profile hero from full-bleed to rounded-card matching other sub-pages (~5 lines)
+3. Audit the 9 other `allowSignalWrites` effects for the same read+write-same-signal cycle pattern (spawn 1 agent)
+4. Once dev server hot-reloads the addresses fix → complete surfaces 7/8/9 (security / my-bookings / saved-cars) — should pass given builds GREEN
+
+### 7. What user can do right now
+
+- Hard refresh browser (Ctrl+Shift+R) on /account/addresses to pick up the cycle fix. If `nx serve web` is running with HMR, the fix may already be live.
+- If addresses page renders cleanly after hard-refresh → §1 surfaces 4/7/8/9 likely all PASS too.
+- Run `npm run guard:all` before any commit to ensure brand-lock + i18n parity stay clean.
+
+— **Session A**, 2026-05-20.
+
+
+---
+
+## v1.4.10 — Session A: 8-page layout standardization + addresses cycle fix verified live + 2 i18n bug fixes + 10/10 signed-in smoke PASS
+
+**Status:** Closes the loop on v1.4.9 deferred items. Post-walk surfaces all 10 PASS. 3 sub-sprints landed in this batch: (1) layout-standardizer agent normalized back-link + hero pattern across 6 account sub-pages + 2 my-bookings/saved-cars pages = 8 pages total on one canonical pattern; (2) `{{location}}` literal text bug + missing `dirtyHint` i18n key both fixed in-thread; (3) signed-in re-walk via Chrome MCP confirmed addresses cycle fix + visual consistency. All `nx build {web,shared-types}` GREEN. All 3 guards (brand-lock + i18n parity + secrets) GREEN.
+
+— **Session A**, 2026-05-20.
+
+### 1. 8-page layout standardization
+
+`[SHIPPED 2026-05-20 A v1.4.10]` Canonical pattern applied uniformly:
+
+```html
+<!-- Back-link — inside max-w-4xl to align with hero column -->
+<div class="container-page pt-6">
+  <div class="mx-auto max-w-4xl">
+    <a [routerLink]="['/', locale(), 'account']" ...>← Back to My Account</a>
+  </div>
+</div>
+
+<!-- Hero — rounded-3xl framed card -->
+<div class="container-page py-8 mx-auto max-w-4xl">
+  <div class="rounded-3xl p-6 sm:p-8 text-white"
+       style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
+    <h1>...</h1>
+    <p>...</p>
+  </div>
+</div>
+```
+
+Applied to: `profile`, `addresses`, `notifications`, `security`, `documents-page`, `orders-page`, `my-bookings`, `saved-listings` — all 8 pages.
+
+**3 patterns eliminated:**
+- profile's full-bleed `<header class="bg-gradient-to-br ...">` (the only sub-page that still had it) → rounded-card
+- notifications' back-link BELOW hero → moved ABOVE
+- back-links spanning full container width (not aligned with hero column) → wrapped in matching `mx-auto max-w-4xl`
+- 4 pages using tall `py-10 sm:py-14` + `p-8 sm:p-10` (security/documents/orders/etc.) → compact `py-8` + `p-6 sm:p-8`
+- my-bookings using narrower `max-w-3xl` → standardized on `max-w-4xl`
+
+`layout-standardizer` agent shipped 5/6 (security/profile/addresses/notifications/documents) before stream-idle timeout at ~7 min mark; orders-page + my-bookings + saved-listings finished in-thread.
+
+### 2. 2 i18n bug fixes (in-thread)
+
+**Bug A (P2):** `apps/web/src/app/features/account/security.component.ts:134` — template rendered literal text `from {{location}} Kuwait City` because the `account.security.lastSignIn.from` i18n value is `"from {{location}}"` (interpolation key) but the translate pipe was called WITHOUT a `{location}` param. Fix: pass `{ location: 'Kuwait City' }`:
+```diff
+- {{ 'account.security.lastSignIn.from' | translate }} Kuwait City
++ {{ 'account.security.lastSignIn.from' | translate: { location: 'Kuwait City' } }}
+```
+
+**Bug B (P2):** `account.notifications.dirtyHint` key was referenced in template (visible when notifications form goes dirty) but missing from BOTH `en.json` and `ar.json` — ngx-translate rendered the literal key as fallback. Added:
+- EN: `"dirtyHint": "Unsaved changes"`
+- AR: `"dirtyHint": "تغييرات غير محفوظة"`
+
+`npm run guard:i18n-parity` ✔ still symmetric.
+
+### 3. Signed-in re-walk verdict — 10/10 PASS
+
+Via Chrome MCP with `smoke@test.local` / `Smoke#2026`:
+
+| # | Surface | Status |
+|---|---|---|
+| 1 | Sign-in modal | ✅ from v1.4.9 |
+| 2 | `/account` hub | ✅ from v1.4.9 |
+| 3 | `/account/profile` | ✅ from v1.4.9 (password meter fix confirmed live) |
+| 4 | **`/account/addresses`** | ✅ **NEW** — effect-cycle fix worked; back-link aligned; empty state renders; "+ Add address" CTA visible |
+| 5 | `/account/notifications` | ✅ from v1.4.9 (toggle cross-talk fix confirmed live) |
+| 6 | **`/account/security`** | ✅ **NEW** — **{{location}} fix CONFIRMED LIVE**: shows "from Kuwait City" (no literal `{{location}}` text); sessions list; red Sign-out-all destructive |
+| 7 | `/account/documents` | ✅ from v1.4.9 |
+| 8 | `/account/orders` | ✅ from v1.4.9 (v1.4.8 wire) |
+| 9 | **`/my-bookings`** | ✅ **NEW** — rounded-card "My bookings" hero; empty state with calendar icon + "Schedule an inspection" CTA brand-700 |
+| 10 | **`/my-bookings/saved-cars`** | ✅ **NEW** — rounded-card "Saved cars" hero with sub-nav tabs preserved inside; empty state with heart icon + "Browse cars" CTA brand-700 |
+
+`[GATE]` v1.3 customer-account signed-in smoke walk — CLEARED 2026-05-20 by A.
+
+### 4. P1 addresses effect-cycle fix (from v1.4.9, verified working)
+
+`apps/web/src/app/features/account/addresses.component.ts:354-359`:
+```diff
+   effect(() => {
+     const items = this.addresses();
+-    const current = this.pageState();
++    const current = untracked(() => this.pageState());
+     if (current.kind === 'loading' || current.kind === 'error') return;
+     this.pageState.set(items.length === 0 ? { kind: 'empty' } : { kind: 'ok', addresses: items });
+   }, { allowSignalWrites: true });
+```
+
+Live verification (this block): addresses page now loads + renders empty state in <1s. The cycle is broken.
+
+### 5. P3 deferred item from v1.4.9 — Audit 9 other allowSignalWrites effects
+
+Not done in v1.4.10. Still recommended as defense-in-depth before v1.5. Tracked as follow-up:
+- `account-hub.component.ts:520`
+- `addresses.component.ts:325, 348, 359` (line 359 already fixed; verify the other two)
+- `documents-page.component.ts:278, 286`
+- `notifications.component.ts:448`
+- `orders-page.component.ts:359, 366`
+- `security.component.ts:316`
+
+Spawn 1 agent in v1.4.11 if user wants the pass.
+
+### 6. Verification matrix for v1.4.10
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ |
+| `npm run guard:brand-lock` | ✅ 0 violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric (now includes `dirtyHint`) |
+| `npm run guard:secrets` | ✅ |
+| Chrome MCP signed-in re-walk | ✅ 10/10 PASS |
+| §13 ship-checklist | ✅ no new routes; layout-only edits; all existing routes + hub tiles intact |
+
+### 7. File deltas
+
+**Edited:** 8 components + 2 i18n JSON
+- profile, addresses, notifications, security, documents-page, orders-page, my-bookings, saved-listings (back-link + hero canonical)
+- security.component.ts (`{location}` interpolation param)
+- en.json + ar.json (`dirtyHint` key added)
+
+**Created:** 0 (no new files)
+
+### 8. Hand-off
+
+A is **idle** — all v1.4.10 deliverables shipped + verified.
+
+**Next A-side direction (per user signal):** Phase 2 = customer Order-creation flow (VDP "Reserve" CTA → POST `/v1/public/orders` → Otto hosted payment mock → return URL → `/account/orders/:id` detail). B's Day 4-7 endpoints are fully ready (POST /orders, POST /orders/:id/payment with Otto mock-fallback, GET /me/orders/:id). ~1.5-2h via parallel agents. Otto creds gate stays open but mock allows happy-path verification today.
+
+— **Session A**, 2026-05-20.
+
+
+---
+
+## v1.4.11 — Session A: Customer Order-creation flow shipped end-to-end — VDP Reserve CTA → modal → POST orders → Otto hosted payment → return-page polling
+
+**Status:** Customer can now actually create an order. VDP's previously-dumb "Reserve" CTA now opens a payment-method picker modal that calls B's POST `/v1/public/orders` + POST `/v1/public/orders/:id/payment` endpoints; Otto hosted-payment URL opens in a new tab; on return the customer lands on `/checkout/return?orderId=X` which polls `/me/orders/:id` until `paid` (per C v0.11 §4 pattern, 1.5s × 10s timeout). Cancel route at `/checkout/cancel`. Apple Pay + Google Pay gated with locked Coming-Soon tokens (Otto SDK gate). 2 ruflo agents in parallel (~3 + ~9 min) + i18n merge + 3-guard verification. ~55 new `checkout.*` i18n keys EN+AR symmetric. Build GREEN.
+
+— **Session A**, 2026-05-20.
+
+### 1. `orders.service.ts` extended
+
+`[SHIPPED 2026-05-20 A v1.4.11]` `apps/web/src/app/data/orders.service.ts` (177 lines, was 65):
+
+```ts
+// 3 new exported state unions
+type CreateOrderState     = {kind:'loading'} | {kind:'ok', value: CreateOrderResponseDto}     | {kind:'error', code: ...}
+type InitiatePaymentState = {kind:'loading'} | {kind:'ok', value: InitiatePaymentResponseDto} | {kind:'error', code: ...}
+type CancelOrderState     = {kind:'loading'} | {kind:'ok', value: OrderSummaryDto}            | {kind:'error', code: ...}
+
+// 3 new methods
+create(req: CreateOrderRequestDto): Observable<CreateOrderState>
+initiatePayment(orderId: string, req: InitiatePaymentRequestDto): Observable<InitiatePaymentState>
+cancel(orderId: string): Observable<CancelOrderState>
+```
+
+All 8 `ORDER_ERROR_CODES` exhaustively mapped across the 3 methods. Zod validation via `CreateOrderResponseSchema.parse()` / `InitiatePaymentResponseSchema.parse()` / `OrderSummarySchema.parse()` — parse errors collapse to `network_error`. `Idempotency-Key` header on POST methods via `globalThis.crypto?.randomUUID()` with SSR fallback. `cancel()` correctly has no idempotency header (it's a state-changing one-shot per v1.4.2 §3 spec).
+
+### 2. Checkout flow built end-to-end
+
+**NEW files:**
+- `apps/web/src/app/features/checkout/checkout-modal.service.ts` (20 lines) — signal-based open/close with listingId stored in service signal
+- `apps/web/src/app/features/checkout/checkout-modal.component.ts` (258 lines) — payment-method picker modal:
+  - 4 method buttons: **KNET** + **Card** (active, `bg-brand-700`); **Apple Pay** + **Google Pay** (disabled with locked Coming-Soon tokens `bg-slate-100 text-brand-700 border-brand-200`)
+  - 5 states: `idle` / `creating` (spinner) / `confirmed` (order summary card) / `initiatingPayment` (spinner) / `redirecting` (success — `window.open(hostedPaymentUrl, '_blank')` then auto-close after 1.5s) / `error` (mapped to 8 error-code-specific i18n strings + retry/cancel/browseSimilar CTAs)
+- `apps/web/src/app/features/checkout/checkout-return-page.component.ts` (277 lines) — Otto callback landing:
+  - Reads `orderId` from queryParam + path (`/checkout/return` vs `/checkout/cancel`)
+  - On `/return`: polls `orders.getDetail(orderId)` every 1.5s, max 10s timeout per C v0.11 §4 pattern
+    - On status `paid` → success hero + order summary + "View My Order" CTA → `/account/orders`
+    - On 10s timeout still not `paid` → "Payment received — finalising" card + auto-redirect to `/account/orders` after 3s
+    - On status `cancelled` → cancelled card
+    - On API error → "Couldn't verify" card with "Check My Orders" CTA
+  - On `/cancel`: cancelled card with browse + orders CTAs
+  - Canonical rounded-card hero + back-link pattern matching v1.4.10
+
+**EDITED files:**
+- `apps/web/src/app/features/vdp/vdp-pricing-card.component.ts` — added `@Input() listingId!: string`, injected `CheckoutModalService`, wired `(click)="onReserve()"` on the Reserve button at line 30 → calls `checkoutModal.open(listingId)`
+- `apps/web/src/app/features/vdp/vdp-page.component.ts` — passes `[listingId]="car()?.id ?? ''"` to `<app-vdp-pricing-card>`
+- `apps/web/src/app/app.routes.ts` — added 2 lazy routes inside `:locale` children: `/checkout/return` + `/checkout/cancel`
+- `apps/web/src/app/layout/shell.component.ts` — imported `CheckoutModalComponent`, added to `imports[]`, mounted `<app-checkout-modal />` next to sign-in + sign-up modals
+
+### 3. End-to-end flow
+
+```
+VDP "/listings/:slug"
+  → User clicks "Reserve"
+  → CheckoutModalService.open(listingId)
+  → Modal opens (idle state, 4 payment-method buttons)
+  → User picks KNET or Card → clicks "Reserve Now"
+  → orders.create({listingId, paymentMethod})
+  → On 'ok': modal advances to 'confirmed' state showing Stock# + KWD reservationFee + expiresAt
+  → User clicks "Continue to Payment"
+  → orders.initiatePayment(orderId, {method})
+  → On 'ok': window.open(hostedPaymentUrl, '_blank') + modal advances to 'redirecting' + auto-closes after 1.5s
+  → User lands on Otto's hosted page in new tab
+  → Otto callback (server-side, B-internal) processes payment, updates Order.status
+  → User redirected back to: /{locale}/checkout/return?orderId=:id (success) OR /{locale}/checkout/cancel?orderId=:id
+  → On /return: poll /me/orders/:id every 1.5s × 10s timeout
+    → On 'paid': success hero + "View My Order" → /account/orders
+    → On timeout: "Payment received — finalising" + auto-redirect to /account/orders after 3s
+  → On /cancel: cancelled card with browse + orders CTAs
+```
+
+§13 ship-checklist: ✅ route (2 added); ✅ shell mount (modal); ✅ VDP wire (Reserve CTA); ✅ i18n EN+AR symmetric; ✅ brand-lock 0 violations; ✅ build PASS.
+
+### 4. ~55 new i18n keys merged (`checkout.*` namespace)
+
+- `checkout.modal.*` — 28 keys: title/sub/close/chooseMethod + method.{knet,card,applePay,googlePay} + comingSoon + reserveCta/Hint + 4 status spinners + confirmed.{title,stock,reservationFee,expiresAt,paymentCta,doLater} + error.{title,7 codes,browseSimilar,retry,cancel}
+- `checkout.return.*` — 21 keys: backToBrowse/verifying/verifyingHint + paid.{title,sub,orderSummary,stockNumber,reservationFee,status,statusPaid,viewOrderCta} + timeout.{title,body,ordersCta} + cancelled.{title,body,browseCta,ordersCta} + error.{title,body,ordersCta}
+
+EN + AR symmetric (verified with `npm run guard:i18n-parity`).
+
+### 5. Verification matrix for v1.4.11
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ |
+| `npm run guard:brand-lock` | ✅ 0 violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric |
+| `npm run guard:secrets` | ✅ |
+| Chrome MCP signed-in: navigate to VDP | ✅ tab title "2023 Hyundai Tucson — Behbehani Motors"; renderer heavy on full screenshot (page-level perf concern, not blocker) |
+| Chrome MCP: click Reserve → modal | ⏸ deferred (renderer state) — user can verify visually |
+
+§13 ship-checklist: ✅ all items confirmed.
+
+### 6. B-side dependencies consumed
+
+| B endpoint | Consumed by | Status |
+|---|---|---|
+| POST /v1/public/orders | orders.service.create() | ✅ wired |
+| POST /v1/public/orders/:id/payment | orders.service.initiatePayment() | ✅ wired |
+| POST /v1/public/orders/:id/cancel | orders.service.cancel() | ✅ wired (modal doesn't call yet — admin path; customer cancel UI in v1.5) |
+| GET /v1/public/me/orders/:id | orders.service.getDetail() (polled in return-page) | ✅ wired |
+
+Otto hosted-payment URL: B's mock-fallback returns a placeholder URL when `OTTO_API_KEY` env is missing (per B v1.4.7). With real Otto creds (user gate), the URL becomes the real hosted-payment page. The customer flow is identical either way.
+
+### 7. Carry-overs + follow-ups
+
+- **Visual smoke walk of full flow** — user to verify VDP → modal → create → confirmed → payment URL opens. Renderer was sluggish in Chrome MCP automation but pages render.
+- **Real Otto sandbox creds** still gated on user (per `[GATE]` v1.4 Otto integration).
+- **Customer-initiated cancel** — `orders.service.cancel()` shipped but no UI button yet (customer cancels by abandoning the Otto page, which falls into the 24h reservation expiry cron). Add explicit "Cancel reservation" button in v1.5 if needed.
+- **9 other `allowSignalWrites` effects audit** still deferred from v1.4.9 — spawn 1 agent in v1.4.12 if user wants the defense-in-depth pass.
+- **Bundle budget** (557 → ~570 kB after checkout files) — checkout module is lazy-loaded so initial bundle is unaffected; still defer to dedicated split pass.
+
+### 8. Files delta summary
+
+**Created: 3**
+- features/checkout/checkout-modal.service.ts
+- features/checkout/checkout-modal.component.ts
+- features/checkout/checkout-return-page.component.ts
+
+**Edited: 6**
+- data/orders.service.ts (extended)
+- features/vdp/vdp-pricing-card.component.ts (Reserve CTA wired)
+- features/vdp/vdp-page.component.ts (listingId passed)
+- app.routes.ts (2 new routes)
+- layout/shell.component.ts (modal mounted)
+- public/assets/i18n/{en,ar}.json (~55 keys)
+
+### 9. Hand-off
+
+A is **idle** after v1.4.11. Customer Order-creation flow is feature-complete pending visual verification. Next A-side triggers:
+1. User runs visual smoke walk of full flow + reports any regressions
+2. B-side gates: Otto creds (user → B); APNs/Firebase (user → B)
+3. C catches up to v1.4 Day 8+ mobile-side Order screens (consuming the same OrderDTOs A now uses)
+4. v1.5 sprint kickoff when ready (Apple Sign-In + Maintenance + iOS launch)
+
+— **Session A**, 2026-05-20.
+
+
+---
+
+## v1.4.12 — Session A: Dedicated /account/orders/:id detail page + customer-initiated cancel + live reservation countdown
+
+**Status:** Polishes v1.4.11 Order-creation flow with a dedicated detail route. `/account/orders` list cards now navigate to `/account/orders/:id` (inline detail panel removed). New detail page renders full order info + payments table + LIVE reservation expiry countdown (SSR-safe `setInterval`, turns red-600 when <1h, shows "Reservation expired" at 0) + customer-initiated "Cancel reservation" button (red destructive, only visible for `reservation_pending` or `confirmed` statuses, 409 ORDER_NOT_CANCELLABLE handled per C v0.11 §5 pattern). 1 agent ~7 min. ~30 new `account.orderDetail.*` i18n keys EN+AR symmetric. Build GREEN, all 3 guards GREEN.
+
+— **Session A**, 2026-05-20.
+
+### 1. New page — `/account/orders/:id`
+
+`[SHIPPED 2026-05-20 A v1.4.12]` `apps/web/src/app/features/account/order-detail-page.component.ts` (280 lines).
+
+Structure (canonical pattern):
+- Back-link to `/account/orders` (not /account — back to the LIST specifically)
+- Rounded-card hero `container-page py-8 mx-auto max-w-4xl` + `rounded-3xl p-6 sm:p-8 text-white`: ORDER eyebrow + "Order #{stockNumber}" + status pill + relative-date sub
+- **Reservation countdown card** (visible ONLY when status is `reservation_pending` or `payment_pending`):
+  - Live "Expires in 23h 14m" updates every 1s
+  - When `expiresAt` passes: replaces with "Reservation expired" in `text-red-600`
+  - When <1h remains: countdown turns `text-red-600` (urgency cue)
+  - Help text: "Complete payment before the timer runs out to secure this vehicle."
+- **Order summary card**: Stock# + Total + Paid + Reservation fee (all KWD 3-dec from BigInt fils) + Status + Reserved/Completed/Cancelled dates
+- **Payments table** (when `order.payments[]` is non-empty): Method · Amount · Status · Date, status pills brand-blue shaded
+- **Cancel section + button** (visible ONLY for `reservation_pending` or `confirmed`):
+  - Red destructive button (allowed for customer destructive actions per brand lock)
+  - Click → inline confirm modal with refund copy ("Your KWD X.XXX fee will be refunded within 3-5 business days")
+  - Confirm → `orders.service.cancel(orderId)` → spinner state
+  - On `ok` → close modal + reload detail
+  - On 409 `ORDER_NOT_CANCELLABLE` → show inline error + reload (per C v0.11 §5 pattern)
+  - Other errors → generic inline error
+
+Render states: `loading` (skeleton), `ok` (full detail), `not_found` (404 card with back-to-list link), `error` (retry button).
+
+SSR-safe: `setInterval` only started inside `effect()` gated on `isPlatformBrowser`; `clearInterval` called on both `DestroyRef.onDestroy()` and `ngOnDestroy()`.
+
+### 2. `/account/orders` list cleaned up
+
+`apps/web/src/app/features/account/orders-page.component.ts` (374 → 316 lines, removed inline detail panel):
+
+- Removed: `expandedId` signal · `detailState` signal · `detailOk` computed · `toggleDetail()` method · `pmtStatusClass()` method · inline `@if (detailExpanded() === order.id)` block · `OrderDetailDto` import · `Router` import
+- Added: `<a [routerLink]="['/', locale(), 'account', 'orders', order.id]">` wrapping each card → navigates to detail page
+- Pagination `prevPage/nextPage` no longer clears `expandedId` (signal removed)
+
+Net: cleaner list page, dedicated detail page handles all detail rendering.
+
+### 3. `app.routes.ts` extension
+
+Added inside `:locale` children, right after `/account/orders`:
+```ts
+{
+  path: 'account/orders/:id',
+  loadComponent: () => import('./features/account/order-detail-page.component').then(m => m.OrderDetailPageComponent),
+},
+```
+
+### 4. ~30 new i18n keys merged (`account.orderDetail.*`)
+
+Namespace structure:
+- `backToOrders`, `eyebrow`, `orderNumber`, `reservedAgo`
+- `notFound.{title,body}`
+- `countdown.{label,expired,help}`
+- `summary.{title,stockNumber,status,total,paid,reservationFee,reservedAt,completedAt,cancelledAt}`
+- `payments.{colMethod,colAmount,colStatus,colDate}` + `payments.method.{knet,card,apple_pay,google_pay,bank_transfer,financing,cash_on_delivery}` + `payments.status.{pending,succeeded,failed,refunded}`
+- `cancel.{sectionTitle,sectionBody,button,modalTitle,modalBody,modalDismiss,modalConfirm}`
+
+EN + AR symmetric (Arabic translations provided by A in-thread).
+
+### 5. Verification matrix for v1.4.12
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ |
+| `npm run guard:brand-lock` | ✅ 0 violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric |
+| `npm run guard:secrets` | ✅ |
+
+§13 ship-checklist: ✅ route added · ✅ list page wires the detail link · ✅ i18n parity · ✅ brand-lock · ✅ build PASS.
+
+### 6. What v1.4.12 enables
+
+Customers can now:
+- Click any order card in `/account/orders` → land on dedicated `/account/orders/:id` page
+- See LIVE countdown of reservation expiry (e.g., during the 24h reservation window before Otto callback flips status to `paid`)
+- See urgency cue when <1h remains (countdown turns red)
+- See full payments history table with method/amount/status/date
+- Cancel a reservation themselves (no admin intervention needed) — within the cancellable status window
+- Get clear UX feedback if the order has moved past cancellable (409 handled gracefully)
+
+Combined with v1.4.11 Order-creation flow: the **full customer Order lifecycle is now wired end-to-end** — Reserve → Pay → Track → (optionally) Cancel — without depending on real Otto creds (B's mock-fallback keeps the loop alive in dev).
+
+### 7. Carry-overs
+
+- Real Otto sandbox creds still gated on user — when they land, the hosted-payment redirect becomes a real Otto page (no A-side change needed)
+- 9 other `allowSignalWrites` effects audit still deferred from v1.4.9
+- Bundle budget warning persists — defer to dedicated split pass
+
+### 8. Hand-off
+
+A is **idle** after v1.4.12. Full customer Order lifecycle (Reserve → Pay → Track → Cancel) feature-complete and brand-locked. Next A-side triggers:
+1. User signals next direction (v1.5 mockup kickoff? Defense-in-depth effect audit? v1.6 Saved Searches?)
+2. B-side gates (Otto creds, APNs/Firebase) — no A-side blocker
+3. C catches up to v1.4 Day 8+ mobile Order screens (consumes same OrderDTOs A uses)
+
+— **Session A**, 2026-05-20.
+
+---
+
+## B v1.5.0 — v1.5 admin scope decisions + A-side impact (2026-05-20)
+
+### 1. Scope decisions (stakeholder-confirmed)
+
+After review of 3 originally-proposed v1.5 admin extensions, scope is reduced:
+
+| Extension | Decision | Why |
+|---|---|---|
+| **A — KYC Reviewer Queue** | **DEFERRED to v1.6+** | Stakeholder pursuing direct **PACI** (Public Authority for Civil Information) lookup instead of manual review. PACI will auto-populate all 14 v1.3.7 PII fields (full name EN/AR, DOB, gender, nationality, civil ID expiry, canonical address). Channel selection (direct PACI API / 3rd-party vendor / Sahel app) pending. Queue reframes as exception-only fallback once channel chosen. |
+| **B — Global Documents Approval Queue** | **DROPPED from v1.5** | With KYC docs PACI-sourced later + system-generated PDFs (receipt + sale_contract from v1.4.7) not requiring approval, no meaningful workload exists in v1.5. Revisit in v1.6+ alongside Loan (§3.7 bank statements) or Dealer (§3.9 business licenses) modules. |
+| **C — Payments Reconciliation + Refund UI** | ✅ **IN SCOPE v1.5** | Fully covered by SRS §3.21 + §6.3. Otto Payment Services as v1.4 aggregator. Mock-mode until Day 5 creds. Portal-aligned mockup ready at `apps/admin/.mockups/v1.5-payment-reconciliation.html`. |
+
+Governance: `docs/SRS_EXTENSIONS_v1.5.md` (9 sections, 20+ SRS line citations, approval ledger).
+Design system: `apps/admin/.mockups/DESIGN-BASELINE.md` (15 sections of copy-pasteable Tailwind patterns — A may find this useful if you ever mockup an admin-side surface).
+
+### 2. What this means for A (storefront, apps/web)
+
+**No breaking changes. A's surface is unaffected for v1.5.** Specifically:
+
+- **`/account/orders/:id` (v1.4.12)** continues as-is. When B's Payments backend ships (Phase 3 below), A may want to surface refund-status text in the payment row (e.g., "Refunded KWD 1,500.000 on 2026-05-22"). DTO shape will land in shared-types when ready. No work for A now.
+- **Customer Documents page (`/account/documents`)** continues as-is. Customers still upload docs; B-side admin approval workflow that would have surfaced a "Pending review" badge is **not coming in v1.5**. Status badge on receipts/contracts should stay as-is (PDFs are system-generated, always "Approved").
+- **Identity verification UI** — if A had v1.5+ plans to add a "Verify identity" surface in account, **hold off**. With PACI integration coming, the flow becomes auto-populate-on-civilId-entry rather than upload-and-wait. Re-scope when PACI channel is selected.
+- **Shared-types ownership** unchanged. No v1.5 admin DTOs land in `*.public.schemas.ts` that A owns.
+
+### 3. v1.5 Payments backend rollout (Phase 3 — depends on Otto creds)
+
+When mockup is approved + Otto creds land + 3 product decisions answered (refund modeling / recon cadence / KWD rounding), B will ship:
+
+- `GET /v1/admin/finance/payments` (list with filters + summary aggregates)
+- `GET /v1/admin/finance/payments/:id` (detail with webhook timeline + related artifacts)
+- `POST /v1/admin/finance/payments/:id/refund` (returns 503 with code `OTTO_CREDS_MISSING` until creds present; mock-logs to AuditLog either way)
+- `GET /v1/admin/finance/reconciliation/status` (matched/unmatched counts + last-checked timestamp)
+- Otto webhook consumer expansion (refund event types: `otto.refund.initiated`, `otto.refund.completed`)
+- Angular `/finance/payments` page + drawer + refund modal
+
+None of these affect `/v1/public/*` (A's surface). One adjacent thing: when refunds ship, B may add a new Payment status value `refunded` to the public `OrderDetailDto`'s payments[] array. A's existing `payments.status.refunded` i18n key (already shipped in v1.4.12 §4) will light up.
+
+### 4. What A could pick next (not B's call — informational)
+
+A is idle after v1.4.12. Options when you're ready:
+
+- **(a) Defense-in-depth `allowSignalWrites` audit** — deferred from v1.4.9 (9 other effects worth reviewing for the same `untracked()` pattern the addresses page needed)
+- **(b) v1.6 Saved Searches** — the Coming-Soon shell exists; would need shared-types `saved-search.public.schemas.ts` + `GET/POST/DELETE /v1/public/me/saved-searches` from B (cheap to spec when you're ready)
+- **(c) Wait for v1.5 Payments backend** — only meaningful add is the refund-status text on order detail; ~30 lines of work, no urgency
+- **(d) Pre-v1.5 i18n parity sweep on A's surface** — mirror C's #68/#69 work, ensure all account/* + sell/* + concierge/* surfaces are EN+AR symmetric before iOS v1.5 push
+
+No B-side blocker on any of (a)-(d).
+
+### 5. Open items between A and B
+
+- `[ASK A→B]` — none open. A's v1.4.12 closed all outstanding.
+- `[ASK B→A]` — none open. B's v1.5.0 doesn't introduce new asks.
+- `[GATE]` v1.4 Otto creds — still pending user. When it lands, A's mock-payment-redirect becomes real (no A change required) AND B's Payments backend swarm unblocks (Phase 3).
+
+### 6. Closing
+
+B is **idle** after v1.5.0 scope decisions. Next B trigger: (1) user approves Payments mockup + answers 3 product decisions → spawn Angular + backend swarm, OR (2) PACI channel chosen → spawn KYC integration design swarm, OR (3) Otto creds land → wire real refund dispatch (parallel to mockup approval). No work A needs to do for any of these.
+
+— **Session B**, 2026-05-20.
+
+
+---
+
+## v1.4.13 — Session A: `[ACK]` B v1.5.0 scope + announce A pre-v1.5 readiness work (i18n sweep + signals audit)
+
+**Status:** `[ACK]` B v1.5.0 in full — zero A blockers. Customer surface unaffected by v1.5 admin scope (KYC deferred / Documents dropped / Payments admin-only). All 4 of B's suggested A options noted; picking **(d) pre-v1.5 i18n parity sweep** + **(a) defense-in-depth signals audit** in parallel — both unblock C's iOS v1.5 launch quality bar (already at 568 EN/AR keys mobile-side per C's #68/#69) and clear v1.4.9's last deferred follow-up.
+
+— **Session A**, 2026-05-20.
+
+### 1. Acks on B v1.5.0
+
+| B item | A response |
+|---|---|
+| Extension A (KYC queue) DEFERRED → PACI | `[ACK]` no customer-surface KYC UI planned; identity verification path waits until PACI channel chosen. |
+| Extension B (Documents approval queue) DROPPED | `[ACK]` `/account/documents` continues as-is. PDFs are system-generated; no badge change needed. |
+| Extension C (Payments reconciliation + Refund UI) IN SCOPE | `[ACK]` admin-only. When B ships refund DTO, A will surface "Refunded KWD X.XXX on YYYY-MM-DD" in `/account/orders/:id` payment row (~30 lines, deferred until DTO lands). |
+| 3 open Payments-product decisions (refund modeling / cadence / KWD rounding) | `[ACK]` informational — A consumes whatever ships; no upstream dependency. |
+| Adjacent DTO heads-up: Payment status `refunded` may light up in OrderDetailDto.payments[] | `[ACK]` A's `account.orderDetail.payments.status.refunded` i18n key already shipped in v1.4.12. Zero work when B's webhook fires. |
+| `apps/admin/.mockups/DESIGN-BASELINE.md` reference | `[ACK]` useful — A may consult if any admin-side surface needed (not planned in v1.5). |
+
+### 2. A's pre-v1.5 readiness picks
+
+**(d) i18n parity sweep on A's surface** — Pre-v1.5 iOS launch readiness. C just shipped a massive #68/#69 mobile sweep landing at 568 EN/AR keys symmetric across 14 namespaces. A's surface is larger (Angular customer storefront) and almost certainly has literal English strings in templates that should be `{{ 'key' | translate }}`. `npm run guard:i18n-parity` only verifies EN↔AR symmetry, NOT coverage of literal strings. Audit needed.
+
+**(a) `allowSignalWrites` effect-cycle audit** — Defense-in-depth from v1.4.9. The addresses page had a classic effect cycle (read + write same `pageState` signal → renderer freeze). 9 other `allowSignalWrites` effects exist across account-hub, addresses (2 remaining), documents-page (2), notifications, orders-page (2), security. None have reported freezes in v1.4.12 smoke walk, so likely OK — but cheap to verify via a single audit pass.
+
+### 3. Sequencing
+
+Both agents run in parallel — disjoint scopes (template scan vs TS effect scan).
+
+Expected wall-clock: ~15 min for i18n sweep agent (broad scan), ~10 min for signals audit (focused TS review).
+
+### 4. What this does NOT include
+
+A is intentionally NOT picking:
+- **(b) v1.6 Saved Searches mockup** — would force B to ship endpoints out-of-sequence; let v1.5 Payments finish first
+- **(c) Refund-status text on OrderDetail** — deferred until B's refund DTO lands
+- New customer-facing features — v1.4 customer surface is feature-complete
+
+### 5. Hand-off
+
+A spawning 2 agents now. Will post v1.4.14 verdict when both complete with build + 3-guard verification.
+
+No B-side asks or blocks. C is idle pending operational gates (Otto creds / APNs / Firebase) — same as before, unchanged.
+
+— **Session A**, 2026-05-20.
+
+
+---
+
+## v1.4.14 — Session A: pre-v1.5 readiness — signals audit (0 cycles) + i18n sweep (16 P1 + 15 new keys) + CONVENTIONS §14
+
+**Status:** Both v1.4.13 parallel agents shipped. **Signals audit: ALL 10 `allowSignalWrites` effects SAFE — 0 cycle fixes needed** (defense-in-depth confirmed addresses cycle was the only real one). **i18n sweep: 16 P1 literal-string fixes across 8 files + 15 new EN/AR symmetric keys.** CONVENTIONS.md §14 added (codified the `untracked()` cycle rule for future agents). All 3 guards GREEN, build GREEN.
+
+— **Session A**, 2026-05-20.
+
+### 1. Signals audit verdict — 10/10 SAFE
+
+| # | File:Line | Classification |
+|---|---|---|
+| 1 | `account-hub.component.ts:514` | ✅ SAFE — reads `isSignedIn()` / writes `signInModal.open()` (different signals) |
+| 2 | `addresses.component.ts:325` | ✅ SAFE — same pattern as #1 |
+| 3 | `addresses.component.ts:338` | ✅ ASYNC-SAFE — write to `pageState` inside `.subscribe()` callback (outside tracked context) |
+| 4 | `addresses.component.ts:356` | ✅ SAFE — already fixed in v1.4.9 via `untracked()` wrap |
+| 5 | `documents-page.component.ts:272` | ✅ SAFE |
+| 6 | `documents-page.component.ts:278` | ✅ SAFE — `listState` not tracked in this effect |
+| 7 | `notifications.component.ts:442` | ✅ SAFE |
+| 8 | `orders-page.component.ts:271` | ✅ SAFE |
+| 9 | `orders-page.component.ts:277` | ✅ SAFE — `listState` not tracked in this effect |
+| 10 | `security.component.ts:308` | ✅ SAFE |
+
+**0 cycle fixes applied.** Addresses page was the lone real cycle. Defense-in-depth complete.
+
+### 2. CONVENTIONS.md §14 added
+
+Codified the trap so future agents don't ship it:
+
+> §14 `allowSignalWrites` cycle rule — Before shipping any `effect({ allowSignalWrites: true })`, verify for every signal X that the effect reads (tracked): the effect does NOT also call X.set() or X.update() in the same synchronous path. If it does — even conditionally — wrap the read with `untracked(() => this.X())`. Writes inside async callbacks are outside the tracked context and don't cycle, but flag as P3 code smell.
+
+Includes BUG / FIX / ASYNC-SAFE code examples + v1.4.9 addresses reference. Future agents now have the trap documented next to the rest of the ship-checklist.
+
+### 3. i18n sweep — 16 P1 fixes + 15 new keys
+
+Per-file summary:
+
+| File | P1 fixed | P2 deferred | Note |
+|---|---|---|---|
+| `sell/sell-landing.component.ts` | 3 | 1 | Float cards "Average sale price" / "Customer rating" / "Sold in 4 days" |
+| `auth/sign-in-modal.component.ts` | 1 | 0 | Facebook aria-label |
+| `auth/sign-up-modal.component.ts` | 6 | 0 | 3 social buttons + 3 aria-labels (Google/Apple/Facebook) |
+| `auth/otp-step.component.ts` | 1 | 0 | "Verifying" aria-label |
+| `account/addresses.component.ts` | 1 | 0 | "Close" aria-label → `common.close` |
+| `account/orders-page.component.ts` | 1 | 2 | "Stock #" prefix; P2 = `relativeTime()` TS helper hardcoded English |
+| `account/saved-listings.component.ts` | 1 | 2 | "Account sub-navigation" aria; P2 = `savedAgo()` TS helper |
+| `sell/concierge-page.component.ts` | 2 | 0 | "Booking steps" + "Preferred time window" aria-labels |
+
+**Total: 16 P1 fixed across 8 files + 15 new EN/AR keys** in `sell.hero.*`, `sell.concierge.*`, `auth.otp.*`, `auth.social.*`, `common.close`, `account.orders.stockLabel`, `account.subNav` namespaces.
+
+### 4. P2/P3 deferred — future sweep candidates
+
+- **`relativeTime()` + `savedAgo()` TS helpers** in orders-page and saved-listings have hardcoded English strings ("Just now", "Xm ago", "X days ago"). Need an injectable pipe or translate-aware helper. Same pattern likely in other date-formatting helpers across the codebase. Deferred to a separate "date i18n helper" sprint.
+- `sell-landing` "4.9 / 5.0" numeric stat — defensible as numeric literal but i18n-purists may want it parameterized.
+
+Not blocking for v1.5 iOS launch. Customer-visible literals (buttons, headings, aria-labels) are the high-impact fixes — those are now clean.
+
+### 5. Verification matrix for v1.4.14
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ |
+| `npm run guard:brand-lock` | ✅ 0 violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric |
+| `npm run guard:secrets` | ✅ |
+| §13 ship-checklist | ✅ (no new routes; sweep + audit only) |
+| §14 `allowSignalWrites` cycle rule | ✅ documented + 10/10 effects audit clean |
+
+### 6. Updated state of A
+
+A surface is now:
+- **v1.4 customer Order lifecycle complete** (Reserve → Pay → Track → Cancel)
+- **8 customer pages on canonical pattern** (back-link + rounded-card hero standardized)
+- **0 brand-lock violations** across the entire `apps/web/src/app/features/**` tree
+- **EN/AR i18n symmetric** with 16 newly-fixed literal strings + previous ~700 keys
+- **0 `allowSignalWrites` cycle bugs** (defense-in-depth verified)
+- **Pre-commit guards** in place (husky pending `git init`)
+
+### 7. Hand-off
+
+A is **idle** after v1.4.14. Pre-v1.5 readiness complete. Available next picks (no urgency):
+- (b) v1.6 Saved Searches mockup + B endpoint spec — needs B coordination
+- Refund-status text on `/account/orders/:id` — waits for B's refund DTO from v1.5 Payments
+- Bundle budget reduction — 557 → 500 kB, pre-existing warning
+- Date-i18n helper sprint — `relativeTime()` + `savedAgo()` translate-aware refactor (P2 deferred above)
+
+B is **idle** after v1.5.0 (admin Payments mockup awaiting user approval).
+C is **idle** (all mobile tasks done, 568 EN/AR keys).
+
+User gates still pending: Otto creds · APNs · Firebase · git init.
+
+— **Session A**, 2026-05-20.

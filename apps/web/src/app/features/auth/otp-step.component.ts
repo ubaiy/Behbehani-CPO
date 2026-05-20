@@ -101,7 +101,7 @@ import type { AuthSession, PublicUser } from '@behbehani-cpo/shared-types';
     <!-- Verify button (visible only when submitting) -->
     @if (submitting()) {
       <div class="mt-5 flex justify-center">
-        <svg class="animate-spin text-brand-700" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" aria-label="Verifying" role="img">
+        <svg class="animate-spin text-brand-700" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" [attr.aria-label]="'auth.otp.verifying' | translate" role="img">
           <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
         </svg>
       </div>

@@ -20,6 +20,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../../src/theme/colors';
 
 // ─── Svg helpers (inline paths — no external lib needed) ──────────────────────
@@ -42,6 +43,7 @@ function ChevronRight({ size = 20 }: { size?: number }) {
 
 export default function OfferViewScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
+  const { t } = useTranslation();
 
   return (
     <View style={s.root}>
@@ -56,7 +58,7 @@ export default function OfferViewScreen() {
           <TouchableOpacity
             style={s.backBtn}
             onPress={() => router.back()}
-            accessibilityLabel="Back"
+            accessibilityLabel={t('offers.view.backA11y')}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Text style={s.backChevron}>‹</Text>
@@ -68,19 +70,19 @@ export default function OfferViewScreen() {
             <Text style={s.badgeText}>CONCIERGE OFFER · BMC-CON-001234</Text>
           </View>
 
-          <Text style={s.heroTitle}>Your offer is ready</Text>
+          <Text style={s.heroTitle}>{t('offers.view.heroTitle')}</Text>
           <Text style={s.heroSub}>
-            Based on the Behbehani Motors inspection completed Mon, 19 May.
+            {t('offers.view.heroSub')}
           </Text>
 
           {/* Offer amount card */}
           <View style={s.offerCard}>
-            <Text style={s.offerLabel}>OUR OFFER</Text>
+            <Text style={s.offerLabel}>{t('offers.view.offerLabel')}</Text>
             <Text style={s.offerAmount}>KWD 4,850.000</Text>
             <View style={s.validRow}>
               <Text style={s.clockIcon}>⏱</Text>
               <Text style={s.validText}>
-                Valid until{' '}
+                {t('offers.view.validUntil')}{' '}
                 <Text style={s.validBold}>Mon, 26 May · 23:59</Text>
                 {'  '}
                 <Text style={s.validMuted}>6d 14h left</Text>
@@ -94,14 +96,14 @@ export default function OfferViewScreen() {
           <TouchableOpacity
             style={s.inspectionCard}
             onPress={() => router.push('/inspections/test-inspection-id' as any)}
-            accessibilityLabel="View inspection report"
+            accessibilityLabel={t('offers.view.inspectionA11y')}
           >
             <View style={s.inspectionIcon}>
               <Text style={s.inspectionIconText}>✓</Text>
             </View>
             <View style={s.inspectionBody}>
-              <Text style={s.inspectionTitle}>Inspection report</Text>
-              <Text style={s.inspectionSub}>71 points · overall score 88 / 100</Text>
+              <Text style={s.inspectionTitle}>{t('offers.view.inspectionTitle')}</Text>
+              <Text style={s.inspectionSub}>{t('offers.view.inspectionSub')}</Text>
             </View>
             <Text style={[s.chevronRight, { transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }]}>›</Text>
           </TouchableOpacity>
@@ -109,17 +111,17 @@ export default function OfferViewScreen() {
 
         {/* ── Vehicle context ───────────────────────────────────────────── */}
         <View style={s.section}>
-          <Text style={s.sectionLabel}>YOUR CAR</Text>
+          <Text style={s.sectionLabel}>{t('offers.view.yourCar')}</Text>
           <View style={s.vehicleCard}>
             <Text style={s.vehicleTitle}>2020 Toyota Camry GLE</Text>
             <View style={s.vehicleGrid}>
-              <Text style={s.vehicleKey}>Mileage</Text>
+              <Text style={s.vehicleKey}>{t('offers.view.mileage')}</Text>
               <Text style={s.vehicleVal}>42,500 km</Text>
-              <Text style={s.vehicleKey}>VIN</Text>
+              <Text style={s.vehicleKey}>{t('offers.view.vin')}</Text>
               <Text style={[s.vehicleVal, s.mono]}>··· ··· A12345</Text>
-              <Text style={s.vehicleKey}>Transmission</Text>
+              <Text style={s.vehicleKey}>{t('offers.view.transmission')}</Text>
               <Text style={s.vehicleVal}>Automatic</Text>
-              <Text style={s.vehicleKey}>Governorate</Text>
+              <Text style={s.vehicleKey}>{t('offers.view.governorate')}</Text>
               <Text style={s.vehicleVal}>Hawalli</Text>
             </View>
           </View>
@@ -129,16 +131,16 @@ export default function OfferViewScreen() {
         <View style={[s.section, { paddingBottom: 24 }]}>
           <View style={s.termsCard}>
             <Text style={s.termsText}>
-              <Text style={s.termsBold}>Accept</Text> reserves a Behbehani Motors pickup slot.{' '}
-              <Text style={s.termsBold}>Decline</Text> closes the offer. By accepting you agree to the{' '}
-              <Text style={s.termsLink}>Sale Terms</Text>.
+              <Text style={s.termsBold}>{t('offers.view.accept')}</Text> {t('offers.view.termsAcceptBody')}{' '}
+              <Text style={s.termsBold}>{t('offers.view.decline')}</Text> {t('offers.view.termsDeclineBody')}{' '}
+              <Text style={s.termsLink}>{t('offers.view.saleTerms')}</Text>.
             </Text>
           </View>
         </View>
 
         {/* ── Expiry footnote (D1: NO "one counter" copy) ───────────────── */}
         <View style={s.expiryNote}>
-          <Text style={s.expiryText}>Offer expires in 6d 14h</Text>
+          <Text style={s.expiryText}>{t('offers.view.expiryNote')}</Text>
         </View>
       </ScrollView>
 
@@ -148,9 +150,9 @@ export default function OfferViewScreen() {
         <TouchableOpacity
           style={[s.cta, s.ctaAccept, { flex: 1.4 }]}
           onPress={() => router.push(`/offers/${token}/accepted` as any)}
-          accessibilityLabel="Accept offer"
+          accessibilityLabel={t('offers.view.acceptA11y')}
         >
-          <Text style={s.ctaAcceptText}>Accept — KWD 4,850.000</Text>
+          <Text style={s.ctaAcceptText}>{t('offers.view.acceptBtn')} — KWD 4,850.000</Text>
         </TouchableOpacity>
 
         <View style={s.ctaRow}>
@@ -158,18 +160,18 @@ export default function OfferViewScreen() {
           <TouchableOpacity
             style={[s.cta, s.ctaCounter, { flex: 1 }]}
             onPress={() => router.push(`/offers/${token}/counter` as any)}
-            accessibilityLabel="Counter offer"
+            accessibilityLabel={t('offers.view.counterA11y')}
           >
-            <Text style={s.ctaCounterText}>Counter offer</Text>
+            <Text style={s.ctaCounterText}>{t('offers.view.counterBtn')}</Text>
           </TouchableOpacity>
 
           {/* Decline — text-only */}
           <TouchableOpacity
             style={[s.cta, s.ctaDecline, { flex: 1 }]}
             onPress={() => router.push(`/offers/${token}/declined` as any)}
-            accessibilityLabel="Decline this offer"
+            accessibilityLabel={t('offers.view.declineA11y')}
           >
-            <Text style={s.ctaDeclineText}>Decline</Text>
+            <Text style={s.ctaDeclineText}>{t('offers.view.declineBtn')}</Text>
           </TouchableOpacity>
         </View>
       </View>

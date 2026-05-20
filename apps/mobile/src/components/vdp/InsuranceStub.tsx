@@ -5,40 +5,40 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 
 export function InsuranceStub() {
+  const { t } = useTranslation();
   return (
     <View style={styles.sectionPadded}>
       <View style={styles.card}>
         <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardHeading}>Indicative insurance</Text>
-          <Text style={styles.estimateLabel}>ESTIMATE</Text>
+          <Text style={styles.cardHeading}>{t('vdp.indicativeInsurance')}</Text>
+          <Text style={styles.estimateLabel}>{t('vdp.estimateLabel')}</Text>
         </View>
         <View style={styles.insuranceRow}>
           <View>
-            <Text style={styles.insuranceTier}>Third-Party</Text>
-            <Text style={styles.insuranceSub}>Mandatory cover · 1 yr</Text>
+            <Text style={styles.insuranceTier}>{t('vdp.insuranceThirdTier')}</Text>
+            <Text style={styles.insuranceSub}>{t('vdp.insuranceThirdSub')}</Text>
           </View>
           <Text style={styles.insurancePrice}>
-            KWD 28.000<Text style={styles.insurancePer}>/yr</Text>
+            {t('vdp.insurancePriceThird')}<Text style={styles.insurancePer}>{t('vdp.insurancePerYear')}</Text>
           </Text>
         </View>
         <View style={[styles.insuranceRow, styles.insuranceRowHighlight]}>
           <View>
-            <Text style={styles.insuranceTier}>Comprehensive</Text>
-            <Text style={styles.insuranceSub}>Full cover · agency repair · 1 yr</Text>
+            <Text style={styles.insuranceTier}>{t('vdp.insuranceCompTier')}</Text>
+            <Text style={styles.insuranceSub}>{t('vdp.insuranceCompSub')}</Text>
           </View>
           <Text style={styles.insurancePrice}>
-            KWD 215.000<Text style={styles.insurancePer}>/yr</Text>
+            {t('vdp.insurancePriceComp')}<Text style={styles.insurancePer}>{t('vdp.insurancePerYear')}</Text>
           </Text>
         </View>
-        <Text style={styles.insuranceDisclaimer}>
-          Quotes provided by Behbehani-partner brokers. Final premium subject to inspection.
-        </Text>
+        <Text style={styles.insuranceDisclaimer}>{t('vdp.insuranceDisclaimer')}</Text>
         <TouchableOpacity style={[styles.outlineBtn, styles.disabledBtn]} disabled activeOpacity={1}>
-          <Text style={styles.disabledBtnText}>Activate at purchase</Text>
+          <Text style={styles.disabledBtnText}>{t('vdp.insuranceActivateAtPurchase')}</Text>
         </TouchableOpacity>
       </View>
     </View>

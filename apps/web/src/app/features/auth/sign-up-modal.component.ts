@@ -229,7 +229,7 @@ type Step = 'form' | 'otp' | 'created' | 'upgraded';
                 disabled
                 title="Coming soon"
                 class="relative inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-ink-2 cursor-not-allowed min-h-[44px]"
-                aria-label="Google sign-up — coming soon"
+                [attr.aria-label]="'auth.social.googleComingSoon' | translate"
               >
                 <svg viewBox="0 0 18 18" width="18" height="18" aria-hidden="true">
                   <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
@@ -237,31 +237,31 @@ type Step = 'form' | 'otp' | 'created' | 'upgraded';
                   <path fill="#FBBC05" d="M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3.01-2.32z"/>
                   <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.59C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.96l3.01 2.32C4.68 5.16 6.66 3.58 9 3.58z"/>
                 </svg>
-                <span>Google</span>
+                <span>{{ 'auth.social.google' | translate }}</span>
                 <span class="absolute -top-2 -end-1 text-[9px] bg-surface-cool text-muted px-1.5 py-0.5 rounded-full">soon</span>
               </button>
               <button
                 type="button"
                 disabled
                 class="relative inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-muted-2 cursor-not-allowed min-h-[44px]"
-                aria-label="Apple sign-up — coming soon"
+                [attr.aria-label]="'auth.social.appleComingSoon' | translate"
               >
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="#94A3B8" aria-hidden="true">
                   <path d="M17.6 12.6c0-3 2.5-4.5 2.6-4.5-1.4-2.1-3.6-2.4-4.4-2.4-1.9-.2-3.6 1.1-4.6 1.1-1 0-2.4-1.1-4-1-2 0-3.9 1.2-5 3-2.1 3.7-.5 9.1 1.5 12.1 1 1.5 2.2 3.1 3.8 3.1 1.5-.1 2.1-1 3.9-1 1.8 0 2.4 1 4 1 1.6 0 2.7-1.5 3.7-3 1.2-1.7 1.6-3.4 1.7-3.5-.1 0-3.2-1.2-3.2-4.9zM14.6 3.7c.8-1 1.4-2.4 1.2-3.7-1.2.1-2.6.8-3.5 1.8-.8.9-1.5 2.3-1.3 3.6 1.3.1 2.7-.7 3.6-1.7z"/>
                 </svg>
-                <span>Apple</span>
+                <span>{{ 'auth.social.apple' | translate }}</span>
                 <span class="absolute -top-2 -end-1 text-[9px] bg-surface-cool text-muted px-1.5 py-0.5 rounded-full">soon</span>
               </button>
               <button
                 type="button"
                 disabled
                 class="relative inline-flex items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-line bg-white px-2 py-3 text-[13px] font-medium text-muted-2 cursor-not-allowed min-h-[44px]"
-                aria-label="Facebook sign-up — coming soon"
+                [attr.aria-label]="'auth.social.facebookComingSoon' | translate"
               >
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="#94A3B8" aria-hidden="true">
                   <path d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.1 10.13 24v-8.44H7.08v-3.49h3.05V9.41c0-3.02 1.79-4.69 4.53-4.69 1.31 0 2.69.24 2.69.24v2.97h-1.52c-1.49 0-1.96.93-1.96 1.89v2.26h3.33l-.53 3.49h-2.8V24C19.61 23.1 24 18.1 24 12.07z"/>
                 </svg>
-                <span>FB</span>
+                <span>{{ 'auth.social.facebook' | translate }}</span>
                 <span class="absolute -top-2 -end-1 text-[9px] bg-surface-cool text-muted px-1.5 py-0.5 rounded-full">soon</span>
               </button>
             </div>
@@ -292,7 +292,7 @@ type Step = 'form' | 'otp' | 'created' | 'upgraded';
           <!-- ── STEP: created ──────────────────────────────────────── -->
           @if (step() === 'created') {
             <div class="text-center py-4">
-              <div class="inline-grid h-16 w-16 place-items-center rounded-full bg-emerald-50 text-emerald-600 mx-auto">
+              <div class="inline-grid h-16 w-16 place-items-center rounded-full bg-brand-700 text-white mx-auto">
                 <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                   <polyline points="22 4 12 14.01 9 11.01"/>
@@ -391,7 +391,7 @@ export class SignUpModalComponent {
     const score = this.strengthScore();
     return [0, 1, 2, 3].map(i =>
       i < score
-        ? score <= 1 ? 'bg-red-400' : score === 2 ? 'bg-amber-400' : score === 3 ? 'bg-yellow-400' : 'bg-emerald-500'
+        ? score <= 1 ? 'bg-red-400' : score === 2 ? 'bg-brand-200' : score === 3 ? 'bg-brand-500' : 'bg-brand-700'
         : 'bg-line'
     );
   });
@@ -399,9 +399,9 @@ export class SignUpModalComponent {
   readonly strengthLabel = computed(() => {
     const score = this.strengthScore();
     if (score <= 1) return { text: 'auth.signUp.v2.passwordWeak', color: 'text-red-600 font-medium' };
-    if (score === 2) return { text: 'auth.signUp.v2.passwordFair', color: 'text-amber-600 font-medium' };
-    if (score === 3) return { text: 'auth.signUp.v2.passwordGood', color: 'text-yellow-600 font-medium' };
-    return { text: 'auth.signUp.v2.passwordStrong', color: 'text-emerald-700 font-medium' };
+    if (score === 2) return { text: 'auth.signUp.v2.passwordFair', color: 'text-brand-700 font-medium' };
+    if (score === 3) return { text: 'auth.signUp.v2.passwordGood', color: 'text-brand-700 font-medium' };
+    return { text: 'auth.signUp.v2.passwordStrong', color: 'text-brand-700 font-medium' };
   });
 
   constructor() {

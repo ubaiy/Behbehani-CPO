@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { CheckIcon } from './vdp.icons';
@@ -18,36 +19,37 @@ interface VehicleHistoryCardProps {
 }
 
 export function VehicleHistoryCard({ detail, onViewHistory }: VehicleHistoryCardProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.sectionPadded}>
       <View style={styles.card}>
         <View style={styles.cardHeaderRow}>
-          <Text style={styles.cardHeading}>Vehicle history</Text>
+          <Text style={styles.cardHeading}>{t('vdp.vehicleHistoryTitle')}</Text>
           <View style={styles.verifiedBadge}>
             <CheckIcon size={12} color={brand[800]} />
-            <Text style={styles.verifiedBadgeText}>Verified</Text>
+            <Text style={styles.verifiedBadgeText}>{t('vdp.vehicleHistoryVerified')}</Text>
           </View>
         </View>
         <View style={styles.historyGrid}>
           <View style={styles.historyCell}>
             <Text style={styles.historyCellValue}>{detail.previousOwners ?? 1}</Text>
-            <Text style={styles.historyCellLabel}>{'Previous\nowner'}</Text>
+            <Text style={styles.historyCellLabel}>{t('vdp.previousOwner')}</Text>
           </View>
           <View style={styles.historyCell}>
             <Text style={styles.historyCellValue}>
-              {detail.accidentFlag === 'yes' ? '1+' : '0'}
+              {detail.accidentHistory && detail.accidentHistory !== 'clean' && detail.accidentHistory !== 'none' ? '1+' : '0'}
             </Text>
-            <Text style={styles.historyCellLabel}>{'Accidents\nrecorded'}</Text>
+            <Text style={styles.historyCellLabel}>{t('vdp.vehicleHistoryAccidents')}</Text>
           </View>
           <View style={styles.historyCell}>
             <Text style={styles.historyCellValue}>
               {detail.serviceHistory === 'yes' ? '8' : detail.serviceHistory === 'no' ? '0' : '?'}
             </Text>
-            <Text style={styles.historyCellLabel}>{'Service\nrecords'}</Text>
+            <Text style={styles.historyCellLabel}>{t('vdp.serviceRecords')}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.outlineBtn} onPress={onViewHistory} activeOpacity={0.8}>
-          <Text style={styles.outlineBtnText}>View full history report</Text>
+          <Text style={styles.outlineBtnText}>{t('vdp.vehicleHistoryViewFull')}</Text>
           <Text style={[styles.chevronSmall, rtlChevron]}>›</Text>
         </TouchableOpacity>
       </View>

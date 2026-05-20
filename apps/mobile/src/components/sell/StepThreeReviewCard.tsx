@@ -4,6 +4,7 @@
  */
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { formatDateDisplay, windowLabel } from './dateHelpers';
@@ -15,13 +16,14 @@ interface StepThreeReviewCardProps {
 }
 
 export function StepThreeReviewCard({ form, onGoToStep }: StepThreeReviewCardProps) {
+  const { t } = useTranslation();
   return (
     <View style={ss.card}>
       {/* Vehicle */}
       <View style={ss.reviewRow}>
         <View style={ss.reviewIconBox}><Text style={ss.reviewRowIcon}>🚗</Text></View>
         <View style={ss.reviewMeta}>
-          <Text style={ss.reviewRowLabel}>Vehicle</Text>
+          <Text style={ss.reviewRowLabel}>{t('sell.step3.review.vehicleLabel')}</Text>
           <Text style={ss.reviewRowValue} numberOfLines={1}>
             {form.vehicleYear} {form.vehicleBrand} {form.vehicleModel} ·{' '}
             {form.vehicleMileageKm.toLocaleString()} km · Auto · petrol
@@ -29,7 +31,7 @@ export function StepThreeReviewCard({ form, onGoToStep }: StepThreeReviewCardPro
         </View>
         {/* TODO: link to upstream vehicle entry */}
         <Pressable hitSlop={8}>
-          <Text style={ss.editLink}>Edit</Text>
+          <Text style={ss.editLink}>{t('sell.step3.review.editLink')}</Text>
         </Pressable>
       </View>
       <View style={ss.reviewDivider} />
@@ -38,13 +40,13 @@ export function StepThreeReviewCard({ form, onGoToStep }: StepThreeReviewCardPro
       <View style={ss.reviewRow}>
         <View style={ss.reviewIconBox}><Text style={ss.reviewRowIcon}>📍</Text></View>
         <View style={ss.reviewMeta}>
-          <Text style={ss.reviewRowLabel}>Where</Text>
+          <Text style={ss.reviewRowLabel}>{t('sell.step3.review.whereLabel')}</Text>
           <Text style={ss.reviewRowValue} numberOfLines={2}>
             {form.addressLine || '—'}
           </Text>
         </View>
         <Pressable onPress={() => onGoToStep(1)} hitSlop={8}>
-          <Text style={ss.editLink}>Edit</Text>
+          <Text style={ss.editLink}>{t('sell.step3.review.editLink')}</Text>
         </Pressable>
       </View>
       <View style={ss.reviewDivider} />
@@ -53,13 +55,13 @@ export function StepThreeReviewCard({ form, onGoToStep }: StepThreeReviewCardPro
       <View style={ss.reviewRow}>
         <View style={ss.reviewIconBox}><Text style={ss.reviewRowIcon}>📅</Text></View>
         <View style={ss.reviewMeta}>
-          <Text style={ss.reviewRowLabel}>When</Text>
+          <Text style={ss.reviewRowLabel}>{t('sell.step3.review.whenLabel')}</Text>
           <Text style={ss.reviewRowValue}>
             {formatDateDisplay(form.selectedDate)} · {windowLabel(form.preferredWindow)}
           </Text>
         </View>
         <Pressable onPress={() => onGoToStep(1)} hitSlop={8}>
-          <Text style={ss.editLink}>Edit</Text>
+          <Text style={ss.editLink}>{t('sell.step3.review.editLink')}</Text>
         </Pressable>
       </View>
       <View style={ss.reviewDivider} />
@@ -68,14 +70,14 @@ export function StepThreeReviewCard({ form, onGoToStep }: StepThreeReviewCardPro
       <View style={ss.reviewRow}>
         <View style={ss.reviewIconBox}><Text style={ss.reviewRowIcon}>📞</Text></View>
         <View style={ss.reviewMeta}>
-          <Text style={ss.reviewRowLabel}>Contact</Text>
+          <Text style={ss.reviewRowLabel}>{t('sell.step3.review.contactLabel')}</Text>
           <Text style={ss.reviewRowValue} numberOfLines={2}>
             {form.fullName} · +965 {form.mobile}
             {form.email ? ` · ${form.email}` : ''}
           </Text>
         </View>
         <Pressable onPress={() => onGoToStep(2)} hitSlop={8}>
-          <Text style={ss.editLink}>Edit</Text>
+          <Text style={ss.editLink}>{t('sell.step3.review.editLink')}</Text>
         </Pressable>
       </View>
     </View>

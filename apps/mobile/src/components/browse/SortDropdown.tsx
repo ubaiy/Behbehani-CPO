@@ -8,17 +8,18 @@ import {
   I18nManager,
   Platform,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { PublicListingSort } from '@behbehani-cpo/shared-types';
 import { fontFamily, palette, radius, spacing, shadows } from '../../theme/theme';
 
 export type SortOption = PublicListingSort;
 
-export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'priceAsc', label: 'Price: low to high' },
-  { value: 'priceDesc', label: 'Price: high to low' },
-  { value: 'mileageAsc', label: 'Mileage: low to high' },
-  { value: 'newest', label: 'Newest first' },
+export const SORT_OPTIONS: { value: SortOption; tKey: string }[] = [
+  { value: 'featured', tKey: 'sort.featured' },
+  { value: 'priceAsc', tKey: 'sort.priceAsc' },
+  { value: 'priceDesc', tKey: 'sort.priceDesc' },
+  { value: 'mileageAsc', tKey: 'sort.mileageAsc' },
+  { value: 'newest', tKey: 'sort.newest' },
 ];
 
 export interface SortDropdownProps {
@@ -29,6 +30,7 @@ export interface SortDropdownProps {
 }
 
 export function SortDropdown({ visible, currentSort, onSelect, onClose }: SortDropdownProps) {
+  const { t } = useTranslation();
   return (
     <Modal
       visible={visible}
@@ -49,7 +51,7 @@ export function SortDropdown({ visible, currentSort, onSelect, onClose }: SortDr
               onPress={() => onSelect(opt.value)}
             >
               <Text style={[s.sortOptionText, currentSort === opt.value && s.sortOptionTextActive]}>
-                {opt.label}
+                {t(opt.tKey)}
               </Text>
               {currentSort === opt.value && (
                 <Text style={s.sortOptionCheck}>{'✓'}</Text>

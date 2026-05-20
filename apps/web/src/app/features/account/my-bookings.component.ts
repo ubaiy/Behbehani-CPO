@@ -69,28 +69,28 @@ const STATUS_PILL: Record<InspectionStatus, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, TranslateModule],
   template: `
-    <!-- Back link -->
+    <!-- Back link — inside max-w-4xl to align with hero column -->
     <div class="container-page pt-6">
-      <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-        {{ 'account.backToHub' | translate }}
-      </a>
+      <div class="mx-auto max-w-4xl">
+        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
+          {{ 'account.backToHub' | translate }}
+        </a>
+      </div>
     </div>
 
-    <!-- Hero -->
-    <header class="py-6 sm:py-8">
-      <div class="container-page max-w-3xl mx-auto">
-        <div class="rounded-3xl p-6 sm:p-8 text-white" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-            {{ 'account.myBookings.title' | translate }}
-          </h1>
-          <p class="mt-2 text-[14px] text-white/80">
-            {{ 'account.myBookings.sub' | translate }}
-          </p>
-        </div>
+    <!-- Hero — rounded-3xl framed card -->
+    <div class="container-page py-8 mx-auto max-w-4xl">
+      <div class="rounded-3xl p-6 sm:p-8 text-white" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
+        <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
+          {{ 'account.myBookings.title' | translate }}
+        </h1>
+        <p class="mt-2 text-[14px] text-white/80">
+          {{ 'account.myBookings.sub' | translate }}
+        </p>
       </div>
-    </header>
+    </div>
 
-    <main class="container-page py-8 sm:py-10 max-w-3xl mx-auto">
+    <main class="container-page py-8 sm:py-10 mx-auto max-w-4xl">
 
       <!-- Loading -->
       @if (state().kind === 'loading') {

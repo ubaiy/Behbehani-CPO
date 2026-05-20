@@ -14,6 +14,7 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { CarSilhouette } from './vdp.icons';
@@ -36,6 +37,7 @@ export function PhotoGallery({
   onScroll,
   onThumbnailPress,
 }: PhotoGalleryProps) {
+  const { t } = useTranslation();
   return (
     <>
       {/* Hero gallery */}
@@ -65,13 +67,13 @@ export function PhotoGallery({
         {/* Photo counter */}
         <View style={styles.photoCounter} pointerEvents="none">
           <Text style={styles.photoCounterText}>
-            {currentPhoto + 1} / {totalPhotos} photos
+            {t('vdp.photoCounter', { current: currentPhoto + 1, total: totalPhotos })}
           </Text>
         </View>
 
         {/* 360° View stub */}
         <View style={styles.view360Btn} pointerEvents="none">
-          <Text style={styles.view360Text}>360° View · Coming soon</Text>
+          <Text style={styles.view360Text}>{t('vdp.view360')}</Text>
         </View>
       </View>
 

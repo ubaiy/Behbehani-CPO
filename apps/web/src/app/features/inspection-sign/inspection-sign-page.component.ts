@@ -73,7 +73,7 @@ type ViewState =
               @case ('not_found') { <p class="sr-only">This signing link could not be found.</p> }
               @case ('network_error') { <p class="sr-only">We could not reach the inspection service.</p> }
             }
-            <div class="mx-auto inline-grid h-14 w-14 place-items-center rounded-full" [class.bg-amber-50]="t === 'expired' || t === 'revoked' || t === 'network_error'" [class.text-amber-700]="t === 'expired' || t === 'revoked' || t === 'network_error'" [class.bg-emerald-50]="t === 'already_signed' || t === 'submitted'" [class.text-emerald-700]="t === 'already_signed' || t === 'submitted'" [class.bg-surface-cool]="t === 'not_found'" [class.text-ink-3]="t === 'not_found'">
+            <div class="mx-auto inline-grid h-14 w-14 place-items-center rounded-full" [class.bg-brand-50]="t === 'expired' || t === 'revoked' || t === 'network_error'" [class.text-brand-700]="t === 'expired' || t === 'revoked' || t === 'network_error'" [class.bg-brand-700]="t === 'already_signed' || t === 'submitted'" [class.text-white]="t === 'already_signed' || t === 'submitted'" [class.bg-surface-cool]="t === 'not_found'" [class.text-ink-3]="t === 'not_found'">
               @switch (t) {
                 @case ('expired') { <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> }
                 @case ('revoked') { <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5 5l14 14"/></svg> }

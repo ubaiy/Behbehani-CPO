@@ -18,17 +18,6 @@ export class SavedSearchesShellComponent {
 }
 
 @Component({
-  selector: 'bmc-orders-shell',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ComingSoonPageComponent],
-  template: `<bmc-coming-soon-page featurePath="/account/orders" featureTitleKey="account.comingSoon.orders.title" etaLabelKey="account.comingSoon.eta.q3_2026" [teaserBulletKeys]="bullets" illustrationSlug="receipt" />`,
-})
-export class OrdersShellComponent {
-  readonly bullets = ['account.comingSoon.orders.bullet1', 'account.comingSoon.orders.bullet2', 'account.comingSoon.orders.bullet3'];
-}
-
-@Component({
   selector: 'bmc-maintenance-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

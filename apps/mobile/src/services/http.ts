@@ -35,22 +35,22 @@ import axios, {
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import { QueryClient } from '@tanstack/react-query';
 import { AuthService } from './auth';
 import { storage } from './storage';
+import { queryClient } from './queryClient';
 import {
   AuthApiClient,
   ListingsPublicApiClient,
   InspectionsPublicApiClient,
+  OrdersPublicApiClient,
 } from '@behbehani-cpo/data-access-mobile';
 
 // ─── React Query singleton ────────────────────────────────────────────────────
-// Module-level QueryClient used by the TOKEN_REUSED handler to invalidate the
-// cache on forced sign-out. The PersistQueryClientProvider in _layout.tsx uses
-// the same instance exported from there; here we keep a local reference so
-// http.ts stays independent of the React tree.
-// TODO (W3): If a shared queryClient singleton module is extracted, replace this.
-const _queryClient = new QueryClient();
+// Imported from `./queryClient` — same instance used by PersistQueryClientProvider
+// in app/_layout.tsx. Sharing this instance is essential: the TOKEN_REUSED
+// handler below calls `queryClient.clear()` and that MUST evict the entries the
+// React tree is subscribed to. (Pre-#43 these were two separate clients and
+// `clear()` was a silent no-op on user data.)
 
 // ─── Sentinel flag ────────────────────────────────────────────────────────────
 // Marks a retried request so the 401 interceptor does not retry a second time.
@@ -132,7 +132,7 @@ async function handleTokenReused(): Promise<void> {
   ]);
 
   // b. Invalidate the react-query cache so stale authenticated data is removed.
-  _queryClient.clear();
+  queryClient.clear();
 
   // c. Navigate to sign-in — replace so the user cannot navigate back.
   router.replace('/auth/sign-in');
@@ -253,3 +253,10 @@ export const listingsPublicApiClient = new ListingsPublicApiClient(httpClient);
  * See ARCHITECTURE.md §4: "This route MUST NOT trigger the auth interceptor's 401-redirect."
  */
 export const inspectionsPublicApiClient = new InspectionsPublicApiClient(rawHttpClient);
+
+/**
+ * Orders client uses the intercepted instance — all order endpoints are
+ * authenticated and benefit from the single-flight 401-refresh interceptor.
+ * Task #65 / MOBILE_API_CONTRACT.md v0.11 §4-§5.
+ */
+export const ordersPublicApiClient = new OrdersPublicApiClient(httpClient);

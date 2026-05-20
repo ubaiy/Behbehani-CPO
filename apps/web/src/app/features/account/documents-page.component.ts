@@ -74,17 +74,15 @@ function relativeTime(iso: string): string {
   template: `
     @if (!auth.isSignedIn()) {
       <!-- Guest gate -->
-      <div class="container-page py-10 sm:py-14">
-        <div class="mx-auto max-w-4xl">
-          <div
-            class="rounded-3xl p-8 sm:p-10"
-            style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-          >
-            <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-              {{ 'account.documents.title' | translate }}
-            </h1>
-            <p class="mt-2 text-[14px] text-white/80">{{ 'account.documents.signInRequired.body' | translate }}</p>
-          </div>
+      <div class="container-page py-8 mx-auto max-w-4xl">
+        <div
+          class="rounded-3xl p-6 sm:p-8 text-white"
+          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
+        >
+          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
+            {{ 'account.documents.title' | translate }}
+          </h1>
+          <p class="mt-2 text-[14px] text-white/80">{{ 'account.documents.signInRequired.body' | translate }}</p>
         </div>
       </div>
       <main class="container-page py-8 sm:py-10 max-w-4xl mx-auto">
@@ -95,23 +93,23 @@ function relativeTime(iso: string): string {
     } @else {
       <!-- Back link -->
       <div class="container-page pt-6">
-        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-          {{ 'account.backToHub' | translate }}
-        </a>
+        <div class="mx-auto max-w-4xl">
+          <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
+            {{ 'account.backToHub' | translate }}
+          </a>
+        </div>
       </div>
 
       <!-- Hero -->
-      <div class="container-page py-10 sm:py-14">
-        <div class="mx-auto max-w-4xl">
-          <div
-            class="rounded-3xl p-8 sm:p-10"
-            style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-          >
-            <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-              {{ 'account.documents.title' | translate }}
-            </h1>
-            <p class="mt-2 text-[14px] text-white/80">{{ 'account.documents.sub' | translate }}</p>
-          </div>
+      <div class="container-page py-8 mx-auto max-w-4xl">
+        <div
+          class="rounded-3xl p-6 sm:p-8 text-white"
+          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
+        >
+          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
+            {{ 'account.documents.title' | translate }}
+          </h1>
+          <p class="mt-2 text-[14px] text-white/80">{{ 'account.documents.sub' | translate }}</p>
         </div>
       </div>
 

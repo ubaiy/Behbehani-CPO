@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, spacing, radius } from '../../theme/theme';
 import { SLATE_50, SLATE_200, SLATE_400, SLATE_700, SLATE_900, BRAND_700, BRAND_900 } from './authConstants';
 import { AccountLockoutBanner } from './AccountLockoutBanner';
@@ -13,9 +14,11 @@ interface Props {
   setPassword: (v: string) => void;
   loginError: LoginError;
   onSignIn: () => void;
+  loading?: boolean;
 }
 
-export function SignInForm({ email, setEmail, password, setPassword, loginError, onSignIn }: Props) {
+export function SignInForm({ email, setEmail, password, setPassword, loginError, onSignIn, loading = false }: Props) {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const rtlRow = I18nManager.isRTL ? 'row-reverse' : 'row';
 
@@ -23,20 +26,20 @@ export function SignInForm({ email, setEmail, password, setPassword, loginError,
     <View style={styles.form}>
       {/* Email */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Email</Text>
+        <Text style={styles.fieldLabel}>{t('auth.emailLabel')}</Text>
         <View style={styles.inputWrapper}>
           <Text style={styles.inputIconText}>✉</Text>
           <TextInput
             style={styles.input}
             value={email}
             onChangeText={setEmail}
-            placeholder="you@example.com"
+            placeholder={t('auth.emailPlaceholder')}
             placeholderTextColor={SLATE_400}
             textContentType="emailAddress"
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
-            accessibilityLabel="Email"
+            accessibilityLabel={t('auth.emailLabel')}
           />
         </View>
       </View>
@@ -44,7 +47,7 @@ export function SignInForm({ email, setEmail, password, setPassword, loginError,
       {/* Password */}
       <View style={styles.fieldGroup}>
         <View style={[styles.passwordLabelRow, { flexDirection: rtlRow }]}>
-          <Text style={styles.fieldLabel}>Password</Text>
+          <Text style={styles.fieldLabel}>{t('auth.passwordLabel')}</Text>
           <Pressable
             style={styles.forgotButton}
             onPress={() => {
@@ -54,7 +57,7 @@ export function SignInForm({ email, setEmail, password, setPassword, loginError,
             accessibilityRole="button"
             hitSlop={4}
           >
-            <Text style={styles.forgotText}>Forgot password?</Text>
+            <Text style={styles.forgotText}>{t('auth.forgotPassword')}</Text>
           </Pressable>
         </View>
         <View style={styles.inputWrapper}>
@@ -63,19 +66,20 @@ export function SignInForm({ email, setEmail, password, setPassword, loginError,
             style={[styles.input, styles.inputWithTrailing]}
             value={password}
             onChangeText={setPassword}
-            placeholder={'••••••••'}
+            placeholder={t('auth.passwordPlaceholder')}
             placeholderTextColor={SLATE_400}
             secureTextEntry={!showPassword}
             textContentType="password"
             autoCapitalize="none"
             autoCorrect={false}
-            accessibilityLabel="Password"
+            accessibilityLabel={t('auth.passwordLabel')}
           />
           <Pressable
             style={styles.eyeButton}
             onPress={() => setShowPassword((v) => !v)}
-            accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}
+            accessibilityLabel={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             hitSlop={8}
+            disabled={loading}
           >
             <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁'}</Text>
           </Pressable>
@@ -84,11 +88,17 @@ export function SignInForm({ email, setEmail, password, setPassword, loginError,
 
       {/* Primary CTA */}
       <Pressable
-        style={({ pressed }) => [styles.primaryButton, pressed && styles.primaryButtonPressed]}
+        style={({ pressed }) => [
+          styles.primaryButton,
+          pressed && styles.primaryButtonPressed,
+          loading && styles.primaryButtonDisabled,
+        ]}
         onPress={onSignIn}
         accessibilityRole="button"
+        accessibilityState={{ disabled: loading, busy: loading }}
+        disabled={loading}
       >
-        <Text style={styles.primaryButtonText}>Sign in</Text>
+        <Text style={styles.primaryButtonText}>{loading ? t('auth.signInButtonLoading') : t('auth.signInInline')}</Text>
       </Pressable>
 
       {loginError === 'ACCOUNT_LOCKED' && <AccountLockoutBanner />}
@@ -171,6 +181,9 @@ const styles = StyleSheet.create({
   },
   primaryButtonPressed: {
     opacity: 0.85,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.6,
   },
   primaryButtonText: {
     fontSize: 15,

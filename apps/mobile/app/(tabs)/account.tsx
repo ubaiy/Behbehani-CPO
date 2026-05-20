@@ -149,111 +149,110 @@ export default function AccountScreen() {
         <PendingActionsStrip />
 
         {/* GROUP 1 — PROFILE & SETTINGS */}
-        <TileGroup label="Profile & Settings">
+        <TileGroup label={t('account.group.profileSettings')}>
           <AccountTile
             icon={<TileIconGlyph glyph="👤" />}
-            title="Profile"
-            subtitle="Name, email, mobile"
+            title={t('account.tile.profile')}
+            subtitle={t('account.tile.profileSub')}
             onPress={() => nav('/auth/sign-in')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="📍" />}
-            title="Addresses"
-            subtitle="Manage saved addresses"
-            pill={<CountPill label="2 saved" />}
+            title={t('account.tile.addresses')}
+            subtitle={t('account.tile.addressesSub')}
+            pill={<CountPill label={t('account.tile.addressesCount', { count: 2 })} />}
             onPress={() => nav('/auth/sign-in')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🔔" />}
-            title="Notifications"
-            subtitle="Push, email & SMS"
+            title={t('account.tile.notifications')}
+            subtitle={t('account.tile.notificationsSub')}
             onPress={() => nav('/auth/sign-in')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🛡" />}
-            title="Security"
-            subtitle="Sessions, sign-out all devices"
+            title={t('account.tile.security')}
+            subtitle={t('account.tile.securitySub')}
             onPress={() => nav('/auth/sign-in')}
           />
         </TileGroup>
 
         {/* GROUP 2 — BUYING */}
-        <TileGroup label="Buying">
+        <TileGroup label={t('account.group.buying')}>
           <AccountTile
             icon={<TileIconGlyph glyph="♡" />}
-            title="Favourites"
-            subtitle="Cars you're watching"
-            pill={<CountPill label="8 saved" />}
+            title={t('account.tile.favourites')}
+            subtitle={t('account.tile.favouritesSub')}
+            pill={<CountPill label={t('account.tile.favouritesCount', { count: 8 })} />}
             onPress={() => nav('/(tabs)/browse')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🔍" />}
-            title="Saved searches"
-            subtitle="Alerts when matches arrive"
+            title={t('account.tile.savedSearches')}
+            subtitle={t('account.tile.savedSearchesSub')}
             pill={<ComingSoonPill />}
             onPress={() => nav('/auth/sign-in')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="📋" />}
-            title="Inspections"
-            subtitle="Your Concierge bookings · 1 active"
+            title={t('account.tile.inspections')}
+            subtitle={t('account.tile.inspectionsSub')}
             onPress={() => nav('/inspections/test-inspection-id')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🧾" />}
-            title="Purchase history"
-            subtitle="Past purchases & receipts"
-            pill={<ComingSoonPill />}
-            onPress={() => nav('/auth/sign-in')}
+            title={t('account.tile.orders')}
+            subtitle={t('account.tile.ordersSub')}
+            onPress={() => nav('/orders')}
           />
         </TileGroup>
 
         {/* GROUP 3 — OWNING */}
-        <TileGroup label="Owning">
+        <TileGroup label={t('account.group.owning')}>
           <AccountTile
             icon={<TileIconGlyph glyph="📄" />}
-            title="Documents"
-            subtitle="Contracts, reports, insurance"
+            title={t('account.tile.documents')}
+            subtitle={t('account.tile.documentsSub')}
             pill={<ComingSoonPill />}
             onPress={() => nav('/auth/sign-in')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="⚙️" />}
-            title="Maintenance"
-            subtitle="Pickup service & history"
+            title={t('account.tile.maintenance')}
+            subtitle={t('account.tile.maintenanceSub')}
             pill={<ComingSoonPill />}
             onPress={() => nav('/auth/sign-in')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="💳" />}
-            title="Financing"
-            subtitle="Loan status & payments"
-            pill={<ComingSoonPill label="COMING Q4 2026" />}
+            title={t('account.tile.financing')}
+            subtitle={t('account.tile.financingSub')}
+            pill={<ComingSoonPill label={t('account.comingSoon.q4Label')} />}
             onPress={() => nav('/auth/sign-in')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="↩" />}
-            title="Returns"
-            subtitle="3-day / 300 km return window"
-            pill={<ComingSoonPill label="COMING Q4 2026" />}
+            title={t('account.tile.returns')}
+            subtitle={t('account.tile.returnsSub')}
+            pill={<ComingSoonPill label={t('account.comingSoon.q4Label')} />}
             onPress={() => nav('/auth/sign-in')}
           />
         </TileGroup>
 
         {/* GROUP 4 — ENGAGEMENT */}
-        <TileGroup label="Engagement">
+        <TileGroup label={t('account.group.engagement')}>
           <AccountTile
             icon={<TileIconGlyph glyph="★" />}
-            title="Reviews"
-            subtitle="Rate cars & services"
-            pill={<ComingSoonPill label="COMING Q4 2026" />}
+            title={t('account.tile.reviews')}
+            subtitle={t('account.tile.reviewsSub')}
+            pill={<ComingSoonPill label={t('account.comingSoon.q4Label')} />}
             onPress={() => nav('/auth/sign-in')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🎁" />}
-            title="Referrals"
-            subtitle="Refer a friend, earn rewards"
-            pill={<ComingSoonPill label="COMING 2027" />}
+            title={t('account.tile.referrals')}
+            subtitle={t('account.tile.referralsSub')}
+            pill={<ComingSoonPill label={t('account.comingSoon.y2027Label')} />}
             onPress={() => nav('/auth/sign-in')}
           />
         </TileGroup>

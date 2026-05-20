@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import type { BrowseFilters } from '../FilterSheet';
 import { fontFamily, palette, radius, spacing } from '../../theme/theme';
 
@@ -16,6 +17,7 @@ export function FilterChipRail({
   onFiltersPress,
   onRemoveChip,
 }: FilterChipRailProps) {
+  const { t } = useTranslation();
   return (
     <View style={s.controlBar}>
       <ScrollView
@@ -30,7 +32,9 @@ export function FilterChipRail({
           activeOpacity={0.8}
         >
           <Text style={[s.filterChipMainText, activeFilterCount > 0 && s.filterChipMainTextActive]}>
-            {activeFilterCount > 0 ? `Filters (${activeFilterCount})` : 'Filters'}
+            {activeFilterCount > 0
+              ? t('browse.filterCountChip', { count: activeFilterCount })
+              : t('browse.filters')}
           </Text>
         </TouchableOpacity>
 
@@ -51,7 +55,7 @@ export function FilterChipRail({
           onPress={onFiltersPress}
           activeOpacity={0.8}
         >
-          <Text style={s.moreFiltersText}>More filters</Text>
+          <Text style={s.moreFiltersText}>{t('browse.moreFilters')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, spacing, radius } from '../../theme/theme'; // radius used by inputWrapper/mobilePrefix/primaryButton/checkbox styles
 import {
   SLATE_50, SLATE_200, SLATE_400, SLATE_700, SLATE_900,
@@ -31,6 +32,7 @@ export function SignUpForm({
   acceptedTerms, setAcceptedTerms,
   onSignUp,
 }: Props) {
+  const { t } = useTranslation();
   const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const rtlRow = I18nManager.isRTL ? 'row-reverse' : 'row';
 
@@ -41,45 +43,45 @@ export function SignUpForm({
     <View style={styles.form}>
       {/* Full name */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Full name</Text>
+        <Text style={styles.fieldLabel}>{t('auth.fullName')}</Text>
         <View style={styles.inputWrapper}>
           <Text style={styles.inputIconText}>👤</Text>
           <TextInput
             style={styles.input}
             value={fullName}
             onChangeText={setFullName}
-            placeholder="Your full name"
+            placeholder={t('auth.fullNamePlaceholder')}
             placeholderTextColor={SLATE_400}
             textContentType="name"
             autoCapitalize="words"
-            accessibilityLabel="Full name"
+            accessibilityLabel={t('auth.fullName')}
           />
         </View>
       </View>
 
       {/* Email */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Email</Text>
+        <Text style={styles.fieldLabel}>{t('auth.emailLabel')}</Text>
         <View style={styles.inputWrapper}>
           <Text style={styles.inputIconText}>✉</Text>
           <TextInput
             style={styles.input}
             value={signUpEmail}
             onChangeText={setSignUpEmail}
-            placeholder="you@example.com"
+            placeholder={t('auth.emailPlaceholder')}
             placeholderTextColor={SLATE_400}
             textContentType="emailAddress"
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
-            accessibilityLabel="Email"
+            accessibilityLabel={t('auth.emailLabel')}
           />
         </View>
       </View>
 
       {/* Kuwait mobile */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Kuwait mobile</Text>
+        <Text style={styles.fieldLabel}>{t('auth.kuwaitMobile')}</Text>
         <View style={[
           styles.inputWrapper,
           !mobileValid && mobileDigits.length > 0 && styles.inputWrapperError,
@@ -91,38 +93,38 @@ export function SignUpForm({
             style={[styles.input, styles.inputWithLeadingWide]}
             value={mobileDigits}
             onChangeText={(v) => setMobileDigits(v.replace(/\D/g, '').slice(0, 8))}
-            placeholder="5XXX XXXX"
+            placeholder={t('auth.kuwaitMobilePlaceholder')}
             placeholderTextColor={SLATE_400}
             keyboardType="number-pad"
             textContentType="telephoneNumber"
             maxLength={8}
-            accessibilityLabel="Kuwait mobile number"
+            accessibilityLabel={t('auth.kuwaitMobileA11y')}
           />
         </View>
-        <Text style={styles.hintText}>Kuwait mobile starts with 5, 6 or 9 — 8 digits</Text>
+        <Text style={styles.hintText}>{t('auth.kuwaitMobileHint')}</Text>
       </View>
 
       {/* Create password */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.fieldLabel}>Create password</Text>
+        <Text style={styles.fieldLabel}>{t('auth.createPassword')}</Text>
         <View style={styles.inputWrapper}>
           <Text style={styles.inputIconText}>🔒</Text>
           <TextInput
             style={[styles.input, styles.inputWithTrailing]}
             value={signUpPassword}
             onChangeText={setSignUpPassword}
-            placeholder="Min 8 characters"
+            placeholder={t('auth.createPasswordPlaceholder')}
             placeholderTextColor={SLATE_400}
             secureTextEntry={!showSignUpPassword}
             textContentType="newPassword"
             autoCapitalize="none"
             autoCorrect={false}
-            accessibilityLabel="Create password"
+            accessibilityLabel={t('auth.createPassword')}
           />
           <Pressable
             style={styles.eyeButton}
             onPress={() => setShowSignUpPassword((v) => !v)}
-            accessibilityLabel={showSignUpPassword ? 'Hide password' : 'Show password'}
+            accessibilityLabel={showSignUpPassword ? t('auth.hidePassword') : t('auth.showPassword')}
             hitSlop={8}
           >
             <Text style={styles.eyeIcon}>{showSignUpPassword ? '🙈' : '👁'}</Text>
@@ -145,7 +147,7 @@ export function SignUpForm({
         disabled={!acceptedTerms}
         accessibilityRole="button"
       >
-        <Text style={styles.primaryButtonText}>Create account</Text>
+        <Text style={styles.primaryButtonText}>{t('auth.createAccount')}</Text>
       </Pressable>
     </View>
   );

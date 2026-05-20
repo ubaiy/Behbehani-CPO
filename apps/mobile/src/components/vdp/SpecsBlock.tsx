@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { ListingDetail } from './vdp.types';
@@ -31,33 +32,34 @@ interface SpecsBlockProps {
 }
 
 export function SpecsBlock({ detail }: SpecsBlockProps) {
+  const { t } = useTranslation();
   const [specsExpanded, setSpecsExpanded] = useState(false);
 
   const specRows: Array<{ label: string; value: string }> = [
-    { label: 'Make', value: detail.brand.nameEn },
-    { label: 'Model', value: detail.model.nameEn },
-    { label: 'Trim', value: detail.trim ?? '—' },
-    { label: 'Year', value: String(detail.year) },
-    { label: 'Mileage', value: formatKm(detail.mileageKm) },
-    { label: 'Exterior color', value: detail.exteriorColor ?? '—' },
-    { label: 'Interior color', value: detail.interiorColor ?? '—' },
-    { label: 'Transmission', value: detail.transmission },
-    { label: 'Fuel type', value: detail.fuelType },
-    { label: 'Cylinders', value: detail.cylinders ? String(detail.cylinders) : '—' },
-    { label: 'Drivetrain', value: detail.drivetrain ?? '—' },
-    { label: 'Regional specs', value: detail.regionalSpecs ?? '—' },
-    { label: 'Body type', value: detail.bodyType.nameEn },
-    { label: 'Doors', value: detail.doors ? String(detail.doors) : '—' },
-    { label: 'Seats', value: detail.seats ? String(detail.seats) : '—' },
-    { label: 'VIN (last 6)', value: maskVIN(detail.vin) },
-    { label: 'Previous owners', value: detail.previousOwners != null ? String(detail.previousOwners) : '—' },
+    { label: t('vdp.make'), value: detail.brand.nameEn },
+    { label: t('vdp.model'), value: detail.model.nameEn },
+    { label: t('vdp.trim'), value: detail.trim ?? '—' },
+    { label: t('vdp.year'), value: String(detail.year) },
+    { label: t('vdp.mileage'), value: formatKm(detail.mileageKm) },
+    { label: t('vdp.exteriorColor'), value: detail.exteriorColor ?? '—' },
+    { label: t('vdp.interiorColor'), value: detail.interiorColor ?? '—' },
+    { label: t('vdp.transmission'), value: detail.transmission },
+    { label: t('vdp.fuelType'), value: detail.fuelType },
+    { label: t('filter.cylinders'), value: detail.cylinders ? String(detail.cylinders) : '—' },
+    { label: t('filter.drivetrain'), value: detail.driveTrain ?? '—' },
+    { label: t('vdp.regionalSpecs'), value: detail.regionalSpecs ?? '—' },
+    { label: t('filter.bodyType'), value: detail.bodyType.nameEn },
+    { label: t('vdp.doors'), value: detail.doors ? String(detail.doors) : '—' },
+    { label: t('vdp.seats'), value: detail.seats ? String(detail.seats) : '—' },
+    { label: t('vdp.vinLast6'), value: maskVIN(detail.vin) },
+    { label: t('vdp.previousOwners'), value: detail.previousOwners != null ? String(detail.previousOwners) : '—' },
   ];
 
   const visibleSpecs = specsExpanded ? specRows : specRows.slice(0, 6);
 
   return (
     <View style={[styles.sectionPadded, styles.bgSlate50]}>
-      <Text style={styles.sectionHeading}>Vehicle specs</Text>
+      <Text style={styles.sectionHeading}>{t('vdp.specsTitle')}</Text>
       <View style={styles.specCard}>
         {visibleSpecs.map((row) => (
           <SpecRow key={row.label} label={row.label} value={row.value} />
@@ -67,7 +69,7 @@ export function SpecsBlock({ detail }: SpecsBlockProps) {
           onPress={() => setSpecsExpanded((v) => !v)}
           activeOpacity={0.8}
         >
-          <Text style={styles.expandBtnText}>{specsExpanded ? 'Show less' : 'Show all specs'}</Text>
+          <Text style={styles.expandBtnText}>{specsExpanded ? t('vdp.showLess') : t('vdp.showAllSpecs')}</Text>
           <Text style={[styles.chevronSmall, specsExpanded ? styles.chevronUp : null, rtlChevron]}>›</Text>
         </TouchableOpacity>
       </View>

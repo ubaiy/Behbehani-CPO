@@ -4,7 +4,7 @@ import { fontFamily, radius } from '../../theme/theme';
 import { SLATE_200, SLATE_500, BRAND_900 } from './authConstants';
 
 export function LanguageToggle() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const currentLang = i18n.language?.startsWith('ar') ? 'ar' : 'en';
 
   function toggleLanguage() {
@@ -15,7 +15,7 @@ export function LanguageToggle() {
   }
 
   return (
-    <View style={styles.langToggle} accessibilityRole="radiogroup" accessibilityLabel="Language">
+    <View style={styles.langToggle} accessibilityRole="radiogroup" accessibilityLabel={t('auth.languageA11y')}>
       <Pressable
         style={[styles.langBtn, currentLang === 'en' && styles.langBtnActive]}
         onPress={toggleLanguage}

@@ -20,6 +20,7 @@
     "prepare": "husky install",
     "guard:brand-lock": "node scripts/guard-brand-lock.mjs",
     "guard:i18n-parity": "node scripts/guard-i18n-parity.mjs",
+    "guard:i18n-parity-mobile": "node scripts/check-i18n-parity-mobile.mjs",
     "guard:secrets": "node scripts/guard-secrets.mjs",
     "guard:all": "npm run guard:brand-lock && npm run guard:i18n-parity && npm run guard:secrets",
     "mockup-diff": "node scripts/mockup-diff.mjs",

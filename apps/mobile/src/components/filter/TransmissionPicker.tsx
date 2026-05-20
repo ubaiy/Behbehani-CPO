@@ -1,16 +1,22 @@
 import React from 'react';
 import { View, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SectionHeader, Chip } from './shared';
 
-const OPTIONS = ['Automatic', 'Manual', 'CVT'];
+const OPTIONS = [
+  { value: 'Automatic', tKey: 'filter.transmissionAutomatic' },
+  { value: 'Manual', tKey: 'filter.transmissionManual' },
+  { value: 'CVT', tKey: 'filter.transmissionCvt' },
+];
 
 export function TransmissionPicker() {
+  const { t } = useTranslation();
   return (
     <View style={s.sectionDisabled}>
-      <SectionHeader title="Transmission" comingSoon />
+      <SectionHeader title={t('filter.transmission')} comingSoon />
       <View style={s.chipRow}>
-        {OPTIONS.map(t => (
-          <Chip key={t} label={t} selected={false} onPress={() => {}} disabled />
+        {OPTIONS.map(opt => (
+          <Chip key={opt.value} label={t(opt.tKey)} selected={false} onPress={() => {}} disabled />
         ))}
       </View>
     </View>

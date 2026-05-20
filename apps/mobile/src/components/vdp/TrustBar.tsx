@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { ShieldIcon, WarrantyIcon, ReturnIcon, TruckIcon } from './vdp.icons';
@@ -24,12 +25,13 @@ function TrustBadge({ icon, label }: TrustBadgeProps) {
 }
 
 export function TrustBar() {
+  const { t } = useTranslation();
   return (
     <View style={styles.trustBar}>
-      <TrustBadge icon={<ShieldIcon size={16} color={brand[700]} />} label="Inspected" />
-      <TrustBadge icon={<WarrantyIcon />} label="Warranty" />
-      <TrustBadge icon={<ReturnIcon />} label="7-day Return" />
-      <TrustBadge icon={<TruckIcon />} label="Home Delivery" />
+      <TrustBadge icon={<ShieldIcon size={16} color={brand[700]} />} label={t('vdp.inspected')} />
+      <TrustBadge icon={<WarrantyIcon />} label={t('vdp.warranty')} />
+      <TrustBadge icon={<ReturnIcon />} label={t('vdp.returnDays')} />
+      <TrustBadge icon={<TruckIcon />} label={t('vdp.homeDelivery')} />
     </View>
   );
 }

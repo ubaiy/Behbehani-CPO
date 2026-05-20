@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { formatKWD, formatKm, filsToKWD } from './vdp.helpers';
@@ -27,6 +28,7 @@ interface SimilarCardProps {
 }
 
 function SimilarCard({ item, onPress }: SimilarCardProps) {
+  const { t } = useTranslation();
   return (
     <TouchableOpacity style={styles.similarCard} onPress={onPress} activeOpacity={0.85}>
       <View style={styles.similarCardHero}>
@@ -44,7 +46,7 @@ function SimilarCard({ item, onPress }: SimilarCardProps) {
           {item.brand.nameEn} {item.model.nameEn}
         </Text>
         <Text style={styles.similarCardPrice}>{formatKWD(item.priceFils)}</Text>
-        <Text style={styles.similarCardMonthly}>from KWD {filsToKWD(item.monthlyFils).toFixed(3)}/mo</Text>
+        <Text style={styles.similarCardMonthly}>{t('listings.fromMonthly', { value: filsToKWD(item.monthlyFils).toFixed(3) })}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -56,12 +58,13 @@ interface SimilarCarsRailProps {
 }
 
 export function SimilarCarsRail({ items, onItemPress }: SimilarCarsRailProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.similarSection}>
       <View style={styles.similarHeader}>
-        <Text style={styles.sectionHeading}>Similar cars</Text>
+        <Text style={styles.sectionHeading}>{t('vdp.similarCars')}</Text>
         <TouchableOpacity>
-          <Text style={styles.linkText}>See all</Text>
+          <Text style={styles.linkText}>{t('common.seeAll')}</Text>
         </TouchableOpacity>
       </View>
       <ScrollView

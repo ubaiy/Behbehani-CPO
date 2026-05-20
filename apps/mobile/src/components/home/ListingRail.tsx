@@ -7,6 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, radius, spacing } from '../../theme/theme';
 import { brand, slate } from '../../theme/colors';
 import { ListingCard } from '../ListingCard';
@@ -33,12 +34,13 @@ export function ListingRail({
   onSeeAll,
   skeletonCount = 3,
 }: ListingRailProps) {
+  const { t } = useTranslation();
   return (
     <View style={railStyles.section}>
       <View style={railStyles.header}>
         <Text style={railStyles.title}>{title}</Text>
         <Pressable onPress={onSeeAll} hitSlop={8}>
-          <Text style={railStyles.seeAll}>See all</Text>
+          <Text style={railStyles.seeAll}>{t('common.seeAll')}</Text>
         </Pressable>
       </View>
 
@@ -52,9 +54,9 @@ export function ListingRail({
         </ScrollView>
       ) : isError ? (
         <View style={railStyles.errorPill}>
-          <Text style={railStyles.errorText}>Could not load listings.</Text>
+          <Text style={railStyles.errorText}>{t('home.couldNotLoadRail')}</Text>
           <Pressable onPress={onRefetch} hitSlop={8}>
-            <Text style={railStyles.retryText}>Retry</Text>
+            <Text style={railStyles.retryText}>{t('common.retryShort')}</Text>
           </Pressable>
         </View>
       ) : (

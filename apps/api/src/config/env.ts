@@ -57,9 +57,10 @@ const EnvSchema = z.object({
   // ─── Push notification provider creds (v1.4 Day 3) ───────────────────────
   // Empty string = mock fallback; real dispatch activates automatically once
   // values are populated. See push.adapter.ts for details.
-  /** Entire Firebase service-account JSON as a string (e.g. contents of serviceAccountKey.json).
-   *  Required for FCM (Android) dispatch. */
-  FIREBASE_SERVICE_ACCOUNT_JSON: z.string().default(''),
+  /** File path to the Firebase service-account JSON (e.g. `apps/api/.secrets/firebase-admin.json`).
+   *  Required for FCM (Android) dispatch. Empty = mock-fallback in push.adapter.ts.
+   *  Store the actual file under `apps/api/.secrets/` — directory is gitignored. */
+  FIREBASE_SERVICE_ACCOUNT_PATH: z.string().default(''),
   /** APNs 10-character key ID from Apple Developer portal (e.g. "ABCDE12345"). */
   APNS_KEY_ID:   z.string().default(''),
   /** Apple Developer team ID (10-character, e.g. "UVWXY67890"). */

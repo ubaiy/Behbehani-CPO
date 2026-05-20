@@ -4,6 +4,7 @@
  */
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import type { SellFormState } from './types';
@@ -16,13 +17,14 @@ interface VehiclePreviewCardProps {
 }
 
 export function VehiclePreviewCard({ form }: VehiclePreviewCardProps) {
+  const { t } = useTranslation();
   return (
     <View style={ss.vehicleCard}>
       <View style={ss.vehicleIconBox}>
         <Text style={ss.vehicleIcon}>🚗</Text>
       </View>
       <View style={ss.vehicleInfo}>
-        <Text style={ss.vehicleEyebrow}>YOUR CAR</Text>
+        <Text style={ss.vehicleEyebrow}>{t('sell.vehicle.eyebrow')}</Text>
         <Text style={ss.vehicleLabel} numberOfLines={1}>
           {form.vehicleYear} {form.vehicleBrand} {form.vehicleModel} ·{' '}
           {form.vehicleMileageKm.toLocaleString()} km
@@ -30,7 +32,7 @@ export function VehiclePreviewCard({ form }: VehiclePreviewCardProps) {
       </View>
       {/* TODO: link to upstream vehicle entry screen once it exists */}
       <Pressable hitSlop={8}>
-        <Text style={ss.editLink}>Edit</Text>
+        <Text style={ss.editLink}>{t('sell.vehicle.editLink')}</Text>
       </Pressable>
     </View>
   );

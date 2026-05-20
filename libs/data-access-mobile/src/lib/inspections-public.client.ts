@@ -63,7 +63,7 @@ export class InspectionsPublicApiClient {
 
   /**
    * Fetches inspection details for the signature screen.
-   * Uses a single-use token from the deep link (behbehani-cpo://inspection-sign/:token).
+   * Uses a single-use token from the deep link (behbehani-motors://inspection-sign/:token).
    *
    * TODO: Add Zod parse once shared-types inspection-sign schemas are published
    *   by the storefront session (MOBILE_API_CONTRACT.md §1.6 / §13 dependency).

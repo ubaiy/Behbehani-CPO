@@ -5,6 +5,7 @@
  */
 
 import { View, Text, FlatList, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { DATE_CARDS } from './dateHelpers';
@@ -18,9 +19,9 @@ interface StepOneScheduleCardProps {
 }
 
 const TIME_WINDOWS = [
-  { key: 'morning',   top: 'Morning',   sub: '8–12'  },
-  { key: 'afternoon', top: 'Afternoon', sub: '12–4'  },
-  { key: 'evening',   top: 'Evening',   sub: '4–8'   },
+  { key: 'morning',   sub: '8–12'  },
+  { key: 'afternoon', sub: '12–4'  },
+  { key: 'evening',   sub: '4–8'   },
 ] as const;
 
 export function StepOneScheduleCard({
@@ -29,10 +30,11 @@ export function StepOneScheduleCard({
   onDateChange,
   onWindowChange,
 }: StepOneScheduleCardProps) {
+  const { t } = useTranslation();
   return (
     <View style={ss.card}>
-      <Text style={ss.cardH2}>When works for you?</Text>
-      <Text style={ss.cardSub}>Pick a day and rough window. Our team confirms within 24h.</Text>
+      <Text style={ss.cardH2}>{t('sell.step1.schedule.title')}</Text>
+      <Text style={ss.cardSub}>{t('sell.step1.schedule.sub')}</Text>
 
       {/* Horizontal date strip */}
       <FlatList
@@ -67,7 +69,7 @@ export function StepOneScheduleCard({
 
       {/* Time window strip */}
       <View style={ss.windowRow}>
-        {TIME_WINDOWS.map(({ key, top, sub }) => {
+        {TIME_WINDOWS.map(({ key, sub }) => {
           const sel = preferredWindow === key;
           return (
             <Pressable
@@ -77,7 +79,9 @@ export function StepOneScheduleCard({
               accessibilityRole="radio"
               accessibilityState={{ checked: sel }}
             >
-              <Text style={[ss.windowCardTop, sel && ss.windowCardTopSelected]}>{top}</Text>
+              <Text style={[ss.windowCardTop, sel && ss.windowCardTopSelected]}>
+                {t(`sell.step1.schedule.window.${key}`)}
+              </Text>
               <Text style={[ss.windowCardSub, sel && ss.windowCardSubSelected]}>{sub}</Text>
             </Pressable>
           );

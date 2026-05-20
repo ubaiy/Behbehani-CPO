@@ -97,8 +97,8 @@ const TERMINAL_STATUSES: ReadonlySet<InspectionStatus> = new Set(['signed_off'])
         <div class="mx-auto max-w-xl rounded-3xl border border-line bg-white p-8 text-center shadow-brand-sm">
           <div
             class="mx-auto inline-grid h-14 w-14 place-items-center rounded-full"
-            [class.bg-amber-50]="t === 'network_error'"
-            [class.text-amber-700]="t === 'network_error'"
+            [class.bg-brand-50]="t === 'network_error'"
+            [class.text-brand-700]="t === 'network_error'"
             [class.bg-surface-cool]="t !== 'network_error'"
             [class.text-ink-3]="t !== 'network_error'"
           >
@@ -158,15 +158,15 @@ const TERMINAL_STATUSES: ReadonlySet<InspectionStatus> = new Set(['signed_off'])
               </div>
               <span
                 class="inline-flex items-center gap-1.5 rounded-pill px-3 py-1 text-[11px] font-semibold uppercase tracking-wider"
-                [class.bg-amber-100]="!isTerminal(data.status)"
-                [class.text-amber-800]="!isTerminal(data.status)"
-                [class.bg-emerald-100]="isTerminal(data.status)"
-                [class.text-emerald-800]="isTerminal(data.status)"
+                [class.bg-brand-50]="!isTerminal(data.status)"
+                [class.text-brand-700]="!isTerminal(data.status)"
+                [class.bg-brand-100]="isTerminal(data.status)"
+                [class.text-brand-700]="isTerminal(data.status)"
               >
                 <span
                   class="inline-block h-1.5 w-1.5 rounded-full"
-                  [class.bg-amber-500]="!isTerminal(data.status)"
-                  [class.bg-emerald-500]="isTerminal(data.status)"
+                  [class.bg-brand-500]="!isTerminal(data.status)"
+                  [class.bg-brand-700]="isTerminal(data.status)"
                   [class.animate-pulse]="!isTerminal(data.status)"
                 ></span>
                 {{ ('sell.concierge.status.pill.' + data.status) | translate }}
@@ -223,7 +223,7 @@ const TERMINAL_STATUSES: ReadonlySet<InspectionStatus> = new Set(['signed_off'])
                 {{ 'sell.concierge.status.inspectorLabel' | translate }}
               </p>
               @if (data.inspectorAssigned) {
-                <p class="mt-1 flex items-center gap-2 text-[15px] font-medium text-emerald-700">
+                <p class="mt-1 flex items-center gap-2 text-[15px] font-medium text-brand-700">
                   <svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor" aria-hidden="true">
                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                   </svg>

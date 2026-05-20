@@ -4,6 +4,7 @@
  */
 
 import { FlatList, I18nManager, Pressable, Text, View, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { router } from 'expo-router';
 
@@ -17,18 +18,19 @@ export interface PendingCard {
 }
 
 // Static mock data — W3 wires to /me/inspections.latestOffer
+// NOTE: title/subtitle are translation keys resolved at render time via getPendingCards()
 export const PENDING_CARDS: PendingCard[] = [
   {
     id: 'offer-1',
-    title: 'Respond to offer',
-    subtitle: 'KWD 7.000 — expires in 2 days',
+    title: 'account.pendingActions.offerTitle',
+    subtitle: 'account.pendingActions.offerSubtitle',
     route: '/listings/test-slug',
   },
   {
     // TODO v1.5: hide maintenance-due card until subsystem ships per v1.3.2 §5
     id: 'maintenance-1',
-    title: 'Maintenance due',
-    subtitle: 'Your 2021 Toyota Camry is due for service',
+    title: 'account.pendingActions.maintenanceTitle',
+    subtitle: 'account.pendingActions.maintenanceSubtitle',
     route: '/account/coming-soon?feature=maintenance',
   },
 ];
@@ -38,11 +40,12 @@ interface Props {
 }
 
 export function PendingActionsStrip({ cards = PENDING_CARDS }: Props) {
+  const { t } = useTranslation();
   const isRTL = I18nManager.isRTL;
 
   return (
     <>
-      <Text style={styles.sectionLabel}>Needs your attention</Text>
+      <Text style={styles.sectionLabel}>{t('account.pendingActions.heading')}</Text>
       <FlatList
         data={cards}
         keyExtractor={(item) => item.id}
@@ -59,11 +62,11 @@ export function PendingActionsStrip({ cards = PENDING_CARDS }: Props) {
                 <Text style={styles.cardIconText}>{'$'}</Text>
               </View>
               <View style={styles.cardBody}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardSubtitle}>{item.subtitle}</Text>
+                <Text style={styles.cardTitle}>{t(item.title)}</Text>
+                <Text style={styles.cardSubtitle}>{t(item.subtitle)}</Text>
               </View>
             </View>
-            <Text style={styles.cardCta}>View {isRTL ? '←' : '→'}</Text>
+            <Text style={styles.cardCta}>{t('account.pendingActions.viewCta', { arrow: isRTL ? '←' : '→' })}</Text>
           </Pressable>
         )}
       />

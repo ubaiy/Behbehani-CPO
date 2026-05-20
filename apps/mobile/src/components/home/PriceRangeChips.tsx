@@ -1,21 +1,22 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, radius, spacing } from '../../theme/theme';
 import { brand, slate } from '../../theme/colors';
 import { railStyles } from './ListingRail';
 
 type PriceRange = {
-  label: string;
+  labelKey: string;
   maxFils: number | null;
 };
 
 const PRICE_RANGES: PriceRange[] = [
-  { label: 'Under KWD 3,000', maxFils: 3_000_000 },
-  { label: 'KWD 3,000 – 6,000', maxFils: 6_000_000 },
-  { label: 'KWD 6,000 – 10,000', maxFils: 10_000_000 },
-  { label: 'KWD 10,000 – 15,000', maxFils: 15_000_000 },
-  { label: 'KWD 15,000 – 20,000', maxFils: 20_000_000 },
-  { label: 'KWD 20,000+', maxFils: null },
+  { labelKey: 'home.priceRangeUnder3k', maxFils: 3_000_000 },
+  { labelKey: 'home.priceRange3to6k', maxFils: 6_000_000 },
+  { labelKey: 'home.priceRange6to10k', maxFils: 10_000_000 },
+  { labelKey: 'home.priceRange10to15k', maxFils: 15_000_000 },
+  { labelKey: 'home.priceRange15to20k', maxFils: 20_000_000 },
+  { labelKey: 'home.priceRange20kPlus', maxFils: null },
 ];
 
 type PriceRangeChipsProps = {
@@ -23,9 +24,10 @@ type PriceRangeChipsProps = {
 };
 
 export function PriceRangeChips({ onPress }: PriceRangeChipsProps) {
+  const { t } = useTranslation();
   return (
     <View style={priceStyles.section}>
-      <Text style={railStyles.title}>Shop by Price Range</Text>
+      <Text style={railStyles.title}>{t('home.shopByPriceRange')}</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -33,12 +35,12 @@ export function PriceRangeChips({ onPress }: PriceRangeChipsProps) {
       >
         {PRICE_RANGES.map((pr) => (
           <Pressable
-            key={pr.label}
+            key={pr.labelKey}
             style={({ pressed }) => [priceStyles.chip, pressed && priceStyles.chipPressed]}
             onPress={() => onPress(pr.maxFils)}
             accessibilityRole="button"
           >
-            <Text style={priceStyles.chipText}>{pr.label}</Text>
+            <Text style={priceStyles.chipText}>{t(pr.labelKey)}</Text>
           </Pressable>
         ))}
       </ScrollView>

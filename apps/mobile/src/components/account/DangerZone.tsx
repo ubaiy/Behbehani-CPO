@@ -4,6 +4,7 @@
  */
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { slate } from '../../theme/colors';
 
 const RED_50 = '#FEF2F2';
@@ -17,9 +18,10 @@ interface Props {
 }
 
 export function DangerZone({ onSignOut, onSignOutAll, onDeleteAccount }: Props) {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>DANGER ZONE</Text>
+      <Text style={styles.label}>{t('account.dangerZone.heading')}</Text>
 
       <Pressable
         style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
@@ -27,7 +29,7 @@ export function DangerZone({ onSignOut, onSignOutAll, onDeleteAccount }: Props) 
         accessibilityRole="button"
       >
         <Text style={styles.rowIcon}>{'↪'}</Text>
-        <Text style={styles.rowText}>Sign out</Text>
+        <Text style={styles.rowText}>{t('account.dangerZone.signOutBtn')}</Text>
       </Pressable>
 
       <Pressable
@@ -36,7 +38,7 @@ export function DangerZone({ onSignOut, onSignOutAll, onDeleteAccount }: Props) 
         accessibilityRole="button"
       >
         <Text style={styles.rowIcon}>{'⊗'}</Text>
-        <Text style={styles.rowText}>Sign out of all devices</Text>
+        <Text style={styles.rowText}>{t('account.dangerZone.signOutAllBtn')}</Text>
       </Pressable>
 
       <Pressable
@@ -46,8 +48,8 @@ export function DangerZone({ onSignOut, onSignOutAll, onDeleteAccount }: Props) 
       >
         <Text style={styles.rowIcon}>{'🗑'}</Text>
         <View style={styles.rowBody}>
-          <Text style={styles.rowText}>Delete account</Text>
-          <Text style={styles.rowCaption}>30-day grace period applies</Text>
+          <Text style={styles.rowText}>{t('account.dangerZone.deleteAccountBtn')}</Text>
+          <Text style={styles.rowCaption}>{t('account.dangerZone.deleteAccountCaption')}</Text>
         </View>
       </Pressable>
     </View>

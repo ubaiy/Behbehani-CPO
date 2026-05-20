@@ -27,6 +27,7 @@ import {
   I18nManager,
   Alert,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { slate } from '../../src/theme/colors';
 import { fontFamily } from '../../src/theme/theme';
@@ -48,6 +49,7 @@ import type { Step, SellFormState } from '../../src/components/sell';
 
 export default function SellScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const scrollRef = useRef<ScrollView>(null);
 
   const [step, setStep] = useState<Step>(1);
@@ -93,7 +95,7 @@ export default function SellScreen() {
 
   function handleStep1Continue() {
     if (!form.addressLine.trim()) {
-      Alert.alert('Address required', 'Please enter your address before continuing.');
+      Alert.alert(t('sell.alerts.addressRequiredTitle'), t('sell.alerts.addressRequiredBody'));
       return;
     }
     goToStep(2);
@@ -101,11 +103,11 @@ export default function SellScreen() {
 
   function handleStep2Continue() {
     if (!form.fullName.trim()) {
-      Alert.alert('Name required', 'Please enter your full name.');
+      Alert.alert(t('sell.alerts.nameRequiredTitle'), t('sell.alerts.nameRequiredBody'));
       return;
     }
     if (!/^[569][0-9]{7}$/.test(form.mobile)) {
-      Alert.alert('Invalid mobile', 'Kuwait mobile must start with 5, 6, or 9 and be 8 digits.');
+      Alert.alert(t('sell.alerts.invalidMobileTitle'), t('sell.alerts.invalidMobileBody'));
       return;
     }
     goToStep(3);
@@ -113,7 +115,7 @@ export default function SellScreen() {
 
   function handleBook() {
     if (!form.agreedToTerms) {
-      Alert.alert('Terms required', 'Please agree to the inspection T&Cs to continue.');
+      Alert.alert(t('sell.alerts.termsRequiredTitle'), t('sell.alerts.termsRequiredBody'));
       return;
     }
     // TODO W3: wire to real submit via inspectionsPublicClient.createBooking(form)
@@ -143,7 +145,7 @@ export default function SellScreen() {
         />
         <StepFooter
           step={1}
-          primaryLabel="Continue → Contact"
+          primaryLabel={t('sell.step1.cta')}
           onPrimary={handleStep1Continue}
         />
       </>
@@ -163,7 +165,7 @@ export default function SellScreen() {
         />
         <StepFooter
           step={2}
-          primaryLabel="Continue → Review"
+          primaryLabel={t('sell.step2.cta')}
           onPrimary={handleStep2Continue}
           onBack={() => goToStep(1)}
         />
@@ -191,15 +193,12 @@ export default function SellScreen() {
           <View style={[ss.checkbox, form.agreedToTerms && ss.checkboxChecked]}>
             {form.agreedToTerms && <Text style={ss.checkboxMark}>✓</Text>}
           </View>
-          <Text style={ss.termsText}>
-            I agree to the inspection T&Cs and consent to Behbehani Motors processing my booking
-            details.
-          </Text>
+          <Text style={ss.termsText}>{t('sell.step3.terms')}</Text>
         </Pressable>
 
         <StepFooter
           step={3}
-          primaryLabel="Book my inspection"
+          primaryLabel={t('sell.step3.review.confirmBtn')}
           onPrimary={handleBook}
           onBack={() => goToStep(2)}
         />

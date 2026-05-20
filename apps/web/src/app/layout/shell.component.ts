@@ -8,6 +8,7 @@ import { FooterComponent } from './footer.component';
 import { SignInModalComponent } from '../features/auth/sign-in-modal.component';
 import { SignInModalService } from '../features/auth/sign-in-modal.service';
 import { SignUpModalComponent } from '../features/auth/sign-up-modal.component';
+import { CheckoutModalComponent } from '../features/checkout/checkout-modal.component';
 
 interface NavItem {
   id: string;
@@ -27,7 +28,7 @@ const NAV: ReadonlyArray<NavItem> = [
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, FooterComponent, SignInModalComponent, SignUpModalComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, FooterComponent, SignInModalComponent, SignUpModalComponent, CheckoutModalComponent],
   template: `
     <header
       class="sticky top-0 z-40 border-b border-line/70 bg-white/85 backdrop-blur-md backdrop-saturate-150"
@@ -265,6 +266,7 @@ const NAV: ReadonlyArray<NavItem> = [
 
     <app-sign-in-modal />
     <app-sign-up-modal />
+    <app-checkout-modal />
   `,
 })
 export class ShellComponent implements OnInit {

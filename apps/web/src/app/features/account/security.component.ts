@@ -68,21 +68,19 @@ function relativeTime(iso: string | null): string {
   template: `
     @if (!auth.isSignedIn()) {
       <!-- Guest gate -->
-      <div class="container-page py-10 sm:py-14">
-        <div class="mx-auto max-w-4xl">
-          <div
-            class="rounded-3xl p-8 sm:p-10"
-            style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
+      <div class="container-page py-8 mx-auto max-w-4xl">
+        <div
+          class="rounded-3xl p-6 sm:p-8 text-white"
+          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
+        >
+          <h1
+            class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white"
           >
-            <h1
-              class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white"
-            >
-              {{ 'account.security.signInRequired.title' | translate }}
-            </h1>
-            <p class="mt-2 text-[14px] text-white/80">
-              {{ 'account.security.signInRequired.body' | translate }}
-            </p>
-          </div>
+            {{ 'account.security.signInRequired.title' | translate }}
+          </h1>
+          <p class="mt-2 text-[14px] text-white/80">
+            {{ 'account.security.signInRequired.body' | translate }}
+          </p>
         </div>
       </div>
       <main class="container-page py-8 sm:py-10 max-w-4xl mx-auto">
@@ -95,27 +93,27 @@ function relativeTime(iso: string | null): string {
     } @else {
       <!-- Back link -->
       <div class="container-page pt-6">
-        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-          {{ 'account.backToHub' | translate }}
-        </a>
+        <div class="mx-auto max-w-4xl">
+          <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
+            {{ 'account.backToHub' | translate }}
+          </a>
+        </div>
       </div>
 
       <!-- Hero -->
-      <div class="container-page py-10 sm:py-14">
-        <div class="mx-auto max-w-4xl">
-          <div
-            class="rounded-3xl p-8 sm:p-10"
-            style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
+      <div class="container-page py-8 mx-auto max-w-4xl">
+        <div
+          class="rounded-3xl p-6 sm:p-8 text-white"
+          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
+        >
+          <h1
+            class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white"
           >
-            <h1
-              class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white"
-            >
-              {{ 'account.security.title' | translate }}
-            </h1>
-            <p class="mt-2 text-[14px] text-white/80">
-              {{ 'account.security.sub' | translate }}
-            </p>
-          </div>
+            {{ 'account.security.title' | translate }}
+          </h1>
+          <p class="mt-2 text-[14px] text-white/80">
+            {{ 'account.security.sub' | translate }}
+          </p>
         </div>
       </div>
 
@@ -133,7 +131,7 @@ function relativeTime(iso: string | null): string {
                 {{ lastSignInRelative() }}
               </p>
               <p class="mt-0.5 text-[13px] text-muted">
-                {{ 'account.security.lastSignIn.from' | translate }} Kuwait City
+                {{ 'account.security.lastSignIn.from' | translate: { location: 'Kuwait City' } }}
                 <span
                   class="ms-2 inline-flex items-center rounded-full bg-brand-50 px-2 py-0.5 text-[11px] text-brand-700"
                 >

@@ -198,7 +198,84 @@ Every spawned agent gets:
 
 ---
 
-## 12. When stuck — escalate, don't guess
+## 13. Agent ship-checklist — menu wiring required
+
+> Added 2026-05-20 in response to `[ASK B→A] B-A-1`. Both A and B agents have shipped "feature complete" components that left their nav shell entry as a disabled `<span>` placeholder, making the feature unreachable.
+
+Every new feature surface a session ships must satisfy ALL of these before claiming "done" in a contract block. If any item is missing, the contract block says "feature WIP — menu wire pending" instead of "[SHIPPED]".
+
+### 13.1 Web storefront (A) ship-checklist
+- [ ] Component standalone, OnPush, signals
+- [ ] Route entry in `apps/web/src/app/app.routes.ts`
+- [ ] **Header dropdown / shell nav entry** in `apps/web/src/app/layout/shell.component.ts` — if the feature lives under `/account/*`, it's reachable from the user dropdown OR the account hub tile; if it's a top-level page (e.g. `/browse`), it's in the main nav strip
+- [ ] **Account hub tile** in `apps/web/src/app/features/account/account-hub.component.ts` if the feature is under `/account/*`
+- [ ] i18n keys EN + AR symmetric (verify `npm run guard:i18n-parity`)
+- [ ] Brand-lock clean (verify `npm run guard:brand-lock`)
+- [ ] Build verify `npx nx build web --skip-nx-cache`
+
+### 13.2 Admin (B) ship-checklist
+- [ ] Component standalone, OnPush
+- [ ] Route in `apps/admin/src/app/admin.routes.ts`
+- [ ] **Layout shell sidebar nav entry** in `apps/admin/src/app/layout/admin-shell.component.ts` (or equivalent) — the disabled `<span>` placeholder MUST be replaced with the active `<a routerLink>`
+- [ ] RBAC role check on the route + on the nav entry
+- [ ] Build verify `npx nx build admin --skip-nx-cache`
+
+### 13.3 Mobile (C) ship-checklist
+- [ ] Screen in `apps/mobile/app/**` with proper `_layout.tsx` Stack.Screen registration
+- [ ] **Account hub tile** in `apps/mobile/app/(tabs)/account.tsx` if user-facing under Account
+- [ ] **Deep-link route registered** in `apps/mobile/app.json` if the screen is reachable from server-sent push payload
+- [ ] i18n EN + AR if user-facing copy
+- [ ] `npx tsc --noEmit -p apps/mobile/tsconfig.json` clean
+
+### 13.4 Verifier
+The ship-checklist is verified by the spawning agent (you). If you spawned a sub-agent, the sub-agent's report must explicitly confirm checklist items in its "Done condition" output. Lead agent (in-thread) doesn't have to re-walk — it can trust the sub-agent's report — but the contract block claim of "[SHIPPED]" implies all items passed.
+
+If a checklist item is skipped intentionally (e.g., feature is gated behind a flag and intentionally not yet in nav), the contract block must say so explicitly with the rationale and a `[SHIPPED-PARTIAL]` tag instead of `[SHIPPED]`.
+
+---
+
+## 14. `allowSignalWrites` cycle rule (Angular signals trap)
+
+> Added 2026-05-20 in response to `v1.4.9` addresses-page freeze + `v1.4.13` defense-in-depth audit of 9 other effects.
+
+Before shipping any `effect(() => {...}, { allowSignalWrites: true })`, verify for every signal `X` that the effect **reads** (tracked, i.e. `this.X()` not `untracked(() => this.X())`): the effect does **not** also call `X.set()` or `X.update()` anywhere in the same synchronous execution path. If it does — even conditionally — wrap the read with `untracked()` to break the dependency.
+
+**Cycle pattern (BUG — freezes renderer):**
+```ts
+effect(() => {
+  const items = this.items();           // tracked read
+  const current = this.pageState();     // ← ALSO tracked read of a signal we're about to write
+  if (current.kind === 'loading') return;
+  this.pageState.set(...);              // ← write → re-triggers effect → infinite loop
+}, { allowSignalWrites: true });
+```
+
+**Fix:**
+```ts
+effect(() => {
+  const items = this.items();
+  const current = untracked(() => this.pageState());  // ← untracked read breaks the cycle
+  if (current.kind === 'loading') return;
+  this.pageState.set(...);
+}, { allowSignalWrites: true });
+```
+
+**Async-safe (OK):**
+```ts
+effect(() => {
+  const id = this.id();                 // tracked read
+  this.api.get(id).subscribe(v => {
+    this.cache.set(v);                  // ← write happens INSIDE async callback, outside tracked context
+  });
+}, { allowSignalWrites: true });
+```
+Writes inside `.subscribe()`, `setTimeout`, `Promise.then` etc. are outside the tracked context and do NOT cause cycles. Still flag as P3 code smell if convenient.
+
+**v1.4.9 example:** `apps/web/src/app/features/account/addresses.component.ts:354` froze the renderer because `pageState()` was both tracked and written. Fix added `untracked()` wrapper; defense-in-depth in v1.4.13 confirmed all 9 other `allowSignalWrites` effects are SAFE (modal-open writes target different signals; subscribe-callback writes are async-safe).
+
+---
+
+## 15. When stuck — escalate, don't guess
 
 If 2+ sessions are deadlocked on the same file ownership question, or if two contract blocks contradict each other:
 1. Stop your own work

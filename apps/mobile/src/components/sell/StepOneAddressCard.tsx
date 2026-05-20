@@ -5,6 +5,7 @@
  */
 
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import type { SellFormState } from './types';
@@ -26,10 +27,11 @@ export function StepOneAddressCard({
   onParkingNotesChange,
   onToggleNotes,
 }: StepOneAddressCardProps) {
+  const { t } = useTranslation();
   return (
     <View style={ss.card}>
-      <Text style={ss.cardH2}>Where should we come?</Text>
-      <Text style={ss.cardSub}>Your inspector arrives at your address.</Text>
+      <Text style={ss.cardH2}>{t('sell.step1.address.title')}</Text>
+      <Text style={ss.cardSub}>{t('sell.step1.address.sub')}</Text>
 
       <View style={ss.addressRow}>
         <Text style={ss.addressSearchIcon}>⌕</Text>
@@ -37,7 +39,7 @@ export function StepOneAddressCard({
           style={ss.addressInput}
           value={addressLine}
           onChangeText={onAddressChange}
-          placeholder="Search your address (Block, Street, House)"
+          placeholder={t('sell.step1.address.searchPlaceholder')}
           placeholderTextColor={slate[400]}
           returnKeyType="done"
           autoCapitalize="words"
@@ -49,7 +51,7 @@ export function StepOneAddressCard({
         accessibilityRole="button"
       >
         <Text style={ss.locationBtnIcon}>◎</Text>
-        <Text style={ss.locationBtnText}>Use my current location</Text>
+        <Text style={ss.locationBtnText}>{t('sell.step1.address.useLocation')}</Text>
       </Pressable>
 
       {/* Map stub */}
@@ -57,7 +59,7 @@ export function StepOneAddressCard({
         <View style={ss.mapPin}>
           <Text style={ss.mapPinIcon}>📍</Text>
         </View>
-        <Text style={ss.mapCredit}>Map · OpenStreetMap</Text>
+        <Text style={ss.mapCredit}>{t('sell.step1.address.mapCredit')}</Text>
       </View>
 
       {/* Collapsible parking notes */}
@@ -67,15 +69,15 @@ export function StepOneAddressCard({
         accessibilityRole="button"
       >
         <Text style={[ss.notesChevron, { transform: notesOpen ? [{ rotate: '90deg' }] : [] }]}>›</Text>
-        <Text style={ss.notesToggleText}>Add parking instructions or gate code</Text>
-        <Text style={ss.notesOptional}>(optional)</Text>
+        <Text style={ss.notesToggleText}>{t('sell.step1.address.parkingToggle')}</Text>
+        <Text style={ss.notesOptional}>{t('sell.step1.address.parkingOptional')}</Text>
       </Pressable>
       {notesOpen && (
         <TextInput
           style={ss.parkingTextarea}
           value={parkingNotes ?? ''}
           onChangeText={onParkingNotesChange}
-          placeholder="e.g. Gated compound, call at the gate. Parking inside."
+          placeholder={t('sell.step1.address.parkingPlaceholder')}
           placeholderTextColor={slate[400]}
           multiline
           numberOfLines={2}

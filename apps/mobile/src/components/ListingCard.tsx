@@ -23,6 +23,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import type { ListingPublicSummary } from '@behbehani-cpo/shared-types';
 import { brand, slate, red } from '../theme/colors';
 import { fontFamily, fontSize, radius, shadows, spacing } from '../theme/theme';
@@ -48,13 +49,13 @@ function formatKwd(fils: string): string {
   })}`;
 }
 
-function formatKwdMonthly(fils: string): string {
+function formatKwdAmount(fils: string): string {
   const num = parseInt(fils, 10);
   if (isNaN(num)) return '';
-  return `from KWD ${(num / 1000).toLocaleString('en-US', {
+  return (num / 1000).toLocaleString('en-US', {
     minimumFractionDigits: 3,
     maximumFractionDigits: 3,
-  })}/mo`;
+  });
 }
 
 // ─── HeartIcon ────────────────────────────────────────────────────────────────
@@ -82,15 +83,16 @@ function PhotoArea({
   badge: ListingPublicSummary['badge'];
   isPriceDrop: boolean;
 }) {
+  const { t } = useTranslation();
   const hasBadge = inspected || (badge !== null && badge !== 'priceDrop');
   const badgeLabel = inspected
-    ? 'CPO INSPECTED'
+    ? t('listings.badge.cpoInspected')
     : badge === 'lowMileage'
-    ? 'LOW MILEAGE'
+    ? t('listings.badge.lowMileageBadge')
     : badge === 'recentlyAdded'
-    ? 'RECENTLY ADDED'
+    ? t('listings.badge.recentlyAddedBadge')
     : badge === 'premium'
-    ? 'PREMIUM'
+    ? t('listings.badge.premiumBadge')
     : null;
 
   return (
@@ -119,7 +121,7 @@ function PhotoArea({
       {isPriceDrop ? (
         <View style={styles.photoBadgeRow}>
           <View style={[styles.photoBadge, styles.priceDropBadge]}>
-            <Text style={styles.photoBadgeText}>PRICE DROP</Text>
+            <Text style={styles.photoBadgeText}>{t('listings.badge.priceDropBadge')}</Text>
           </View>
         </View>
       ) : null}
@@ -137,6 +139,7 @@ function ListingCard({
   onPress,
 }: ListingCardProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const isPriceDrop = listing.badge === 'priceDrop';
 
   const cardStyle =
@@ -150,7 +153,10 @@ function ListingCard({
     if (onPress) {
       onPress(listing);
     } else {
-      router.push(`/listings/${listing.slug}` as const);
+      // `as any` is the codebase convention for dynamic expo-router paths
+      // (typed-routes can't infer template-literal slugs). Matches the 8 other
+      // sites in apps/mobile/app/** that route to dynamic segments.
+      router.push(`/listings/${listing.slug}` as any);
     }
   }
 
@@ -176,7 +182,7 @@ function ListingCard({
           onPress={() => onFavoriteToggle?.(listing.id)}
           hitSlop={8}
           accessibilityRole="button"
-          accessibilityLabel="Toggle favorite"
+          accessibilityLabel={t('listings.toggleFavoriteA11y')}
         >
           <HeartIcon filled={false} />
         </Pressable>
@@ -185,7 +191,7 @@ function ListingCard({
       {/* Info block */}
       <View style={styles.infoBlock}>
         <Text style={styles.metaLine} numberOfLines={1}>
-          {listing.year} · {listing.mileageKm.toLocaleString('en-US')} km
+          {listing.year} · {listing.mileageKm.toLocaleString('en-US')} {t('listings.kmShort')}
         </Text>
 
         <Text style={styles.titleLine} numberOfLines={2}>
@@ -205,9 +211,12 @@ function ListingCard({
 
         <View style={styles.priceRow}>
           <View>
-            {isPriceDrop && listing.priceFils ? (
+            {/* Price-drop strikethrough: shows the ORIGINAL price (previousPriceFils)
+                with strikethrough, with the current discounted price below. Per
+                CONCIERGE v1.4.5 §6 [ASK C→A] A-1 — previousPriceFils shipped. */}
+            {isPriceDrop && listing.previousPriceFils ? (
               <Text style={styles.priceStruck} numberOfLines={1}>
-                {formatKwd(listing.priceFils)}
+                {formatKwd(listing.previousPriceFils)}
               </Text>
             ) : null}
             <Text style={styles.price} numberOfLines={1}>
@@ -215,7 +224,9 @@ function ListingCard({
             </Text>
           </View>
           <Text style={styles.monthly} numberOfLines={1}>
-            {formatKwdMonthly(listing.monthlyFils)}
+            {formatKwdAmount(listing.monthlyFils)
+              ? t('listings.fromMonthly', { value: formatKwdAmount(listing.monthlyFils) })
+              : ''}
           </Text>
         </View>
       </View>

@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 
@@ -14,16 +15,19 @@ interface DealerCardProps {
 }
 
 export function DealerCard({ dealerName, dealerLocation }: DealerCardProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.sectionPadded}>
       <View style={[styles.card, styles.dealerCard]}>
         <View style={styles.dealerAvatar}>
-          <Text style={styles.dealerAvatarText}>BM</Text>
+          <Text style={styles.dealerAvatarText}>{t('vdp.dealerAvatar')}</Text>
         </View>
         <View style={styles.dealerInfo}>
           <Text style={styles.dealerName}>{dealerName}</Text>
           <Text style={styles.dealerSub}>
-            {dealerLocation ?? 'Verified dealer'} · Replies in &lt; 2 hrs
+            {dealerLocation
+              ? t('vdp.dealerSubWithLocation', { location: dealerLocation })
+              : t('vdp.dealerSubVerified')}
           </Text>
         </View>
       </View>

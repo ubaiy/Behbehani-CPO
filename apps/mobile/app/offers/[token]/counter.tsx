@@ -19,10 +19,12 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../../src/theme/colors';
 
 export default function CounterScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
+  const { t } = useTranslation();
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
 
@@ -41,12 +43,12 @@ export default function CounterScreen() {
         <TouchableOpacity
           style={s.backBtn}
           onPress={() => router.push(`/offers/${token}/view` as any)}
-          accessibilityLabel="Back to offer"
+          accessibilityLabel={t('offers.counter.backA11y')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Text style={[s.backChevron, { transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }]}>‹</Text>
         </TouchableOpacity>
-        <Text style={s.headerTitle}>Counter offer</Text>
+        <Text style={s.headerTitle}>{t('offers.counter.headerTitle')}</Text>
       </View>
 
       <ScrollView
@@ -57,14 +59,14 @@ export default function CounterScreen() {
       >
         {/* ── Original offer summary (brand-50) ──────────────────────── */}
         <View style={s.offerSummary}>
-          <Text style={s.offerSummaryLabel}>BEHBEHANI'S OFFER</Text>
+          <Text style={s.offerSummaryLabel}>{t('offers.counter.offerSummaryLabel')}</Text>
           <Text style={s.offerSummaryAmount}>KWD 4,850.000</Text>
           <Text style={s.offerSummaryMeta}>2020 Toyota Camry GLE · BMC-CON-001234</Text>
         </View>
 
         {/* ── Counter amount input ────────────────────────────────────── */}
         <View style={s.fieldGroup}>
-          <Text style={s.fieldLabel}>Your asking price</Text>
+          <Text style={s.fieldLabel}>{t('offers.counter.askingPriceLabel')}</Text>
           <View style={s.amountRow}>
             <View style={s.kwdChip}>
               <Text style={s.kwdText}>KWD</Text>
@@ -76,29 +78,29 @@ export default function CounterScreen() {
               placeholderTextColor={slate[400]}
               value={amount}
               onChangeText={setAmount}
-              accessibilityLabel="Counter amount"
+              accessibilityLabel={t('offers.counter.amountInputA11y')}
             />
           </View>
-          <Text style={s.fieldHint}>Enter an amount above KWD 4,850.000</Text>
+          <Text style={s.fieldHint}>{t('offers.counter.amountHint')}</Text>
         </View>
 
         {/* ── Notes textarea ──────────────────────────────────────────── */}
         <View style={s.fieldGroup}>
           <Text style={s.fieldLabel}>
-            Why this number?{'  '}
-            <Text style={s.fieldLabelOptional}>(optional)</Text>
+            {t('offers.counter.notesLabel')}{'  '}
+            <Text style={s.fieldLabelOptional}>({t('offers.counter.notesOptional')})</Text>
           </Text>
           <TextInput
             style={s.notesInput}
             multiline
             numberOfLines={4}
             maxLength={500}
-            placeholder="Why this number? · Recent service, new tires, full options..."
+            placeholder={t('offers.counter.notesPlaceholder')}
             placeholderTextColor={slate[400]}
             value={notes}
             onChangeText={setNotes}
             textAlignVertical="top"
-            accessibilityLabel="Counter offer notes"
+            accessibilityLabel={t('offers.counter.notesA11y')}
           />
           <Text style={s.charCount}>{notes.length} / 500</Text>
         </View>
@@ -107,8 +109,8 @@ export default function CounterScreen() {
         <View style={s.infoCard}>
           <Text style={s.infoIcon}>⏱</Text>
           <Text style={s.infoText}>
-            BMC will review and respond within{' '}
-            <Text style={s.infoBold}>24 hours</Text>.
+            {t('offers.counter.reviewInfo')}{' '}
+            <Text style={s.infoBold}>{t('offers.counter.reviewInfoBold')}</Text>.
           </Text>
         </View>
       </ScrollView>
@@ -118,16 +120,16 @@ export default function CounterScreen() {
         <TouchableOpacity
           style={s.cancelBtn}
           onPress={() => router.push(`/offers/${token}/view` as any)}
-          accessibilityLabel="Cancel"
+          accessibilityLabel={t('offers.counter.cancelA11y')}
         >
-          <Text style={s.cancelText}>Cancel</Text>
+          <Text style={s.cancelText}>{t('offers.counter.cancelBtn')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={s.sendBtn}
           onPress={handleSend}
-          accessibilityLabel="Send counter offer"
+          accessibilityLabel={t('offers.counter.sendA11y')}
         >
-          <Text style={s.sendText}>Send counter</Text>
+          <Text style={s.sendText}>{t('offers.counter.sendBtn')}</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

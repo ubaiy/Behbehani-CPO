@@ -65,6 +65,13 @@ enum KuwaitGovernorate {
   mubarak_al_kabeer
 }
 
+// v1.3.7 — PII identity gender.
+enum Gender {
+  male
+  female
+  prefer_not_to_say
+}
+
 model User {
   id               String      @id @default(uuid()) @db.Uuid
   email            String?     @unique
@@ -86,6 +93,30 @@ model User {
   status                  UserStatus  @default(active)
   // v1.3.0 §5 — per-channel notification preferences (push, email, sms).
   notificationPreferences Json?
+
+  // ─── v1.3.7 — Phase B PII columns ────────────────────────────────────────
+  // All nullable. No DTO exposure in v1.3 — UI captures via loan-app /
+  // purchase-wizard / delivery-KYC workflows in v1.4.x+.
+  // KW Civil ID format: 12 digits + mod-11 weighted checksum (see
+  // apps/api/src/auth/civil-id-validation.ts for the validator).
+  dateOfBirth           DateTime? @db.Date
+  gender                Gender?
+  nationality           String?   @db.VarChar(2)   // ISO-3166-1 alpha-2 (e.g. "KW")
+
+  civilIdNumber         String?   @db.VarChar(12)
+  civilIdFrontUrl       String?   @db.VarChar(500) // S3 relative key per S3_CONVENTIONS.md Tier 3
+  civilIdBackUrl        String?   @db.VarChar(500)
+  civilIdVerifiedAt     DateTime? @db.Timestamp(3)
+  civilIdExpiry         DateTime? @db.Date
+
+  passportNumber        String?   @db.VarChar(40)
+  passportExpiry        DateTime? @db.Date
+  passportUrl           String?   @db.VarChar(500)
+
+  driverLicenseNumber   String?   @db.VarChar(40)
+  driverLicenseExpiry   DateTime? @db.Date
+  driverLicenseUrl      String?   @db.VarChar(500)
+
   failedLoginCount        Int         @default(0)
   lockedUntil      DateTime?
   lastSignInAt     DateTime?

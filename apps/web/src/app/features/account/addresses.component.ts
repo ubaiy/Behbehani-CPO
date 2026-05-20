@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
@@ -70,9 +71,11 @@ interface ModalState {
     } @else {
       <!-- Back link -->
       <div class="container-page pt-6">
-        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-          {{ 'account.backToHub' | translate }}
-        </a>
+        <div class="mx-auto max-w-4xl">
+          <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
+            {{ 'account.backToHub' | translate }}
+          </a>
+        </div>
       </div>
 
       <!-- Hero — rounded-3xl framed card (not full-bleed) -->
@@ -182,7 +185,7 @@ interface ModalState {
             <h2 class="font-display font-bold text-[16px] text-ink">
               {{ (modal().mode === 'create' ? ('account.addresses.modal.createTitle' | translate) : ('account.addresses.modal.editTitle' | translate)) }}
             </h2>
-            <button type="button" (click)="closeModal()" aria-label="Close"
+            <button type="button" (click)="closeModal()" [attr.aria-label]="'common.close' | translate"
               class="w-8 h-8 rounded-lg border border-line flex items-center justify-center text-muted hover:border-brand-300 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
@@ -346,10 +349,13 @@ export class AccountAddressesComponent {
       });
     }, { allowSignalWrites: true });
 
-    // Sync pageState with addresses signal after mutations
+    // Sync pageState with addresses signal after mutations.
+    // `pageState()` is read via untracked() so this effect only depends on
+    // `addresses()` — reading pageState() directly would create a cycle
+    // (the .set() below re-triggers the effect, freezing the renderer).
     effect(() => {
       const items = this.addresses();
-      const current = this.pageState();
+      const current = untracked(() => this.pageState());
       if (current.kind === 'loading' || current.kind === 'error') return;
       this.pageState.set(items.length === 0 ? { kind: 'empty' } : { kind: 'ok', addresses: items });
     }, { allowSignalWrites: true });

@@ -171,7 +171,12 @@ export const appRoutes: Route[] = [
       {
         path: 'account/orders',
         loadComponent: () =>
-          import('./features/account/coming-soon-shells').then((m) => m.OrdersShellComponent),
+          import('./features/account/orders-page.component').then((m) => m.OrdersPageComponent),
+      },
+      {
+        path: 'account/orders/:id',
+        loadComponent: () =>
+          import('./features/account/order-detail-page.component').then((m) => m.OrderDetailPageComponent),
       },
       {
         path: 'account/documents',
@@ -202,6 +207,21 @@ export const appRoutes: Route[] = [
         path: 'account/referrals',
         loadComponent: () =>
           import('./features/account/coming-soon-shells').then((m) => m.ReferralsShellComponent),
+      },
+      /* ── Checkout return / cancel callback pages ── */
+      {
+        path: 'checkout/return',
+        loadComponent: () =>
+          import('./features/checkout/checkout-return-page.component').then(
+            (m) => m.CheckoutReturnPageComponent,
+          ),
+      },
+      {
+        path: 'checkout/cancel',
+        loadComponent: () =>
+          import('./features/checkout/checkout-return-page.component').then(
+            (m) => m.CheckoutReturnPageComponent,
+          ),
       },
       /* ── v1.3 Route renames — redirect old URLs to existing components ── */
       { path: 'account/inspections', redirectTo: 'my-bookings', pathMatch: 'full' },

@@ -32,8 +32,10 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import { palette, fontFamily, radius, spacing, shadows } from '../../src/theme/theme';
 import { FilterSheet, type BrowseFilters } from '../../src/components/FilterSheet';
+import { ListingCard } from '../../src/components/ListingCard';
 import type { ListingPublicSummary } from '@behbehani-cpo/shared-types';
 
 import { BrowseHeader } from '../../src/components/browse/BrowseHeader';
@@ -59,52 +61,16 @@ function formatKwd(fils: string | number): string {
   })}`;
 }
 
-// ─── Inline placeholder card ──────────────────────────────────────────────────
-// TODO(W2-consolidate): Replace with ListingCard import once w2-home-coder's
-// apps/mobile/src/components/ListingCard.tsx lands.
-
-interface PlaceholderCardProps {
-  item: ListingPublicSummary;
-  variant: ViewMode;
-}
-
-function ListingCardPlaceholder({ item, variant }: PlaceholderCardProps) {
-  const isGrid = variant === 'grid';
-  return (
-    <View style={[isGrid ? cs.cardGrid : cs.cardList, shadows.sm]}>
-      <View style={isGrid ? cs.photoGrid : cs.photoList}>
-        {item.heroPhotoUrl ? (
-          <Image source={{ uri: item.heroPhotoUrl }} style={StyleSheet.absoluteFill} resizeMode="cover" />
-        ) : (
-          <View style={[StyleSheet.absoluteFill, cs.photoFallback]} />
-        )}
-        {item.inspected && (
-          <View style={cs.inspectedBadge}>
-            <Text style={cs.inspectedText}>Inspected</Text>
-          </View>
-        )}
-        <TouchableOpacity style={cs.favBtn} hitSlop={8} accessibilityLabel="Favorite">
-          <Text style={cs.favIcon}>{'♡'}</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={cs.cardBody}>
-        <Text style={cs.cardTitle} numberOfLines={1}>
-          {item.year} {item.brand.nameEn} {item.model.nameEn}
-        </Text>
-        {!isGrid && (
-          <Text style={cs.cardMeta}>
-            {item.bodyType.nameEn} · {item.mileageKm.toLocaleString()} km ·{' '}
-            {item.transmission} · {item.fuelType}
-          </Text>
-        )}
-        <Text style={cs.cardPrice} numberOfLines={1}>{formatKwd(item.priceFils)}</Text>
-        {!isGrid && <Text style={cs.cardMonthly}>from {formatKwd(item.monthlyFils)}/mo</Text>}
-      </View>
-    </View>
-  );
-}
+// ─── Card rendering ───────────────────────────────────────────────────────────
+// Closes follow-up #47: previously a local `ListingCardPlaceholder` re-implemented
+// the home rail's card visually. Now we use the canonical `ListingCard` from
+// `src/components/ListingCard.tsx` so price-drop strikethrough (#41 / A-1),
+// favorite heart, badge logic, and pressed-state styling stay consistent
+// between home rails and browse grid/list. `variant='list'` was added to
+// `ListingCard` in the W2 home coder pass.
 
 function ReservedCardPlaceholder({ variant }: { variant: ViewMode }) {
+  const { t } = useTranslation();
   const isGrid = variant === 'grid';
   return (
     <View style={[isGrid ? cs.cardGrid : cs.cardList, shadows.sm]}>
@@ -112,14 +78,14 @@ function ReservedCardPlaceholder({ variant }: { variant: ViewMode }) {
         <View style={[StyleSheet.absoluteFill, cs.photoFallbackBlue]} />
         <View style={cs.reservedOverlay}>
           <View style={cs.reservedBadge}>
-            <Text style={cs.reservedBadgeText}>Reserved · 4h 32m left</Text>
+            <Text style={cs.reservedBadgeText}>{t('browse.reservedBadge')}</Text>
           </View>
-          <Text style={cs.reservedSub}>Refundable 48-hour hold</Text>
+          <Text style={cs.reservedSub}>{t('browse.reservedSub')}</Text>
         </View>
       </View>
       <View style={cs.cardBody}>
-        <Text style={cs.cardTitle} numberOfLines={1}>2022 Kia Sportage GT</Text>
-        {!isGrid && <Text style={cs.cardMeta}>SUV · 22,100 km · Automatic · Petrol</Text>}
+        <Text style={cs.cardTitle} numberOfLines={1}>{t('browse.reservedTitle')}</Text>
+        {!isGrid && <Text style={cs.cardMeta}>{t('browse.reservedMeta')}</Text>}
         <Text style={[cs.cardPrice, cs.cardPriceReserved]}>KWD 6,850.000</Text>
       </View>
     </View>
@@ -143,6 +109,7 @@ function CardSkeleton({ variant }: { variant: ViewMode }) {
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function BrowseScreen() {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState<BrowseFilters>({});
   const [sort, setSort] = useState<SortOption>('featured');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -217,28 +184,31 @@ export default function BrowseScreen() {
 
   const activeChips = useMemo(() => {
     const chips: { key: keyof BrowseFilters; label: string }[] = [];
-    if (filters.brand) chips.push({ key: 'brand', label: `Brand: ${filters.brand}` });
-    if (filters.body) chips.push({ key: 'body', label: `Body: ${filters.body}` });
+    if (filters.brand) chips.push({ key: 'brand', label: t('common.chipBrand', { value: filters.brand }) });
+    if (filters.body) chips.push({ key: 'body', label: t('common.chipBody', { value: filters.body }) });
     if (filters.budgetMaxKwd !== undefined) {
       chips.push({
         key: 'budgetMaxKwd',
-        label: `Budget max KWD ${filters.budgetMaxKwd.toLocaleString('en-KW', {
-          minimumFractionDigits: 3,
-          maximumFractionDigits: 3,
-        })}`,
+        label: t('common.chipBudgetMax', {
+          value: filters.budgetMaxKwd.toLocaleString('en-KW', {
+            minimumFractionDigits: 3,
+            maximumFractionDigits: 3,
+          }),
+        }),
       });
     }
     return chips;
-  }, [filters]);
+  }, [filters, t]);
 
   const activeFilterCount = activeChips.length;
-  const currentSortLabel = SORT_OPTIONS.find(o => o.value === sort)?.label ?? 'Featured';
+  const currentSortKey = SORT_OPTIONS.find(o => o.value === sort)?.tKey ?? 'sort.featured';
+  const currentSortLabel = t(currentSortKey);
 
   const renderItem = useCallback(
     ({ item, index }: { item: ListingPublicSummary; index: number }) => {
       const content = index === 3
         ? <ReservedCardPlaceholder variant={viewMode} />
-        : <ListingCardPlaceholder item={item} variant={viewMode} />;
+        : <ListingCard listing={item} variant={viewMode} showFavorite />;
       return <View style={viewMode === 'grid' ? cs.gridItem : cs.listItem}>{content}</View>;
     },
     [viewMode]
@@ -249,7 +219,7 @@ export default function BrowseScreen() {
   const ListFooter = isFetchingNextPage ? (
     <View style={cs.footerRow}>
       <ActivityIndicator size="small" color={palette.royalBlue700} />
-      <Text style={cs.footerText}>Loading more cars…</Text>
+      <Text style={cs.footerText}>{t('browse.loadingMore')}</Text>
     </View>
   ) : null;
 
@@ -289,7 +259,9 @@ export default function BrowseScreen() {
 
       {/* Count + sort/view controls */}
       <View style={cs.countRow}>
-        <Text style={cs.countText}>{isLoading ? '—' : totalCount} cars match</Text>
+        <Text style={cs.countText}>
+          {isLoading ? t('browse.carsMatchLoading') : t('browse.carsMatch', { count: totalCount })}
+        </Text>
         <View style={cs.sortViewRow}>
           <TouchableOpacity style={cs.sortBtn} onPress={() => setSortModalVisible(true)} activeOpacity={0.8}>
             <Text style={cs.sortBtnText} numberOfLines={1}>{currentSortLabel}</Text>

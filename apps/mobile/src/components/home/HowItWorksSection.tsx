@@ -1,39 +1,29 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, radius, spacing } from '../../theme/theme';
 import { brand, slate } from '../../theme/colors';
 import { railStyles } from './ListingRail';
 
 const HOW_IT_WORKS = [
-  {
-    step: '1',
-    title: 'Browse inspected cars',
-    body: 'Every car passes our Al Daman 200-point inspection before listing.',
-  },
-  {
-    step: '2',
-    title: 'Reserve with KWD 100.000',
-    body: 'Refundable 48-hour hold while you finalise finance or test drive.',
-  },
-  {
-    step: '3',
-    title: 'Delivered with 7-day return',
-    body: 'Pick up at any showroom or home delivery anywhere in Kuwait.',
-  },
+  { step: '1', titleKey: 'home.howStep1Title', bodyKey: 'home.howStep1Body' },
+  { step: '2', titleKey: 'home.howStep2Title', bodyKey: 'home.howStep2Body' },
+  { step: '3', titleKey: 'home.howStep3Title', bodyKey: 'home.howStep3Body' },
 ];
 
 export function HowItWorksSection() {
+  const { t } = useTranslation();
   return (
     <View style={howStyles.section}>
-      <Text style={railStyles.title}>How it works</Text>
+      <Text style={railStyles.title}>{t('home.howItWorksTitle')}</Text>
       {HOW_IT_WORKS.map((step) => (
         <View key={step.step} style={howStyles.row}>
           <View style={howStyles.stepCircle}>
             <Text style={howStyles.stepNum}>{step.step}</Text>
           </View>
           <View style={howStyles.stepBody}>
-            <Text style={howStyles.stepTitle}>{step.title}</Text>
-            <Text style={howStyles.stepDesc}>{step.body}</Text>
+            <Text style={howStyles.stepTitle}>{t(step.titleKey)}</Text>
+            <Text style={howStyles.stepDesc}>{t(step.bodyKey)}</Text>
           </View>
         </View>
       ))}

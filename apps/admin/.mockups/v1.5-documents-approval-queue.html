@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Documents Approval Queue — Behbehani CPO Admin</title>
+  <style>
+    /* ── Reset + Base ─────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      background: #F8FAFC;
+      color: #1E293B;
+      min-height: 100vh;
+    }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    input, select, textarea { font-family: inherit; font-size: 14px; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Brand tokens ─────────────────────────────────────────────── */
+    :root {
+      --brand-900: #1E3A8A;
+      --brand-700: #1D4ED8;
+      --brand-600: #2563EB;
+      --brand-500: #3B82F6;
+      --brand-100: #DBEAFE;
+      --brand-50:  #EFF6FF;
+      --slate-800: #1E293B;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748B;
+      --slate-400: #94A3B8;
+      --slate-300: #CBD5E1;
+      --slate-200: #E2E8F0;
+      --slate-100: #F1F5F9;
+      --slate-50:  #F8FAFC;
+      --red-700:   #B91C1C;
+      --red-600:   #DC2626;
+      --red-100:   #FEE2E2;
+      --red-50:    #FEF2F2;
+      --green-700: #15803D;
+      --green-600: #16A34A;
+      --green-100: #DCFCE7;
+      --green-50:  #F0FDF4;
+      --amber-700: #B45309;
+      --amber-600: #D97706;
+      --amber-100: #FEF3C7;
+      --amber-50:  #FFFBEB;
+      --gray-500:  #6B7280;
+    }
+
+    /* ── Shell layout ─────────────────────────────────────────────── */
+    .shell { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--brand-900);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+    }
+    .sidebar-logo {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-logo-mark {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .sidebar-logo-sub {
+      font-size: 10px;
+      color: rgba(255,255,255,0.55);
+      margin-top: 2px;
+    }
+    .sidebar-nav { padding: 12px 8px; flex: 1; overflow-y: auto; }
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 12px 4px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      min-height: 40px;
+      transition: background 0.15s;
+      margin-bottom: 1px;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .nav-item.active { background: rgba(255,255,255,0.15); color: #fff; font-weight: 600; }
+    .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.8; }
+
+    /* Main area */
+    .main { flex: 1; display: flex; flex-direction: column; overflow-x: hidden; }
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0 28px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--slate-500);
+    }
+    .topbar-breadcrumb span:last-child { color: var(--slate-800); font-weight: 500; }
+    .topbar-sep { color: var(--slate-300); }
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--slate-600);
+    }
+    .avatar {
+      width: 32px; height: 32px;
+      background: var(--brand-600);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Content area */
+    .content { padding: 28px; flex: 1; }
+    .page-inner { max-width: 1200px; margin: 0 auto; }
+
+    /* ── Role gate banner ─────────────────────────────────────────── */
+    .role-gate {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 20px;
+      font-size: 12px;
+      color: #1E40AF;
+    }
+    .role-gate-icon { width: 16px; height: 16px; flex-shrink: 0; color: #3B82F6; }
+    .role-gate strong { font-weight: 600; }
+
+    /* ── Page header ──────────────────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .page-header-left h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--slate-800);
+      line-height: 1.3;
+    }
+    .page-header-left p {
+      font-size: 13px;
+      color: var(--slate-500);
+      margin-top: 3px;
+    }
+    .badge-pending {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--amber-100);
+      color: var(--amber-700);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* ── Filter bar ───────────────────────────────────────────────── */
+    .filter-bar {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; }
+    .filter-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .filter-select, .filter-input {
+      height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--slate-300);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--slate-800);
+      font-size: 13px;
+      min-width: 160px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .filter-select:focus, .filter-input:focus {
+      border-color: var(--brand-500);
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .filter-input { min-width: 220px; }
+    .filter-date-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-date-input {
+      height: 44px;
+      padding: 0 10px;
+      border: 1px solid var(--slate-300);
+      border-radius: 7px;
+      background: #fff;
+      font-size: 13px;
+      color: var(--slate-800);
+      outline: none;
+      transition: border-color 0.15s;
+      width: 140px;
+    }
+    .filter-date-input:focus { border-color: var(--brand-500); }
+    .filter-date-sep { font-size: 12px; color: var(--slate-400); }
+    .btn-filter-reset {
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 7px;
+      border: 1px solid var(--slate-300);
+      background: #fff;
+      color: var(--slate-600);
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .btn-filter-reset:hover { background: var(--slate-50); }
+
+    /* ── Bulk action bar ──────────────────────────────────────────── */
+    .bulk-bar {
+      background: var(--brand-900);
+      border-radius: 10px;
+      padding: 12px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .bulk-bar.hidden { display: none; }
+    .bulk-bar-count {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .bulk-bar-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-bulk-approve {
+      height: 40px;
+      padding: 0 18px;
+      border-radius: 7px;
+      background: var(--green-600);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+      min-height: 44px;
+    }
+    .btn-bulk-approve:hover { background: var(--green-700); }
+    .btn-bulk-reject {
+      height: 40px;
+      padding: 0 18px;
+      border-radius: 7px;
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.25);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+      min-height: 44px;
+    }
+    .btn-bulk-reject:hover { background: rgba(255,255,255,0.2); }
+    .btn-bulk-cancel {
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 7px;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s;
+      min-height: 44px;
+    }
+    .btn-bulk-cancel:hover { color: #fff; }
+
+    /* ── Table card ───────────────────────────────────────────────── */
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .table-header-row {
+      display: grid;
+      grid-template-columns: 44px 64px 1fr 130px 80px 90px 110px 160px;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--slate-200);
+      background: var(--slate-50);
+    }
+    .th {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .th.right { text-align: right; }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: 44px 64px 1fr 130px 80px 90px 110px 160px;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--slate-100);
+      transition: background 0.12s;
+    }
+    .table-row:last-child { border-bottom: none; }
+    .table-row:hover { background: var(--slate-50); }
+    .table-row.selected { background: var(--brand-50); }
+
+    /* Checkbox cell */
+    .cell-check { display: flex; align-items: center; justify-content: center; }
+    input[type="checkbox"] {
+      width: 18px; height: 18px;
+      accent-color: var(--brand-600);
+      cursor: pointer;
+    }
+
+    /* Thumbnail cell */
+    .thumb {
+      width: 48px; height: 56px;
+      background: var(--slate-100);
+      border-radius: 6px;
+      border: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .thumb-placeholder {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--slate-400);
+      text-align: center;
+      line-height: 1.4;
+      padding: 4px;
+    }
+    .thumb-pdf { background: var(--red-50); border-color: #FECACA; }
+    .thumb-pdf .thumb-placeholder { color: var(--red-700); }
+    .thumb-img { background: var(--brand-50); border-color: var(--brand-100); }
+    .thumb-img .thumb-placeholder { color: var(--brand-700); }
+
+    /* Customer cell */
+    .cell-customer {}
+    .cell-customer-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--slate-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cell-customer-title {
+      font-size: 11px;
+      color: var(--slate-500);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Kind chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .chip-inspection { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+    .chip-contract   { background: #F0F9FF; color: #0C4A6E; border: 1px solid #BAE6FD; }
+    .chip-insurance  { background: #FFF7ED; color: #9A3412; border: 1px solid #FED7AA; }
+    .chip-warranty   { background: #F5F3FF; color: #5B21B6; border: 1px solid #DDD6FE; }
+    .chip-invoice    { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+    .chip-other      { background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-200); }
+
+    /* Age */
+    .cell-age {
+      font-size: 12px;
+      color: var(--slate-500);
+    }
+    .age-warn { color: var(--amber-700); font-weight: 600; }
+    .age-critical { color: var(--red-600); font-weight: 700; }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-pending  { background: var(--amber-100); color: var(--amber-700); }
+    .status-pending .status-dot  { background: var(--amber-600); }
+    .status-approved { background: var(--green-100); color: var(--green-700); }
+    .status-approved .status-dot { background: var(--green-600); }
+    .status-rejected { background: var(--red-100); color: var(--red-700); }
+    .status-rejected .status-dot { background: var(--red-600); }
+    .status-expired  { background: var(--slate-100); color: var(--slate-500); }
+    .status-expired .status-dot  { background: var(--slate-400); }
+
+    /* Action buttons cell */
+    .cell-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      justify-content: flex-end;
+    }
+    .btn-action {
+      height: 32px;
+      padding: 0 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.12s, color 0.12s;
+      min-height: 44px;
+      min-width: 44px;
+    }
+    .btn-approve {
+      background: var(--green-50);
+      color: var(--green-700);
+      border: 1px solid #BBF7D0;
+    }
+    .btn-approve:hover { background: var(--green-100); }
+    .btn-reject {
+      background: var(--red-50);
+      color: var(--red-700);
+      border: 1px solid #FECACA;
+    }
+    .btn-reject:hover { background: var(--red-100); }
+    .btn-preview {
+      background: var(--slate-50);
+      color: var(--slate-600);
+      border: 1px solid var(--slate-200);
+    }
+    .btn-preview:hover { background: var(--slate-100); }
+    .btn-icon { width: 14px; height: 14px; }
+
+    /* ── Empty state ──────────────────────────────────────────────── */
+    .empty-state {
+      padding: 80px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .empty-icon-wrap {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--slate-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .empty-state h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--slate-700);
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      font-size: 13px;
+      color: var(--slate-400);
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    /* ── Pagination ───────────────────────────────────────────────── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-top: 1px solid var(--slate-200);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pagination-info { font-size: 12px; color: var(--slate-500); }
+    .pagination-controls { display: flex; align-items: center; gap: 4px; }
+    .page-btn {
+      min-width: 36px;
+      height: 36px;
+      padding: 0 8px;
+      border-radius: 6px;
+      border: 1px solid var(--slate-300);
+      background: #fff;
+      color: var(--slate-700);
+      font-size: 13px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s;
+    }
+    .page-btn:hover:not(:disabled) { background: var(--slate-50); }
+    .page-btn.active { background: var(--brand-600); border-color: var(--brand-600); color: #fff; font-weight: 700; }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Modals ───────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.55);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.hidden { display: none; }
+
+    /* Reject modal */
+    .modal-reject {
+      background: #fff;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.18);
+    }
+    .modal-header {
+      padding: 22px 24px 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--slate-800);
+    }
+    .modal-subtitle {
+      font-size: 12px;
+      color: var(--slate-500);
+      margin-top: 4px;
+    }
+    .modal-close-btn {
+      width: 32px; height: 32px;
+      border-radius: 6px;
+      background: var(--slate-100);
+      color: var(--slate-500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.12s;
+      flex-shrink: 0;
+      min-width: 44px;
+      min-height: 44px;
+    }
+    .modal-close-btn:hover { background: var(--slate-200); }
+    .modal-body { padding: 20px 24px; }
+
+    .canned-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+    .canned-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .canned-chip {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--slate-300);
+      background: #fff;
+      color: var(--slate-700);
+      font-size: 12px;
+      font-weight: 500;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+      min-height: 36px;
+    }
+    .canned-chip:hover, .canned-chip.selected {
+      background: var(--red-50);
+      border-color: #FECACA;
+      color: var(--red-700);
+    }
+    .reason-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--slate-700);
+      margin-bottom: 6px;
+      display: block;
+    }
+    .reason-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--slate-300);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--slate-800);
+      resize: vertical;
+      min-height: 100px;
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.5;
+    }
+    .reason-textarea:focus { border-color: var(--brand-500); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+
+    .modal-footer {
+      padding: 0 24px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn-cancel-modal {
+      height: 44px;
+      padding: 0 18px;
+      border-radius: 8px;
+      background: var(--slate-100);
+      color: var(--slate-700);
+      font-size: 13px;
+      font-weight: 600;
+      transition: background 0.12s;
+    }
+    .btn-cancel-modal:hover { background: var(--slate-200); }
+    .btn-confirm-reject {
+      height: 44px;
+      padding: 0 22px;
+      border-radius: 8px;
+      background: var(--red-600);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.12s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-confirm-reject:hover { background: var(--red-700); }
+
+    /* Lightbox preview modal */
+    .modal-lightbox {
+      background: #fff;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 900px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+    }
+    .lightbox-body {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .lightbox-preview-pane {
+      flex: 1;
+      background: #0F172A;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+    }
+    .lightbox-doc-placeholder {
+      width: 220px;
+      height: 300px;
+      background: rgba(255,255,255,0.08);
+      border: 2px dashed rgba(255,255,255,0.2);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .lightbox-doc-placeholder-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      padding: 0 16px;
+    }
+    .lightbox-doc-icon { color: rgba(255,255,255,0.3); }
+    .lightbox-sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--slate-200);
+      overflow-y: auto;
+      padding: 20px;
+    }
+    .lightbox-sidebar-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--slate-800);
+      margin-bottom: 16px;
+    }
+    .meta-row {
+      margin-bottom: 14px;
+    }
+    .meta-key {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 3px;
+    }
+    .meta-value {
+      font-size: 13px;
+      color: var(--slate-700);
+      font-weight: 500;
+      word-break: break-word;
+    }
+    .meta-link {
+      font-size: 13px;
+      color: var(--brand-600);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .meta-link:hover { text-decoration: underline; }
+    .meta-divider { border: none; border-top: 1px solid var(--slate-100); margin: 16px 0; }
+
+    .lightbox-actions {
+      padding: 14px 20px;
+      border-top: 1px solid var(--slate-200);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-lb-approve {
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 8px;
+      background: var(--green-600);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.12s;
+    }
+    .btn-lb-approve:hover { background: var(--green-700); }
+    .btn-lb-reject {
+      height: 44px;
+      padding: 0 20px;
+      border-radius: 8px;
+      background: var(--red-50);
+      color: var(--red-700);
+      border: 1px solid #FECACA;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.12s;
+    }
+    .btn-lb-reject:hover { background: var(--red-100); }
+    .btn-lb-download {
+      height: 44px;
+      padding: 0 16px;
+      border-radius: 8px;
+      background: var(--slate-100);
+      color: var(--slate-700);
+      border: 1px solid var(--slate-200);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.12s;
+    }
+    .btn-lb-download:hover { background: var(--slate-200); }
+
+    /* Order link chip */
+    .order-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: var(--brand-50);
+      border: 1px solid var(--brand-100);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--brand-700);
+      font-weight: 600;
+      font-family: ui-monospace, monospace;
+    }
+
+    /* ── Inline utils ─────────────────────────────────────────────── */
+    .text-right { text-align: right; }
+    .mt-1 { margin-top: 4px; }
+    .mt-2 { margin-top: 8px; }
+    .mt-4 { margin-top: 16px; }
+    .gap-2 { gap: 8px; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .w-full { width: 100%; }
+
+    /* Tab bar for status filter */
+    .status-tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .status-tab {
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--slate-500);
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.12s, color 0.12s;
+      min-height: 44px;
+    }
+    .status-tab:hover { background: var(--slate-100); color: var(--slate-700); }
+    .status-tab.active { background: var(--brand-900); color: #fff; font-weight: 700; }
+    .status-tab .tab-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .status-tab.active .tab-count { background: rgba(255,255,255,0.2); color: #fff; }
+    .status-tab:not(.active) .tab-count { background: var(--slate-100); color: var(--slate-600); }
+    .status-tab.active.pending-tab .tab-count { background: var(--amber-100); color: var(--amber-700); }
+
+    /* Upload button (retained from current page) */
+    .btn-upload {
+      height: 44px;
+      padding: 0 18px;
+      border-radius: 8px;
+      background: var(--brand-600);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.12s;
+    }
+    .btn-upload:hover { background: var(--brand-700); }
+
+    /* Select-all checkbox label */
+    .select-all-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════════════
+     SHELL
+     ════════════════════════════════════════════════════════════════════ -->
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" aria-label="Admin navigation">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-mark">Behbehani CPO</div>
+      <div class="sidebar-logo-sub">Admin Portal</div>
+    </div>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+
+      <div class="nav-section-label">Inventory</div>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        Listings
+      </a>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>
+        Pipeline
+      </a>
+
+      <div class="nav-section-label" style="margin-top:12px;">Operations</div>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Inspections
+      </a>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Offers
+      </a>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        Orders
+      </a>
+      <!-- ACTIVE: Documents queue -->
+      <a href="#" class="nav-item active" aria-current="page">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Documents
+      </a>
+
+      <div class="nav-section-label" style="margin-top:12px;">Reports</div>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Aging
+      </a>
+
+      <div class="nav-section-label" style="margin-top:12px;">Admin</div>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Users
+      </a>
+      <a href="#" class="nav-item">
+        <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Audit Log
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <nav class="topbar-breadcrumb" aria-label="Breadcrumb">
+        <span>Operations</span>
+        <span class="topbar-sep" aria-hidden="true">›</span>
+        <span>Documents</span>
+      </nav>
+      <div class="topbar-user">
+        <span>Operations Manager</span>
+        <div class="avatar" aria-hidden="true">OM</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content" id="main-content">
+      <div class="page-inner">
+
+        <!-- Role gate -->
+        <div class="role-gate" role="note" aria-label="Page access information">
+          <svg class="role-gate-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          <span><strong>Visible to:</strong> Operations Manager, General Manager, Compliance Officer</span>
+        </div>
+
+        <!-- Page header -->
+        <div class="page-header">
+          <div class="page-header-left">
+            <h1>
+              Document Approval Queue
+              <span class="badge-pending">14 Pending</span>
+            </h1>
+            <p>Review, approve, or reject customer-submitted documents across all active accounts.</p>
+          </div>
+          <button class="btn-upload" onclick="alert('Upload panel — same flow as current customer-documents page')" aria-label="Upload a new document">
+            <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0L8 8m4-4l4 4"/>
+            </svg>
+            Upload document
+          </button>
+        </div>
+
+        <!-- Status tabs -->
+        <div class="status-tabs" role="tablist" aria-label="Filter by status">
+          <button class="status-tab pending-tab active" role="tab" aria-selected="true" onclick="switchTab(this)">
+            Pending <span class="tab-count">14</span>
+          </button>
+          <button class="status-tab" role="tab" aria-selected="false" onclick="switchTab(this)">
+            Approved <span class="tab-count">187</span>
+          </button>
+          <button class="status-tab" role="tab" aria-selected="false" onclick="switchTab(this)">
+            Rejected <span class="tab-count">23</span>
+          </button>
+          <button class="status-tab" role="tab" aria-selected="false" onclick="switchTab(this)">
+            Expired <span class="tab-count">5</span>
+          </button>
+          <button class="status-tab" role="tab" aria-selected="false" onclick="switchTab(this)">
+            All <span class="tab-count">229</span>
+          </button>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="filter-bar" role="search" aria-label="Filter documents">
+          <!-- Kind -->
+          <div class="filter-group">
+            <label class="filter-label" for="filter-kind">Document Type</label>
+            <select class="filter-select" id="filter-kind" aria-label="Filter by document type">
+              <option value="">All types</option>
+              <option value="inspection_report">Inspection Report</option>
+              <option value="sale_contract">Sale Contract</option>
+              <option value="insurance_policy">Insurance Policy</option>
+              <option value="warranty">Warranty</option>
+              <option value="invoice">Invoice</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <!-- Date range -->
+          <div class="filter-group">
+            <label class="filter-label">Uploaded Date</label>
+            <div class="filter-date-group">
+              <input type="date" class="filter-date-input" aria-label="From date" value="2026-04-20" />
+              <span class="filter-date-sep" aria-hidden="true">to</span>
+              <input type="date" class="filter-date-input" aria-label="To date" value="2026-05-20" />
+            </div>
+          </div>
+          <!-- Customer search -->
+          <div class="filter-group">
+            <label class="filter-label" for="filter-customer">Customer</label>
+            <input
+              class="filter-input"
+              id="filter-customer"
+              type="search"
+              placeholder="Name or email…"
+              aria-label="Search by customer name or email"
+            />
+          </div>
+          <!-- Reset -->
+          <div class="filter-group" style="justify-content:flex-end;">
+            <button class="btn-filter-reset" aria-label="Reset all filters">Reset filters</button>
+          </div>
+        </div>
+
+        <!-- Bulk action bar (shown when rows are selected) -->
+        <div class="bulk-bar" id="bulk-bar" role="region" aria-live="polite" aria-label="Bulk actions">
+          <span class="bulk-bar-count" id="bulk-count">2 rows selected</span>
+          <div class="bulk-bar-actions">
+            <button class="btn-bulk-approve" onclick="alert('PATCH /v1/admin/documents/bulk-approve  body: { ids: [...] }')" aria-label="Approve selected documents">
+              <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+              Approve 2 selected
+            </button>
+            <button class="btn-bulk-reject" onclick="openRejectModal(null)" aria-label="Reject selected documents with reason">
+              <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              Reject 2 selected with reason…
+            </button>
+            <button class="btn-bulk-cancel" onclick="clearSelection()" aria-label="Clear selection">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Table card -->
+        <div class="table-card" role="region" aria-label="Document queue table">
+
+          <!-- Table header -->
+          <div class="table-header-row" role="row" aria-label="Table column headers">
+            <div class="cell-check select-all-wrap">
+              <input type="checkbox" id="select-all" aria-label="Select all documents" onchange="toggleSelectAll(this)" />
+            </div>
+            <div class="th">Thumb</div>
+            <div class="th">Customer / Document</div>
+            <div class="th">Type</div>
+            <div class="th">Age</div>
+            <div class="th">Status</div>
+            <div class="th">Related</div>
+            <div class="th text-right">Actions</div>
+          </div>
+
+          <!-- ── Row 1 — Pending, critical age ─────────────────────────── -->
+          <div class="table-row selected" role="row" id="row-1">
+            <div class="cell-check">
+              <input type="checkbox" checked aria-label="Select document: CPO Inspection Report for Ahmed Al-Rashidi" class="row-check" onchange="updateBulkBar()" />
+            </div>
+            <div>
+              <div class="thumb thumb-pdf">
+                <div class="thumb-placeholder">PDF</div>
+              </div>
+            </div>
+            <div class="cell-customer">
+              <div class="cell-customer-name">Ahmed Al-Rashidi</div>
+              <div class="cell-customer-title">CPO Inspection Report — Apr 2026</div>
+              <div style="font-size:10px;color:var(--slate-400);margin-top:2px;">ahmed.rashidi@gmail.com</div>
+            </div>
+            <div>
+              <span class="chip chip-inspection">Inspection Report</span>
+            </div>
+            <div class="cell-age age-critical" title="Uploaded 51 days ago — past 45-day aging threshold">51d ago</span></div>
+            <div>
+              <span class="status-badge status-pending">
+                <span class="status-dot"></span>Pending
+              </span>
+            </div>
+            <div>
+              <span class="order-chip">
+                <svg style="width:10px;height:10px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                ORD-0041
+              </span>
+            </div>
+            <div class="cell-actions">
+              <button class="btn-action btn-approve" onclick="alert('PATCH /v1/admin/documents/:id/approve')" aria-label="Approve this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                Approve
+              </button>
+              <button class="btn-action btn-reject" onclick="openRejectModal('Ahmed Al-Rashidi')" aria-label="Reject this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+              <button class="btn-action btn-preview" onclick="openPreviewModal()" aria-label="Preview this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Row 2 — Pending, selected ─────────────────────────────── -->
+          <div class="table-row selected" role="row" id="row-2">
+            <div class="cell-check">
+              <input type="checkbox" checked aria-label="Select document: Sale Contract for Fatima Al-Mansouri" class="row-check" onchange="updateBulkBar()" />
+            </div>
+            <div>
+              <div class="thumb thumb-pdf">
+                <div class="thumb-placeholder">PDF</div>
+              </div>
+            </div>
+            <div class="cell-customer">
+              <div class="cell-customer-name">Fatima Al-Mansouri</div>
+              <div class="cell-customer-title">Sale Contract — Toyota Land Cruiser</div>
+              <div style="font-size:10px;color:var(--slate-400);margin-top:2px;">fatima.m@hotmail.com</div>
+            </div>
+            <div>
+              <span class="chip chip-contract">Sale Contract</span>
+            </div>
+            <div class="cell-age age-warn" title="Uploaded 22 days ago — past 20-day aging threshold">22d ago</div>
+            <div>
+              <span class="status-badge status-pending">
+                <span class="status-dot"></span>Pending
+              </span>
+            </div>
+            <div>
+              <span class="order-chip">
+                <svg style="width:10px;height:10px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                ORD-0039
+              </span>
+            </div>
+            <div class="cell-actions">
+              <button class="btn-action btn-approve" onclick="alert('PATCH /v1/admin/documents/:id/approve')" aria-label="Approve this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                Approve
+              </button>
+              <button class="btn-action btn-reject" onclick="openRejectModal('Fatima Al-Mansouri')" aria-label="Reject this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+              <button class="btn-action btn-preview" onclick="openPreviewModal()" aria-label="Preview this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Row 3 — Pending, normal age ───────────────────────────── -->
+          <div class="table-row" role="row" id="row-3">
+            <div class="cell-check">
+              <input type="checkbox" aria-label="Select document: Insurance Policy for Khaled Al-Hamdan" class="row-check" onchange="updateBulkBar()" />
+            </div>
+            <div>
+              <div class="thumb thumb-img">
+                <div class="thumb-placeholder">IMG</div>
+              </div>
+            </div>
+            <div class="cell-customer">
+              <div class="cell-customer-name">Khaled Al-Hamdan</div>
+              <div class="cell-customer-title">Insurance Policy — 2026 Renewal</div>
+              <div style="font-size:10px;color:var(--slate-400);margin-top:2px;">k.hamdan@example.com</div>
+            </div>
+            <div>
+              <span class="chip chip-insurance">Insurance Policy</span>
+            </div>
+            <div class="cell-age">2d ago</div>
+            <div>
+              <span class="status-badge status-pending">
+                <span class="status-dot"></span>Pending
+              </span>
+            </div>
+            <div style="font-size:12px;color:var(--slate-400);">—</div>
+            <div class="cell-actions">
+              <button class="btn-action btn-approve" onclick="alert('PATCH /v1/admin/documents/:id/approve')" aria-label="Approve this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                Approve
+              </button>
+              <button class="btn-action btn-reject" onclick="openRejectModal('Khaled Al-Hamdan')" aria-label="Reject this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+              <button class="btn-action btn-preview" onclick="openPreviewModal()" aria-label="Preview this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Row 4 — Approved (shown in "All" tab view) ─────────────── -->
+          <div class="table-row" role="row" id="row-4">
+            <div class="cell-check">
+              <input type="checkbox" aria-label="Select document: Warranty for Sara Al-Qahtani" class="row-check" onchange="updateBulkBar()" />
+            </div>
+            <div>
+              <div class="thumb">
+                <div class="thumb-placeholder">PDF</div>
+              </div>
+            </div>
+            <div class="cell-customer">
+              <div class="cell-customer-name">Sara Al-Qahtani</div>
+              <div class="cell-customer-title">Manufacturer Warranty — BMW X5</div>
+              <div style="font-size:10px;color:var(--slate-400);margin-top:2px;">sara.q@example.com</div>
+            </div>
+            <div>
+              <span class="chip chip-warranty">Warranty</span>
+            </div>
+            <div class="cell-age">8d ago</div>
+            <div>
+              <span class="status-badge status-approved">
+                <span class="status-dot"></span>Approved
+              </span>
+            </div>
+            <div style="font-size:12px;color:var(--slate-400);">—</div>
+            <div class="cell-actions">
+              <button class="btn-action btn-preview" onclick="openPreviewModal()" aria-label="Preview this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                Preview
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Row 5 — Rejected ───────────────────────────────────────── -->
+          <div class="table-row" role="row" id="row-5">
+            <div class="cell-check">
+              <input type="checkbox" aria-label="Select document: Invoice for Mohammed Al-Sayed" class="row-check" onchange="updateBulkBar()" />
+            </div>
+            <div>
+              <div class="thumb">
+                <div class="thumb-placeholder">PDF</div>
+              </div>
+            </div>
+            <div class="cell-customer">
+              <div class="cell-customer-name">Mohammed Al-Sayed</div>
+              <div class="cell-customer-title">Invoice — Maintenance Q1 2026</div>
+              <div style="font-size:10px;color:var(--slate-400);margin-top:2px;">m.sayed@example.com</div>
+            </div>
+            <div>
+              <span class="chip chip-invoice">Invoice</span>
+            </div>
+            <div class="cell-age">14d ago</div>
+            <div>
+              <span class="status-badge status-rejected">
+                <span class="status-dot"></span>Rejected
+              </span>
+            </div>
+            <div style="font-size:12px;color:var(--slate-400);">—</div>
+            <div class="cell-actions">
+              <button class="btn-action btn-preview" onclick="openPreviewModal()" aria-label="Preview this document">
+                <svg class="btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                Preview
+              </button>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination" role="navigation" aria-label="Pagination">
+            <p class="pagination-info">Showing 1–5 of 14 pending</p>
+            <div class="pagination-controls">
+              <button class="page-btn" disabled aria-label="Previous page" aria-disabled="true">‹</button>
+              <button class="page-btn active" aria-current="page" aria-label="Page 1">1</button>
+              <button class="page-btn" aria-label="Page 2">2</button>
+              <button class="page-btn" aria-label="Page 3">3</button>
+              <button class="page-btn" aria-label="Next page">›</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── EMPTY STATE (demo — toggle with JS) ───────────────────────── -->
+        <div id="empty-state-demo" class="table-card" style="display:none;margin-top:16px;">
+          <div class="empty-state" role="status" aria-live="polite">
+            <div class="empty-icon-wrap" aria-hidden="true">
+              <svg style="width:36px;height:36px;color:var(--slate-400);" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <h3>No pending documents</h3>
+            <p>All documents have been reviewed. Check the Approved or Rejected tabs for historical records.</p>
+            <button style="margin-top:16px;font-size:13px;font-weight:600;color:var(--brand-600);min-height:44px;padding:0 16px;" onclick="switchTab(document.querySelector('.status-tab'))">View all documents</button>
+          </div>
+        </div>
+
+      </div><!-- /page-inner -->
+    </main>
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+     REJECT MODAL
+     ══════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="reject-modal" role="dialog" aria-modal="true" aria-labelledby="reject-modal-title">
+  <div class="modal-reject">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="reject-modal-title">Reject Document</div>
+        <div class="modal-subtitle" id="reject-modal-subtitle">Customer: Ahmed Al-Rashidi · CPO Inspection Report</div>
+      </div>
+      <button class="modal-close-btn" onclick="closeRejectModal()" aria-label="Close reject modal">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="canned-label">Quick reason</div>
+      <div class="canned-chips" role="group" aria-label="Select a canned rejection reason">
+        <button class="canned-chip" onclick="selectCanned(this, 'Image is blurry or unreadable')" aria-pressed="false">Blurry / Unreadable</button>
+        <button class="canned-chip" onclick="selectCanned(this, 'Document has expired')" aria-pressed="false">Document Expired</button>
+        <button class="canned-chip" onclick="selectCanned(this, 'Wrong document type submitted')" aria-pressed="false">Wrong document type</button>
+        <button class="canned-chip" onclick="selectCanned(this, 'Name on document does not match account')" aria-pressed="false">Name mismatch</button>
+        <button class="canned-chip" onclick="selectCanned(this, 'Document is incomplete or partially visible')" aria-pressed="false">Incomplete</button>
+      </div>
+      <label class="reason-label" for="reject-reason">Rejection reason <span style="color:var(--red-600);" aria-hidden="true">*</span></label>
+      <textarea
+        class="reason-textarea"
+        id="reject-reason"
+        placeholder="Provide a clear reason that will be visible to the customer…"
+        aria-required="true"
+        aria-describedby="reject-reason-hint"
+      ></textarea>
+      <p id="reject-reason-hint" style="font-size:11px;color:var(--slate-400);margin-top:6px;">This message will be sent to the customer via notification.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeRejectModal()">Cancel</button>
+      <button class="btn-confirm-reject" onclick="confirmReject()" aria-label="Confirm document rejection">
+        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Reject document
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+     PREVIEW LIGHTBOX MODAL
+     ══════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-modal-title">
+  <div class="modal-lightbox">
+    <!-- Lightbox header -->
+    <div class="modal-header" style="padding:16px 20px 12px;border-bottom:1px solid var(--slate-200);">
+      <div>
+        <div class="modal-title" id="preview-modal-title" style="font-size:14px;">CPO Inspection Report — Apr 2026</div>
+        <div style="font-size:11px;color:var(--slate-500);margin-top:2px;">Ahmed Al-Rashidi · Uploaded 17 May 2026, 09:41</div>
+      </div>
+      <button class="modal-close-btn" onclick="closePreviewModal()" aria-label="Close document preview">
+        <svg style="width:18px;height:18px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Lightbox body: preview + sidebar -->
+    <div class="lightbox-body">
+      <!-- Preview pane -->
+      <div class="lightbox-preview-pane" aria-label="Document preview (placeholder)">
+        <div class="lightbox-doc-placeholder">
+          <svg class="lightbox-doc-icon" style="width:48px;height:48px;" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <span class="lightbox-doc-placeholder-label">Document preview renders here (PDF viewer or image tag)</span>
+        </div>
+      </div>
+
+      <!-- Metadata sidebar -->
+      <aside class="lightbox-sidebar" aria-label="Document metadata">
+        <div class="lightbox-sidebar-title">Document Details</div>
+
+        <div class="meta-row">
+          <div class="meta-key">Status</div>
+          <div class="meta-value">
+            <span class="status-badge status-pending">
+              <span class="status-dot"></span>Pending Review
+            </span>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-key">Customer</div>
+          <div class="meta-value">Ahmed Al-Rashidi</div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-key">Email</div>
+          <div class="meta-value" style="font-size:12px;">ahmed.rashidi@gmail.com</div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-key">Document type</div>
+          <div class="meta-value">
+            <span class="chip chip-inspection">Inspection Report</span>
+          </div>
+        </div>
+
+        <hr class="meta-divider" />
+
+        <div class="meta-row">
+          <div class="meta-key">MIME type</div>
+          <div class="meta-value" style="font-family:ui-monospace,monospace;font-size:12px;">application/pdf</div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-key">File size</div>
+          <div class="meta-value">2.4 MB</div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-key">Uploaded at</div>
+          <div class="meta-value">17 May 2026, 09:41</div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-key">Uploaded by</div>
+          <div class="meta-value" style="font-size:12px;color:var(--slate-500);">Customer (self-service)</div>
+        </div>
+
+        <hr class="meta-divider" />
+
+        <div class="meta-row">
+          <div class="meta-key">Related Order</div>
+          <div class="meta-value">
+            <a href="#" class="meta-link" aria-label="View order ORD-0041">
+              <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              ORD-0041
+            </a>
+          </div>
+        </div>
+
+        <div class="meta-row">
+          <div class="meta-key">Related Inspection</div>
+          <div class="meta-value">
+            <a href="#" class="meta-link" aria-label="View inspection INS-0017">
+              <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              INS-0017
+            </a>
+          </div>
+        </div>
+
+        <div class="meta-row" style="margin-top:8px;">
+          <div class="meta-key" style="color:var(--amber-700);">Age warning</div>
+          <div class="meta-value" style="font-size:12px;color:var(--red-600);font-weight:600;">51 days — past 45d threshold</div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Lightbox action footer -->
+    <div class="lightbox-actions">
+      <button class="btn-lb-approve" onclick="alert('PATCH /v1/admin/documents/:id/approve');closePreviewModal();" aria-label="Approve this document">
+        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        Approve
+      </button>
+      <button class="btn-lb-reject" onclick="closePreviewModal();openRejectModal('Ahmed Al-Rashidi');" aria-label="Reject this document">
+        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        Reject…
+      </button>
+      <button class="btn-lb-download" onclick="alert('GET signed download URL from /v1/admin/documents/:id/download-url')" aria-label="Download original document">
+        <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        Download original
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+     MINIMAL JS — modal show/hide + bulk-select state
+     ══════════════════════════════════════════════════════════════════ -->
+<script>
+  /* ── Bulk-select state ──────────────────────────────────────────── */
+  function updateBulkBar() {
+    var checks = document.querySelectorAll('.row-check');
+    var selected = 0;
+    checks.forEach(function(c) {
+      if (c.checked) selected++;
+      var row = c.closest('.table-row');
+      if (row) {
+        if (c.checked) row.classList.add('selected');
+        else row.classList.remove('selected');
+      }
+    });
+    var bar = document.getElementById('bulk-bar');
+    var countEl = document.getElementById('bulk-count');
+    if (selected > 0) {
+      bar.classList.remove('hidden');
+      countEl.textContent = selected + ' row' + (selected > 1 ? 's' : '') + ' selected';
+      // update button labels
+      bar.querySelectorAll('.btn-bulk-approve')[0].textContent = '';
+      var approveBtn = bar.querySelector('.btn-bulk-approve');
+      approveBtn.innerHTML = '<svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Approve ' + selected + ' selected';
+      var rejectBtn = bar.querySelector('.btn-bulk-reject');
+      rejectBtn.innerHTML = '<svg style="width:14px;height:14px;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg> Reject ' + selected + ' selected with reason…';
+    } else {
+      bar.classList.add('hidden');
+    }
+  }
+
+  function toggleSelectAll(masterCheck) {
+    var checks = document.querySelectorAll('.row-check');
+    checks.forEach(function(c) { c.checked = masterCheck.checked; });
+    updateBulkBar();
+  }
+
+  function clearSelection() {
+    document.querySelectorAll('.row-check').forEach(function(c) { c.checked = false; });
+    var master = document.getElementById('select-all');
+    if (master) master.checked = false;
+    updateBulkBar();
+  }
+
+  /* ── Status tab switcher ────────────────────────────────────────── */
+  function switchTab(el) {
+    document.querySelectorAll('.status-tab').forEach(function(t) {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    el.classList.add('active');
+    el.setAttribute('aria-selected', 'true');
+  }
+
+  /* ── Reject modal ───────────────────────────────────────────────── */
+  function openRejectModal(customerName) {
+    var modal = document.getElementById('reject-modal');
+    var subtitle = document.getElementById('reject-modal-subtitle');
+    if (customerName) {
+      subtitle.textContent = 'Customer: ' + customerName;
+    } else {
+      subtitle.textContent = 'Bulk rejection — multiple documents';
+    }
+    // reset state
+    document.getElementById('reject-reason').value = '';
+    document.querySelectorAll('.canned-chip').forEach(function(c) {
+      c.classList.remove('selected');
+      c.setAttribute('aria-pressed', 'false');
+    });
+    modal.classList.remove('hidden');
+    document.getElementById('reject-reason').focus();
+  }
+
+  function closeRejectModal() {
+    document.getElementById('reject-modal').classList.add('hidden');
+  }
+
+  function selectCanned(chip, text) {
+    document.querySelectorAll('.canned-chip').forEach(function(c) {
+      c.classList.remove('selected');
+      c.setAttribute('aria-pressed', 'false');
+    });
+    chip.classList.add('selected');
+    chip.setAttribute('aria-pressed', 'true');
+    document.getElementById('reject-reason').value = text;
+  }
+
+  function confirmReject() {
+    var reason = document.getElementById('reject-reason').value.trim();
+    if (!reason) {
+      document.getElementById('reject-reason').focus();
+      document.getElementById('reject-reason').style.borderColor = 'var(--red-600)';
+      return;
+    }
+    alert('PATCH /v1/admin/documents/:id/reject\nbody: { reason: "' + reason + '" }');
+    closeRejectModal();
+  }
+
+  /* ── Preview modal ──────────────────────────────────────────────── */
+  function openPreviewModal() {
+    document.getElementById('preview-modal').classList.remove('hidden');
+  }
+
+  function closePreviewModal() {
+    document.getElementById('preview-modal').classList.add('hidden');
+  }
+
+  /* ── Close modals on overlay click ─────────────────────────────── */
+  document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.classList.add('hidden');
+      }
+    });
+  });
+
+  /* ── Close modals on Escape ─────────────────────────────────────── */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay').forEach(function(m) {
+        m.classList.add('hidden');
+      });
+    }
+  });
+
+  /* ── Init: show bulk bar since rows 1+2 are pre-selected ───────── */
+  updateBulkBar();
+</script>
+</body>
+</html>

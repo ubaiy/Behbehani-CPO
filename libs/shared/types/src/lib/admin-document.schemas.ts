@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DocumentKindSchema, DocumentSummarySchema } from './document.public.schemas';
+import { DocumentKindSchema, DocumentSummarySchema } from './document.public.schemas.js';
 
 /** v1.4.4 §4 — admin Document upload + list. */
 

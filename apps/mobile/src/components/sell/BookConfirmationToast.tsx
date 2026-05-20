@@ -4,6 +4,7 @@
  */
 
 import { View, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 
@@ -12,17 +13,16 @@ interface BookConfirmationToastProps {
 }
 
 export function BookConfirmationToast({ bookingRef }: BookConfirmationToastProps) {
+  const { t } = useTranslation();
   return (
     <View style={ss.card}>
       <View style={ss.confirmBanner}>
-        <Text style={ss.confirmBannerText}>Booking confirmed</Text>
+        <Text style={ss.confirmBannerText}>{t('sell.confirmation.banner')}</Text>
       </View>
       <View style={ss.confirmBody}>
-        <Text style={ss.confirmRefLabel}>Booking ref</Text>
+        <Text style={ss.confirmRefLabel}>{t('sell.confirmation.refLabel')}</Text>
         <Text style={ss.confirmRefValue}>{bookingRef}</Text>
-        <Text style={ss.confirmSmsNote}>
-          We'll confirm your inspector visit by SMS within 30 minutes.
-        </Text>
+        <Text style={ss.confirmSmsNote}>{t('sell.confirmation.smsNote')}</Text>
       </View>
     </View>
   );

@@ -192,6 +192,7 @@
       "resendIn": "Resend in {{seconds}}s",
       "resend": "Resend code",
       "useChannel": "Use {{channel}} instead",
+      "verifying": "Verifying",
       "errors": {
         "incorrect": "Incorrect code. Please try again.",
         "expired": "Code expired. Please request a new one.",
@@ -199,6 +200,14 @@
         "rateLimited": "Please wait before requesting another code.",
         "networkError": "Connection issue. Please try again."
       }
+    },
+    "social": {
+      "google": "Google",
+      "apple": "Apple",
+      "facebook": "Facebook",
+      "googleComingSoon": "Google sign-up — coming soon",
+      "appleComingSoon": "Apple sign-up — coming soon",
+      "facebookComingSoon": "Facebook — coming soon"
     },
   "ghostUpgrade": {
     "title": "Welcome back!",
@@ -454,6 +463,7 @@
       "savingCta": "Saving…",
       "savedToast": "Preferences saved",
       "applyCaption": "Changes apply within 60 seconds across all devices.",
+      "dirtyHint": "Unsaved changes",
       "signInRequired": {
         "title": "Please sign in",
         "body": "Sign in to manage your notification preferences."
@@ -597,6 +607,104 @@
       "backLink": "← Back to My Account"
     },
     "backToHub": "← Back to My Account",
+    "subNav": "Account sub-navigation",
+    "orderDetail": {
+      "backToOrders": "Back to Orders",
+      "eyebrow": "ORDER",
+      "orderNumber": "Order #{{num}}",
+      "reservedAgo": "Reserved {{when}}",
+      "notFound": {
+        "title": "Order not found",
+        "body": "This order doesn't exist or you don't have access to it."
+      },
+      "countdown": {
+        "label": "Expires in",
+        "expired": "Reservation expired",
+        "help": "Complete payment before the timer runs out to secure this vehicle."
+      },
+      "summary": {
+        "title": "Order Summary",
+        "stockNumber": "Stock Number",
+        "status": "Status",
+        "total": "Total Amount",
+        "paid": "Paid Amount",
+        "reservationFee": "Reservation Fee",
+        "reservedAt": "Reserved At",
+        "completedAt": "Completed At",
+        "cancelledAt": "Cancelled At"
+      },
+      "payments": {
+        "colMethod": "Method",
+        "colAmount": "Amount (KWD)",
+        "colStatus": "Status",
+        "colDate": "Date",
+        "method": {
+          "knet": "KNET",
+          "card": "Card",
+          "apple_pay": "Apple Pay",
+          "google_pay": "Google Pay",
+          "bank_transfer": "Bank Transfer",
+          "financing": "Financing",
+          "cash_on_delivery": "Cash on Delivery"
+        },
+        "status": {
+          "pending": "Pending",
+          "succeeded": "Succeeded",
+          "failed": "Failed",
+          "refunded": "Refunded"
+        }
+      },
+      "cancel": {
+        "sectionTitle": "Cancel Reservation",
+        "sectionBody": "Cancelling will release the vehicle reservation. Your reservation fee will be refunded within 3–5 business days.",
+        "button": "Cancel Reservation",
+        "modalTitle": "Cancel this reservation?",
+        "modalBody": "Your {{amount}} reservation fee will be refunded within 3–5 business days.",
+        "modalDismiss": "Keep reservation",
+        "modalConfirm": "Yes, cancel"
+      }
+    },
+    "orders": {
+      "title": "My Orders",
+      "sub": "Track reservations, payments, and deliveries.",
+      "signInRequired": {
+        "title": "My Orders",
+        "body": "Please sign in to view your orders."
+      },
+      "filterLabel": "Filter by status",
+      "statusAll": "All",
+      "status": {
+        "reservation_pending": "Reservation Pending",
+        "confirmed": "Confirmed",
+        "payment_pending": "Payment Pending",
+        "paid": "Paid",
+        "delivery_scheduled": "Delivery Scheduled",
+        "delivered": "Delivered",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "openCta": "Total",
+      "paidLabel": "Paid",
+      "stockLabel": "Stock #",
+      "empty": {
+        "title": "No orders yet",
+        "body": "Once you reserve a vehicle, your orders will appear here.",
+        "browseCta": "Browse cars"
+      },
+      "error": {
+        "body": "Something went wrong loading your orders.",
+        "retry": "Try again"
+      },
+      "payments": {
+        "title": "Payments",
+        "none": "No payments recorded for this order."
+      },
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "pageOf": "Page {{page}} of {{total}}"
+      }
+    },
     "documents": {
       "metaTitle": "My Documents · Behbehani Motors",
       "title": "My Documents",
@@ -680,10 +788,84 @@
       }
     }
   },
+  "checkout": {
+    "modal": {
+      "title": "Reserve Your Vehicle",
+      "sub": "Secure your reservation in minutes",
+      "close": "Close",
+      "chooseMethod": "Choose payment method",
+      "method": {
+        "knet": "KNET",
+        "card": "Credit / Debit Card",
+        "applePay": "Apple Pay",
+        "googlePay": "Google Pay"
+      },
+      "comingSoon": "Soon",
+      "reserveCta": "Reserve Now",
+      "reserveHint": "Refundable if you change your mind within 24 h",
+      "creating": "Creating reservation...",
+      "connectingOtto": "Connecting to Otto...",
+      "redirecting": "Opening Otto payment page...",
+      "redirectingHint": "A new tab should open shortly",
+      "confirmed": {
+        "title": "Reservation Created",
+        "stock": "Stock Number",
+        "reservationFee": "Reservation Fee",
+        "expiresAt": "Expires At",
+        "paymentCta": "Continue to Payment",
+        "doLater": "I'll pay later"
+      },
+      "error": {
+        "title": "Something went wrong",
+        "alreadyReserved": "Someone just reserved this vehicle.",
+        "notAvailable": "This vehicle is no longer available.",
+        "reservationExpired": "Your reservation has expired.",
+        "paymentInitFailed": "Could not connect to payment provider.",
+        "unauthenticated": "Please sign in to continue.",
+        "networkError": "Network error. Please check your connection.",
+        "generic": "An unexpected error occurred.",
+        "browseSimilar": "Browse similar vehicles",
+        "retry": "Try again",
+        "cancel": "Cancel"
+      }
+    },
+    "return": {
+      "backToBrowse": "Back to browse",
+      "verifying": "Verifying payment...",
+      "verifyingHint": "This usually takes a few seconds",
+      "paid": {
+        "title": "Payment Successful",
+        "sub": "Your vehicle is reserved. Our team will be in touch soon.",
+        "orderSummary": "Order Summary",
+        "stockNumber": "Stock Number",
+        "reservationFee": "Reservation Fee",
+        "status": "Status",
+        "statusPaid": "Paid",
+        "viewOrderCta": "View My Order"
+      },
+      "timeout": {
+        "title": "Payment Received — Finalising",
+        "body": "Your payment was received. We're finalising your order in the background — check My Orders for the latest status.",
+        "ordersCta": "Go to My Orders"
+      },
+      "cancelled": {
+        "title": "Reservation Cancelled",
+        "body": "Your reservation was not completed. No charge was made.",
+        "browseCta": "Browse Vehicles",
+        "ordersCta": "My Orders"
+      },
+      "error": {
+        "title": "Couldn't verify payment",
+        "body": "We couldn't verify your payment status. Check My Orders for the latest.",
+        "ordersCta": "Check My Orders"
+      }
+    }
+  },
   "common": {
     "language": "العربية",
     "currency": "KWD",
     "loading": "Loading…",
+    "close": "Close",
     "of": "of",
     "cars": "cars",
     "from": "from",
@@ -1033,7 +1215,15 @@
       "howItWorks": "How it works",
       "stat1": "71-point inspection",
       "stat2": "Guaranteed payment",
-      "stat3": "MOI transfer included"
+      "stat3": "MOI transfer included",
+      "floatCard1": {
+        "label": "Average sale price",
+        "value": "12% higher"
+      },
+      "floatCard2": {
+        "label": "Customer rating"
+      },
+      "soldBadge": "Sold in 4 days"
     },
     "brands": {
       "title": "Start with your car brand",
@@ -1234,6 +1424,7 @@
     },
     "concierge": {
       "metaTitle": "Schedule your inspection — Behbehani Motors",
+      "stepsNav": "Booking steps",
       "back": "Back",
       "badge": "Concierge Service",
       "title": "Schedule your inspection",

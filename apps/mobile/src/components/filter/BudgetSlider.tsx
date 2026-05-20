@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SectionHeader } from './shared';
 import { fontFamily, palette, radius, spacing } from '../../theme/theme';
 
@@ -19,10 +20,11 @@ export interface BudgetSliderProps {
 }
 
 export function BudgetSlider({ budgetMax, onChangeBudgetMax }: BudgetSliderProps) {
+  const { t } = useTranslation();
   return (
     <View style={s.section}>
       <View style={s.budgetHeaderRow}>
-        <SectionHeader title="Budget max (KWD)" />
+        <SectionHeader title={t('filter.budgetMax')} />
         <Text style={s.budgetValue}>
           {budgetMax
             ? `KWD ${formatKwd(parseFloat(budgetMax))}`
@@ -34,7 +36,7 @@ export function BudgetSlider({ budgetMax, onChangeBudgetMax }: BudgetSliderProps
         value={budgetMax}
         onChangeText={onChangeBudgetMax}
         keyboardType="numeric"
-        placeholder={`${BUDGET_MIN_KWD} – ${BUDGET_MAX_KWD}`}
+        placeholder={t('filter.budgetRangePlaceholder', { min: BUDGET_MIN_KWD, max: BUDGET_MAX_KWD })}
         placeholderTextColor={palette.gray400}
         returnKeyType="done"
         maxLength={6}

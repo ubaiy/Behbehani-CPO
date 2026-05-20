@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Switch, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, palette, radius, spacing } from '../../theme/theme';
 
 // ─── SectionHeader ────────────────────────────────────────────────────────────
@@ -17,13 +18,14 @@ export interface SectionHeaderProps {
 }
 
 export function SectionHeader({ title, comingSoon, rightLabel, onRightPress }: SectionHeaderProps) {
+  const { t } = useTranslation();
   return (
     <View style={ss.sectionTitleRow}>
       <View style={ss.sectionTitleLeft}>
         <Text style={ss.sectionTitle}>{title}</Text>
         {comingSoon && (
           <View style={ss.comingSoonPill}>
-            <Text style={ss.comingSoonText}>Coming soon</Text>
+            <Text style={ss.comingSoonText}>{t('auth.comingSoon')}</Text>
           </View>
         )}
       </View>

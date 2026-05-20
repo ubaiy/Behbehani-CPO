@@ -57,42 +57,42 @@ function savedAgo(iso: string, locale: 'en' | 'ar'): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, TranslateModule],
   template: `
-    <!-- Back link -->
+    <!-- Back link — inside max-w-4xl to align with hero column -->
     <div class="container-page pt-6">
-      <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-        {{ 'account.backToHub' | translate }}
-      </a>
+      <div class="mx-auto max-w-4xl">
+        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
+          {{ 'account.backToHub' | translate }}
+        </a>
+      </div>
     </div>
 
-    <!-- Hero header -->
-    <header class="py-6 sm:py-8">
-      <div class="container-page max-w-4xl mx-auto">
-        <div class="rounded-3xl p-6 sm:p-8 text-white" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-          <h1 class="font-display text-[clamp(24px,3vw,32px)] font-bold leading-tight tracking-[-0.025em] text-white">
-            {{ 'account.savedListings.title' | translate }}
-          </h1>
-          <p class="mt-1 text-[14px] text-white/85">
-            {{ 'account.savedListings.sub' | translate }}
-          </p>
-          <!-- Sub-nav -->
-          <nav class="mt-4 flex items-center gap-3 text-[13px]" aria-label="Account sub-navigation">
-            <a
-              [routerLink]="['/', locale(), 'my-bookings']"
-              class="inline-flex items-center rounded-pill px-4 py-1.5 font-semibold text-white/70 hover:text-white"
-            >
-              {{ 'account.myBookings.tab' | translate }}
-            </a>
-            <a
-              [routerLink]="['/', locale(), 'my-bookings', 'saved-cars']"
-              class="inline-flex items-center rounded-pill bg-white/20 px-4 py-1.5 font-semibold text-white"
-              aria-current="page"
-            >
-              {{ 'account.savedListings.tab' | translate }}
-            </a>
-          </nav>
-        </div>
+    <!-- Hero — rounded-3xl framed card -->
+    <div class="container-page py-8 mx-auto max-w-4xl">
+      <div class="rounded-3xl p-6 sm:p-8 text-white" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
+        <h1 class="font-display text-[clamp(24px,3vw,32px)] font-bold leading-tight tracking-[-0.025em] text-white">
+          {{ 'account.savedListings.title' | translate }}
+        </h1>
+        <p class="mt-1 text-[14px] text-white/85">
+          {{ 'account.savedListings.sub' | translate }}
+        </p>
+        <!-- Sub-nav -->
+        <nav class="mt-4 flex items-center gap-3 text-[13px]" [attr.aria-label]="'account.subNav' | translate">
+          <a
+            [routerLink]="['/', locale(), 'my-bookings']"
+            class="inline-flex items-center rounded-pill px-4 py-1.5 font-semibold text-white/70 hover:text-white"
+          >
+            {{ 'account.myBookings.tab' | translate }}
+          </a>
+          <a
+            [routerLink]="['/', locale(), 'my-bookings', 'saved-cars']"
+            class="inline-flex items-center rounded-pill bg-white/20 px-4 py-1.5 font-semibold text-white"
+            aria-current="page"
+          >
+            {{ 'account.savedListings.tab' | translate }}
+          </a>
+        </nav>
       </div>
-    </header>
+    </div>
 
     <main class="bg-surface-soft min-h-[60vh]">
       <div class="container-page py-8 sm:py-10">

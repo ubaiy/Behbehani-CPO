@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OrderStatusSchema, OrderSummarySchema, OrderDetailSchema } from './order.public.schemas';
+import { OrderStatusSchema, OrderSummarySchema, OrderDetailSchema } from './order.public.schemas.js';
 
 /** v1.4.2 §5 — admin order queue DTOs. */
 
@@ -48,4 +48,4 @@ export const ADMIN_ORDER_ERROR_CODES = [
 export type AdminOrderErrorCode = (typeof ADMIN_ORDER_ERROR_CODES)[number];
 
 // Re-export detail type for convenience
-export type { OrderDetailDto, OrderSummaryDto } from './order.public.schemas';
+export type { OrderDetailDto, OrderSummaryDto } from './order.public.schemas.js';

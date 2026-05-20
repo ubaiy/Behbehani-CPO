@@ -4,7 +4,7 @@
 -- NOTE: ListingStage already contains 'reserved' from the initial schema.
 -- No ALTER TYPE needed for ListingStage.
 --
--- Day 2 migration (20260603000003_v1_4_documents) left Document.orderId without
+-- Day 2 migration (20260603000002_v1_4_documents) left Document.orderId without
 -- a FK — this migration adds that constraint once the Order table exists.
 
 -- 1. Enums
@@ -55,7 +55,7 @@ CREATE TABLE "Order" (
   "cancellationReason"    VARCHAR(500),
   "idempotencyKey"        VARCHAR(80)     NOT NULL,
   "createdAt"             TIMESTAMP(3)    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "updatedAt"             TIMESTAMP(3)    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt"             TIMESTAMP(3)    NOT NULL,
   CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
 );
 
@@ -96,10 +96,10 @@ CREATE TABLE "Payment" (
   CONSTRAINT "Payment_pkey" PRIMARY KEY ("id")
 );
 
--- Partial unique index: idempotencyKey IS NOT NULL (idempotencyKey is optional on Payment)
-CREATE UNIQUE INDEX "Payment_idempotencyKey_key"
-  ON "Payment" ("idempotencyKey")
-  WHERE "idempotencyKey" IS NOT NULL;
+-- Unique on idempotencyKey. The column is nullable; Postgres treats NULL != NULL
+-- in unique constraints, so multiple rows with NULL idempotencyKey coexist correctly.
+-- Plain unique (no partial WHERE clause) matches schema.prisma's `@unique` decorator.
+CREATE UNIQUE INDEX "Payment_idempotencyKey_key" ON "Payment" ("idempotencyKey");
 
 -- Indexes on Payment
 CREATE INDEX "Payment_orderId_idx" ON "Payment" ("orderId");
@@ -111,8 +111,9 @@ ALTER TABLE "Payment"
   FOREIGN KEY ("orderId") REFERENCES "Order"("id")
   ON DELETE CASCADE ON UPDATE CASCADE;
 
--- 4. Backfill: add FK from Document.orderId → Order (deferred from Day 2 migration).
-ALTER TABLE "Document"
-  ADD CONSTRAINT "Document_orderId_fkey"
-  FOREIGN KEY ("orderId") REFERENCES "Order"("id")
-  ON DELETE SET NULL ON UPDATE CASCADE;
+-- 4. NOTE: Document.orderId intentionally has NO FK constraint.
+-- schema.prisma line 844 says: "orderId has no FK constraint in v1.4 — Order model
+-- doesn't exist until Day 4." The relation is application-enforced only.
+-- (Previous version of this migration added a Document_orderId_fkey constraint
+-- which conflicted with schema.prisma and caused `migrate dev` to keep
+-- auto-generating drift-fix migrations.)

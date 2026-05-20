@@ -101,11 +101,11 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
                     {{ 'vdp.tag.inspected' | translate }}
                   </span>
                 }
-                <span class="inline-flex items-center gap-1 rounded-pill bg-emerald-600 px-2.5 py-1 text-[11px] font-semibold text-white">
+                <span class="inline-flex items-center gap-1 rounded-pill bg-brand-700 px-2.5 py-1 text-[11px] font-semibold text-white">
                   <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
                   {{ 'vdp.tag.warranty' | translate }}
                 </span>
-                <span class="inline-flex items-center gap-1 rounded-pill bg-amber-500 px-2.5 py-1 text-[11px] font-semibold text-white">
+                <span class="inline-flex items-center gap-1 rounded-pill bg-brand-500 px-2.5 py-1 text-[11px] font-semibold text-white">
                   <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
                   {{ 'vdp.tag.return' | translate }}
                 </span>
@@ -189,7 +189,7 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
                   </div>
                 </div>
                 <div class="flex items-start gap-3 rounded-xl bg-surface-soft p-4">
-                  <div class="font-display text-2xl font-extrabold" [class.text-emerald-600]="!car()!.accidentHistory" [class.text-amber-600]="car()!.accidentHistory">
+                  <div class="font-display text-2xl font-extrabold" [class.text-brand-700]="!car()!.accidentHistory" [class.text-red-600]="car()!.accidentHistory">
                     {{ car()!.accidentHistory ? '1+' : 0 }}
                   </div>
                   <div>
@@ -207,7 +207,7 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
                   </div>
                 </div>
                 <div class="flex items-start gap-3 rounded-xl bg-surface-soft p-4">
-                  <div class="text-emerald-600">
+                  <div class="text-brand-700">
                     <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4"/></svg>
                   </div>
                   <div>
@@ -277,6 +277,7 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
               [priceLabel]="priceLabel()"
               [monthlyLabel]="monthlyLabel()"
               [brandName]="brandName()"
+              [listingId]="car()?.id ?? ''"
             />
           </aside>
         </div>

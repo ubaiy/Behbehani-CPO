@@ -4,6 +4,7 @@
  */
 
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import type { SellFormState } from './types';
@@ -25,20 +26,21 @@ export function StepTwoContactCard({
   onMobileChange,
   onEmailChange,
 }: StepTwoContactCardProps) {
+  const { t } = useTranslation();
   return (
     <View style={ss.card}>
-      <Text style={ss.cardH2}>Who should we contact?</Text>
+      <Text style={ss.cardH2}>{t('sell.step2.contact.title')}</Text>
 
       {/* Full name */}
       <View style={ss.fieldBlock}>
         <Text style={ss.fieldLabel}>
-          Full name <Text style={ss.requiredMark}>*</Text>
+          {t('sell.step2.contact.nameLabel')} <Text style={ss.requiredMark}>*</Text>
         </Text>
         <TextInput
           style={ss.input}
           value={fullName}
           onChangeText={onFullNameChange}
-          placeholder="Abbas Behbehani"
+          placeholder={t('sell.step2.contact.namePlaceholder')}
           placeholderTextColor={slate[400]}
           autoCapitalize="words"
           returnKeyType="next"
@@ -48,7 +50,7 @@ export function StepTwoContactCard({
       {/* Mobile — KW +965 prefix, 8-digit input */}
       <View style={ss.fieldBlock}>
         <Text style={ss.fieldLabel}>
-          Mobile <Text style={ss.requiredMark}>*</Text>
+          {t('sell.step2.contact.mobileLabel')} <Text style={ss.requiredMark}>*</Text>
         </Text>
         <View style={ss.mobileRow}>
           <View style={ss.mobilePrefix}>
@@ -66,19 +68,20 @@ export function StepTwoContactCard({
             returnKeyType="next"
           />
         </View>
-        <Text style={ss.fieldHint}>Kuwait mobile starts with 5/6/9 — 8 digits</Text>
+        <Text style={ss.fieldHint}>{t('sell.step2.contact.mobileHint')}</Text>
       </View>
 
       {/* Email (optional) */}
       <View style={ss.fieldBlock}>
         <Text style={ss.fieldLabel}>
-          Email <Text style={ss.optionalHint}>(optional)</Text>
+          {t('sell.step2.contact.emailLabel')}{' '}
+          <Text style={ss.optionalHint}>{t('sell.step2.contact.emailOptional')}</Text>
         </Text>
         <TextInput
           style={ss.input}
           value={email}
           onChangeText={onEmailChange}
-          placeholder="you@example.com"
+          placeholder={t('sell.step2.contact.emailPlaceholder')}
           placeholderTextColor={slate[400]}
           keyboardType="email-address"
           autoCapitalize="none"
@@ -90,9 +93,7 @@ export function StepTwoContactCard({
       {/* Privacy reassurance */}
       <View style={ss.privacyCard}>
         <Text style={ss.privacyIcon}>🛡</Text>
-        <Text style={ss.privacyText}>
-          Your details stay private until you accept an offer. We never share with third parties.
-        </Text>
+        <Text style={ss.privacyText}>{t('sell.step2.contact.privacyText')}</Text>
       </View>
     </View>
   );

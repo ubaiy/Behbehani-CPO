@@ -1,16 +1,23 @@
 import React from 'react';
 import { View, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { SectionHeader, Chip } from './shared';
 
-const OPTIONS = ['Petrol', 'Diesel', 'Hybrid', 'Electric'];
+const OPTIONS = [
+  { value: 'Petrol', tKey: 'filter.fuelPetrol' },
+  { value: 'Diesel', tKey: 'filter.fuelDiesel' },
+  { value: 'Hybrid', tKey: 'filter.fuelHybrid' },
+  { value: 'Electric', tKey: 'filter.fuelElectric' },
+];
 
 export function FuelTypePicker() {
+  const { t } = useTranslation();
   return (
     <View style={s.sectionDisabled}>
-      <SectionHeader title="Fuel type" comingSoon />
+      <SectionHeader title={t('filter.fuelType')} comingSoon />
       <View style={s.chipRow}>
-        {OPTIONS.map(f => (
-          <Chip key={f} label={f} selected={false} onPress={() => {}} disabled />
+        {OPTIONS.map(opt => (
+          <Chip key={opt.value} label={t(opt.tKey)} selected={false} onPress={() => {}} disabled />
         ))}
       </View>
     </View>

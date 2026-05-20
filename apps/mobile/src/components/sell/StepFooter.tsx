@@ -5,6 +5,7 @@
  */
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import type { Step } from './types';
@@ -17,6 +18,7 @@ interface StepFooterProps {
 }
 
 export function StepFooter({ step, primaryLabel, onPrimary, onBack }: StepFooterProps) {
+  const { t } = useTranslation();
   if (step === 1) {
     return (
       <Pressable
@@ -36,9 +38,9 @@ export function StepFooter({ step, primaryLabel, onPrimary, onBack }: StepFooter
         style={({ pressed }) => [ss.btnBack, pressed && ss.btnBackPressed]}
         onPress={onBack}
         accessibilityRole="button"
-        accessibilityLabel="Back"
+        accessibilityLabel={t('sell.footer.back')}
       >
-        <Text style={ss.btnBackText}>Back</Text>
+        <Text style={ss.btnBackText}>{t('sell.footer.back')}</Text>
       </Pressable>
       <Pressable
         style={({ pressed }) => [ss.ctaPrimary, ss.ctaFlex, pressed && ss.ctaPrimaryPressed]}

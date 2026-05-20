@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, Pressable, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, spacing, radius } from '../../theme/theme';
 import { SLATE_300, SLATE_700, BRAND_700 } from './authConstants';
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export function TermsCheckbox({ accepted, onToggle }: Props) {
+  const { t } = useTranslation();
   const rtlRow = I18nManager.isRTL ? 'row-reverse' : 'row';
 
   return (
@@ -21,10 +23,10 @@ export function TermsCheckbox({ accepted, onToggle }: Props) {
         {accepted && <Text style={styles.checkboxTick}>✓</Text>}
       </View>
       <Text style={styles.checkboxLabel}>
-        I agree to the{' '}
-        <Text style={styles.linkText}>Terms of Service</Text>
-        {' '}and{' '}
-        <Text style={styles.linkText}>Privacy Policy</Text>
+        {t('auth.termsAccept')}{' '}
+        <Text style={styles.linkText}>{t('auth.termsOfService')}</Text>
+        {' '}{t('auth.termsAnd')}{' '}
+        <Text style={styles.linkText}>{t('auth.privacyPolicy')}</Text>
       </Text>
     </Pressable>
   );

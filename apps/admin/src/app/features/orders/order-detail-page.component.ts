@@ -79,7 +79,7 @@ type ActionBusy = 'idle' | 'updating' | 'cancelling';
       <!-- ── Back link ────────────────────────────────────────────────────── -->
       <div class="mb-4">
         <a
-          routerLink="/orders"
+          routerLink="/operations/orders"
           class="inline-flex items-center gap-1.5 text-sm text-brand-600 hover:underline focus:outline-none focus:underline"
           aria-label="Back to order queue"
         >

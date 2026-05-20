@@ -5,10 +5,17 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, I18nManager } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { ShieldIcon } from './vdp.icons';
 import { InspectionCategory } from './vdp.types';
+
+const GAUGE_SIZE = 56;
+const GAUGE_STROKE = 4;
+const GAUGE_RADIUS = (GAUGE_SIZE - GAUGE_STROKE) / 2;
+const GAUGE_CIRCUMFERENCE = 2 * Math.PI * GAUGE_RADIUS;
 
 const rtlChevron = I18nManager.isRTL ? { transform: [{ scaleX: -1 }] } : {};
 
@@ -17,13 +24,14 @@ interface InspBarProps {
 }
 
 function InspBar({ category }: InspBarProps) {
+  const { t } = useTranslation();
   const pct = category.maxScore > 0 ? category.score / category.maxScore : 0;
   return (
     <View style={styles.inspBarWrapper}>
       <View style={styles.inspBarHeader}>
         <Text style={styles.inspBarName}>{category.name}</Text>
         <Text style={styles.inspBarScore}>
-          {category.score} / {category.maxScore}
+          {t('vdp.inspBarMaxOf', { score: category.score, max: category.maxScore })}
         </Text>
       </View>
       <View style={styles.inspBarTrack}>
@@ -48,6 +56,7 @@ export function InspectionReportEmbed({
   inspectionDate,
   onViewFullReport,
 }: InspectionReportEmbedProps) {
+  const { t } = useTranslation();
   return (
     <View style={styles.sectionPadded}>
       <View style={[styles.card, styles.inspCard]}>
@@ -57,30 +66,47 @@ export function InspectionReportEmbed({
               <ShieldIcon size={20} color="#FFFFFF" />
             </View>
             <View>
-              <Text style={styles.inspTitle}>Al Daman inspection</Text>
+              <Text style={styles.inspTitle}>{t('vdp.alDamanInspectionTitle')}</Text>
               <Text style={styles.inspDate}>
-                {inspectionDate ? `Completed ${inspectionDate}` : 'Completed'}
+                {inspectionDate ? t('vdp.completedDate', { date: inspectionDate }) : t('vdp.completed')}
               </Text>
             </View>
           </View>
-          {/* Score gauge */}
-          <View style={styles.gaugeWrapper}>
-            <View style={styles.gaugeOuter}>
-              <View
-                style={[
-                  styles.gaugeArc,
-                  {
-                    borderColor: brand[800],
-                    // Approximate arc via opacity — full arc shown for simplicity
-                    // A true SVG gauge would need react-native-svg
-                    opacity: inspGaugePct,
-                  },
-                ]}
+          {/* Score gauge — react-native-svg arc */}
+          <View
+            style={styles.gaugeWrapper}
+            accessibilityLabel={t('vdp.inspectionScoreA11y', { score: inspScore })}
+          >
+            <Svg
+              width={GAUGE_SIZE}
+              height={GAUGE_SIZE}
+              viewBox={`0 0 ${GAUGE_SIZE} ${GAUGE_SIZE}`}
+              style={styles.gaugeSvg}
+            >
+              <Circle
+                cx={GAUGE_SIZE / 2}
+                cy={GAUGE_SIZE / 2}
+                r={GAUGE_RADIUS}
+                stroke={brand[100]}
+                strokeWidth={GAUGE_STROKE}
+                fill="none"
               />
-            </View>
-            <View style={styles.gaugeCenter}>
+              <Circle
+                cx={GAUGE_SIZE / 2}
+                cy={GAUGE_SIZE / 2}
+                r={GAUGE_RADIUS}
+                stroke={brand[800]}
+                strokeWidth={GAUGE_STROKE}
+                strokeLinecap="round"
+                fill="none"
+                strokeDasharray={`${GAUGE_CIRCUMFERENCE} ${GAUGE_CIRCUMFERENCE}`}
+                strokeDashoffset={GAUGE_CIRCUMFERENCE * (1 - Math.max(0, Math.min(1, inspGaugePct)))}
+                transform={`rotate(-90 ${GAUGE_SIZE / 2} ${GAUGE_SIZE / 2})`}
+              />
+            </Svg>
+            <View style={styles.gaugeCenter} pointerEvents="none">
               <Text style={styles.gaugeScore}>{inspScore}</Text>
-              <Text style={styles.gaugeMax}>/ 100</Text>
+              <Text style={styles.gaugeMax}>{t('vdp.inspGaugeMaxLabel')}</Text>
             </View>
           </View>
         </View>
@@ -92,7 +118,7 @@ export function InspectionReportEmbed({
           onPress={onViewFullReport}
           activeOpacity={0.8}
         >
-          <Text style={styles.inspOutlineBtnText}>View full report</Text>
+          <Text style={styles.inspOutlineBtnText}>{t('vdp.viewFullReport')}</Text>
           <Text style={[styles.chevronSmall, { color: brand[800] }, rtlChevron]}>›</Text>
         </TouchableOpacity>
       </View>
@@ -149,35 +175,23 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   gaugeWrapper: {
-    width: 56,
-    height: 56,
+    width: GAUGE_SIZE,
+    height: GAUGE_SIZE,
     flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
-  gaugeOuter: {
+  gaugeSvg: {
     position: 'absolute',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 4,
-    borderColor: brand[100],
-  },
-  gaugeArc: {
-    position: 'absolute',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: 4,
-    borderTopColor: brand[800],
-    borderRightColor: brand[800],
-    borderBottomColor: 'transparent',
-    borderLeftColor: 'transparent',
-    transform: [{ rotate: '-45deg' }],
+    top: 0,
+    left: 0,
   },
   gaugeCenter: {
     alignItems: 'center',
+    justifyContent: 'center',
+    width: GAUGE_SIZE,
+    height: GAUGE_SIZE,
   },
   gaugeScore: {
     fontSize: 14,

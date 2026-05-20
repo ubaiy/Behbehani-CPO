@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, I18nManager } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { fontFamily, palette, radius, spacing } from '../../theme/theme';
 
 export interface BrowseHeaderProps {
@@ -8,13 +9,14 @@ export interface BrowseHeaderProps {
 }
 
 export function BrowseHeader({ filterCount, onFilterPress }: BrowseHeaderProps) {
+  const { t } = useTranslation();
   return (
     <View style={s.header}>
-      <Text style={s.headerTitle}>Browse cars</Text>
+      <Text style={s.headerTitle}>{t('browse.headerTitle')}</Text>
       <TouchableOpacity
         style={s.headerFilterBtn}
         onPress={onFilterPress}
-        accessibilityLabel="Open filters"
+        accessibilityLabel={t('browse.openFiltersA11y')}
         hitSlop={8}
       >
         <View style={s.filterIconStack}>

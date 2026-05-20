@@ -10,24 +10,16 @@
  *
  * Auth: requireCustomerSession (Bearer accessToken) on both endpoints.
  *
- * When @behbehani-cpo/shared-types publishes push-token.public.schemas.ts (v1.4 Day 1-2),
- * replace the inline Zod schema with the imported type.
+ * Per B v0.10-B-reply §B-C-5: canonical schema lives in shared-types as
+ * `PushTokenInputSchema` (token: z.string().min(20).max(512); accommodates
+ * APNs ~64-char hex tokens and FCM ~163-char tokens).
  */
 
 import type { AxiosInstance } from 'axios';
-import { z } from 'zod';
-
-// ─── Inline request schema (v1.4.2 §2 locked shape) ──────────────────────────
-// TODO (v1.4 Day 1-2): Replace with import from @behbehani-cpo/shared-types
-//   import { RegisterPushTokenSchema } from '@behbehani-cpo/shared-types';
-
-const RegisterPushTokenSchema = z.object({
-  token: z.string().min(1),
-  platform: z.enum(['ios', 'android']),
-  deviceLabel: z.string().optional(),
-});
-
-type RegisterPushTokenDto = z.infer<typeof RegisterPushTokenSchema>;
+import {
+  PushTokenInputSchema,
+  type PushTokenInputDto,
+} from '@behbehani-cpo/shared-types';
 
 // ─── Client ───────────────────────────────────────────────────────────────────
 
@@ -47,9 +39,9 @@ export class NotificationsPublicApiClient {
    * @throws If the request body fails Zod validation (programming error; not a network error).
    * @throws If the network request fails — callers must treat push registration as best-effort.
    */
-  async registerPushToken(dto: RegisterPushTokenDto): Promise<void> {
+  async registerPushToken(dto: PushTokenInputDto): Promise<void> {
     // Validate at the boundary — surface misconfigured callers early.
-    const validated = RegisterPushTokenSchema.parse(dto);
+    const validated = PushTokenInputSchema.parse(dto);
     await this.axios.post('/v1/public/notifications/push-token', validated);
   }
 
