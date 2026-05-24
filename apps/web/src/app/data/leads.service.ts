@@ -63,9 +63,16 @@ export function newIdempotencyKey(): string {
   return globalThis.crypto?.randomUUID?.() ?? `lead-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** Maps the VDP channel to the server's coarse `LeadSource` enum. */
+/** Maps the VDP channel to the server's `LeadSource` enum.
+ *  v1.5.30 (B's enum drift fix): server now accepts 'vdp_callback' /
+ *  'vdp_whatsapp' / 'compare_page' / 'other' directly — the prior
+ *  3-value ['vdp','callback','other'] mapping is obsolete. Direct passthrough
+ *  is type-safe since VdpLeadChannel ⊆ LeadSource.
+ *  Touched by B v1.5.32 to unblock deploy-all build; A may refactor to drop
+ *  this wrapper + the `[channel]` message prefix in buildMessage() below now
+ *  that the server source field carries the channel info natively. */
 function channelToServerSource(channel: VdpLeadChannel): LeadSource {
-  return channel === 'vdp_callback' ? 'callback' : 'vdp';
+  return channel;
 }
 
 /** Prefixes the user-provided message with a `[channel]` tag so admins can
