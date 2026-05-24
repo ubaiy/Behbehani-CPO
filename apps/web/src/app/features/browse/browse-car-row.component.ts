@@ -6,6 +6,7 @@ import type { FeaturedCar } from '../../data/catalog.types';
 import { fmtKm, fmtKwd } from '../../data/kwd';
 /* v1.5-D11e: BRANDS lookup gone — using car().brandNameEn/Ar from API. */
 import { HeartToggleService } from '../../data/heart-toggle.service';
+import { CompareSelectionService, COMPARE_MAX } from '../../data/compare-selection.service';
 
 /**
  * List-view row card. Wider, image on the left, full spec line on the right,
@@ -35,6 +36,24 @@ import { HeartToggleService } from '../../data/heart-toggle.service';
         <span class="absolute start-3 top-3 inline-flex items-center gap-1 rounded-pill bg-brand-700 px-2.5 py-0.5 text-[11px] font-semibold text-white">
           {{ 'car.badges.' + car().badge | translate }}
         </span>
+        <!-- v1.5-D18b: compare checkbox — top-right of image, mirrors car-card.
+             stopPropagation so it doesn't navigate to the VDP. -->
+        <button
+          type="button"
+          class="absolute end-3 top-3 inline-grid h-9 w-9 place-items-center rounded-full border border-line bg-white/95 text-muted-2 shadow-sm transition-colors hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          [class.text-brand-700]="isInCompare()"
+          [class.border-brand-300]="isInCompare()"
+          [class.bg-brand-50]="isInCompare()"
+          (click)="toggleCompare($event)"
+          [attr.aria-label]="'compare.select' | translate"
+          [attr.aria-pressed]="isInCompare()"
+        >
+          @if (isInCompare()) {
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>
+          } @else {
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
+          }
+        </button>
       </div>
       <div class="flex flex-col gap-3 p-4 sm:p-5">
         <div class="flex items-start justify-between gap-3">
@@ -109,9 +128,22 @@ export class BrowseCarRowComponent implements OnInit {
   private readonly language = inject(LanguageService);
   private readonly router = inject(Router);
   private readonly heartToggle = inject(HeartToggleService);
+  private readonly compareSelection = inject(CompareSelectionService);
   readonly currentLocale = computed(() => this.language.current());
 
   readonly isSaved = computed(() => this.heartToggle.savedIds().has(this.car().id));
+
+  /** v1.5-D18b — Track compare-selection state for the per-row checkbox. */
+  readonly isInCompare = computed(() => {
+    const slug = this.car().slug;
+    return slug ? this.compareSelection.isSelected(slug) : false;
+  });
+
+  toggleCompare(event: Event): void {
+    event.stopPropagation();
+    const slug = this.car().slug;
+    if (slug) this.compareSelection.toggle(slug);
+  }
 
   ngOnInit(): void {
     this.heartToggle.hydrate([this.car().id]);

@@ -157,6 +157,140 @@ export async function getActiveDiscountSummary(): Promise<{
   return { listingCount: listingCount.length, totalReductionFils };
 }
 
+// ─── KPI: listings by stage ──────────────────────────────────────────────────
+// Returns a map of every stage to its count (zero-filled for missing stages).
+
+export async function getListingsByStage(): Promise<Record<string, number>> {
+  const rows = await prisma.listing.groupBy({
+    by: ['stage'],
+    _count: true,
+    where: { deletedAt: null },
+  });
+  const map: Record<string, number> = {};
+  for (const s of LISTING_STAGES) {
+    map[s] = 0;
+  }
+  for (const r of rows) {
+    map[r.stage] = r._count;
+  }
+  return map;
+}
+
+// ─── KPI: weekly sales count ─────────────────────────────────────────────────
+// Count orders with status=completed in last 7 days.
+// Falls back to listings transitioned to stage='sold' if Order count is zero.
+
+export async function getWeeklySalesCount(): Promise<number> {
+  const since = new Date(Date.now() - 7 * DAY_MS);
+  const orderCount = await prisma.order.count({
+    where: { status: 'completed', createdAt: { gte: since } },
+  });
+  if (orderCount > 0) return orderCount;
+  // fallback: listings entering sold stage in last 7 days
+  return prisma.listing.count({
+    where: { deletedAt: null, stage: 'sold', soldAt: { gte: since } },
+  });
+}
+
+// ─── KPI: listings listed in last 7 days ─────────────────────────────────────
+
+export async function getListingsListedLast7Days(): Promise<number> {
+  const since = new Date(Date.now() - 7 * DAY_MS);
+  return prisma.listing.count({
+    where: { deletedAt: null, listedAt: { gte: since } },
+  });
+}
+
+// ─── KPI: avg days to sell ───────────────────────────────────────────────────
+// For each sold/delivered listing, compute (soldAt - listedAt) in days.
+// Groups by stage and returns avg per stage (null when no data).
+
+export async function getAvgDaysToSellByStage(): Promise<Record<string, number | null>> {
+  const rows = await prisma.listing.findMany({
+    where: {
+      deletedAt: null,
+      stage: { in: ['sold', 'delivered'] },
+      listedAt: { not: null },
+      soldAt: { not: null },
+    },
+    select: { stage: true, listedAt: true, soldAt: true },
+  });
+
+  const accum = new Map<string, { sumDays: number; count: number }>();
+  for (const r of rows) {
+    if (!r.listedAt || !r.soldAt) continue;
+    const days = (r.soldAt.getTime() - r.listedAt.getTime()) / DAY_MS;
+    const entry = accum.get(r.stage) ?? { sumDays: 0, count: 0 };
+    entry.sumDays += days;
+    entry.count += 1;
+    accum.set(r.stage, entry);
+  }
+
+  return {
+    sold: accum.has('sold')
+      ? Math.round((accum.get('sold')!.sumDays / accum.get('sold')!.count) * 10) / 10
+      : null,
+    delivered: accum.has('delivered')
+      ? Math.round((accum.get('delivered')!.sumDays / accum.get('delivered')!.count) * 10) / 10
+      : null,
+  };
+}
+
+// ─── KPI: top brands ─────────────────────────────────────────────────────────
+// Group active-market listings by brand, join Brand for name + logo.
+
+export interface TopBrandEntry {
+  brandId: string;
+  slug: string;
+  nameEn: string;
+  nameAr: string;
+  logoUrl: string | null;
+  listingCount: number;
+}
+
+export async function getTopBrandsByListingCount(n = 5): Promise<TopBrandEntry[]> {
+  const rows = await prisma.listing.groupBy({
+    by: ['brandId'],
+    _count: true,
+    where: {
+      deletedAt: null,
+      stage: { in: ['listed', 'reserved', 'sold'] },
+    },
+  });
+
+  if (rows.length === 0) return [];
+
+  // Sort by count descending and take top N in application code
+  // (avoids Prisma groupBy orderBy dialect differences).
+  const topRows = rows
+    .slice()
+    .sort((a, b) => b._count - a._count)
+    .slice(0, n);
+
+  const brandIds = topRows.map((r) => r.brandId);
+  const brands = await prisma.brand.findMany({
+    where: { id: { in: brandIds } },
+    select: { id: true, slug: true, nameEn: true, nameAr: true, logoUrl: true },
+  });
+
+  const brandMap = new Map(brands.map((b) => [b.id, b]));
+
+  return topRows
+    .map((r) => {
+      const b = brandMap.get(r.brandId);
+      if (!b) return null;
+      return {
+        brandId: b.id,
+        slug: b.slug,
+        nameEn: b.nameEn,
+        nameAr: b.nameAr,
+        logoUrl: b.logoUrl ?? null,
+        listingCount: r._count,
+      };
+    })
+    .filter((x): x is TopBrandEntry => x !== null);
+}
+
 // ─── Previous-month discount total (for delta computation) ───────────────────
 
 export async function getPrevMonthDiscountFils(): Promise<bigint> {

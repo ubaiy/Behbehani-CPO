@@ -164,6 +164,10 @@ model User {
   maintenanceRequests  MaintenanceRequest[] @relation("UserMaintenanceRequests")
   // v1.5.8 — Customer reviews.
   reviews              Review[]            @relation("UserReviews")
+  // v1.5.25 — Leads assigned to this user (sales staff).
+  leadsAssigned        Lead[]              @relation("LeadsAssigned")
+  // v1.5.29 — Test drive bookings assigned to this user (sales staff).
+  testDrivesAssigned   TestDriveBooking[]  @relation("TestDrivesAssigned")
 }
 
 // Append-only audit trail (FR-ADM-021).
@@ -362,6 +366,10 @@ model Listing {
   maintenanceRequests MaintenanceRequest[] @relation("MaintenanceRequestVehicle")
   // v1.5.8 — Customer reviews on this listing.
   reviews             Review[]             @relation("ReviewListingTarget")
+  // v1.5.25 — Leads captured from this listing's VDP page.
+  leads               Lead[]
+  // v1.5.29 — Test drive bookings that reference this listing.
+  testDriveBookings   TestDriveBooking[]
 
   @@index([stage, listedAt])
   @@index([brandId, modelId])
@@ -1138,6 +1146,43 @@ model MaintenanceRequest {
   @@map("maintenance_request")
 }
 
+// ─── v1.5.25 — Lead capture ──────────────────────────────────────────────────
+// Anonymous VDP visitors / callback requests. Admin queue works through leads
+// by updating status + notes. No auth required to create; rate-limited 5/min/IP.
+
+enum LeadStatus {
+  new
+  contacted
+  qualified
+  converted
+  dropped
+}
+
+model Lead {
+  id             String     @id @default(uuid()) @db.Uuid
+  listingId      String?    @db.Uuid
+  listing        Listing?   @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  customerName   String     @db.VarChar(120)
+  customerPhone  String     @db.VarChar(20)
+  customerEmail  String?    @db.VarChar(255)
+  message        String?    @db.VarChar(500)
+  source         String     @default("vdp") @db.VarChar(20)
+  status         LeadStatus @default(new)
+  notes          String?    @db.Text
+  assignedToId   String?    @db.Uuid
+  assignedTo     User?      @relation("LeadsAssigned", fields: [assignedToId], references: [id])
+  contactedAt    DateTime?
+  resolvedAt     DateTime?
+  ipAddress      String?    @db.VarChar(45)
+  userAgent      String?    @db.VarChar(500)
+  idempotencyKey String?    @unique
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([status, createdAt])
+  @@index([listingId])
+}
+
 // ─── v1.5.8 — Customer reviews ───────────────────────────────────────────────
 // Polymorphic target: a review can target either a CPO Listing or a Service
 // (inspection or maintenance). Implemented via discriminator + nullable FKs.
@@ -1189,4 +1234,56 @@ model Review {
   // One review per customer per service target:
   @@unique([userId, targetServiceKind, targetServiceId])
   @@map("review")
+}
+
+// ─── v1.5.29 — Test Drive Bookings ───────────────────────────────────────────
+// Anonymous customer booking from VDP "Book test drive" CTA. Admin works the
+// queue: transitions status, schedules a date/time, assigns to sales staff.
+
+enum TestDriveWindow {
+  morning
+  afternoon
+  evening
+}
+
+enum TestDriveLocation {
+  showroom
+  customer_address
+}
+
+enum TestDriveStatus {
+  requested
+  scheduled
+  confirmed
+  completed
+  no_show
+  cancelled
+}
+
+model TestDriveBooking {
+  id              String            @id @default(uuid()) @db.Uuid
+  listingId       String?           @db.Uuid
+  listing         Listing?          @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  customerName    String            @db.VarChar(120)
+  customerPhone   String            @db.VarChar(20)
+  customerEmail   String?           @db.VarChar(255)
+  preferredDate   DateTime          @db.Date
+  preferredWindow TestDriveWindow
+  location        TestDriveLocation
+  addressLine     String?           @db.VarChar(500)
+  customerNotes   String?           @db.VarChar(1000)
+  status          TestDriveStatus   @default(requested)
+  scheduledAt     DateTime?
+  completedAt     DateTime?
+  adminNotes      String?           @db.Text
+  assignedToId    String?           @db.Uuid
+  assignedTo      User?             @relation("TestDrivesAssigned", fields: [assignedToId], references: [id])
+  ipAddress       String?           @db.VarChar(45)
+  userAgent       String?           @db.VarChar(500)
+  idempotencyKey  String?           @unique
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([status, preferredDate])
+  @@index([listingId])
 }

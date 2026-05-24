@@ -9,7 +9,6 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -17,6 +16,10 @@ import { LanguageService } from '@behbehani-cpo/shared-i18n';
 import { AuthService } from '@behbehani-cpo/data-access';
 import { MeAccountService } from '../../data/me-account.service';
 import { SignInModalService } from '../auth/sign-in-modal.service';
+import { ProfilePersonalInfoComponent } from './profile-personal-info.component';
+import { ProfileEmailChangeComponent } from './profile-email-change.component';
+import { ProfileMobileChangeComponent } from './profile-mobile-change.component';
+import { ProfilePasswordChangeComponent } from './profile-password-change.component';
 
 // ─── State union ─────────────────────────────────────────────────────────────
 
@@ -57,7 +60,14 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   selector: 'app-account-profile',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    ProfilePersonalInfoComponent,
+    ProfileEmailChangeComponent,
+    ProfileMobileChangeComponent,
+    ProfilePasswordChangeComponent,
+  ],
   template: `
     <!-- Guest gate -->
     @if (!auth.isSignedIn()) {
@@ -118,401 +128,76 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         <main>
           <div class="space-y-6">
 
-            <!-- ── Card 1: Identity ─────────────────────────────────────── -->
-            <section class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
-              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
-                {{ 'account.profile.identity.title' | translate }}
-              </h2>
+            <app-profile-personal-info
+              [user]="user()"
+              [initials]="initials()"
+              [fullNameDraft]="fullNameDraft"
+              [isNameDirty]="isNameDirty()"
+              [isSaving]="isAnySaving()"
+              [isSavingProfile]="isSavingProfile()"
+              [isUploadingAvatar]="isUploadingAvatar()"
+              (fullNameDraftChange)="fullNameDraft = $event"
+              (saveName)="onSaveName()"
+              (localeChange)="onLocaleChange($event)"
+              (avatarFileSelected)="onAvatarFileSelected($event)"
+              (removeAvatar)="onRemoveAvatar()"
+            />
 
-              <!-- Avatar -->
-              <div class="mt-5 flex items-center gap-4">
-                @if (user()?.avatarUrl) {
-                  <img
-                    [src]="user()!.avatarUrl!"
-                    alt=""
-                    class="h-16 w-16 rounded-full object-cover ring-2 ring-brand-100"
-                  />
-                } @else {
-                  <div class="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-[22px] font-bold text-brand-700 select-none">
-                    {{ initials() }}
-                  </div>
-                }
-                <div class="flex flex-wrap items-center gap-2">
-                  <!-- v1.5-D8: live avatar upload (B v1.5.10 endpoint, 3-step S3 flow). -->
-                  <label class="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-pill border border-line bg-white px-4 py-2 text-[13px] font-semibold text-ink-2 hover:bg-surface-soft transition-colors"
-                    [class.opacity-50]="isUploadingAvatar()"
-                    [class.cursor-not-allowed]="isUploadingAvatar()">
-                    @if (isUploadingAvatar()) {
-                      <svg viewBox="0 0 24 24" width="14" height="14" class="animate-spin text-brand-700" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a10 10 0 0 1 10 10"/></svg>
-                      {{ 'account.profile.identity.uploadingCta' | translate }}
-                    } @else {
-                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-                      {{ 'account.profile.identity.uploadCta' | translate }}
-                    }
-                    <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" (change)="onAvatarFileSelected($event)" [disabled]="isUploadingAvatar()" />
-                  </label>
-                  @if (user()?.avatarUrl) {
-                    <button
-                      type="button"
-                      (click)="onRemoveAvatar()"
-                      [disabled]="state().kind === 'saving'"
-                      class="inline-flex min-h-[44px] items-center rounded-pill border border-red-200 bg-white px-4 py-2 text-[13px] font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
-                    >
-                      {{ 'account.profile.identity.removeCta' | translate }}
-                    </button>
-                  }
-                </div>
-              </div>
+            <app-profile-email-change
+              [user]="user()"
+              [panelStep]="emailPanelStep()"
+              [newEmailDraft]="newEmailDraft"
+              [emailOtpCode]="emailOtpCode"
+              [emailError]="emailError()"
+              [isSaving]="isAnySaving()"
+              [isSavingEmail]="isSavingEmail()"
+              [isEmailValid]="isEmailValid()"
+              [isEmailFormatHintShown]="isEmailFormatHintShown()"
+              (newEmailDraftChange)="newEmailDraft = $event"
+              (emailOtpCodeChange)="emailOtpCode = $event"
+              (openPanel)="openEmailPanel()"
+              (closePanel)="closeEmailPanel()"
+              (sendCode)="onSendEmailCode()"
+              (verifyCode)="onVerifyEmailCode()"
+            />
 
-              <!-- Full name -->
-              <div class="mt-5">
-                <label class="block text-[13px] font-semibold text-ink-2 mb-1.5">
-                  {{ 'account.profile.identity.fullNameLabel' | translate }}
-                </label>
-                <div class="flex gap-3">
-                  <input
-                    type="text"
-                    [(ngModel)]="fullNameDraft"
-                    [placeholder]="'account.profile.identity.fullNamePlaceholder' | translate"
-                    class="h-11 flex-1 rounded-xl border border-line px-4 text-[14px] text-ink outline-none transition-colors focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
-                    maxlength="120"
-                  />
-                  <button
-                    type="button"
-                    (click)="onSaveName()"
-                    [disabled]="!isNameDirty() || state().kind === 'saving'"
-                    class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
-                  >
-                    {{ isSavingProfile() ? ('account.profile.identity.savingCta' | translate) : ('account.profile.identity.saveCta' | translate) }}
-                  </button>
-                </div>
-              </div>
+            <app-profile-mobile-change
+              [user]="user()"
+              [panelStep]="mobilePanelStep()"
+              [newMobileDraft]="newMobileDraft"
+              [mobileOtpCode]="mobileOtpCode"
+              [mobileError]="mobileError()"
+              [isSaving]="isAnySaving()"
+              [isSavingMobile]="isSavingMobile()"
+              [isMobileValid]="isMobileValid()"
+              [isMobileFormatHintShown]="isMobileFormatHintShown()"
+              (newMobileDraftChange)="newMobileDraft = $event"
+              (mobileOtpCodeChange)="mobileOtpCode = $event"
+              (openPanel)="openMobilePanel()"
+              (closePanel)="closeMobilePanel()"
+              (sendCode)="onSendMobileCode()"
+              (verifyCode)="onVerifyMobileCode()"
+            />
 
-              <!-- Language preference -->
-              <div class="mt-5">
-                <p class="text-[13px] font-semibold text-ink-2 mb-2">
-                  {{ 'account.profile.identity.localeLabel' | translate }}
-                </p>
-                <div class="flex gap-2" role="group">
-                  <button
-                    type="button"
-                    (click)="onLocaleChange('en')"
-                    [disabled]="state().kind === 'saving'"
-                    class="inline-flex min-h-[44px] items-center rounded-pill px-5 text-[13px] font-semibold transition-colors disabled:opacity-50"
-                    [class]="user()?.locale === 'en' ? 'bg-brand-700 text-white' : 'border border-line bg-white text-ink-2 hover:bg-surface-soft'"
-                  >
-                    English
-                  </button>
-                  <button
-                    type="button"
-                    (click)="onLocaleChange('ar')"
-                    [disabled]="state().kind === 'saving'"
-                    class="inline-flex min-h-[44px] items-center rounded-pill px-5 text-[13px] font-semibold transition-colors disabled:opacity-50"
-                    [class]="user()?.locale === 'ar' ? 'bg-brand-700 text-white' : 'border border-line bg-white text-ink-2 hover:bg-surface-soft'"
-                  >
-                    العربية
-                  </button>
-                </div>
-              </div>
-            </section>
-
-            <!-- ── Card 2: Email ────────────────────────────────────────── -->
-            <section class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
-              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
-                {{ 'account.profile.email.title' | translate }}
-              </h2>
-
-              <div class="mt-4 flex flex-wrap items-center gap-3">
-                <span class="text-[14px] text-ink">{{ user()?.email ?? '—' }}</span>
-                @if (user()?.emailVerifiedAt) {
-                  <span class="inline-flex items-center gap-1.5 rounded-pill bg-brand-50 px-3 py-1 text-[12px] font-semibold text-brand-700">
-                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
-                    {{ 'account.profile.email.verifiedPill' | translate }}
-                  </span>
-                } @else if (user()?.email) {
-                  <span class="inline-flex items-center rounded-pill bg-brand-50 px-3 py-1 text-[12px] font-semibold text-brand-600">
-                    {{ 'account.profile.email.notVerifiedPill' | translate }}
-                  </span>
-                }
-                @if (!emailPanel().open) {
-                  <button
-                    type="button"
-                    (click)="openEmailPanel()"
-                    class="ms-auto inline-flex min-h-[44px] items-center rounded-pill border border-line bg-white px-4 py-2 text-[13px] font-semibold text-ink-2 hover:bg-surface-soft transition-colors"
-                  >
-                    {{ 'account.profile.email.changeCta' | translate }}
-                  </button>
-                }
-              </div>
-
-              <!-- Email inline panel -->
-              @if (emailPanel().open) {
-                <div class="mt-5 rounded-2xl border border-brand-100 bg-brand-50/40 p-5">
-                  @if (emailPanelStep() === 'form') {
-                    <label class="block text-[13px] font-semibold text-ink-2 mb-1.5">
-                      {{ 'account.profile.email.newEmailLabel' | translate }}
-                    </label>
-                    <div class="flex gap-3">
-                      <input
-                        type="email"
-                        [(ngModel)]="newEmailDraft"
-                        [placeholder]="'account.profile.email.newEmailPlaceholder' | translate"
-                        class="h-11 flex-1 rounded-xl border border-line px-4 text-[14px] text-ink outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
-                        autocomplete="email"
-                      />
-                      <button
-                        type="button"
-                        (click)="onSendEmailCode()"
-                        [disabled]="!isEmailValid() || state().kind === 'saving'"
-                        class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
-                      >
-                        {{ isSavingEmail() ? ('account.profile.email.sendingCta' | translate) : ('account.profile.email.sendCodeCta' | translate) }}
-                      </button>
-                    </div>
-                    @if (isEmailFormatHintShown()) {
-                      <p class="mt-2 text-[12px] text-red-600" role="alert">
-                        {{ 'account.profile.email.formatHint' | translate }}
-                      </p>
-                    } @else if (emailError()) {
-                      <p class="mt-2 text-[12px] text-red-600" role="alert">{{ emailError() }}</p>
-                    }
-                    <button type="button" (click)="closeEmailPanel()" class="mt-3 text-[12px] font-semibold text-brand-700 hover:text-brand-800 min-h-[44px] px-2">
-                      {{ 'account.profile.email.cancelCta' | translate }}
-                    </button>
-                  } @else if (emailPanelStep() === 'otp') {
-                    <p class="text-[13px] font-semibold text-ink mb-3">
-                      {{ 'account.profile.email.codeCaption' | translate }}
-                    </p>
-                    <div class="flex gap-3">
-                      <input
-                        type="text"
-                        inputmode="numeric"
-                        [(ngModel)]="emailOtpCode"
-                        maxlength="6"
-                        autocomplete="one-time-code"
-                        class="h-11 w-36 rounded-xl border border-line px-4 text-center font-mono text-[18px] font-bold text-ink outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
-                        placeholder="······"
-                      />
-                      <button
-                        type="button"
-                        (click)="onVerifyEmailCode()"
-                        [disabled]="emailOtpCode.length < 6 || state().kind === 'saving'"
-                        class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
-                      >
-                        {{ isSavingEmail() ? ('account.profile.email.sendingCta' | translate) : ('account.profile.email.sendCodeCta' | translate) }}
-                      </button>
-                    </div>
-                    @if (emailError()) {
-                      <p class="mt-2 text-[12px] text-red-600" role="alert">{{ emailError() }}</p>
-                    }
-                    <button type="button" (click)="closeEmailPanel()" class="mt-3 text-[12px] font-semibold text-brand-700 hover:text-brand-800 min-h-[44px] px-2">
-                      {{ 'account.profile.email.cancelCta' | translate }}
-                    </button>
-                  }
-                </div>
-              }
-            </section>
-
-            <!-- ── Card 3: Mobile ──────────────────────────────────────── -->
-            <section class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
-              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
-                {{ 'account.profile.mobile.title' | translate }}
-              </h2>
-
-              <div class="mt-4 flex flex-wrap items-center gap-3">
-                <span class="text-[14px] text-ink">{{ user()?.mobile ?? '—' }}</span>
-                @if (user()?.mobileVerifiedAt) {
-                  <span class="inline-flex items-center gap-1.5 rounded-pill bg-brand-50 px-3 py-1 text-[12px] font-semibold text-brand-700">
-                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>
-                    {{ 'account.profile.mobile.verifiedPill' | translate }}
-                  </span>
-                } @else if (user()?.mobile) {
-                  <span class="inline-flex items-center rounded-pill bg-brand-50 px-3 py-1 text-[12px] font-semibold text-brand-600">
-                    {{ 'account.profile.mobile.notVerifiedPill' | translate }}
-                  </span>
-                }
-                @if (!mobilePanel().open) {
-                  <button
-                    type="button"
-                    (click)="openMobilePanel()"
-                    class="ms-auto inline-flex min-h-[44px] items-center rounded-pill border border-line bg-white px-4 py-2 text-[13px] font-semibold text-ink-2 hover:bg-surface-soft transition-colors"
-                  >
-                    {{ 'account.profile.mobile.changeCta' | translate }}
-                  </button>
-                }
-              </div>
-
-              <!-- Mobile inline panel -->
-              @if (mobilePanel().open) {
-                <div class="mt-5 rounded-2xl border border-brand-100 bg-brand-50/40 p-5">
-                  @if (mobilePanelStep() === 'form') {
-                    <label class="block text-[13px] font-semibold text-ink-2 mb-1.5">
-                      {{ 'account.profile.mobile.newMobileLabel' | translate }}
-                    </label>
-                    <div class="flex gap-3">
-                      <input
-                        type="tel"
-                        [(ngModel)]="newMobileDraft"
-                        [placeholder]="'account.profile.mobile.newMobilePlaceholder' | translate"
-                        class="h-11 flex-1 rounded-xl border border-line px-4 text-[14px] text-ink outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
-                        autocomplete="tel"
-                      />
-                      <button
-                        type="button"
-                        (click)="onSendMobileCode()"
-                        [disabled]="!isMobileValid() || state().kind === 'saving'"
-                        class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
-                      >
-                        {{ isSavingMobile() ? ('account.profile.mobile.sendingCta' | translate) : ('account.profile.mobile.sendCodeCta' | translate) }}
-                      </button>
-                    </div>
-                    @if (isMobileFormatHintShown()) {
-                      <p class="mt-2 text-[12px] text-red-600" role="alert">
-                        {{ 'account.profile.mobile.formatHint' | translate }}
-                      </p>
-                    } @else if (mobileError()) {
-                      <p class="mt-2 text-[12px] text-red-600" role="alert">{{ mobileError() }}</p>
-                    }
-                    <button type="button" (click)="closeMobilePanel()" class="mt-3 text-[12px] font-semibold text-brand-700 hover:text-brand-800 min-h-[44px] px-2">
-                      {{ 'account.profile.email.cancelCta' | translate }}
-                    </button>
-                  } @else if (mobilePanelStep() === 'otp') {
-                    <p class="text-[13px] font-semibold text-ink mb-3">
-                      {{ 'account.profile.mobile.codeCaption' | translate }}
-                    </p>
-                    <div class="flex gap-3">
-                      <input
-                        type="text"
-                        inputmode="numeric"
-                        [(ngModel)]="mobileOtpCode"
-                        maxlength="6"
-                        autocomplete="one-time-code"
-                        class="h-11 w-36 rounded-xl border border-line px-4 text-center font-mono text-[18px] font-bold text-ink outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
-                        placeholder="······"
-                      />
-                      <button
-                        type="button"
-                        (click)="onVerifyMobileCode()"
-                        [disabled]="mobileOtpCode.length < 6 || state().kind === 'saving'"
-                        class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
-                      >
-                        {{ isSavingMobile() ? ('account.profile.mobile.sendingCta' | translate) : ('account.profile.mobile.sendCodeCta' | translate) }}
-                      </button>
-                    </div>
-                    @if (mobileError()) {
-                      <p class="mt-2 text-[12px] text-red-600" role="alert">{{ mobileError() }}</p>
-                    }
-                    <button type="button" (click)="closeMobilePanel()" class="mt-3 text-[12px] font-semibold text-brand-700 hover:text-brand-800 min-h-[44px] px-2">
-                      {{ 'account.profile.email.cancelCta' | translate }}
-                    </button>
-                  }
-                </div>
-              }
-            </section>
-
-            <!-- ── Card 4: Password ────────────────────────────────────── -->
-            <section class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
-              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
-                {{ 'account.profile.password.title' | translate }}
-              </h2>
-
-              @if (!passwordPanelOpen()) {
-                <div class="mt-4">
-                  <button
-                    type="button"
-                    (click)="openPasswordPanel()"
-                    class="inline-flex min-h-[44px] items-center rounded-pill border border-line bg-white px-5 py-2.5 text-[13px] font-semibold text-ink-2 hover:bg-surface-soft transition-colors"
-                  >
-                    {{ user()?.hasPassword ? ('account.profile.password.changeCta' | translate) : ('account.profile.password.setCta' | translate) }}
-                  </button>
-                </div>
-              } @else {
-                <div class="mt-5 space-y-4">
-                  @if (user()?.hasPassword) {
-                    <div>
-                      <label class="block text-[13px] font-semibold text-ink-2 mb-1.5">
-                        {{ 'account.profile.password.currentLabel' | translate }}
-                      </label>
-                      <input
-                        type="password"
-                        [ngModel]="currentPasswordDraft()"
-                        (ngModelChange)="currentPasswordDraft.set($event)"
-                        autocomplete="current-password"
-                        class="h-11 w-full rounded-xl border border-line px-4 text-[14px] text-ink outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
-                      />
-                    </div>
-                  }
-
-                  <div>
-                    <label class="block text-[13px] font-semibold text-ink-2 mb-1.5">
-                      {{ 'account.profile.password.newLabel' | translate }}
-                    </label>
-                    <input
-                      type="password"
-                      [ngModel]="newPasswordDraft()"
-                      (ngModelChange)="newPasswordDraft.set($event)"
-                      autocomplete="new-password"
-                      class="h-11 w-full rounded-xl border border-line px-4 text-[14px] text-ink outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
-                    />
-                    <!-- Strength meter -->
-                    @if (newPasswordDraft()) {
-                      <div class="mt-2 flex gap-1.5" role="progressbar" [attr.aria-valuenow]="pwStrength()" aria-valuemin="0" aria-valuemax="4">
-                        @for (bar of [1,2,3,4]; track bar) {
-                          <div
-                            class="h-1.5 flex-1 rounded-full transition-colors"
-                            [ngClass]="{
-                              'bg-red-500':   bar <= pwStrength() && pwStrength() <= 1,
-                              'bg-slate-400': bar <= pwStrength() && pwStrength() === 2,
-                              'bg-brand-500': bar <= pwStrength() && pwStrength() === 3,
-                              'bg-brand-700': bar <= pwStrength() && pwStrength() === 4,
-                              'bg-slate-200': bar > pwStrength()
-                            }"
-                          ></div>
-                        }
-                      </div>
-                      <p class="mt-1 text-[11px]" [class]="pwStrength() <= 1 ? 'text-red-500' : pwStrength() === 2 ? 'text-slate-600' : 'text-brand-700'">
-                        {{ pwStrengthLabel() | translate }}
-                      </p>
-                    }
-                  </div>
-
-                  <div>
-                    <label class="block text-[13px] font-semibold text-ink-2 mb-1.5">
-                      {{ 'account.profile.password.confirmLabel' | translate }}
-                    </label>
-                    <input
-                      type="password"
-                      [ngModel]="confirmPasswordDraft()"
-                      (ngModelChange)="confirmPasswordDraft.set($event)"
-                      autocomplete="new-password"
-                      class="h-11 w-full rounded-xl border border-line px-4 text-[14px] text-ink outline-none focus:border-brand-700 focus:ring-2 focus:ring-brand-100"
-                    />
-                  </div>
-
-                  @if (passwordError()) {
-                    <p class="text-[12px] text-red-600" role="alert">{{ passwordError() | translate }}</p>
-                  }
-
-                  <div class="flex gap-3">
-                    <button
-                      type="button"
-                      (click)="onChangePassword()"
-                      [disabled]="!canSubmitPassword() || state().kind === 'saving'"
-                      class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-6 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
-                    >
-                      {{ isSavingPassword() ? ('account.profile.password.updatingCta' | translate) : ('account.profile.password.updateCta' | translate) }}
-                    </button>
-                    <button
-                      type="button"
-                      (click)="closePasswordPanel()"
-                      class="inline-flex min-h-[44px] items-center rounded-pill border border-line bg-white px-5 text-[13px] font-semibold text-ink-2 hover:bg-surface-soft transition-colors"
-                    >
-                      {{ 'account.profile.email.cancelCta' | translate }}
-                    </button>
-                  </div>
-                </div>
-              }
-            </section>
+            <app-profile-password-change
+              [user]="user()"
+              [panelOpen]="passwordPanelOpen()"
+              [currentPasswordDraft]="currentPasswordDraft()"
+              [newPasswordDraft]="newPasswordDraft()"
+              [confirmPasswordDraft]="confirmPasswordDraft()"
+              [pwStrength]="pwStrength()"
+              [pwStrengthLabel]="pwStrengthLabel()"
+              [passwordError]="passwordError()"
+              [canSubmit]="canSubmitPassword()"
+              [isSaving]="isAnySaving()"
+              [isSavingPassword]="isSavingPassword()"
+              (currentPasswordDraftChange)="currentPasswordDraft.set($event)"
+              (newPasswordDraftChange)="newPasswordDraft.set($event)"
+              (confirmPasswordDraftChange)="confirmPasswordDraft.set($event)"
+              (openPanel)="openPasswordPanel()"
+              (closePanel)="closePasswordPanel()"
+              (submit)="onChangePassword()"
+            />
 
           </div>
         </main>
@@ -543,6 +228,8 @@ export class AccountProfileComponent {
     const name = this.user()?.fullName ?? '';
     return name.split(' ').map((w: string) => w[0] ?? '').slice(0, 2).join('').toUpperCase() || '?';
   });
+  /** Single source of truth for "ANY save is in flight" — passed to every child to disable CTAs. */
+  readonly isAnySaving = computed(() => this.state().kind === 'saving');
 
   // ─── Identity card ─────────────────────────────────────────────────────────
   fullNameDraft = '';

@@ -148,6 +148,32 @@ export const DashboardQuickActionSchema = z.object({
 });
 export type DashboardQuickAction = z.infer<typeof DashboardQuickActionSchema>;
 
+// ── Stakeholder KPI block ─────────────────────────────────────────────────────
+
+export const TopBrandSchema = z.object({
+  brandId: z.string().uuid(),
+  slug: z.string(),
+  nameEn: z.string(),
+  nameAr: z.string(),
+  logoUrl: z.string().nullable(),
+  listingCount: z.number().int().min(0),
+});
+export type TopBrand = z.infer<typeof TopBrandSchema>;
+
+export const StakeholderKpisSchema = z.object({
+  /** Count of active-market listings per pipeline stage (all 10 stages, zero-filled). */
+  listingsByStage: z.record(z.string(), z.number().int()),
+  /** Orders completed in the past 7 days (falls back to listings entering sold stage). */
+  weeklySalesCount: z.number().int(),
+  /** Listings that transitioned to 'listed' in the past 7 days. */
+  listingsListedLast7Days: z.number().int(),
+  /** Average days from listedAt to soldAt, keyed by stage ('sold'|'delivered'). Null = no data. */
+  avgDaysToSellByStage: z.record(z.string(), z.number().nullable()),
+  /** Top 5 brands by listing count across 'listed', 'reserved', 'sold' stages. */
+  topBrands: z.array(TopBrandSchema),
+});
+export type StakeholderKpis = z.infer<typeof StakeholderKpisSchema>;
+
 // ── Top-level response ───────────────────────────────────────────────────────
 
 export const DashboardKpisDtoSchema = z.object({
@@ -181,5 +207,8 @@ export const DashboardKpisDtoSchema = z.object({
 
   /** Empty array when the actor has no actionable quick actions. */
   quickActions: z.array(DashboardQuickActionSchema),
+
+  /** Stakeholder-grade KPIs: stage breakdown, weekly sales, top brands. */
+  stakeholderKpis: StakeholderKpisSchema,
 });
 export type DashboardKpisDto = z.infer<typeof DashboardKpisDtoSchema>;

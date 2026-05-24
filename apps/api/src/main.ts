@@ -10,7 +10,23 @@ import { bootstrapNotificationAdapters } from './notifications/bootstrap';
 
 async function bootstrap(): Promise<void> {
   // Boot-time infrastructure setup.
-  await ensureBucket();
+  //
+  // v1.5.24 — `ensureBucket()` was designed for the MinIO dev environment
+  // where the bucket needs auto-creation on each `nx serve api` restart.
+  // In production with a pre-created AWS S3 bucket, the HeadBucket call
+  // needs `s3:HeadBucket` permission AND the subsequent applyPublicReadPolicy
+  // needs `s3:PutBucketPolicy` (which would also make the bucket public —
+  // contradicting "Block all public access" + the presigned-URL pattern).
+  // Treat any failure as a warning rather than a fatal boot error.
+  try {
+    await ensureBucket();
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[s3] ensureBucket skipped:',
+      err instanceof Error ? err.message : String(err),
+    );
+  }
   await startAgingScheduler();
 
   const app = createApp();

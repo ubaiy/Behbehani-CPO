@@ -47,6 +47,11 @@ const mockGetActivePricingTierCount = jest.fn();
 const mockGetActiveDiscountSummary = jest.fn();
 const mockGetPrevMonthDiscountFils = jest.fn();
 const mockGetFeaturedListingsCount = jest.fn();
+const mockGetListingsByStage = jest.fn();
+const mockGetWeeklySalesCount = jest.fn();
+const mockGetListingsListedLast7Days = jest.fn();
+const mockGetAvgDaysToSellByStage = jest.fn();
+const mockGetTopBrandsByListingCount = jest.fn();
 jest.mock('./dashboard.repo', () => ({
   getPipelineGroupBy: (...args: unknown[]) => mockGetPipelineGroupBy(...args),
   getMostStuckStage: (...args: unknown[]) => mockGetMostStuckStage(...args),
@@ -56,6 +61,11 @@ jest.mock('./dashboard.repo', () => ({
   getActiveDiscountSummary: (...args: unknown[]) => mockGetActiveDiscountSummary(...args),
   getPrevMonthDiscountFils: (...args: unknown[]) => mockGetPrevMonthDiscountFils(...args),
   getFeaturedListingsCount: (...args: unknown[]) => mockGetFeaturedListingsCount(...args),
+  getListingsByStage: (...args: unknown[]) => mockGetListingsByStage(...args),
+  getWeeklySalesCount: (...args: unknown[]) => mockGetWeeklySalesCount(...args),
+  getListingsListedLast7Days: (...args: unknown[]) => mockGetListingsListedLast7Days(...args),
+  getAvgDaysToSellByStage: (...args: unknown[]) => mockGetAvgDaysToSellByStage(...args),
+  getTopBrandsByListingCount: (...args: unknown[]) => mockGetTopBrandsByListingCount(...args),
 }));
 
 import type { AccessTokenPayload } from '../auth/jwt';
@@ -120,6 +130,14 @@ beforeEach(() => {
   });
   mockGetPrevMonthDiscountFils.mockResolvedValue(BigInt(1_000_000));
   mockGetFeaturedListingsCount.mockResolvedValue(5);
+  mockGetListingsByStage.mockResolvedValue({
+    acquired: 2, inbound: 1, inspection: 0, photoshoot: 0, reconditioning: 0,
+    listed: 10, reserved: 3, sold: 5, delivered: 2, closed: 1,
+  });
+  mockGetWeeklySalesCount.mockResolvedValue(4);
+  mockGetListingsListedLast7Days.mockResolvedValue(7);
+  mockGetAvgDaysToSellByStage.mockResolvedValue({ sold: 18.5, delivered: 22.0 });
+  mockGetTopBrandsByListingCount.mockResolvedValue([]);
   mockListAuditLogs.mockResolvedValue({ rows: [], total: 0, filteredFrom: 0 });
 });
 

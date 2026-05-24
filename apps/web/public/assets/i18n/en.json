@@ -905,6 +905,7 @@
         "notAvailable": "This vehicle is no longer available.",
         "reservationExpired": "Your reservation has expired.",
         "paymentInitFailed": "Could not connect to payment provider.",
+        "paymentRedirectUnavailable": "Payment redirect is temporarily unavailable. Please try again or contact support.",
         "unauthenticated": "Please sign in to continue.",
         "networkError": "Network error. Please check your connection.",
         "generic": "An unexpected error occurred.",
@@ -975,6 +976,7 @@
     "of": "of",
     "cars": "cars",
     "from": "from",
+    "optional": "optional",
     "heart": {
       "save": "Save car",
       "saved": "Saved",
@@ -1308,8 +1310,55 @@
     },
     "cta": {
       "reserve": "Reserve for KWD 100",
-      "reserveHint": "48-hour hold · fully refundable",
-      "testDrive": "Book a test drive"
+      "reserveHint": "48-hour hold · fully refundable"
+    },
+    "testDrive": {
+      "cta": "Book a test drive",
+      "modal": {
+        "title": "Book a test drive",
+        "sub": "Pick a date, time window, and where you'd like to meet — we'll confirm shortly.",
+        "sections": {
+          "customer": "Your details",
+          "when": "When",
+          "where": "Where",
+          "notes": "Anything else?"
+        },
+        "fields": {
+          "name": "Full name",
+          "phone": "Phone number",
+          "email": "Email",
+          "date": "Preferred date",
+          "window": "Time window",
+          "location": "Meeting location",
+          "addressLine": "Your address",
+          "notes": "Notes for our team"
+        },
+        "location": {
+          "showroom": "At our showroom",
+          "customer_address": "At my address"
+        },
+        "windows": {
+          "morning": "Morning",
+          "afternoon": "Afternoon",
+          "evening": "Evening"
+        },
+        "submit": "Request booking",
+        "close": "Close",
+        "success": {
+          "title": "Test drive requested",
+          "body": "Our team will call you shortly to confirm the date and time."
+        },
+        "errors": {
+          "required": "Please add your name and phone number.",
+          "invalidPhone": "Please enter a valid Kuwait phone number.",
+          "invalidDate": "Pick a date that is at least tomorrow.",
+          "addressRequired": "Please add the address where you'd like to meet.",
+          "rateLimited": "Too many requests, please try again in a minute.",
+          "unavailable": "Test drive booking is temporarily unavailable. Please call us instead.",
+          "network": "We couldn't send your request. Check your connection and try again.",
+          "generic": "Something went wrong. Please try again."
+        }
+      }
     },
     "seller": {
       "name": "Behbehani Motors",
@@ -1320,7 +1369,35 @@
       "title": "Behbehani Promise:",
       "body": "Inspected, returnable, delivered."
     },
-    "views": "47 people viewed this in the last 24 hours"
+    "views": "47 people viewed this in the last 24 hours",
+    "leads": {
+      "callbackCta": "Request Callback",
+      "whatsappCta": "Chat on WhatsApp",
+      "whatsappPrefix": "I'm interested in",
+      "modal": {
+        "title": "Request a callback",
+        "sub": "Leave your details and our team will reach out within one business hour.",
+        "whatsappTitle": "Start a WhatsApp chat",
+        "whatsappSub": "Share your name and phone — we'll open WhatsApp with this listing pre-filled.",
+        "name": "Full name",
+        "phone": "Phone number",
+        "email": "Email",
+        "message": "Message",
+        "submit": "Request callback",
+        "whatsappSubmit": "Continue to WhatsApp",
+        "close": "Close",
+        "success": {
+          "title": "Thanks — we'll be in touch",
+          "body": "A Behbehani specialist will call you shortly to discuss this vehicle."
+        },
+        "errors": {
+          "required": "Please add your name and phone number.",
+          "invalidPhone": "Please enter a valid Kuwait phone number.",
+          "rateLimited": "Too many requests, please try again in a minute.",
+          "network": "We couldn't send your request. Check your connection and try again."
+        }
+      }
+    }
   },
   "car": {
     "specs": {
@@ -2162,5 +2239,23 @@
     "bullet1": "Browse Behbehani's network of certified Kuwait dealers",
     "bullet2": "Compare showroom inventory, ratings, and service hours at a glance",
     "bullet3": "Book a test drive or trade-in appraisal directly with any dealer"
+  },
+  "compare": {
+    "select": "Compare",
+    "selected": "Selected",
+    "cap": "Up to 3 cars",
+    "cta": "Compare",
+    "clear": "Clear selection",
+    "diffHint": "Highlighted cells differ between cars",
+    "page": {
+      "title": "Compare cars",
+      "sub": "Side-by-side specs for the cars you picked.",
+      "missing": "Some of the cars in your selection are no longer available:",
+      "empty": "Pick 2 to 3 cars from Browse or Favorites to compare them here."
+    },
+    "error": {
+      "network": "We couldn't load the comparison. Please try again in a moment.",
+      "notFound": "We couldn't find those cars"
+    }
   }
 }

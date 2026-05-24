@@ -30,12 +30,13 @@ const METHOD_LABELS: Record<string, string> = {
 };
 
 const ERROR_MAP: Record<string, string> = {
-  LISTING_ALREADY_RESERVED: 'checkout.modal.error.alreadyReserved',
-  LISTING_NOT_AVAILABLE:    'checkout.modal.error.notAvailable',
-  RESERVATION_EXPIRED:      'checkout.modal.error.reservationExpired',
-  PAYMENT_INIT_FAILED:      'checkout.modal.error.paymentInitFailed',
-  unauthenticated:          'checkout.modal.error.unauthenticated',
-  network_error:            'checkout.modal.error.networkError',
+  LISTING_ALREADY_RESERVED:     'checkout.modal.error.alreadyReserved',
+  LISTING_NOT_AVAILABLE:        'checkout.modal.error.notAvailable',
+  RESERVATION_EXPIRED:          'checkout.modal.error.reservationExpired',
+  PAYMENT_INIT_FAILED:          'checkout.modal.error.paymentInitFailed',
+  PAYMENT_REDIRECT_UNAVAILABLE: 'checkout.modal.error.paymentRedirectUnavailable',
+  unauthenticated:              'checkout.modal.error.unauthenticated',
+  network_error:                'checkout.modal.error.networkError',
 };
 
 @Component({
@@ -228,9 +229,21 @@ export class CheckoutModalComponent {
     this.orders.initiatePayment(orderId, { method }).subscribe((s) => {
       if (s.kind === 'loading') return;
       if (s.kind === 'ok') {
+        // v1.5-D17: defensive guard against missing hostedPaymentUrl. With B's
+        // v1.5.28 PAYMENT_BYPASS_MODE, the URL always points at our own
+        // /checkout/return page so this branch is normally not hit. But if a
+        // future API change ever returns a payload without `hostedPaymentUrl`
+        // we'd otherwise call `window.open(undefined, '_blank')` and silently
+        // open a blank tab — surface a real error state instead.
+        const url = s.value.hostedPaymentUrl;
+        if (!url) {
+          this.errorCode.set('PAYMENT_REDIRECT_UNAVAILABLE');
+          this.state.set({ kind: 'error', code: 'PAYMENT_REDIRECT_UNAVAILABLE' });
+          return;
+        }
         this.state.set({ kind: 'redirecting' });
         if (isPlatformBrowser(this.platformId)) {
-          window.open(s.value.hostedPaymentUrl, '_blank');
+          window.open(url, '_blank');
           setTimeout(() => this.modal.close(), 1500);
         }
       } else {

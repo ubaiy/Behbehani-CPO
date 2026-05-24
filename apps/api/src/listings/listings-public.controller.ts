@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import type { Prisma } from '@prisma/client';
+import { z } from 'zod';
 import {
   ListingPublicFilterSchema,
   type ListingPublicSummary,
@@ -71,6 +72,64 @@ export interface ListingPublicDetail extends ListingPublicSummary {
     frameCount: number | null;
   } | null;
 }
+
+/**
+ * v1.5.26 — Side-by-side comparison response for GET /v1/public/listings/compare.
+ *
+ * Declared inline (not in shared-types) to avoid touching A-owned schemas.
+ * `items[]` is ordered to match the input `slugs` query param order.
+ * `rows[]` surfaces each comparable field with per-listing values and a
+ * `differs` flag so the client can highlight cells where listings diverge.
+ */
+export interface ListingComparison {
+  items: ListingPublicDetail[];
+  rows: Array<{
+    key: string;       // 'priceFils' | 'mileageKm' | 'year' | 'transmission' | 'fuelType' | 'drivetrain' | 'seats' | 'doors' | 'engineCc' | 'cylinders' | 'gccSpec' | 'previousOwners' | 'serviceHistory' | 'accidentHistory' | 'exteriorColor' | 'interiorColor'
+    labelEn: string;
+    labelAr: string;
+    values: Array<string | number | boolean | null>; // aligned to items[]
+    differs: boolean;  // true when not all values are equal
+  }>;
+}
+
+/** v1.5.26 — Zod schema for the ?slugs= query param.
+ *  Accepts a comma-separated string, splits + trims, enforces 2-4 slugs. */
+const ListingCompareQuerySchema = z.object({
+  slugs: z
+    .string()
+    .transform((s) => s.split(',').map((x) => x.trim()).filter(Boolean))
+    .pipe(
+      z
+        .array(z.string().min(1).max(120))
+        .min(2, 'Need at least 2 listings')
+        .max(4, 'Compare max 4 at once'),
+    ),
+});
+
+/** v1.5.26 — Comparable fields definition with bilingual labels and value extractors. */
+const COMPARE_FIELDS: Array<{
+  key: string;
+  labelEn: string;
+  labelAr: string;
+  get: (d: ListingPublicDetail) => string | number | boolean | null;
+}> = [
+  { key: 'priceFils',       labelEn: 'Price (KWD)',      labelAr: 'السعر (د.ك)',         get: (d) => Number(d.priceFils) / 1000 },
+  { key: 'mileageKm',       labelEn: 'Mileage (km)',     labelAr: 'الكيلومترات',          get: (d) => d.mileageKm },
+  { key: 'year',            labelEn: 'Year',             labelAr: 'السنة',                get: (d) => d.year },
+  { key: 'transmission',    labelEn: 'Transmission',     labelAr: 'ناقل الحركة',          get: (d) => d.transmission },
+  { key: 'fuelType',        labelEn: 'Fuel',             labelAr: 'الوقود',               get: (d) => d.fuelType },
+  { key: 'drivetrain',      labelEn: 'Drivetrain',       labelAr: 'الدفع',                get: (d) => d.drivetrain },
+  { key: 'seats',           labelEn: 'Seats',            labelAr: 'المقاعد',              get: (d) => d.seats },
+  { key: 'doors',           labelEn: 'Doors',            labelAr: 'الأبواب',              get: (d) => d.doors },
+  { key: 'engineCc',        labelEn: 'Engine (cc)',      labelAr: 'سعة المحرك',           get: (d) => d.engineCc },
+  { key: 'cylinders',       labelEn: 'Cylinders',        labelAr: 'الأسطوانات',           get: (d) => d.cylinders },
+  { key: 'gccSpec',         labelEn: 'GCC Spec',         labelAr: 'مواصفات خليجية',       get: (d) => d.gccSpec },
+  { key: 'previousOwners',  labelEn: 'Previous Owners',  labelAr: 'الملاك السابقين',      get: (d) => d.previousOwners },
+  { key: 'serviceHistory',  labelEn: 'Service History',  labelAr: 'سجل الصيانة',          get: (d) => d.serviceHistory },
+  { key: 'accidentHistory', labelEn: 'Accident History', labelAr: 'السجل الحوادث',        get: (d) => d.accidentHistory },
+  { key: 'exteriorColor',   labelEn: 'Exterior Color',   labelAr: 'اللون الخارجي',        get: (d) => d.exteriorColor },
+  { key: 'interiorColor',   labelEn: 'Interior Color',   labelAr: 'اللون الداخلي',        get: (d) => d.interiorColor },
+];
 
 /**
  * Public customer-facing listings router — NO auth required.
@@ -411,6 +470,72 @@ listingsPublicRouter.get('/low-mileage', async (_req, res, next) => {
       take: 8,
     });
     res.json({ items: rows.map(toPublicSummary), total: rows.length, page: 1, pageSize: 8 });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /v1/public/listings/compare?slugs=slug1,slug2[,slug3[,slug4]]
+ *
+ * v1.5.26 — Side-by-side comparison of 2-4 published listings.
+ *
+ * IMPORTANT: This route MUST remain registered before `/:slug`.  Express
+ * matches routes in registration order; if `/:slug` were first it would
+ * capture the literal string "compare" as a slug parameter.
+ *
+ * Behaviour:
+ *  - 400 if Zod validation fails (< 2 or > 4 slugs, blank slugs).
+ *  - 404 (LISTING_NOT_FOUND) if any requested slug is missing or unpublished;
+ *    the error body lists which slugs were not found.
+ *  - 200 with `{ items, rows }` where items[] preserves input slug order and
+ *    rows[] surfaces 16 comparable fields with bilingual labels + differs flag.
+ */
+listingsPublicRouter.get('/compare', async (req, res, next) => {
+  try {
+    // --- 1. Parse & validate query ---
+    const parsed = ListingCompareQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      res.status(400).json({ error: 'INVALID_QUERY', details: parsed.error.flatten() });
+      return;
+    }
+    const { slugs } = parsed.data;
+
+    // --- 2. Fetch all requested listings in one query ---
+    const rows = await prisma.listing.findMany({
+      where: publicWhere({ slug: { in: slugs } }),
+      include: DETAIL_INCLUDE,
+    });
+
+    // --- 3. 404 if any slug was not found ---
+    const foundSlugs = new Set(rows.map((r) => r.slug));
+    const missingSlug = slugs.filter((s) => !foundSlugs.has(s));
+    if (missingSlug.length > 0) {
+      res.status(404).json({ error: 'LISTING_NOT_FOUND', missingSlugs: missingSlug });
+      return;
+    }
+
+    // --- 4. Map to public detail DTOs ---
+    const detailMap = new Map(rows.map((r) => [r.slug, toPublicDetail(r)]));
+
+    // --- 5. Re-sort to match the input slug order ---
+    const items: ListingPublicDetail[] = slugs.map((s) => detailMap.get(s)!);
+
+    // --- 6. Build comparison rows ---
+    const comparisonRows: ListingComparison['rows'] = COMPARE_FIELDS.map((field) => {
+      const values = items.map((item) => field.get(item));
+      const differs = !values.every((v) => v === values[0]);
+      return {
+        key: field.key,
+        labelEn: field.labelEn,
+        labelAr: field.labelAr,
+        values,
+        differs,
+      };
+    });
+
+    const response: ListingComparison = { items, rows: comparisonRows };
+    res.json(response);
   } catch (err) {
     next(err);
   }

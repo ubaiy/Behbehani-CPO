@@ -579,3 +579,198 @@
 
     <!-- TODO: Add 30-second auto-refresh timer here when polling is approved.
          Pattern: interval(30_000).pipe(takeUntil(destroy$)).subscribe(() => this.reload()) -->
+
+    <!-- ═══════════════════════════════════════════════════════════
+         STAKEHOLDER KPI BLOCK
+         Row 1: 4-stat summary (active, sold-this-week, new 7d, avg-days)
+         Row 2: Listings by stage — horizontal bar chart (inline SVG bars)
+         Row 3: Top 5 brands
+    ═══════════════════════════════════════════════════════════ -->
+
+    <!-- ── 4-stat top row ──────────────────────────────────────────────────── -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+      @if (loading()) {
+        @for (i of skeletonArr4; track i) {
+          <div class="bg-white rounded-xl border border-slate-200 p-5 animate-pulse">
+            <div class="h-3 w-28 bg-slate-200 rounded mb-3"></div>
+            <div class="h-9 w-16 bg-slate-200 rounded"></div>
+          </div>
+        }
+      } @else if (data()) {
+        <!-- Active listings -->
+        <div class="bg-white rounded-xl border border-brand-200 p-5">
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Active Listings</p>
+          <p class="mt-2 text-3xl font-bold text-slate-800 tabular-nums">
+            {{ (data()!.stakeholderKpis.listingsByStage['listed'] ?? 0) +
+               (data()!.stakeholderKpis.listingsByStage['reserved'] ?? 0) }}
+          </p>
+          <p class="mt-1 text-xs text-slate-400">Listed + Reserved</p>
+        </div>
+
+        <!-- Sold this week -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Sold This Week</p>
+          <p class="mt-2 text-3xl font-bold text-slate-800 tabular-nums">
+            {{ data()!.stakeholderKpis.weeklySalesCount }}
+          </p>
+          <p class="mt-1 text-xs text-slate-400">Last 7 days</p>
+        </div>
+
+        <!-- New listings 7d -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">New Listings (7d)</p>
+          <p class="mt-2 text-3xl font-bold text-slate-800 tabular-nums">
+            {{ data()!.stakeholderKpis.listingsListedLast7Days }}
+          </p>
+          <p class="mt-1 text-xs text-slate-400">Listed in last 7 days</p>
+        </div>
+
+        <!-- Avg days to sell -->
+        <div class="bg-white rounded-xl border border-slate-200 p-5">
+          <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">Avg Days to Sell</p>
+          @if (avgDaysToSellCombined() !== null) {
+            <p class="mt-2 text-3xl font-bold text-slate-800 tabular-nums">
+              {{ avgDaysToSellCombined() }}<span class="text-lg font-normal text-slate-400 ml-1">d</span>
+            </p>
+          } @else {
+            <p class="mt-2 text-3xl font-bold text-slate-300">—</p>
+          }
+          <p class="mt-1 text-xs text-slate-400">Sold + Delivered stage avg</p>
+        </div>
+      }
+    </div>
+
+    <!-- ── Listings by stage horizontal bar chart ───────────────────────────── -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5 mb-4">
+      @if (loading()) {
+        <div class="h-4 w-48 bg-slate-200 animate-pulse rounded mb-5"></div>
+        @for (i of [0,1,2,3,4,5,6,7,8,9]; track i) {
+          <div class="flex items-center gap-3 mb-2.5">
+            <div class="h-3 w-20 bg-slate-200 animate-pulse rounded flex-shrink-0"></div>
+            <div class="h-5 bg-slate-100 animate-pulse rounded flex-1"></div>
+            <div class="h-3 w-8 bg-slate-200 animate-pulse rounded flex-shrink-0"></div>
+          </div>
+        }
+      } @else if (data()) {
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-800">Listings by Stage</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Inventory distribution across all 10 pipeline stages.</p>
+          </div>
+          @if (stageBarMax() > 0) {
+            <span class="text-xs text-slate-400 flex-shrink-0 ml-4">
+              Max: <span class="font-semibold text-slate-600">{{ stageBarMax() }}</span>
+            </span>
+          }
+        </div>
+
+        @if (stageBarMax() === 1 && stageBarEntries().every(e => e.count === 0)) {
+          <!-- Empty state -->
+          <div class="py-8 text-center text-sm text-slate-400">No listings in any stage yet.</div>
+        } @else {
+          <div class="space-y-2.5">
+            @for (entry of stageBarEntries(); track entry.stage; let i = $index) {
+              <div class="flex items-center gap-3">
+                <!-- Stage label -->
+                <span
+                  class="text-xs font-medium w-24 flex-shrink-0 capitalize"
+                  [class.text-brand-700]="entry.stage === 'listed' || entry.stage === 'reserved'"
+                  [class.text-slate-500]="entry.stage !== 'listed' && entry.stage !== 'reserved'"
+                >{{ entry.stage }}</span>
+
+                <!-- Bar (inline SVG for no library dep) -->
+                <div class="flex-1 bg-slate-100 rounded overflow-hidden" style="height:20px">
+                  @if (entry.count > 0) {
+                    <svg width="100%" height="20" aria-hidden="true">
+                      <rect
+                        x="0" y="0"
+                        [attr.width]="stageBarWidthPct(entry.count) + '%'"
+                        height="20"
+                        [attr.fill]="i <= 1 ? '#1e3a8a' : i <= 3 ? '#1d4ed8' : i <= 5 ? '#3b82f6' : i <= 7 ? '#93c5fd' : '#cbd5e1'"
+                        rx="2"
+                      />
+                    </svg>
+                  }
+                </div>
+
+                <!-- Count -->
+                <span
+                  class="text-xs font-semibold tabular-nums w-8 text-right flex-shrink-0"
+                  [class.text-brand-700]="entry.count > 0"
+                  [class.text-slate-300]="entry.count === 0"
+                >{{ entry.count }}</span>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <!-- ── Top 5 brands ─────────────────────────────────────────────────────── -->
+    <div class="bg-white rounded-xl border border-slate-200 p-5 mb-4">
+      @if (loading()) {
+        <div class="h-4 w-32 bg-slate-200 animate-pulse rounded mb-4"></div>
+        @for (i of skeletonArr5; track i) {
+          <div class="flex items-center gap-3 py-2 border-b border-slate-100 last:border-0">
+            <div class="w-9 h-9 rounded-lg bg-slate-100 animate-pulse flex-shrink-0"></div>
+            <div class="flex-1">
+              <div class="h-3 w-24 bg-slate-200 animate-pulse rounded mb-1"></div>
+            </div>
+            <div class="h-5 w-8 bg-slate-100 animate-pulse rounded"></div>
+          </div>
+        }
+      } @else if (data()) {
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-slate-800">Top Brands</h2>
+            <p class="text-xs text-slate-400 mt-0.5">By listing count across Listed, Reserved, Sold stages.</p>
+          </div>
+        </div>
+
+        @if (data()!.stakeholderKpis.topBrands.length === 0) {
+          <div class="py-8 text-center text-sm text-slate-400">No brand data available yet.</div>
+        } @else {
+          <div class="divide-y divide-slate-100">
+            @for (brand of data()!.stakeholderKpis.topBrands; track brand.brandId; let idx = $index) {
+              <div class="flex items-center gap-3 py-2.5">
+                <!-- Rank -->
+                <span class="text-xs font-bold tabular-nums w-5 text-center flex-shrink-0"
+                      [class.text-brand-700]="idx === 0"
+                      [class.text-slate-400]="idx !== 0"
+                >{{ idx + 1 }}</span>
+
+                <!-- Logo + fallback chip -->
+                <div class="w-9 h-9 rounded-lg border border-slate-100 bg-slate-50 flex-shrink-0 overflow-hidden relative flex items-center justify-center">
+                  @if (brand.logoUrl) {
+                    <img
+                      [src]="brand.logoUrl"
+                      [alt]="brand.nameEn + ' logo'"
+                      class="w-full h-full object-contain"
+                      (error)="onBrandImgError($event)"
+                    />
+                  }
+                  <!-- Fallback initial chip (shown by onBrandImgError or when no URL) -->
+                  <span
+                    class="w-full h-full flex items-center justify-center text-xs font-bold text-brand-700 bg-brand-50"
+                    [style.display]="brand.logoUrl ? 'none' : 'flex'"
+                  >{{ brandInitial(brand.nameEn) }}</span>
+                </div>
+
+                <!-- Name -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-slate-800 truncate">{{ brand.nameEn }}</p>
+                  @if (brand.nameAr) {
+                    <p class="text-xs text-slate-400 truncate" dir="rtl">{{ brand.nameAr }}</p>
+                  }
+                </div>
+
+                <!-- Count badge -->
+                <span class="inline-flex items-center rounded-full bg-brand-50 border border-brand-200 px-2.5 py-0.5 text-xs font-semibold text-brand-700 tabular-nums flex-shrink-0">
+                  {{ brand.listingCount }}
+                </span>
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>

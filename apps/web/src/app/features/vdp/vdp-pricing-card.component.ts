@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, Input, computed, inject, input } fr
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
 import { CheckoutModalService } from '../checkout/checkout-modal.service';
+import { VdpLeadActionsComponent } from './vdp-lead-actions.component';
+import { VdpTestDriveModalService } from './vdp-test-drive-modal.service';
 
 /**
  * Sticky pricing sidebar — price, monthly, reserve CTA, seller card and the
@@ -12,7 +14,7 @@ import { CheckoutModalService } from '../checkout/checkout-modal.service';
   selector: 'app-vdp-pricing-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule],
+  imports: [TranslateModule, VdpLeadActionsComponent],
   template: `
     <div class="sticky top-6 space-y-4">
       <div class="rounded-2xl border border-line bg-white p-5 shadow-brand-sm">
@@ -35,9 +37,20 @@ import { CheckoutModalService } from '../checkout/checkout-modal.service';
           <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           {{ 'vdp.cta.reserveHint' | translate }}
         </div>
-        <button type="button" class="mt-2 inline-flex w-full items-center justify-center rounded-pill border border-line-2 bg-white px-5 py-3 text-sm font-semibold text-ink hover:border-brand-700 hover:text-brand-700">
-          {{ 'vdp.cta.testDrive' | translate }}
+        <button type="button" (click)="onTestDrive()" class="mt-2 inline-flex w-full items-center justify-center rounded-pill border border-line-2 bg-white px-5 py-3 text-sm font-semibold text-ink hover:border-brand-700 hover:text-brand-700">
+          {{ 'vdp.testDrive.cta' | translate }}
         </button>
+
+        <!-- v1.5-D17a lead capture: Request Callback + Chat on WhatsApp -->
+        <div class="mt-3">
+          <app-vdp-lead-actions
+            [listingId]="listingId"
+            [year]="year()"
+            [makeName]="brandName()"
+            [modelName]="modelName()"
+            [stockNumber]="stockNumber()"
+          />
+        </div>
 
         <hr class="my-4 border-line" />
 
@@ -75,11 +88,16 @@ export class VdpPricingCardComponent {
   readonly priceLabel = input.required<string>();
   readonly monthlyLabel = input.required<string>();
   readonly brandName = input.required<string>();
+  /** Optional display strings used by the WhatsApp deep-link message. */
+  readonly modelName = input<string>('');
+  readonly year = input<number | string>('');
+  readonly stockNumber = input<string | undefined>(undefined);
 
   @Input() listingId!: string;
 
   private readonly language = inject(LanguageService);
   private readonly checkoutModal = inject(CheckoutModalService);
+  private readonly testDriveModal = inject(VdpTestDriveModalService);
 
   readonly locale = computed(() => this.language.current());
   readonly avatarChar = computed(() => (this.brandName() || '·').charAt(0));
@@ -88,5 +106,9 @@ export class VdpPricingCardComponent {
     if (this.listingId) {
       this.checkoutModal.open(this.listingId);
     }
+  }
+
+  onTestDrive(): void {
+    this.testDriveModal.open(this.listingId || undefined);
   }
 }

@@ -6,11 +6,21 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LanguageService, isLocale, type Locale } from '@behbehani-cpo/shared-i18n';
 import { AuthService } from '@behbehani-cpo/data-access';
 import { FooterComponent } from './footer.component';
-import { SignInModalComponent } from '../features/auth/sign-in-modal.component';
 import { SignInModalService } from '../features/auth/sign-in-modal.service';
+import { SignUpModalService } from '../features/auth/sign-up-modal.service';
+import { CheckoutModalService } from '../features/checkout/checkout-modal.service';
+import { SaveSearchModalService } from '../features/browse/save-search-modal.service';
+/* v1.5-D15 bundle reduction: the four overlay modals are imported lazily via
+   `@defer (when …)` instead of eager `imports:[]`. Each modal's chunk is only
+   fetched the FIRST time its service's `isOpen()` flips to true. They were the
+   biggest single contributor to the initial-bundle budget overshoot. */
+import { SignInModalComponent } from '../features/auth/sign-in-modal.component';
 import { SignUpModalComponent } from '../features/auth/sign-up-modal.component';
 import { CheckoutModalComponent } from '../features/checkout/checkout-modal.component';
 import { SaveSearchModalComponent } from '../features/browse/save-search-modal.component';
+/* v1.5-D17b: global compare-cart floating bar — visible across /browse,
+   /account/favorites and home so the user's selection survives navigation. */
+import { CompareFloatingBarComponent } from '../features/compare/compare-floating-bar.component';
 
 interface NavItem {
   id: string;
@@ -30,7 +40,11 @@ const NAV: ReadonlyArray<NavItem> = [
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, FooterComponent, SignInModalComponent, SignUpModalComponent, CheckoutModalComponent, SaveSearchModalComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, FooterComponent, SignInModalComponent, SignUpModalComponent, CheckoutModalComponent, SaveSearchModalComponent, CompareFloatingBarComponent],
+  // ☝ Modal components stay in `imports` so Angular's compiler recognises them
+  //   inside the `@defer` blocks below. The Angular CLI/esbuild compiler still
+  //   tree-shakes them into separate lazy chunks because their ONLY usage is
+  //   inside `@defer` — the eager-render path never instantiates them.
   template: `
     <header
       class="sticky top-0 z-40 border-b border-line/70 bg-white/85 backdrop-blur-md backdrop-saturate-150"
@@ -257,10 +271,21 @@ const NAV: ReadonlyArray<NavItem> = [
 
     <app-footer />
 
-    <app-sign-in-modal />
-    <app-sign-up-modal />
-    <app-checkout-modal />
-    <app-save-search-modal />
+    <!-- v1.5-D17b: global compare-cart pill (self-hides when count < 2). -->
+    <app-compare-floating-bar />
+
+    @defer (when signInModal.isOpen()) {
+      <app-sign-in-modal />
+    }
+    @defer (when signUpModal.isOpen()) {
+      <app-sign-up-modal />
+    }
+    @defer (when checkoutModal.isOpen()) {
+      <app-checkout-modal />
+    }
+    @defer (when saveSearchModal.isOpen()) {
+      <app-save-search-modal />
+    }
   `,
 })
 export class ShellComponent implements OnInit {
@@ -268,7 +293,11 @@ export class ShellComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly signInModal = inject(SignInModalService);
+  /* Template-accessible (used by `@defer (when …)` blocks below). */
+  protected readonly signInModal = inject(SignInModalService);
+  protected readonly signUpModal = inject(SignUpModalService);
+  protected readonly checkoutModal = inject(CheckoutModalService);
+  protected readonly saveSearchModal = inject(SaveSearchModalService);
   private readonly auth = inject(AuthService);
   /* v1.5-D7 outside-click fix: the backdrop overlay relied on `fixed inset-0` but
      `backdrop-filter` on the header creates a containing block for fixed

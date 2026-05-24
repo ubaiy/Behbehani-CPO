@@ -24,6 +24,12 @@ import type { VdpMediaPhoto } from './vdp-media-viewer.component';
 import { VdpFinanceCalcComponent } from './vdp-finance-calc.component';
 import { VdpInspectionComponent } from './vdp-inspection.component';
 import { VdpPricingCardComponent } from './vdp-pricing-card.component';
+import { VdpLeadActionsComponent } from './vdp-lead-actions.component';
+/* v1.5-D18c — Test Drive modal is lazy-mounted via `@defer (when …)` so its
+   chunk isn't fetched until the user actually taps the "Book a Test Drive"
+   CTA, mirroring the bundle-reduction pattern from v1.5-D15. */
+import { VdpTestDriveModalService } from './vdp-test-drive-modal.service';
+import { VdpTestDriveModalComponent } from './vdp-test-drive-modal.component';
 
 /**
  * Vehicle Detail Page. Routes: `/:locale/listings/:slug`. Loads via
@@ -44,6 +50,11 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
     VdpFinanceCalcComponent,
     VdpInspectionComponent,
     VdpPricingCardComponent,
+    VdpLeadActionsComponent,
+    /* Modal stays in `imports` so the Angular compiler recognises it inside
+       `@defer` below; esbuild still tree-shakes it into a separate lazy chunk
+       because its only usage is inside the @defer block. */
+    VdpTestDriveModalComponent,
   ],
   template: `
     @if (loading()) {
@@ -226,6 +237,16 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
               />
             }
 
+            <!-- v1.5-D17a mobile lead-capture row (desktop shows these in the sticky sidebar) -->
+            <div class="rounded-2xl border border-line bg-white p-4 lg:hidden">
+              <app-vdp-lead-actions
+                [listingId]="car()?.id ?? ''"
+                [year]="car()?.year ?? ''"
+                [makeName]="brandName()"
+                [modelName]="modelName()"
+              />
+            </div>
+
             <!-- Finance calculator -->
             <app-vdp-finance-calc [priceKwd]="priceKwd()" />
 
@@ -277,11 +298,18 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
               [priceLabel]="priceLabel()"
               [monthlyLabel]="monthlyLabel()"
               [brandName]="brandName()"
+              [modelName]="modelName()"
+              [year]="car()?.year ?? ''"
               [listingId]="car()?.id ?? ''"
             />
           </aside>
         </div>
       </div>
+
+      <!-- v1.5-D18c — Test Drive booking modal (lazy-mounted) -->
+      @defer (when testDriveModal.isOpen()) {
+        <app-vdp-test-drive-modal />
+      }
 
       <!-- ===== MOBILE STICKY CTA ===== -->
       <div class="sticky bottom-0 z-30 flex items-center justify-between gap-3 border-t border-line bg-white/95 px-4 py-3 shadow-[0_-4px_12px_rgba(15,23,42,0.06)] backdrop-blur lg:hidden">
@@ -305,6 +333,9 @@ export class VdpPageComponent {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly api = inject(API_CONFIG);
+  /* Template-accessible — drives the `@defer (when …)` mount of the test
+     drive modal so its chunk only loads on first open. */
+  protected readonly testDriveModal = inject(VdpTestDriveModalService);
 
   readonly locale = computed(() => this.language.current());
   readonly isRtl = computed(() => this.locale() === 'ar');

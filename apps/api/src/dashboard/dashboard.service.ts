@@ -22,7 +22,13 @@ import {
   getActiveDiscountSummary,
   getPrevMonthDiscountFils,
   getFeaturedListingsCount,
+  getListingsByStage,
+  getWeeklySalesCount,
+  getListingsListedLast7Days,
+  getAvgDaysToSellByStage,
+  getTopBrandsByListingCount,
 } from './dashboard.repo';
+import type { TopBrandEntry } from './dashboard.repo';
 
 // ─── Role helpers ─────────────────────────────────────────────────────────────
 
@@ -150,6 +156,11 @@ export async function getDashboardKpis(user: AccessTokenPayload): Promise<Dashbo
     auditResult,
     userCounts,
     featuredListingsCount,
+    listingsByStage,
+    weeklySalesCount,
+    listingsListedLast7Days,
+    avgDaysToSellByStage,
+    topBrands,
   ] = await Promise.all([
     resolveFirstName(user.sub),
     getStatusTotals(),
@@ -166,6 +177,11 @@ export async function getDashboardKpis(user: AccessTokenPayload): Promise<Dashbo
       : Promise.resolve({ rows: [], total: 0, filteredFrom: 0 }),
     usersVisible ? getUserStatusCounts() : Promise.resolve(null),
     getFeaturedListingsCount(),
+    getListingsByStage(),
+    getWeeklySalesCount(),
+    getListingsListedLast7Days(),
+    getAvgDaysToSellByStage(),
+    getTopBrandsByListingCount(5),
   ]);
 
   // ── Next scheduled at (same logic as aging.service) ───────────────────────
@@ -278,5 +294,13 @@ export async function getDashboardKpis(user: AccessTokenPayload): Promise<Dashbo
 
     recentActivity,
     quickActions,
+
+    stakeholderKpis: {
+      listingsByStage,
+      weeklySalesCount,
+      listingsListedLast7Days,
+      avgDaysToSellByStage,
+      topBrands,
+    },
   };
 }

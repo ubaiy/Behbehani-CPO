@@ -188,6 +188,40 @@ export const appRoutes: Route[] = [
             (m) => m.FeatureWaitlistListPageComponent,
           ),
       },
+      // v1.5.25 — Leads queue
+      {
+        path: 'operations/leads',
+        canActivate: [adminRoleGuard(['operations_manager', 'general_manager', 'super_admin', 'customer_support'])],
+        loadComponent: () =>
+          import('./features/leads/leads-list-page.component').then(
+            (m) => m.LeadsListPageComponent,
+          ),
+      },
+      {
+        path: 'operations/leads/:id',
+        canActivate: [adminRoleGuard(['operations_manager', 'general_manager', 'super_admin', 'customer_support'])],
+        loadComponent: () =>
+          import('./features/leads/leads-detail-page.component').then(
+            (m) => m.LeadsDetailPageComponent,
+          ),
+      },
+      // v1.5.29 — Test drive bookings queue
+      {
+        path: 'operations/test-drives',
+        canActivate: [adminRoleGuard(['operations_manager', 'general_manager', 'super_admin', 'customer_support'])],
+        loadComponent: () =>
+          import('./features/test-drive-bookings/test-drive-list-page.component').then(
+            (m) => m.TestDriveListPageComponent,
+          ),
+      },
+      {
+        path: 'operations/test-drives/:id',
+        canActivate: [adminRoleGuard(['operations_manager', 'general_manager', 'super_admin', 'customer_support'])],
+        loadComponent: () =>
+          import('./features/test-drive-bookings/test-drive-detail-page.component').then(
+            (m) => m.TestDriveDetailPageComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

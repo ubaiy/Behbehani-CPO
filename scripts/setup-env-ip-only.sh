@@ -206,7 +206,9 @@ SIGN_LINK_BASE_URL=${SIGN_LINK_BASE_URL}
 SIGN_LINK_TTL_DAYS=7
 
 # ─── Aging engine cron (daily 02:00 Asia/Kuwait) ──────────────────────────────
-AGING_ENGINE_CRON=0 2 * * *
+# Quoted because bash \`source\` interprets unquoted values with spaces as commands.
+# Don't drop the quotes — node-cron parses the inner string fine either way.
+AGING_ENGINE_CRON="0 2 * * *"
 AGING_ENGINE_TZ=Asia/Kuwait
 AGING_ENGINE_ENABLED=true
 

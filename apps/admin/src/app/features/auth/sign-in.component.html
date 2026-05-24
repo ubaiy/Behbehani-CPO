@@ -9,8 +9,13 @@
 
       <!-- Brand mark — full Morad Yousuf Behbehani lockup -->
       <div class="mb-5">
+        <!--
+          v1.5.24: relative path (no leading /) so the `<base href="/admin/">`
+          resolves it to /admin/brand-logo.png in subpath deployments. Absolute
+          path bypasses base + 404s when admin is served at /admin/ instead of /.
+        -->
         <img
-          src="/brand-logo.png"
+          src="brand-logo.png"
           alt="Morad Yousuf Behbehani"
           class="h-12 w-auto"
         />

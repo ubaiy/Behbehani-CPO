@@ -293,6 +293,58 @@ export async function initiatePayment(
     throw new OrderError('RESERVATION_EXPIRED', 'Reservation window has expired');
   }
 
+  // 2.5 DEMO BYPASS (v1.5.28) — skip Otto entirely when running without merchant
+  // creds. Mark payment as succeeded immediately, flip order to 'paid', and
+  // return a hostedPaymentUrl pointing at OUR OWN /checkout/return page. The
+  // return page polls order status, sees 'paid' on first hit, renders success.
+  // Customer journey looks identical to a real payment.
+  //
+  // Flip env.PAYMENT_BYPASS_MODE=false when real Otto creds arrive — original
+  // flow at step 3+ resumes automatically.
+  if (env.PAYMENT_BYPASS_MODE) {
+    const now = new Date();
+    const providerRef = {
+      bypassMode:          true,
+      bypassRail:          input.method,
+      bypassTransactionId: `bypass-${randomUUID()}`,
+      mockedAt:            now.toISOString(),
+    };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.payment.create({
+        data: {
+          orderId:       order.id,
+          amountFils:    order.totalAmountFils - order.paidAmountFils,
+          method:        input.method,
+          status:        'succeeded',
+          providerRef,
+          idempotencyKey: idempotencyKey || null,
+          // v1.5-D18d (A in-thread hot patch): Payment model has no
+          // `processedAt` field — Prisma rejected with "Unknown argument
+          // processedAt". The Payment schema has `paidAt` for the
+          // succeeded-at timestamp. B can rename / restructure in their
+          // own follow-up; this unblocks the bypass demo today.
+          paidAt:        now,
+        },
+      });
+      await tx.order.update({
+        where: { id: order.id },
+        data:  {
+          status:         'paid',
+          // v1.5-D18d (A in-thread hot patch #2): Order model has no `paidAt`
+          // either — the field is `completedAt` (when the order reaches its
+          // terminal state). Same pattern as the Payment.paidAt patch above.
+          completedAt:    now,
+          paidAmountFils: order.totalAmountFils,
+        },
+      });
+    });
+
+    return {
+      hostedPaymentUrl: `${env.SIGN_LINK_BASE_URL}/checkout/return?orderId=${order.id}`,
+    };
+  }
+
   // 3. Idempotency: return existing payment's hosted URL if key already used.
   if (idempotencyKey) {
     const existingPayment = await prisma.payment.findUnique({

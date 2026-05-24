@@ -58,6 +58,15 @@ export const appRoutes: Route[] = [
         loadComponent: () =>
           import('./features/vdp/vdp-page.component').then((m) => m.VdpPageComponent),
       },
+      /* v1.5-D17b: customer-facing side-by-side comparison page.
+         Reads ?slugs=X,Y[,Z[,W]] (2-4 cars) and shows a column-per-car
+         table + per-row spec diff highlighting. Noindex (compare URLs
+         are user-built and not canonical). */
+      {
+        path: 'compare',
+        loadComponent: () =>
+          import('./features/compare/compare-page.component').then((m) => m.ComparePageComponent),
+      },
       {
         path: 'sell',
         loadComponent: () =>

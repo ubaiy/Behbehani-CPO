@@ -16,6 +16,8 @@ import type {
   DashboardQuickAction,
   PipelineStageCount,
   DailyValueTile,
+  TopBrand,
+  StakeholderKpis,
 } from '@behbehani-cpo/shared-types';
 import { AdminDashboardService } from '@behbehani-cpo/data-access';
 
@@ -162,6 +164,51 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const total = stages.reduce((sum, s) => sum + s.count, 0);
     if (total === 0) return 0;
     return (count / total) * 100;
+  }
+
+  // ─── Stakeholder KPI helpers ───────────────────────────────────────────────
+
+  /** All stage entries from listingsByStage as sorted array for bar chart. */
+  protected stageBarEntries(): Array<{ stage: string; count: number }> {
+    const sk = this.data()?.stakeholderKpis;
+    if (!sk) return [];
+    const STAGE_ORDER = [
+      'acquired', 'inbound', 'inspection', 'photoshoot', 'reconditioning',
+      'listed', 'reserved', 'sold', 'delivered', 'closed',
+    ];
+    return STAGE_ORDER.map((s) => ({ stage: s, count: sk.listingsByStage[s] ?? 0 }));
+  }
+
+  /** Maximum stage count — used to compute bar widths as percentage of max. */
+  protected stageBarMax(): number {
+    const entries = this.stageBarEntries();
+    return Math.max(1, ...entries.map((e) => e.count));
+  }
+
+  /** Bar width percentage for a given count relative to the maximum stage. */
+  protected stageBarWidthPct(count: number): number {
+    return (count / this.stageBarMax()) * 100;
+  }
+
+  /** Average days to sell — combined across sold + delivered (simple mean). */
+  protected avgDaysToSellCombined(): number | null {
+    const m = this.data()?.stakeholderKpis.avgDaysToSellByStage;
+    if (!m) return null;
+    const vals = [m['sold'], m['delivered']].filter((v): v is number => v !== null && v !== undefined);
+    if (vals.length === 0) return null;
+    return Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10;
+  }
+
+  /** Brand initial chip for fallback when no logo URL. */
+  protected brandInitial(nameEn: string): string {
+    return (nameEn.trim()[0] ?? '?').toUpperCase();
+  }
+
+  protected onBrandImgError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+    const chip = img.nextElementSibling as HTMLElement | null;
+    if (chip) chip.style.display = 'flex';
   }
 
   // ─── Lifecycle ─────────────────────────────────────────────────────────────

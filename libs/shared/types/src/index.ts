@@ -26,3 +26,5 @@ export * from './lib/maintenance-request.public.schemas.js';
 export * from './lib/admin-maintenance.schemas.js';
 export * from './lib/review.public.schemas.js';
 export * from './lib/admin-feature-waitlist.schemas.js';
+export * from './lib/admin-lead.schemas.js';
+export * from './lib/admin-test-drive.schemas.js';

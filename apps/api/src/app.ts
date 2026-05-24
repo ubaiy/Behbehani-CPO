@@ -28,6 +28,12 @@ import { savedListingsPublicRouter } from './saved-listings/saved-listings-publi
 import { meAccountRouter } from './me-account/me-account.controller';
 import { featureWaitlistRouter } from './feature-waitlists/feature-waitlist.controller';
 import { adminFeatureWaitlistRouter } from './feature-waitlists/admin-feature-waitlist.controller';
+// v1.5.25 — Lead capture
+import { publicLeadsRouter } from './leads/public-leads.controller';
+import { adminLeadsRouter } from './leads/admin-leads.controller';
+// v1.5.29 — Test drive booking
+import { publicTestDriveRouter } from './test-drive-bookings/public-test-drive.controller';
+import { adminTestDriveRouter } from './test-drive-bookings/admin-test-drive.controller';
 import { pushTokenRouter } from './push-tokens/push-token.controller';
 import { documentRouter } from './documents/document.controller';
 import { adminDocumentRouter } from './documents/admin-document.controller';
@@ -122,6 +128,13 @@ export function createApp(): Application {
   // over offers.service.ts public-shared exports.
   app.use('/v1/public', offersPublicRouter);
   app.use('/v1/public', savedListingsPublicRouter);
+  // v1.5.30 (closes A v1.5-D17 [ASK A→B-6]): both these public-anonymous routers
+  // MUST mount BEFORE meAccountRouter — same trap as v1.5.11. meAccountRouter
+  // applies requireCustomerSession via router.use() which catches every
+  // /v1/public/* request it sees, so an anonymous router mounted AFTER it
+  // returns 401 to the customer even though the controller itself has no auth.
+  app.use('/v1/public', publicLeadsRouter);           // v1.5.25 — was below meAccountRouter
+  app.use('/v1/public', publicTestDriveRouter);       // v1.5.29 — was below meAccountRouter
   app.use('/v1/public', meAccountRouter);
   app.use('/v1/public', featureWaitlistRouter);
   app.use('/v1/public', pushTokenRouter);
@@ -154,6 +167,10 @@ export function createApp(): Application {
   app.use('/v1/admin', adminOrderRouter);
   app.use('/v1/admin', adminMaintenanceRouter);
   app.use('/v1/admin', adminFeatureWaitlistRouter);
+  // v1.5.25 — Lead capture (publicLeadsRouter moved above meAccountRouter in v1.5.30)
+  app.use('/v1/admin', adminLeadsRouter);
+  // v1.5.29 — Test drive booking (publicTestDriveRouter moved above meAccountRouter in v1.5.30)
+  app.use('/v1/admin', adminTestDriveRouter);
 
   app.use(errorHandler);
   return app;

@@ -6,6 +6,7 @@ import type { CarBadge, FeaturedCar } from '../../../data/catalog.types';
 import { fmtKm, fmtKwd } from '../../../data/kwd';
 /* v1.5-D11e: BRANDS lookup gone — using car().brandNameEn/Ar from API. */
 import { HeartToggleService } from '../../../data/heart-toggle.service';
+import { CompareSelectionService, COMPARE_MAX } from '../../../data/compare-selection.service';
 
 interface BadgeStyle {
   cls: string;
@@ -94,6 +95,35 @@ const BADGE_STYLES: Record<CarBadge, BadgeStyle> = {
             </svg>
           }
         </button>
+        <!-- v1.5-D17b: compare checkbox — bottom-end of image so it never collides with badges. -->
+        @if (compareSlug()) {
+          <button
+            type="button"
+            (click)="toggleCompare($event)"
+            class="absolute bottom-3 end-3 inline-flex min-h-[36px] items-center gap-1.5 rounded-pill bg-white/95 px-2.5 py-1 text-[11px] font-semibold shadow-brand-sm backdrop-blur transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            [class.text-brand-700]="isCompareSelected()"
+            [class.text-ink-2]="!isCompareSelected() && !compareCapped()"
+            [class.text-muted-2]="!isCompareSelected() && compareCapped()"
+            [class.opacity-60]="!isCompareSelected() && compareCapped()"
+            [attr.aria-pressed]="isCompareSelected()"
+            [attr.aria-label]="(isCompareSelected() ? 'compare.selected' : 'compare.select') | translate"
+            [attr.title]="(isCompareSelected() ? 'compare.selected' : (compareCapped() ? 'compare.cap' : 'compare.select')) | translate"
+          >
+            <span class="inline-grid h-4 w-4 place-items-center rounded-sm border-2 transition-colors"
+              [class.border-brand-700]="isCompareSelected()"
+              [class.bg-brand-700]="isCompareSelected()"
+              [class.border-line-2]="!isCompareSelected()"
+              aria-hidden="true"
+            >
+              @if (isCompareSelected()) {
+                <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="white" stroke-width="3" aria-hidden="true">
+                  <path d="M5 12l5 5L20 7" />
+                </svg>
+              }
+            </span>
+            <span>{{ 'compare.select' | translate }}</span>
+          </button>
+        }
       </div>
       <div class="flex flex-1 flex-col p-3.5 sm:p-4">
         <div class="text-xs font-medium text-muted">{{ brandName() }} · {{ car().year }}</div>
@@ -149,10 +179,25 @@ export class CarCardComponent implements OnInit {
   private readonly language = inject(LanguageService);
   private readonly router = inject(Router);
   private readonly heartToggle = inject(HeartToggleService);
+  private readonly compareSelection = inject(CompareSelectionService);
   readonly currentLocale = computed(() => this.language.current());
 
   /** Computed from the reactive saved-IDs set — updates automatically on toggle. */
   readonly isSaved = computed(() => this.heartToggle.savedIds().has(this.car().id));
+
+  /* ── v1.5-D17b: compare cart integration ───────────────────────────────── */
+  /** Slug is required to compare — older mock entries without a slug get the
+      checkbox hidden entirely (the template guards on this). */
+  readonly compareSlug = computed(() => this.car().slug ?? '');
+  readonly isCompareSelected = computed(() => {
+    const s = this.compareSlug();
+    return !!s && this.compareSelection.isSelected(s);
+  });
+  /** True when the user is at the 3-car cap AND this card isn't already in
+      the cart — used to dim the checkbox so it's clear why it won't add. */
+  readonly compareCapped = computed(
+    () => this.compareSelection.count() >= COMPARE_MAX && !this.isCompareSelected(),
+  );
 
   ngOnInit(): void {
     // Per-card hydration fallback: efficient for single-car contexts (VDP, home rail).
@@ -190,6 +235,15 @@ export class CarCardComponent implements OnInit {
   toggleHeart(event: Event): void {
     event.stopPropagation();
     this.heartToggle.toggle(this.car().id).subscribe();
+  }
+
+  /** Add/remove this card's slug from the global compare cart. Stops the
+      click from bubbling to the card's `openDetail()` handler. */
+  toggleCompare(event: Event): void {
+    event.stopPropagation();
+    const slug = this.compareSlug();
+    if (!slug) return;
+    this.compareSelection.toggle(slug);
   }
 
   /** Navigate to the VDP. Uses `slug` from real API data; falls back to `id`

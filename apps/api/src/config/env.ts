@@ -83,6 +83,20 @@ const EnvSchema = z.object({
   OTTO_HOSTED_BASE_URL: z.string().default('https://sandbox.otto.kw/checkout'),
   /** When true, mock Otto responses without calling the real Otto API. */
   OTTO_SANDBOX_MODE:    z.coerce.boolean().default(true),
+
+  // ─── Payment bypass (v1.5.28 — demo mode without Otto creds) ────────────────
+  /** When true, `/v1/public/orders/:id/payment` SKIPS the Otto session entirely:
+   *  - Marks the Payment row as `succeeded` immediately
+   *  - Flips the Order to `paid` status + sets paidAmountFils + paidAt
+   *  - Returns hostedPaymentUrl pointing at OUR OWN /checkout/return page
+   *    (which polls order status, sees 'paid' on first hit, renders success view)
+   *
+   *  Customer journey looks identical to a real payment, but no Otto sandbox
+   *  redirect happens. Use this when you don't have Otto merchant creds yet.
+   *
+   *  Flip to `false` when real Otto creds arrive — the original mock flow
+   *  (and eventually the real Otto session API call) resumes automatically. */
+  PAYMENT_BYPASS_MODE:  z.coerce.boolean().default(true),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
