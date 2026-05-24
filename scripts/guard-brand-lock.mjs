@@ -12,7 +12,10 @@ import { readdirSync, statSync } from 'fs';
 const ROOT = new URL('..', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1');
 const FEATURES_DIR = join(ROOT, 'apps', 'web', 'src', 'app', 'features');
 
-const BANNED_PREFIXES = ['bg', 'text', 'border'];
+// `from-/via-/to-` added v1.5-D after offer-page.component.ts:70-72 emerald
+// gradient slipped past the original bg/text/border-only check. Gradient stops
+// use the SAME color tokens as solid fills — they need the same enforcement.
+const BANNED_PREFIXES = ['bg', 'text', 'border', 'from', 'via', 'to'];
 const BANNED_COLOURS = ['amber', 'yellow', 'gold', 'orange', 'emerald', 'green', 'teal', 'cyan', 'sky'];
 
 const BANNED_RE = new RegExp(

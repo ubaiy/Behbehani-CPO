@@ -13,7 +13,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { PLATFORM_ID } from '@angular/core';
-import { LanguageService } from '@behbehani-cpo/shared-i18n';
+import { LanguageService, fmtDate } from '@behbehani-cpo/shared-i18n';
 import type { OfferStatus, PublicOfferView } from '@behbehani-cpo/shared-types';
 import { OffersService, type GetOfferResult } from '../../../data/offers.service';
 
@@ -61,15 +61,11 @@ type ViewState =
   template: `
     <!-- ─── HERO ───────────────────────────────────────────────────────── -->
     @if (heroState(); as h) {
+      <!-- Brand-lock: hero gradient stays brand-blue for ALL states (in-flight + accepted).
+           Accepted-state differentiation via inner checkmark icon + copy, not gradient color
+           swap. Emerald-* was removed v1.5-D per brand lock (no green on customer surface). -->
       <header
-        class="text-white"
-        [class.bg-gradient-to-br]="true"
-        [class.from-brand-900]="!h.accepted"
-        [class.via-brand-700]="!h.accepted"
-        [class.to-brand-600]="!h.accepted"
-        [class.from-emerald-700]="h.accepted"
-        [class.via-emerald-600]="h.accepted"
-        [class.to-emerald-500]="h.accepted"
+        class="text-white bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600"
       >
         <div class="container-page py-10 sm:py-14">
           <div class="mx-auto max-w-2xl text-center">
@@ -274,6 +270,15 @@ type ViewState =
           </div>
         }
 
+        <!-- View inspection report — only in active view state (not terminal states) -->
+        <a
+          [routerLink]="['/', currentLocale(), 'sell', 'concierge', 'offer', token, 'inspection-report']"
+          class="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold text-brand-700 hover:text-brand-900 hover:underline"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          {{ 'sell.offer.viewInspectionReport' | translate }}
+        </a>
+
         <!-- Active action picker — only when canRespond=true -->
         @if (o.canRespond) {
           <div class="mt-5 space-y-3">
@@ -444,11 +449,7 @@ export class SellOfferPageComponent implements OnInit {
     if (diffMs <= 0) return this.translate.instant('sell.offer.expired');
     const days = Math.floor(diffMs / (24 * 60 * 60 * 1000));
     const hours = Math.floor((diffMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
-    const dateStr = validUntil.toLocaleDateString(this.currentLocale() === 'ar' ? 'ar-KW' : 'en-KW', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
+    const dateStr = fmtDate(validUntil, this.currentLocale(), 'medium');
     return this.translate.instant('sell.offer.validUntil', { days, hours, date: dateStr });
   }
 

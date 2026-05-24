@@ -140,10 +140,21 @@ export async function generateSaleContractPdf(input: ContractInput): Promise<Buf
   // when using createElement rather than JSX. At runtime the shape is correct.
   const instance = pdf(docEl as Parameters<typeof pdf>[0]);
 
-  // toBuffer() returns a Node Buffer at runtime; the declared return type may
-  // be Blob | Stream depending on the package version installed, hence the
-  // `as unknown as Buffer` cast. If tsc rejects this in a future version,
-  // replace with the stream-to-buffer pattern (collect chunks via .on('data')).
-  const buffer = await instance.toBuffer() as unknown as Buffer;
-  return buffer;
+  // Task #38 (2026-05-21): pdf(…).toBuffer() actually returns a Readable
+  // PDFDocument stream at runtime — NOT a Buffer. The previous
+  // `as unknown as Buffer` cast was wrong: `result.length` would be undefined,
+  // silently storing NULL fileSizeBytes on the Document row consumer downstream.
+  // Confirmed via `scripts/check-react-pdf-tobuffer.mjs` runtime probe.
+  // Fix: collect the stream into a real Buffer before returning.
+  //
+  // `toBuffer()`'s declared TS return type doesn't expose AsyncIterable cleanly,
+  // hence the cast through `unknown` — but the runtime shape IS an async-iterable
+  // Readable, so the for-await loop works correctly.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const stream = (await instance.toBuffer()) as unknown as AsyncIterable<Buffer | string>;
+  const chunks: Buffer[] = [];
+  for await (const chunk of stream) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks);
 }

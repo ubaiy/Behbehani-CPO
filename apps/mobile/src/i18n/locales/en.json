@@ -66,7 +66,11 @@
       "savedSearches": "Saved searches",
       "savedSearchesSub": "Alerts when matches arrive",
       "security": "Security",
-      "securitySub": "Sessions, sign-out all devices"
+      "securitySub": "Sessions, sign-out all devices",
+      "myBookings": "My Sell Bookings",
+      "myBookingsSub": "Concierge inspection history",
+      "notificationPrefs": "Notification preferences",
+      "notificationPrefsSub": "Push, email & SMS settings"
     }
   },
   "app": {
@@ -219,8 +223,8 @@
     "signOut": "Sign Out"
   },
   "filter": {
-    "alDamanInspectedLabel": "Al Daman inspected",
-    "alDamanInspectedSub": "CPO-certified cars only",
+    "behbehaniInspectedLabel": "Behbehani inspected",
+    "behbehaniInspectedSub": "CPO-certified cars only",
     "bodyType": "Body type",
     "bodyTypeConvertible": "Convertible",
     "bodyTypeCoupe": "Coupé",
@@ -304,7 +308,7 @@
     "greetingTitle": "Find your next car.",
     "howItWorksTitle": "How it works",
     "howStep1Title": "Browse inspected cars",
-    "howStep1Body": "Every car passes our Al Daman 200-point inspection before listing.",
+    "howStep1Body": "Every car passes our Behbehani 200-point inspection before listing.",
     "howStep2Title": "Reserve with KWD 100.000",
     "howStep2Body": "Refundable 48-hour hold while you finalise finance or test drive.",
     "howStep3Title": "Delivered with 7-day return",
@@ -385,7 +389,7 @@
       "stepsLabel": "WHAT HAPPENS NEXT"
     },
     "counter": {
-      "amountHint": "Enter an amount above KWD 4,850.000",
+      "amountHint": "Enter an amount above {{amount}}",
       "amountInputA11y": "Counter amount",
       "askingPriceLabel": "Your asking price",
       "backA11y": "Back to offer",
@@ -434,6 +438,7 @@
       "decline": "Decline",
       "declineA11y": "Decline this offer",
       "declineBtn": "Decline",
+      "error": "Couldn't load this offer",
       "expiryNote": "Offer expires in 6d 14h",
       "governorate": "Governorate",
       "heroSub": "Based on the Behbehani Motors inspection completed Mon, 19 May.",
@@ -441,8 +446,10 @@
       "inspectionA11y": "View inspection report",
       "inspectionSub": "71 points · overall score 88 / 100",
       "inspectionTitle": "Inspection report",
+      "loading": "Loading…",
       "mileage": "Mileage",
       "offerLabel": "OUR OFFER",
+      "retry": "Pull to refresh, or come back later.",
       "saleTerms": "Sale Terms",
       "termsAcceptBody": "reserves a Behbehani Motors pickup slot.",
       "termsDeclineBody": "closes the offer. By accepting you agree to the",
@@ -557,6 +564,39 @@
       "errorBody": "Something went wrong. Please check your orders for the latest status."
     }
   },
+  "savedSearches": {
+    "list": {
+      "title": "Saved Searches",
+      "empty": "No saved searches yet",
+      "emptyHint": "Save your current browse filter to get notified when new matches come in.",
+      "error": "Couldn't load saved searches",
+      "retry": "Try again",
+      "itemA11y": "Saved search: {{name}}"
+    },
+    "item": {
+      "nameLabel": "Name",
+      "summaryLabel": "Filters",
+      "runBtn": "Run search",
+      "deleteBtn": "Delete",
+      "deleteA11y": "Delete saved search: {{name}}"
+    },
+    "delete": {
+      "modalTitle": "Delete this saved search?",
+      "modalBody": "This will permanently delete the saved search.",
+      "confirm": "Delete",
+      "cancel": "Keep"
+    },
+    "save": {
+      "cta": "Save search",
+      "modalTitle": "Save this search",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g. Sedans under KWD 4,500",
+      "notifyToggle": "Notify me when new matches arrive",
+      "submit": "Save",
+      "cancel": "Cancel",
+      "successToast": "Search saved"
+    }
+  },
   "sort": {
     "featured": "Featured",
     "mileageAsc": "Mileage: low to high",
@@ -667,6 +707,30 @@
       "termsRequiredBody": "Please agree to the inspection T&Cs to continue."
     }
   },
+  "documents": {
+    "list": {
+      "title": "Documents",
+      "empty": "No documents yet",
+      "emptyHint": "Your contracts, reports, and insurance documents will appear here.",
+      "error": "Couldn't load documents",
+      "errorHint": "Check your connection and try again.",
+      "retry": "Try again",
+      "itemA11y": "{{title}}, {{kind}}",
+      "openA11y": "Opens document in browser"
+    },
+    "kind": {
+      "inspection_report": "Inspection Report",
+      "sale_contract": "Sale Contract",
+      "insurance_policy": "Insurance Policy",
+      "warranty": "Warranty",
+      "invoice": "Invoice",
+      "other": "Other"
+    },
+    "meta": {
+      "uploadedAt": "Uploaded {{date}}",
+      "kindLabel": "Type"
+    }
+  },
   "inspection": {
     "header": {
       "title": "Inspection report",
@@ -725,12 +789,33 @@
     },
     "signBouncer": {
       "opening": "Opening signature page…"
+    },
+    "list": {
+      "title": "Inspections",
+      "empty": "No inspections yet",
+      "emptyHint": "Your scheduled and completed concierge inspections will appear here.",
+      "error": "Couldn't load inspections",
+      "errorHint": "Check your connection and try again.",
+      "retry": "Try again",
+      "itemA11y": "Inspection {{ref}}, status {{status}}",
+      "kmUnit": "km",
+      "vehicleUnknown": "Vehicle details pending",
+      "scheduledLabel": "Scheduled · {{date}}",
+      "offerSummary": "Offer: {{amount}} · {{status}}"
+    },
+    "statusPill": {
+      "a11y": "Status: {{label}}",
+      "draft": "Draft",
+      "in_progress": "In progress",
+      "awaiting_inspector_signoff": "Awaiting sign-off",
+      "awaiting_customer_signature": "Awaiting your signature",
+      "signed_off": "Completed"
     }
   },
   "vdp": {
     "addToFavorites": "Add to favorites",
-    "alDamanInspectedBadge": "Al Daman inspected · 200 pts",
-    "alDamanInspectionTitle": "Al Daman inspection",
+    "behbehaniInspectedBadge": "Behbehani inspected · 200 pts",
+    "behbehaniInspectionTitle": "Behbehani inspection",
     "applyForLoan": "Apply for Loan",
     "back": "Back",
     "bookTestDrive": "Book test drive",
@@ -820,6 +905,474 @@
     "viewFullReport": "View full report",
     "vinLast6": "VIN (last 6)",
     "warranty": "Warranty",
-    "year": "Year"
+    "year": "Year",
+    "richMedia": {
+      "walkAroundTitle": "Walk-Around",
+      "walkAroundDuration": "{{seconds}}s",
+      "spin360Title": "360° View",
+      "spin360Hint": "Drag to rotate",
+      "loading": "Loading…",
+      "unavailable": "Media unavailable"
+    }
+  },
+  "profile": {
+    "title": "Edit Profile",
+    "cancel": "Cancel",
+    "saveCta": "Save changes",
+    "fieldFullName": "Full name",
+    "fieldEmail": "Email",
+    "fieldMobile": "Mobile",
+    "fieldLocale": "Language",
+    "localeEn": "English",
+    "localeAr": "Arabic",
+    "notSet": "Not set",
+    "verifiedBadge": "Verified",
+    "successTitle": "Profile updated",
+    "successBody": "Your profile has been saved.",
+    "errorTitle": "Could not save",
+    "errorBody": "An error occurred. Please try again.",
+    "loadError": "Couldn't load your profile",
+    "retry": "Retry",
+    "identity": {
+      "title": "Identity",
+      "avatarLabel": "Profile photo",
+      "avatarUploadBtn": "Change photo",
+      "avatarRemoveBtn": "Remove photo",
+      "avatarUploading": "Uploading…",
+      "uploadTooLargeError": "Photo must be under 500 KB.",
+      "uploadFailedError": "Upload failed. Please try again.",
+      "fullNameLabel": "Full name",
+      "saveCta": "Save",
+      "savingCta": "Saving…",
+      "localeLabel": "Language"
+    },
+    "email": {
+      "title": "Email address",
+      "verifiedPill": "Verified",
+      "notVerifiedPill": "Not verified",
+      "changeBtn": "Change",
+      "newEmailLabel": "New email address",
+      "newEmailPlaceholder": "you@example.com",
+      "sendCodeBtn": "Send code",
+      "sendingCta": "Sending…",
+      "formatHint": "Please enter a valid email address.",
+      "codeCaption": "Enter the 6-digit code sent to your new email.",
+      "codeLabel": "Verification code",
+      "verifyBtn": "Verify",
+      "verifyingCta": "Verifying…",
+      "cancelCta": "Cancel",
+      "successTitle": "Email updated",
+      "successBody": "Your email address has been updated."
+    },
+    "mobile": {
+      "title": "Mobile number",
+      "verifiedPill": "Verified",
+      "notVerifiedPill": "Not verified",
+      "changeBtn": "Change",
+      "newMobileLabel": "New mobile number",
+      "newMobilePlaceholder": "5XXX XXXX",
+      "sendCodeBtn": "Send code",
+      "sendingCta": "Sending…",
+      "formatHint": "Kuwait mobile must start with 5, 6, or 9 — 8 digits.",
+      "codeCaption": "Enter the 6-digit code sent to your new mobile.",
+      "codeLabel": "Verification code",
+      "verifyBtn": "Verify",
+      "verifyingCta": "Verifying…",
+      "cancelCta": "Cancel",
+      "successTitle": "Mobile updated",
+      "successBody": "Your mobile number has been updated."
+    },
+    "password": {
+      "title": "Password",
+      "setCta": "Set password",
+      "changeCta": "Change password",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "confirmLabel": "Confirm new password",
+      "submitBtn": "Update password",
+      "updatingCta": "Updating…",
+      "cancelCta": "Cancel",
+      "mismatchError": "Passwords do not match.",
+      "weakError": "Password is too weak. Add uppercase, numbers, or symbols.",
+      "successTitle": "Password updated",
+      "successBody": "Your password has been changed."
+    },
+    "errors": {
+      "network": "Something went wrong. Please try again.",
+      "rateLimited": "Too many attempts. Please wait and try again.",
+      "incorrect": "Incorrect code. Please try again."
+    }
+  },
+  "addresses": {
+    "title": "Addresses",
+    "addCta": "+ Add new address",
+    "emptyTitle": "No saved addresses",
+    "emptyHint": "Add an address to speed up future bookings.",
+    "loadError": "Couldn't load addresses",
+    "retry": "Try again",
+    "defaultPill": "Default",
+    "editBtn": "Edit",
+    "deleteBtn": "Delete",
+    "editA11y": "Edit address: {{label}}",
+    "deleteA11y": "Delete address: {{label}}",
+    "addTitle": "New Address",
+    "editTitle": "Edit Address",
+    "formCancel": "Cancel",
+    "saveBtn": "Save address",
+    "fieldLabel": "Label",
+    "fieldLabelPlaceholder": "e.g. Home, Work",
+    "fieldGovernorate": "Governorate",
+    "fieldArea": "Area",
+    "fieldAreaPlaceholder": "e.g. Salmiya",
+    "fieldBlock": "Block",
+    "fieldBlockPlaceholder": "e.g. 12",
+    "fieldStreet": "Street",
+    "fieldStreetPlaceholder": "e.g. Ahmed Al-Jaber St.",
+    "fieldBuilding": "Building",
+    "fieldBuildingPlaceholder": "e.g. Tower A",
+    "fieldUnit": "Apartment / Unit (optional)",
+    "fieldUnitPlaceholder": "e.g. Flat 4B",
+    "blockShort": "Block",
+    "validationTitle": "Missing fields",
+    "validationBody": "Please fill in all required fields.",
+    "saveErrorTitle": "Could not save",
+    "saveErrorBody": "An error occurred. Please try again.",
+    "deleteTitle": "Delete address?",
+    "deleteBody": "\"{{label}}\" will be permanently removed.",
+    "deleteCancel": "Keep",
+    "deleteConfirm": "Delete",
+    "deleteErrorTitle": "Could not delete",
+    "deleteErrorBody": "An error occurred. Please try again.",
+    "governorate": {
+      "capital": "Capital",
+      "hawalli": "Hawalli",
+      "farwaniya": "Farwaniya",
+      "mubarak_al_kabeer": "Mubarak Al-Kabeer",
+      "ahmadi": "Ahmadi",
+      "jahra": "Jahra"
+    }
+  },
+  "favorites": {
+    "title": "Favourites",
+    "emptyTitle": "No favourites yet",
+    "emptyHint": "Save cars you love and they'll appear here.",
+    "browseCta": "Browse cars",
+    "stockLabel": "Stock",
+    "removeBtn": "Remove",
+    "removeConfirmTitle": "Remove from favourites?",
+    "removeConfirmBody": "This car will be removed from your saved list.",
+    "removeError": "Couldn't remove",
+    "removeErrorHint": "Please try again.",
+    "error": "Couldn't load your favourites",
+    "retry": "Retry"
+  },
+  "notifications": {
+    "list": {
+      "title": "Notifications",
+      "empty": "No notifications yet",
+      "emptyHint": "You'll see order updates, offers, and alerts here.",
+      "error": "Couldn't load notifications",
+      "retry": "Try again",
+      "loadMore": "Load more",
+      "itemA11y": "Notification: {{title}}"
+    },
+    "actions": {
+      "markAllRead": "Mark all read",
+      "markAllReadConfirm": "Mark all as read?",
+      "markAllReadSuccess": "All notifications marked as read"
+    },
+    "category": {
+      "order": "Order",
+      "offer": "Offer",
+      "inspection": "Inspection",
+      "document": "Document",
+      "maintenance": "Maintenance",
+      "system": "System",
+      "marketing": "Promotion"
+    },
+    "channel": {
+      "push": "Push",
+      "email": "Email",
+      "sms": "SMS",
+      "inApp": "In-App"
+    },
+    "delete": {
+      "modalTitle": "Delete notification?",
+      "modalBody": "This notification will be permanently removed.",
+      "confirm": "Delete",
+      "cancel": "Keep"
+    },
+    "unreadBadgeMany": "99+"
+  },
+  "reviews": {
+    "list": {
+      "title": "My Reviews",
+      "empty": "No reviews yet",
+      "emptyHint": "Share your experience after completing a purchase, inspection, or maintenance pickup.",
+      "error": "Couldn't load your reviews",
+      "retry": "Try again",
+      "itemA11y": "Review by {{name}}, {{rating}} stars"
+    },
+    "write": {
+      "cta": "Write a review",
+      "ctaA11y": "Write a review",
+      "modalTitle": "Write a review",
+      "ratingLabel": "Your rating",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Summarise your experience",
+      "bodyLabel": "Your review",
+      "bodyPlaceholder": "What did you like or dislike? Was the process smooth?",
+      "charsRemaining": "{{n}} remaining",
+      "submitBtn": "Submit review",
+      "submitting": "Submitting…",
+      "successToast": "Review submitted",
+      "errorAlreadySubmitted": "You've already reviewed this. Delete your existing review to submit a new one.",
+      "errorTargetNotReviewable": "You can only review after completing a purchase, inspection, or maintenance pickup.",
+      "dismiss": "Close"
+    },
+    "delete": {
+      "modalTitle": "Delete this review?",
+      "modalBody": "This will permanently remove your review.",
+      "confirm": "Delete",
+      "cancel": "Keep"
+    },
+    "target": {
+      "listing": "Vehicle purchase",
+      "serviceInspection": "Concierge inspection",
+      "serviceMaintenance": "Maintenance pickup"
+    },
+    "aggregate": {
+      "averageRating": "Average rating: {{rating}} out of 5",
+      "totalCount": "{{count}} reviews",
+      "ratingDistribution": "{{star}} stars: {{count}} reviews",
+      "noReviewsYet": "No reviews yet — be the first to review this vehicle."
+    },
+    "star": {
+      "filledA11y": "{{n}} stars, filled",
+      "emptyA11y": "{{n}} stars, empty",
+      "ratingValueA11y": "{{n}} out of {{total}} stars"
+    },
+    "customerNameAnonymous": "Anonymous"
+  },
+  "maintenance": {
+    "list": {
+      "title": "Maintenance",
+      "empty": "No maintenance requests yet",
+      "emptyHint": "Schedule a pickup and we'll service your vehicle at your door.",
+      "error": "Couldn't load maintenance requests",
+      "retry": "Try again",
+      "newRequestCta": "New request",
+      "filterAll": "All",
+      "filterOpen": "Open",
+      "filterClosed": "Closed",
+      "itemA11y": "Maintenance request {{ref}}, {{vehicle}}"
+    },
+    "detail": {
+      "title": "Maintenance Request",
+      "error": "Couldn't load this request",
+      "scheduledFor": "Scheduled for",
+      "adminNotesLabel": "Admin notes",
+      "editBtn": "Edit request",
+      "cancelBtn": "Cancel request",
+      "cancelConfirmTitle": "Cancel this request?",
+      "cancelConfirmBody": "Your maintenance request will be cancelled and cannot be undone.",
+      "errorNotCancellable": "This request can no longer be cancelled."
+    },
+    "form": {
+      "title": "New Maintenance Request",
+      "vehicleLabel": "Your vehicle",
+      "vehicleSelectCta": "Select a vehicle",
+      "vehiclePlaceholder": "e.g. Toyota Camry 2021",
+      "governorateLabel": "Governorate",
+      "pickupAddressLabel": "Pickup address",
+      "pickupAddressPlaceholder": "Block, Street, Building",
+      "preferredDateLabel": "Preferred date",
+      "preferredWindowLabel": "Preferred time",
+      "concernCategoryLabel": "Service type",
+      "concernNotesLabel": "Description",
+      "concernNotesPlaceholder": "Describe the issue or service needed…",
+      "charsRemaining": "{{count}} left",
+      "submitBtn": "Submit request",
+      "submittingBtn": "Submitting…",
+      "successToast": "Request submitted"
+    },
+    "governorate": {
+      "capital": "Capital",
+      "hawalli": "Hawalli",
+      "ahmadi": "Ahmadi",
+      "jahra": "Jahra",
+      "farwaniya": "Farwaniya",
+      "mubarak_al_kabeer": "Mubarak Al-Kabeer"
+    },
+    "window": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
+    "concern": {
+      "oil_change": "Oil Change",
+      "brakes": "Brakes",
+      "tires": "Tires",
+      "electrical": "Electrical",
+      "engine": "Engine",
+      "other": "Other"
+    },
+    "status": {
+      "pending_review": "Pending",
+      "scheduled": "Scheduled",
+      "in_progress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "security": {
+    "title": "Security",
+    "sessionsHeading": "Active sessions",
+    "sessionsEmpty": "No active sessions found.",
+    "currentSessionBadge": "This device",
+    "unknownDevice": "Unknown device",
+    "lastActive": "Last active {{time}}",
+    "revokeBtn": "Revoke",
+    "revokingBtn": "Revoking…",
+    "revokeSuccessToast": "Session revoked",
+    "revokeErrorToast": "Could not revoke session. Try again.",
+    "signOutAllBtn": "Sign out of all devices",
+    "signingOutAllBtn": "Signing out…",
+    "signOutAllConfirmTitle": "Sign out of all devices?",
+    "signOutAllConfirmBody": "All other sessions will be revoked immediately. You'll stay signed in on this device.",
+    "signOutAllConfirmCta": "Sign out everywhere",
+    "signOutAllSuccessToast": "Signed out from all other devices",
+    "signOutAllErrorToast": "Could not sign out. Try again.",
+    "errorBody": "Couldn't load sessions. Check your connection and try again."
+  },
+  "notificationPrefs": {
+    "title": "Notification preferences",
+    "blurb": "Choose how and when Behbehani Motors contacts you. Account security alerts are always on.",
+    "channelPush": "Push",
+    "channelEmail": "Email",
+    "channelSms": "SMS",
+    "categoryBookingUpdates": "Booking updates",
+    "categoryListingAlerts": "Listing alerts",
+    "categoryMarketing": "Promotions & offers",
+    "categoryAccountSecurity": "Account security",
+    "lockedLabel": "Always on",
+    "applyCaption": "Changes may take a few minutes to take effect across all channels.",
+    "saveBtn": "Save changes",
+    "savedLabel": "Saved",
+    "autoSavedToast": "Preferences saved",
+    "errorBody": "Couldn't load your preferences. Check your connection and try again.",
+    "errorSaveToast": "Could not save preferences. Try again."
+  },
+  "myBookings": {
+    "title": "My Bookings",
+    "empty": "No bookings yet",
+    "emptyHint": "Book a concierge inspection to sell your car.",
+    "browseCta": "Book a concierge inspection",
+    "error": "Couldn't load bookings",
+    "errorHint": "Check your connection and try again.",
+    "retry": "Retry",
+    "itemA11y": "Booking {{ref}}, {{vehicle}}",
+    "statusA11y": "Status: {{label}}",
+    "vehicleUnknown": "Vehicle details pending",
+    "scheduledLabel": "Scheduled",
+    "offerActive": "Offer: {{amount}} — respond now",
+    "status": {
+      "draft": "Draft",
+      "in_progress": "In progress",
+      "awaiting_inspector_signoff": "Awaiting sign-off",
+      "awaiting_customer_signature": "Awaiting your signature",
+      "signed_off": "Completed"
+    }
+  },
+  "sellTracker": {
+    "header": {
+      "title": "Booking tracker"
+    },
+    "hero": {
+      "eyebrow": "BOOKING REFERENCE",
+      "copyA11y": "Copy booking reference",
+      "copiedTitle": "Copied",
+      "copiedBody": "Booking reference copied to clipboard."
+    },
+    "signed": {
+      "title": "Inspection complete!",
+      "sub": "Your {{vehicle}} inspection is done. Your offer is on its way."
+    },
+    "timeline": {
+      "label": "PROGRESS",
+      "step1": "Booking received",
+      "step2": "Inspector assigned",
+      "step3": "Inspection on-site",
+      "step4": "Sign & receive offer",
+      "step4Sub": "Your cash offer arrives within 24h.",
+      "inProgress": "IN PROGRESS"
+    },
+    "signReady": {
+      "title": "Your signature is ready",
+      "sub": "Check your SMS or email for the secure signing link."
+    },
+    "inspector": {
+      "title": "YOUR INSPECTOR",
+      "notYetAssigned": "An inspector will be assigned shortly.",
+      "role": "Inspector",
+      "completed": "{{count}} inspections",
+      "whatsapp": "WhatsApp {{firstName}}",
+      "whatsappA11y": "Message {{name}} via WhatsApp",
+      "call": "Call",
+      "callA11y": "Call inspector"
+    },
+    "quickActions": {
+      "calendar": "Calendar",
+      "calendarA11y": "Add to calendar",
+      "reschedule": "Reschedule",
+      "rescheduleA11y": "Reschedule inspection",
+      "rescheduleLockedTitle": "Reschedule unavailable",
+      "rescheduleLockedBody": "Your inspector is already assigned. Contact Behbehani Motors support to change the window.",
+      "rescheduleLockedDismiss": "OK",
+      "cancel": "Cancel",
+      "cancelA11y": "Cancel booking"
+    },
+    "reschedule": {
+      "title": "Reschedule inspection",
+      "confirm": "Confirm reschedule",
+      "confirmA11y": "Confirm reschedule",
+      "errorTitle": "Reschedule failed",
+      "errorBody": "Could not reschedule — please try again."
+    },
+    "cancel": {
+      "title": "Cancel this booking?",
+      "body": "This will permanently cancel your concierge inspection booking. This action cannot be undone.",
+      "keep": "Keep booking",
+      "confirm": "Cancel booking",
+      "confirmA11y": "Confirm cancellation",
+      "errorTitle": "Cancellation failed",
+      "errorBody": "Could not cancel — please try again."
+    },
+    "cancelModal": {
+      "title": "Cancel this booking?",
+      "body": "This will permanently cancel your concierge inspection booking. This action cannot be undone.",
+      "reasonPlaceholder": "Reason (optional)",
+      "confirmCta": "Cancel booking",
+      "cancelCta": "Keep booking",
+      "errorNotCancellable": "This booking can no longer be cancelled. Pull to refresh for the latest status.",
+      "errorNotFoundTitle": "Booking not found",
+      "errorNotFoundBody": "This booking could not be found. It may have already been removed."
+    },
+    "tracker": {
+      "cancelled": {
+        "chip": "Cancelled · {{date}}"
+      }
+    },
+    "reportCta": {
+      "label": "INSPECTION REPORT",
+      "disabledCopy": "Report available with your offer",
+      "disabledA11y": "Report not yet available",
+      "hint": "Your inspection report will be shared once Behbehani issues your cash offer.",
+      "viewReport": "View report"
+    },
+    "error": {
+      "title": "Couldn't load this booking",
+      "hint": "Pull to refresh, or try again later."
+    }
   }
 }

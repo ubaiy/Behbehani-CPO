@@ -4,6 +4,10 @@
  *
  * D1 compliance: NO "1 round", "once", "only counter", "single counter" copy.
  * Neutral copy only: "BMC will review and respond within 24 hours."
+ *
+ * v0.18.a: wired to real `GET /v1/public/concierge/offers/:token` (offer
+ * summary card) + POST /respond (counter submission) via
+ * `offersPublicApiClient`.
  */
 
 import React, { useState } from 'react';
@@ -17,10 +21,15 @@ import {
   I18nManager,
   Platform,
   KeyboardAvoidingView,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import type { PublicOfferView } from '@behbehani-cpo/shared-types';
 import { brand, slate } from '../../../src/theme/colors';
+import { offersPublicApiClient } from '../../../src/services/http';
+import { formatKwd } from '../../../src/components/orders/orders.utils';
 
 export default function CounterScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
@@ -28,10 +37,66 @@ export default function CounterScreen() {
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
 
+  const { data: offer, isLoading, isError } = useQuery<PublicOfferView, Error>({
+    queryKey: ['offer', token],
+    queryFn: () => offersPublicApiClient.getByToken(token as string),
+    enabled: typeof token === 'string' && token.length > 0,
+  });
+
+  const counterMutation = useMutation({
+    mutationFn: async (counterAmountFils: number) => {
+      return offersPublicApiClient.respond(token as string, 'counter', {
+        counterAmountFils,
+        counterNotes: notes.trim() || undefined,
+      });
+    },
+    onSuccess: () => {
+      router.push(`/offers/${token}/view` as never);
+    },
+    onError: () => {
+      Alert.alert(
+        t('offers.view.error'),
+        t('offers.view.retry'),
+      );
+    },
+  });
+
   const handleSend = () => {
-    // W3: POST /v1/public/offers/:token/respond { action:'counter', counterAmountFils, counterNotes? }
-    router.push(`/offers/${token}/view` as any);
+    // Parse KWD with decimals → fils (integer).
+    const kwd = parseFloat(amount.replace(/,/g, ''));
+    if (!Number.isFinite(kwd) || kwd <= 0) {
+      Alert.alert(t('offers.view.error'), t('offers.counter.amountHint'));
+      return;
+    }
+    const fils = Math.round(kwd * 1000);
+    counterMutation.mutate(fils);
   };
+
+  // ─── Loading / error branches ─────────────────────────────────────────────
+
+  if (isLoading) {
+    return (
+      <View style={s.root}>
+        <View style={s.centerState}>
+          <Text style={s.centerMuted}>{t('offers.view.loading')}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (isError || !offer) {
+    return (
+      <View style={s.root}>
+        <View style={s.centerState}>
+          <Text style={s.centerError}>{t('offers.view.error')}</Text>
+          <Text style={s.centerMuted}>{t('offers.view.retry')}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const offerKwd = offer.offerAmountKwd || formatKwd(offer.offerAmountFils);
+  const summaryMeta = `${offer.vehicleLabel || '—'} · ${offer.bookingRef}`;
 
   return (
     <KeyboardAvoidingView
@@ -42,7 +107,7 @@ export default function CounterScreen() {
       <View style={s.header}>
         <TouchableOpacity
           style={s.backBtn}
-          onPress={() => router.push(`/offers/${token}/view` as any)}
+          onPress={() => router.push(`/offers/${token}/view` as never)}
           accessibilityLabel={t('offers.counter.backA11y')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
@@ -60,8 +125,8 @@ export default function CounterScreen() {
         {/* ── Original offer summary (brand-50) ──────────────────────── */}
         <View style={s.offerSummary}>
           <Text style={s.offerSummaryLabel}>{t('offers.counter.offerSummaryLabel')}</Text>
-          <Text style={s.offerSummaryAmount}>KWD 4,850.000</Text>
-          <Text style={s.offerSummaryMeta}>2020 Toyota Camry GLE · BMC-CON-001234</Text>
+          <Text style={s.offerSummaryAmount}>{offerKwd}</Text>
+          <Text style={s.offerSummaryMeta}>{summaryMeta}</Text>
         </View>
 
         {/* ── Counter amount input ────────────────────────────────────── */}
@@ -79,9 +144,12 @@ export default function CounterScreen() {
               value={amount}
               onChangeText={setAmount}
               accessibilityLabel={t('offers.counter.amountInputA11y')}
+              editable={!counterMutation.isPending}
             />
           </View>
-          <Text style={s.fieldHint}>{t('offers.counter.amountHint')}</Text>
+          <Text style={s.fieldHint}>
+            {t('offers.counter.amountHint', { amount: offerKwd })}
+          </Text>
         </View>
 
         {/* ── Notes textarea ──────────────────────────────────────────── */}
@@ -101,6 +169,7 @@ export default function CounterScreen() {
             onChangeText={setNotes}
             textAlignVertical="top"
             accessibilityLabel={t('offers.counter.notesA11y')}
+            editable={!counterMutation.isPending}
           />
           <Text style={s.charCount}>{notes.length} / 500</Text>
         </View>
@@ -119,15 +188,17 @@ export default function CounterScreen() {
       <View style={s.footer}>
         <TouchableOpacity
           style={s.cancelBtn}
-          onPress={() => router.push(`/offers/${token}/view` as any)}
+          onPress={() => router.push(`/offers/${token}/view` as never)}
           accessibilityLabel={t('offers.counter.cancelA11y')}
+          disabled={counterMutation.isPending}
         >
           <Text style={s.cancelText}>{t('offers.counter.cancelBtn')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={s.sendBtn}
+          style={[s.sendBtn, counterMutation.isPending && { opacity: 0.6 }]}
           onPress={handleSend}
           accessibilityLabel={t('offers.counter.sendA11y')}
+          disabled={counterMutation.isPending}
         >
           <Text style={s.sendText}>{t('offers.counter.sendBtn')}</Text>
         </TouchableOpacity>
@@ -140,6 +211,14 @@ export default function CounterScreen() {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#fff' },
+
+  // Loading / error
+  centerState: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 24, gap: 8,
+  },
+  centerMuted: { color: slate[500], fontSize: 14, textAlign: 'center' },
+  centerError: { color: slate[900], fontSize: 16, fontFamily: 'PlusJakartaSans_700Bold', textAlign: 'center' },
 
   // Header
   header: {

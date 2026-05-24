@@ -8,31 +8,33 @@ export type CarBadge =
 
 export type SellerType = 'Platform' | 'Dealer' | 'Private';
 
-export interface BrandRef {
-  id: string;
-  name: string;
-  nameAr: string;
-  domain: string;
-}
-
-export interface BodyTypeRef {
-  id: string;
-  name: string;
-  nameAr: string;
-}
+/* v1.5-D11d: BrandRef + BodyTypeRef removed alongside the catalog.mock data.
+   Components that need brand/body display names now consume them from the
+   PublicCatalogBrand / PublicCatalogBodyType shapes (apis from shared-types)
+   via PublicCatalogService, OR from the per-card brandNameEn/Ar fields below
+   that toFeaturedCar() populates from the API response. */
 
 export interface FeaturedCar {
   id: string;
-  /** URL slug for routing to the VDP. Optional so the legacy mock dataset
-      still type-checks; new mock entries should set it explicitly. */
+  /** URL slug for routing to the VDP. */
   slug?: string;
+  /** Brand SLUG (e.g. "bmw"). Kept for filter matching. */
   brand: string;
+  /** v1.5-D11d: pre-populated brand display name from the API response so
+      card components don't need a separate catalog lookup. Falls back to slug
+      if absent. */
+  brandNameEn?: string;
+  brandNameAr?: string;
   model: string;
   year: number;
   mileage: number;
   price: number;
   monthly: number;
+  /** Body type SLUG. */
   body: string;
+  /** v1.5-D11d: pre-populated body display names from the API response. */
+  bodyNameEn?: string;
+  bodyNameAr?: string;
   transmission: string;
   fuel: string;
   sellerType: SellerType;

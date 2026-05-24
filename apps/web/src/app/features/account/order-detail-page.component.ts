@@ -56,49 +56,52 @@ function computeCountdown(expiresAt: string): { label: string; expired: boolean;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, TranslateModule],
   template: `
-    <div class="container-page pt-6"><div class="mx-auto max-w-4xl">
+    <!-- Back link → orders list (kept; this is a sub-page within the orders flow, not the hub) -->
+    <div class="mb-4">
       <a [routerLink]="['/', locale(), 'account', 'orders']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
         ← {{ 'account.orderDetail.backToOrders' | translate }}
       </a>
-    </div></div>
+    </div>
 
     @if (pageState().kind === 'loading') {
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div class="rounded-3xl animate-pulse bg-brand-100 h-36"></div>
-        <div class="mt-4 rounded-2xl border border-line bg-white p-6 animate-pulse flex flex-col gap-3">
+      <div class="flex flex-col gap-4">
+        <div class="rounded-2xl animate-pulse bg-brand-100 h-24"></div>
+        <div class="rounded-2xl border border-line bg-white p-6 animate-pulse flex flex-col gap-3">
           <div class="h-4 w-1/2 rounded bg-gray-200"></div><div class="h-3 w-1/3 rounded bg-gray-100"></div>
         </div>
       </div>
     } @else if (pageState().kind === 'not_found') {
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div class="rounded-2xl border border-line bg-white p-10 text-center shadow-brand-sm">
-          <p class="text-[15px] font-semibold text-ink">{{ 'account.orderDetail.notFound.title' | translate }}</p>
-          <p class="mt-1.5 text-[13px] text-muted">{{ 'account.orderDetail.notFound.body' | translate }}</p>
-          <a [routerLink]="['/', locale(), 'account', 'orders']" class="mt-5 inline-flex min-h-[44px] items-center rounded-lg bg-brand-700 px-5 py-2.5 text-[14px] font-medium text-white hover:bg-brand-800 transition-colors">{{ 'account.orderDetail.backToOrders' | translate }}</a>
-        </div>
+      <div class="rounded-2xl border border-line bg-white p-10 text-center shadow-brand-sm">
+        <p class="text-[15px] font-semibold text-ink">{{ 'account.orderDetail.notFound.title' | translate }}</p>
+        <p class="mt-1.5 text-[13px] text-muted">{{ 'account.orderDetail.notFound.body' | translate }}</p>
+        <a [routerLink]="['/', locale(), 'account', 'orders']" class="mt-5 inline-flex min-h-[44px] items-center rounded-lg bg-brand-700 px-5 py-2.5 text-[14px] font-medium text-white hover:bg-brand-800 transition-colors">{{ 'account.orderDetail.backToOrders' | translate }}</a>
       </div>
     } @else if (pageState().kind === 'error') {
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div class="rounded-2xl border border-line bg-white p-10 text-center shadow-brand-sm">
-          <p class="text-[14px] text-muted">{{ 'account.orders.error.body' | translate }}</p>
-          <button type="button" (click)="retryLoad()" class="mt-4 min-h-[44px] rounded-lg border border-brand-200 bg-brand-50 px-5 py-2 text-[14px] font-medium text-brand-700 hover:bg-brand-100 transition-colors">{{ 'account.orders.error.retry' | translate }}</button>
-        </div>
+      <div class="rounded-2xl border border-line bg-white p-10 text-center shadow-brand-sm">
+        <p class="text-[14px] text-muted">{{ 'account.orders.error.body' | translate }}</p>
+        <button type="button" (click)="retryLoad()" class="mt-4 min-h-[44px] rounded-lg border border-brand-200 bg-brand-50 px-5 py-2 text-[14px] font-medium text-brand-700 hover:bg-brand-100 transition-colors">{{ 'account.orders.error.retry' | translate }}</button>
       </div>
     } @else if (pageState().kind === 'ok') {
       @let order = okOrder();
       @if (order) {
-        <div class="container-page py-8 mx-auto max-w-4xl">
-          <div class="rounded-3xl p-6 sm:p-8 text-white" style="background:linear-gradient(135deg,#1E3A8A 0%,#1D4ED8 60%,#2563EB 100%)">
-            <p class="text-[11px] font-semibold uppercase tracking-widest text-white/60 mb-1">{{ 'account.orderDetail.eyebrow' | translate }}</p>
-            <h1 class="font-display text-[clamp(22px,3vw,34px)] font-extrabold leading-tight tracking-[-0.025em] text-white">{{ 'account.orderDetail.orderNumber' | translate: { num: order.stockNumber } }}</h1>
-            <p class="mt-2 text-[13px] text-white/80">
-              <span [class]="'inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium mr-2 ' + pill(order.status)">{{ 'account.orders.status.' + order.status | translate }}</span>
+        <!-- Compact hero header (Part C.4) -->
+        <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4">
+          <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </span>
+          <div class="min-w-0">
+            <p class="text-[11px] font-semibold uppercase tracking-widest text-muted mb-1">{{ 'account.orderDetail.eyebrow' | translate }}</p>
+            <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">{{ 'account.orderDetail.orderNumber' | translate: { num: order.stockNumber } }}</h1>
+            <p class="text-[13px] text-muted">
+              <span [class]="'inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-medium me-2 ' + pill(order.status)">{{ 'account.orders.status.' + order.status | translate }}</span>
               {{ 'account.orderDetail.reservedAgo' | translate: { when: rel(order.reservedAt) } }}
             </p>
           </div>
-        </div>
+        </header>
 
-        <div class="container-page pb-14 mx-auto max-w-4xl flex flex-col gap-4">
+        <div class="pb-4 flex flex-col gap-4">
           @if (showTimer(order.status)) {
             <div class="rounded-2xl border border-brand-200 bg-white p-5 shadow-brand-sm">
               @if (cd().expired) {

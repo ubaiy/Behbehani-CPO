@@ -33,6 +33,7 @@ import {
   ComingSoonPill,
   DangerZone,
 } from '../../src/components/account';
+import { useUnreadNotificationsCount } from '../../src/hooks/useUnreadNotificationsCount';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -101,6 +102,7 @@ export default function AccountScreen() {
   });
 
   const me = user ?? MOCK_USER;
+  const unreadCount = useUnreadNotificationsCount();
   const nav = (route: string) => router.push(route as Parameters<typeof router.push>[0]);
 
   const onRefresh = async () => {
@@ -154,26 +156,43 @@ export default function AccountScreen() {
             icon={<TileIconGlyph glyph="👤" />}
             title={t('account.tile.profile')}
             subtitle={t('account.tile.profileSub')}
-            onPress={() => nav('/auth/sign-in')}
+            onPress={() => nav('/profile')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="📍" />}
             title={t('account.tile.addresses')}
             subtitle={t('account.tile.addressesSub')}
             pill={<CountPill label={t('account.tile.addressesCount', { count: 2 })} />}
-            onPress={() => nav('/auth/sign-in')}
+            onPress={() => nav('/addresses')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🔔" />}
             title={t('account.tile.notifications')}
             subtitle={t('account.tile.notificationsSub')}
-            onPress={() => nav('/auth/sign-in')}
+            pill={
+              unreadCount !== undefined && unreadCount > 0 ? (
+                <CountPill
+                  label={
+                    unreadCount > 99
+                      ? t('notifications.unreadBadgeMany', { count: 99 })
+                      : String(unreadCount)
+                  }
+                />
+              ) : undefined
+            }
+            onPress={() => nav('/notifications')}
+          />
+          <AccountTile
+            icon={<TileIconGlyph glyph="🔕" />}
+            title={t('account.tile.notificationPrefs')}
+            subtitle={t('account.tile.notificationPrefsSub')}
+            onPress={() => nav('/notification-preferences')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🛡" />}
             title={t('account.tile.security')}
             subtitle={t('account.tile.securitySub')}
-            onPress={() => nav('/auth/sign-in')}
+            onPress={() => nav('/security')}
           />
         </TileGroup>
 
@@ -184,20 +203,25 @@ export default function AccountScreen() {
             title={t('account.tile.favourites')}
             subtitle={t('account.tile.favouritesSub')}
             pill={<CountPill label={t('account.tile.favouritesCount', { count: 8 })} />}
-            onPress={() => nav('/(tabs)/browse')}
+            onPress={() => nav('/favorites')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🔍" />}
             title={t('account.tile.savedSearches')}
             subtitle={t('account.tile.savedSearchesSub')}
-            pill={<ComingSoonPill />}
-            onPress={() => nav('/auth/sign-in')}
+            onPress={() => nav('/saved-searches')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="📋" />}
             title={t('account.tile.inspections')}
             subtitle={t('account.tile.inspectionsSub')}
-            onPress={() => nav('/inspections/test-inspection-id')}
+            onPress={() => nav('/inspections')}
+          />
+          <AccountTile
+            icon={<TileIconGlyph glyph="🚗" />}
+            title={t('account.tile.myBookings')}
+            subtitle={t('account.tile.myBookingsSub')}
+            onPress={() => nav('/my-bookings')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🧾" />}
@@ -209,19 +233,19 @@ export default function AccountScreen() {
 
         {/* GROUP 3 — OWNING */}
         <TileGroup label={t('account.group.owning')}>
+          {/* Task v0.17 — repointed to real /documents list (was /auth/sign-in + ComingSoonPill). */}
           <AccountTile
             icon={<TileIconGlyph glyph="📄" />}
             title={t('account.tile.documents')}
             subtitle={t('account.tile.documentsSub')}
-            pill={<ComingSoonPill />}
-            onPress={() => nav('/auth/sign-in')}
+            onPress={() => nav('/documents')}
           />
+          {/* Task v0.19.b — repointed to real /maintenance list (was /auth/sign-in + ComingSoonPill). */}
           <AccountTile
             icon={<TileIconGlyph glyph="⚙️" />}
             title={t('account.tile.maintenance')}
             subtitle={t('account.tile.maintenanceSub')}
-            pill={<ComingSoonPill />}
-            onPress={() => nav('/auth/sign-in')}
+            onPress={() => nav('/maintenance')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="💳" />}
@@ -241,12 +265,12 @@ export default function AccountScreen() {
 
         {/* GROUP 4 — ENGAGEMENT */}
         <TileGroup label={t('account.group.engagement')}>
+          {/* Task v0.19.c — Reviews now live, remove Coming-Soon pill, wire to /reviews */}
           <AccountTile
             icon={<TileIconGlyph glyph="★" />}
             title={t('account.tile.reviews')}
             subtitle={t('account.tile.reviewsSub')}
-            pill={<ComingSoonPill label={t('account.comingSoon.q4Label')} />}
-            onPress={() => nav('/auth/sign-in')}
+            onPress={() => nav('/reviews')}
           />
           <AccountTile
             icon={<TileIconGlyph glyph="🎁" />}

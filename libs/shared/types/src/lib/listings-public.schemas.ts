@@ -102,6 +102,19 @@ export const PublicListingDetailSchema = ListingPublicSummarySchema.extend({
   dealerStockCount: z.number().int().nonnegative().optional(),
   dealerRating:     z.number().min(0).max(5).optional(),
   dealerLocation:   z.string().optional(),
+  /** Walk-around narrated video (optional — null when listing has no rich media). */
+  walkaroundVideo: z.object({
+    url: z.string(),
+    mimeType: z.string(),
+    posterUrl: z.string().nullable(),
+    durationS: z.number().nullable(),
+  }).nullable().optional(),
+  /** 360° spin media (optional — null when listing has no rich media). */
+  spin360: z.object({
+    archiveUrl: z.string(),
+    mimeType: z.string(),
+    frameCount: z.number().int().nonnegative().nullable(),
+  }).nullable().optional(),
 });
 export type PublicListingDetailDto = z.infer<typeof PublicListingDetailSchema>;
 

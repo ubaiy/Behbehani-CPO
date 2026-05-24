@@ -14,6 +14,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
 import { PublicCatalogService } from '../../data/public-catalog.service';
 import type { FeaturedCar } from '../../data/catalog.types';
+import type { SavedSearchQueryPayload } from '@behbehani-cpo/shared-types';
 import { CarCardComponent } from '../home/sections/car-card.component';
 import { BrowseCarRowComponent } from './browse-car-row.component';
 import {
@@ -23,11 +24,30 @@ import {
   type BrowseFilters,
 } from './browse-filter-panel.component';
 import { HeartToggleService } from '../../data/heart-toggle.service';
+import { SaveSearchModalService } from './save-search-modal.service';
 
 type SortKey = 'best' | 'newest' | 'priceAsc' | 'priceDesc' | 'mileageAsc' | 'year';
 type ViewMode = 'grid' | 'list';
 
 const PAGE_SIZE = 12;
+
+/** Maps BrowseFilters (camelCase, KWD price) → SavedSearchQueryPayload (snake_case, fils). */
+function browseFiltersToPayload(f: BrowseFilters): SavedSearchQueryPayload {
+  const d = defaultBrowseFilters();
+  const p: SavedSearchQueryPayload = {};
+  if (f.brands.length > 0) p.brands = [...f.brands];
+  if (f.bodies.length > 0) p.body_types = [...f.bodies];
+  if (f.transmission.length > 0) p.transmissions = f.transmission as SavedSearchQueryPayload['transmissions'];
+  if (f.fuel.length > 0) p.fuel_types = f.fuel as SavedSearchQueryPayload['fuel_types'];
+  if (f.inspected) p.inspection_flag = true;
+  if (f.price[0] !== d.price[0]) p.price_min_fils = f.price[0] * 1000;
+  if (f.price[1] !== d.price[1]) p.price_max_fils = f.price[1] * 1000;
+  if (f.year[0] !== d.year[0]) p.year_min = f.year[0];
+  if (f.year[1] !== d.year[1]) p.year_max = f.year[1];
+  if (f.mileage[0] !== d.mileage[0]) p.mileage_min_km = f.mileage[0];
+  if (f.mileage[1] !== d.mileage[1]) p.mileage_max_km = f.mileage[1];
+  return p;
+}
 
 /**
  * Customer-facing Browse / Listings page. Pulls the public listings via
@@ -121,8 +141,10 @@ const PAGE_SIZE = 12;
             </div>
           </div>
 
-          <!-- Active chips -->
-          @if (activeChips().length > 0) {
+          <!-- Active chips + Save-search CTA — visible whenever any filter is active
+               (chips array may be empty when filters arrive via URL params, but the
+               CTA + Clear-all still need to render). -->
+          @if (hasActiveFilters()) {
             <div class="mb-4 flex flex-wrap items-center gap-1.5">
               @for (chip of activeChips(); track chip.key) {
                 <button type="button" class="inline-flex items-center gap-1 rounded-pill border border-line-2 bg-white px-2.5 py-1 text-[12px] font-semibold text-ink hover:border-brand-700 hover:text-brand-700" (click)="removeChip(chip.key)">
@@ -132,6 +154,14 @@ const PAGE_SIZE = 12;
               }
               <button type="button" class="text-[12px] font-semibold text-brand-700 hover:text-brand-800" (click)="resetFilters()">
                 {{ 'browse.clearAll' | translate }}
+              </button>
+              <button
+                type="button"
+                (click)="onSaveSearch()"
+                class="inline-flex items-center gap-2 rounded-lg border border-brand-300 bg-brand-50 px-4 py-2 text-[13px] font-semibold text-brand-700 hover:bg-brand-100 min-h-[44px]"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                {{ 'browse.saveSearchCta' | translate }}
               </button>
             </div>
           }
@@ -223,6 +253,7 @@ export class BrowsePageComponent {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly heartToggle = inject(HeartToggleService);
+  private readonly saveSearchModal = inject(SaveSearchModalService);
 
   readonly currentLocale = computed(() => this.language.current());
 
@@ -281,6 +312,25 @@ export class BrowsePageComponent {
 
   readonly activeFilterCount = computed(() => this.activeChips().length);
 
+  readonly hasActiveFilters = computed(() => {
+    const f = this.filters();
+    const d = defaultBrowseFilters();
+    return (
+      f.brands.length > 0 ||
+      f.bodies.length > 0 ||
+      f.transmission.length > 0 ||
+      f.fuel.length > 0 ||
+      f.inspected !== d.inspected ||
+      f.q.trim().length > 0 ||
+      f.price[0] !== d.price[0] ||
+      f.price[1] !== d.price[1] ||
+      f.year[0] !== d.year[0] ||
+      f.year[1] !== d.year[1] ||
+      f.mileage[0] !== d.mileage[0] ||
+      f.mileage[1] !== d.mileage[1]
+    );
+  });
+
   readonly activeChips = computed<ReadonlyArray<{ key: string; label: string }>>(() => {
     const f = this.filters();
     const out: { key: string; label: string }[] = [];
@@ -336,6 +386,11 @@ export class BrowsePageComponent {
     this.filters.set(defaultBrowseFilters());
   }
 
+  onSaveSearch(): void {
+    const payload = browseFiltersToPayload(this.filters());
+    this.saveSearchModal.open(payload);
+  }
+
   removeChip(key: string): void {
     const f = { ...this.filters() };
     if (key === 'price') f.price = [...BROWSE_BOUNDS.price];
@@ -358,8 +413,14 @@ export class BrowsePageComponent {
     if (body) f.bodies = [body];
     const search = q.get('q');
     if (search) f.q = search;
+    const budgetMin = q.get('budgetMinKwd');
     const budgetMax = q.get('budgetMaxKwd');
-    if (budgetMax) f.price = [0, Number(budgetMax)];
+    /* v1.5-D11b: support both ends so price-bracket buttons on /home can pass
+       full ranges (e.g. "KWD 6K – 10K") and the unbounded-upper bracket
+       ("KWD 20K and above") with only budgetMinKwd set. */
+    if (budgetMin || budgetMax) {
+      f.price = [budgetMin ? Number(budgetMin) : 0, budgetMax ? Number(budgetMax) : 999999];
+    }
     return f;
   }
 

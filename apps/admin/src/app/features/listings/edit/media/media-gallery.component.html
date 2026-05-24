@@ -152,6 +152,7 @@
                       [alt]="'Vehicle photo ' + (idx + 1)"
                       class="w-full aspect-[4/3] object-cover"
                       loading="lazy"
+                      (error)="onImgError($event)"
                     />
                   } @else {
                     <div class="w-full aspect-[4/3] bg-slate-100"></div>

@@ -1,6 +1,11 @@
 /**
  * Offer declined — terminal screen.
  * Route: /offers/[token]/declined
+ *
+ * v0.18.a: this terminal page renders entirely from i18n copy + a static
+ * WhatsApp CTA — it does NOT need any field from `PublicOfferView`, so the
+ * fetch is intentionally skipped to keep the screen instant and resilient
+ * (the token may have already been retired server-side after the decline).
  */
 
 import React from 'react';

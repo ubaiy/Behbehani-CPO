@@ -1,6 +1,11 @@
 /**
  * Offer accepted — terminal success screen.
  * Route: /offers/[token]/accepted
+ *
+ * v0.18.a: wired to real `GET /v1/public/concierge/offers/:token` so the
+ * confirmation card and booking-ref link surface live data instead of mocks.
+ * (The terminal state is gated by status, but the page may also be opened
+ * directly via a shared link after the customer has already accepted.)
  */
 
 import React from 'react';
@@ -12,15 +17,47 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { router } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import type { PublicOfferView } from '@behbehani-cpo/shared-types';
 import { brand, slate } from '../../../src/theme/colors';
-
-const BOOKING_REF = 'BMC-CON-001234';
-const OFFER_AMOUNT = 'KWD 4,850.000';
+import { offersPublicApiClient } from '../../../src/services/http';
+import { formatKwd } from '../../../src/components/orders/orders.utils';
 
 export default function OfferAcceptedScreen() {
+  const { token } = useLocalSearchParams<{ token: string }>();
   const { t } = useTranslation();
+
+  const { data: offer, isLoading, isError } = useQuery<PublicOfferView, Error>({
+    queryKey: ['offer', token],
+    queryFn: () => offersPublicApiClient.getByToken(token as string),
+    enabled: typeof token === 'string' && token.length > 0,
+  });
+
+  if (isLoading) {
+    return (
+      <View style={s.root}>
+        <View style={s.centerState}>
+          <Text style={s.centerMuted}>{t('offers.view.loading')}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (isError || !offer) {
+    return (
+      <View style={s.root}>
+        <View style={s.centerState}>
+          <Text style={s.centerError}>{t('offers.view.error')}</Text>
+          <Text style={s.centerMuted}>{t('offers.view.retry')}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  const offerAmount = offer.offerAmountKwd || formatKwd(offer.offerAmountFils);
+  const bookingRef = offer.bookingRef;
 
   return (
     <ScrollView
@@ -36,7 +73,7 @@ export default function OfferAcceptedScreen() {
         <Text style={s.heroTitle}>{t('offers.accepted.heroTitle')}</Text>
         <Text style={s.heroSub}>
           {t('offers.accepted.heroSub')}{' '}
-          <Text style={s.heroAmount}>{OFFER_AMOUNT}</Text>
+          <Text style={s.heroAmount}>{offerAmount}</Text>
         </Text>
       </View>
 
@@ -85,7 +122,7 @@ export default function OfferAcceptedScreen() {
           <View style={s.stepBody}>
             <Text style={s.stepTitle}>{t('offers.accepted.step3Title')}</Text>
             <Text style={s.stepDesc}>
-              {OFFER_AMOUNT} {t('offers.accepted.step3Desc')}
+              {offerAmount} {t('offers.accepted.step3Desc')}
             </Text>
           </View>
         </View>
@@ -93,15 +130,15 @@ export default function OfferAcceptedScreen() {
 
       {/* ── Booking reference ─────────────────────────────────────────── */}
       <View style={s.refCard}>
-        <TouchableOpacity accessibilityLabel={t('offers.accepted.bookingRefA11y', { ref: BOOKING_REF })}>
-          <Text style={s.refLink}>{t('offers.accepted.bookingRefLink')} {BOOKING_REF}</Text>
+        <TouchableOpacity accessibilityLabel={t('offers.accepted.bookingRefA11y', { ref: bookingRef })}>
+          <Text style={s.refLink}>{t('offers.accepted.bookingRefLink')} {bookingRef}</Text>
         </TouchableOpacity>
       </View>
 
       {/* ── Back to account ───────────────────────────────────────────── */}
       <View style={s.footer}>
         <TouchableOpacity
-          onPress={() => router.push('/(tabs)/account' as any)}
+          onPress={() => router.push('/(tabs)/account' as never)}
           accessibilityLabel={t('offers.accepted.backToAccountA11y')}
         >
           <Text style={s.footerLink}>{t('offers.accepted.backToAccount')}</Text>
@@ -119,6 +156,14 @@ const s = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 56 : 44,
     paddingHorizontal: 20, paddingBottom: 40,
   },
+
+  // Loading / error
+  centerState: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 24, gap: 8,
+  },
+  centerMuted: { color: slate[500], fontSize: 14, textAlign: 'center' },
+  centerError: { color: slate[900], fontSize: 16, fontFamily: 'PlusJakartaSans_700Bold', textAlign: 'center' },
 
   // Hero
   hero: { alignItems: 'center', paddingTop: 24, paddingBottom: 8 },

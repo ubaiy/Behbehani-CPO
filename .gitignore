@@ -65,3 +65,9 @@ apps/mobile/.expo/
 
 # extracted SRS text (rebuilt from docx)
 docs/SRS_Car_Marketplace_Kuwait.txt
+
+# Demo-media source photos — downloaded by scripts/generate-rich-media-demo.mjs
+# from Unsplash; intermediate inputs for ffmpeg Ken-Burns walkaround generation.
+# The *output* MP4s + poster JPGs ARE committed; only the source JPEGs aren't
+# (re-fetchable on demand, saves ~600 KB).
+apps/api/src/seed/demo-media/source-photos/

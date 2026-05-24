@@ -66,7 +66,11 @@
       "savedSearches": "عمليات البحث المحفوظة",
       "savedSearchesSub": "تنبيهات عند وصول تطابقات",
       "security": "الأمان",
-      "securitySub": "الجلسات وتسجيل الخروج من كل الأجهزة"
+      "securitySub": "الجلسات وتسجيل الخروج من كل الأجهزة",
+      "notificationPrefs": "تفضيلات الإشعارات",
+      "notificationPrefsSub": "إعدادات الدفع والبريد والرسائل",
+      "myBookings": "حجوزات البيع",
+      "myBookingsSub": "سجل فحص الكونسيرج"
     }
   },
   "app": {
@@ -219,8 +223,8 @@
     "signOut": "تسجيل الخروج"
   },
   "filter": {
-    "alDamanInspectedLabel": "مفحوصة بضمان الأمان",
-    "alDamanInspectedSub": "السيارات المعتمدة فقط",
+    "behbehaniInspectedLabel": "مفحوصة من بهبهاني",
+    "behbehaniInspectedSub": "السيارات المعتمدة فقط",
     "bodyType": "فئة المركبة",
     "bodyTypeConvertible": "مكشوفة",
     "bodyTypeCoupe": "كوبيه",
@@ -304,7 +308,7 @@
     "greetingTitle": "اعثر على سيارتك التالية.",
     "howItWorksTitle": "كيف يعمل",
     "howStep1Title": "تصفّح السيارات المفحوصة",
-    "howStep1Body": "كل سيارة تجتاز فحص ضمان الأمان من 200 نقطة قبل عرضها.",
+    "howStep1Body": "كل سيارة تجتاز فحص بهبهاني من 200 نقطة قبل عرضها.",
     "howStep2Title": "احجز بـ 100.000 د.ك",
     "howStep2Body": "حجز قابل للاسترداد لمدة 48 ساعة بينما تستكمل التمويل أو القيادة التجريبية.",
     "howStep3Title": "تسليم مع إرجاع خلال 7 أيام",
@@ -385,7 +389,7 @@
       "stepsLabel": "ماذا يحدث بعد ذلك"
     },
     "counter": {
-      "amountHint": "أدخل مبلغًا أعلى من KWD 4,850.000",
+      "amountHint": "أدخل مبلغًا أعلى من {{amount}}",
       "amountInputA11y": "مبلغ العرض المضاد",
       "askingPriceLabel": "سعرك المطلوب",
       "backA11y": "العودة إلى العرض",
@@ -434,6 +438,7 @@
       "decline": "رفض",
       "declineA11y": "رفض هذا العرض",
       "declineBtn": "رفض",
+      "error": "تعذّر تحميل هذا العرض",
       "expiryNote": "ينتهي العرض خلال 6 أيام 14 ساعة",
       "governorate": "المحافظة",
       "heroSub": "بناءً على فحص Behbehani Motors المكتمل يوم الاثنين، 19 مايو.",
@@ -441,8 +446,10 @@
       "inspectionA11y": "عرض تقرير الفحص",
       "inspectionSub": "71 نقطة · الدرجة الإجمالية 88 / 100",
       "inspectionTitle": "تقرير الفحص",
+      "loading": "جارٍ التحميل…",
       "mileage": "المسافة المقطوعة",
       "offerLabel": "عرضنا",
+      "retry": "اسحب للتحديث، أو عُد لاحقًا.",
       "saleTerms": "شروط البيع",
       "termsAcceptBody": "يحجز موعد استلام من Behbehani Motors.",
       "termsDeclineBody": "يُغلق العرض. بالقبول توافق على",
@@ -557,6 +564,39 @@
       "errorBody": "حدث خطأ ما. يرجى مراجعة طلباتك للاطلاع على آخر الحالات."
     }
   },
+  "savedSearches": {
+    "list": {
+      "title": "عمليات البحث المحفوظة",
+      "empty": "لا توجد عمليات بحث محفوظة بعد",
+      "emptyHint": "احفظ مرشّح البحث الحالي لتتلقى إشعارًا عند وصول نتائج جديدة.",
+      "error": "تعذّر تحميل عمليات البحث المحفوظة",
+      "retry": "حاول مرة أخرى",
+      "itemA11y": "بحث محفوظ: {{name}}"
+    },
+    "item": {
+      "nameLabel": "الاسم",
+      "summaryLabel": "المرشّحات",
+      "runBtn": "تشغيل البحث",
+      "deleteBtn": "حذف",
+      "deleteA11y": "حذف البحث المحفوظ: {{name}}"
+    },
+    "delete": {
+      "modalTitle": "حذف هذا البحث المحفوظ؟",
+      "modalBody": "سيُحذف هذا البحث المحفوظ نهائيًا.",
+      "confirm": "حذف",
+      "cancel": "إبقاء"
+    },
+    "save": {
+      "cta": "حفظ البحث",
+      "modalTitle": "حفظ هذا البحث",
+      "nameLabel": "الاسم",
+      "namePlaceholder": "مثال: سيدان بأقل من 4,500 د.ك",
+      "notifyToggle": "أبلغني عند وصول نتائج جديدة",
+      "submit": "حفظ",
+      "cancel": "إلغاء",
+      "successToast": "تم حفظ البحث"
+    }
+  },
   "sort": {
     "featured": "المميّز",
     "mileageAsc": "المسافة: من الأقل للأعلى",
@@ -667,6 +707,30 @@
       "termsRequiredBody": "يرجى الموافقة على شروط الفحص للمتابعة."
     }
   },
+  "documents": {
+    "list": {
+      "title": "الوثائق",
+      "empty": "لا توجد وثائق بعد",
+      "emptyHint": "ستظهر هنا عقودك وتقاريرك ووثائق التأمين.",
+      "error": "تعذّر تحميل الوثائق",
+      "errorHint": "تحقق من اتصالك وأعد المحاولة.",
+      "retry": "حاول مرة أخرى",
+      "itemA11y": "{{title}}، {{kind}}",
+      "openA11y": "يفتح الوثيقة في المتصفح"
+    },
+    "kind": {
+      "inspection_report": "تقرير الفحص",
+      "sale_contract": "عقد البيع",
+      "insurance_policy": "وثيقة التأمين",
+      "warranty": "الضمان",
+      "invoice": "الفاتورة",
+      "other": "أخرى"
+    },
+    "meta": {
+      "uploadedAt": "رُفع بتاريخ {{date}}",
+      "kindLabel": "النوع"
+    }
+  },
   "inspection": {
     "header": {
       "title": "تقرير الفحص",
@@ -725,12 +789,33 @@
     },
     "signBouncer": {
       "opening": "جارٍ فتح صفحة التوقيع…"
+    },
+    "list": {
+      "title": "الفحوصات",
+      "empty": "لا توجد فحوصات بعد",
+      "emptyHint": "ستظهر فحوصاتك المجدولة والمكتملة هنا.",
+      "error": "تعذر تحميل الفحوصات",
+      "errorHint": "تحقق من اتصالك وأعد المحاولة.",
+      "retry": "حاول مرة أخرى",
+      "itemA11y": "الفحص {{ref}}، الحالة {{status}}",
+      "kmUnit": "كم",
+      "vehicleUnknown": "تفاصيل المركبة قيد المعالجة",
+      "scheduledLabel": "مجدول · {{date}}",
+      "offerSummary": "العرض: {{amount}} · {{status}}"
+    },
+    "statusPill": {
+      "a11y": "الحالة: {{label}}",
+      "draft": "مسودة",
+      "in_progress": "قيد التنفيذ",
+      "awaiting_inspector_signoff": "بانتظار موافقة المفتش",
+      "awaiting_customer_signature": "بانتظار توقيعك",
+      "signed_off": "مكتمل"
     }
   },
   "vdp": {
     "addToFavorites": "أضف للمفضلة",
-    "alDamanInspectedBadge": "مفحوصة بضمان الأمان · 200 نقطة",
-    "alDamanInspectionTitle": "فحص ضمان الأمان",
+    "behbehaniInspectedBadge": "مفحوصة من بهبهاني · 200 نقطة",
+    "behbehaniInspectionTitle": "فحص بهبهاني",
     "applyForLoan": "تقديم طلب قرض",
     "back": "رجوع",
     "bookTestDrive": "احجز قيادة تجريبية",
@@ -820,6 +905,474 @@
     "viewFullReport": "عرض التقرير الكامل",
     "vinLast6": "رقم الهيكل (آخر 6)",
     "warranty": "ضمان",
-    "year": "السنة"
+    "year": "السنة",
+    "richMedia": {
+      "walkAroundTitle": "نظرة شاملة",
+      "walkAroundDuration": "{{seconds}} ث",
+      "spin360Title": "عرض 360°",
+      "spin360Hint": "اسحب للتدوير",
+      "loading": "جاري التحميل…",
+      "unavailable": "الوسائط غير متاحة"
+    }
+  },
+  "profile": {
+    "title": "تعديل الملف الشخصي",
+    "cancel": "إلغاء",
+    "saveCta": "حفظ التغييرات",
+    "fieldFullName": "الاسم الكامل",
+    "fieldEmail": "البريد الإلكتروني",
+    "fieldMobile": "الجوال",
+    "fieldLocale": "اللغة",
+    "localeEn": "English",
+    "localeAr": "العربية",
+    "notSet": "غير محدد",
+    "verifiedBadge": "موثَّق",
+    "successTitle": "تم تحديث الملف",
+    "successBody": "تم حفظ ملفك الشخصي بنجاح.",
+    "errorTitle": "تعذّر الحفظ",
+    "errorBody": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "loadError": "تعذّر تحميل ملفك الشخصي",
+    "retry": "إعادة المحاولة",
+    "identity": {
+      "title": "الهوية",
+      "avatarLabel": "صورة الملف الشخصي",
+      "avatarUploadBtn": "تغيير الصورة",
+      "avatarRemoveBtn": "إزالة الصورة",
+      "avatarUploading": "جارٍ الرفع…",
+      "uploadTooLargeError": "يجب أن تكون الصورة أقل من 500 كيلوبايت.",
+      "uploadFailedError": "فشل الرفع. يرجى المحاولة مرة أخرى.",
+      "fullNameLabel": "الاسم الكامل",
+      "saveCta": "حفظ",
+      "savingCta": "جارٍ الحفظ…",
+      "localeLabel": "اللغة"
+    },
+    "email": {
+      "title": "البريد الإلكتروني",
+      "verifiedPill": "موثَّق",
+      "notVerifiedPill": "غير موثَّق",
+      "changeBtn": "تغيير",
+      "newEmailLabel": "البريد الإلكتروني الجديد",
+      "newEmailPlaceholder": "you@example.com",
+      "sendCodeBtn": "إرسال الرمز",
+      "sendingCta": "جارٍ الإرسال…",
+      "formatHint": "يرجى إدخال بريد إلكتروني صحيح.",
+      "codeCaption": "أدخل الرمز المكوّن من 6 أرقام المُرسَل إلى بريدك الجديد.",
+      "codeLabel": "رمز التحقق",
+      "verifyBtn": "تحقق",
+      "verifyingCta": "جارٍ التحقق…",
+      "cancelCta": "إلغاء",
+      "successTitle": "تم تحديث البريد",
+      "successBody": "تم تحديث بريدك الإلكتروني بنجاح."
+    },
+    "mobile": {
+      "title": "رقم الجوال",
+      "verifiedPill": "موثَّق",
+      "notVerifiedPill": "غير موثَّق",
+      "changeBtn": "تغيير",
+      "newMobileLabel": "رقم الجوال الجديد",
+      "newMobilePlaceholder": "5XXX XXXX",
+      "sendCodeBtn": "إرسال الرمز",
+      "sendingCta": "جارٍ الإرسال…",
+      "formatHint": "يجب أن يبدأ رقم الكويت بـ 5 أو 6 أو 9 ويتكوّن من 8 أرقام.",
+      "codeCaption": "أدخل الرمز المكوّن من 6 أرقام المُرسَل إلى جوالك الجديد.",
+      "codeLabel": "رمز التحقق",
+      "verifyBtn": "تحقق",
+      "verifyingCta": "جارٍ التحقق…",
+      "cancelCta": "إلغاء",
+      "successTitle": "تم تحديث الجوال",
+      "successBody": "تم تحديث رقم جوالك بنجاح."
+    },
+    "password": {
+      "title": "كلمة المرور",
+      "setCta": "تعيين كلمة مرور",
+      "changeCta": "تغيير كلمة المرور",
+      "currentLabel": "كلمة المرور الحالية",
+      "newLabel": "كلمة المرور الجديدة",
+      "confirmLabel": "تأكيد كلمة المرور الجديدة",
+      "submitBtn": "تحديث كلمة المرور",
+      "updatingCta": "جارٍ التحديث…",
+      "cancelCta": "إلغاء",
+      "mismatchError": "كلمتا المرور غير متطابقتين.",
+      "weakError": "كلمة المرور ضعيفة. أضف أحرفًا كبيرة وأرقامًا ورموزًا.",
+      "successTitle": "تم تحديث كلمة المرور",
+      "successBody": "تم تغيير كلمة مرورك بنجاح."
+    },
+    "errors": {
+      "network": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+      "rateLimited": "محاولات كثيرة جدًا. يرجى الانتظار والمحاولة لاحقًا.",
+      "incorrect": "الرمز غير صحيح. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "addresses": {
+    "title": "العناوين",
+    "addCta": "+ إضافة عنوان جديد",
+    "emptyTitle": "لا توجد عناوين محفوظة",
+    "emptyHint": "أضف عنوانًا لتسريع الحجوزات المستقبلية.",
+    "loadError": "تعذّر تحميل العناوين",
+    "retry": "حاول مرة أخرى",
+    "defaultPill": "افتراضي",
+    "editBtn": "تعديل",
+    "deleteBtn": "حذف",
+    "editA11y": "تعديل العنوان: {{label}}",
+    "deleteA11y": "حذف العنوان: {{label}}",
+    "addTitle": "عنوان جديد",
+    "editTitle": "تعديل العنوان",
+    "formCancel": "إلغاء",
+    "saveBtn": "حفظ العنوان",
+    "fieldLabel": "الاسم",
+    "fieldLabelPlaceholder": "مثل: المنزل، العمل",
+    "fieldGovernorate": "المحافظة",
+    "fieldArea": "المنطقة",
+    "fieldAreaPlaceholder": "مثل: السالمية",
+    "fieldBlock": "القطعة",
+    "fieldBlockPlaceholder": "مثل: 12",
+    "fieldStreet": "الشارع",
+    "fieldStreetPlaceholder": "مثل: شارع أحمد الجابر",
+    "fieldBuilding": "المبنى",
+    "fieldBuildingPlaceholder": "مثل: برج A",
+    "fieldUnit": "الشقة / الوحدة (اختياري)",
+    "fieldUnitPlaceholder": "مثل: شقة 4B",
+    "blockShort": "قطعة",
+    "validationTitle": "حقول مطلوبة",
+    "validationBody": "يرجى تعبئة جميع الحقول المطلوبة.",
+    "saveErrorTitle": "تعذّر الحفظ",
+    "saveErrorBody": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "deleteTitle": "حذف العنوان؟",
+    "deleteBody": "سيُحذف «{{label}}» نهائيًا.",
+    "deleteCancel": "احتفاظ",
+    "deleteConfirm": "حذف",
+    "deleteErrorTitle": "تعذّر الحذف",
+    "deleteErrorBody": "حدث خطأ. يرجى المحاولة مرة أخرى.",
+    "governorate": {
+      "capital": "العاصمة",
+      "hawalli": "حولي",
+      "farwaniya": "الفروانية",
+      "mubarak_al_kabeer": "مبارك الكبير",
+      "ahmadi": "الأحمدي",
+      "jahra": "الجهراء"
+    }
+  },
+  "favorites": {
+    "title": "المفضلة",
+    "emptyTitle": "لا توجد سيارات في المفضلة",
+    "emptyHint": "احفظ السيارات التي تعجبك وستظهر هنا.",
+    "browseCta": "تصفح السيارات",
+    "stockLabel": "رقم المخزون",
+    "removeBtn": "إزالة",
+    "removeConfirmTitle": "إزالة من المفضلة؟",
+    "removeConfirmBody": "ستُزال هذه السيارة من قائمتك المحفوظة.",
+    "removeError": "تعذّرت الإزالة",
+    "removeErrorHint": "يرجى المحاولة مرة أخرى.",
+    "error": "تعذّر تحميل المفضلة",
+    "retry": "إعادة المحاولة"
+  },
+  "notifications": {
+    "list": {
+      "title": "الإشعارات",
+      "empty": "لا توجد إشعارات بعد",
+      "emptyHint": "ستظهر هنا تحديثات الطلبات والعروض والتنبيهات.",
+      "error": "تعذّر تحميل الإشعارات",
+      "retry": "حاول مرة أخرى",
+      "loadMore": "تحميل المزيد",
+      "itemA11y": "إشعار: {{title}}"
+    },
+    "actions": {
+      "markAllRead": "تعليم الكل كمقروء",
+      "markAllReadConfirm": "تعليم جميع الإشعارات كمقروءة؟",
+      "markAllReadSuccess": "تم تعليم جميع الإشعارات كمقروءة"
+    },
+    "category": {
+      "order": "طلب",
+      "offer": "عرض",
+      "inspection": "فحص",
+      "document": "وثيقة",
+      "maintenance": "صيانة",
+      "system": "نظام",
+      "marketing": "عروض ترويجية"
+    },
+    "channel": {
+      "push": "إشعار فوري",
+      "email": "بريد إلكتروني",
+      "sms": "رسالة نصية",
+      "inApp": "داخل التطبيق"
+    },
+    "delete": {
+      "modalTitle": "حذف الإشعار؟",
+      "modalBody": "سيُحذف هذا الإشعار نهائيًا.",
+      "confirm": "حذف",
+      "cancel": "احتفاظ"
+    },
+    "unreadBadgeMany": "+99"
+  },
+  "reviews": {
+    "list": {
+      "title": "تقييماتي",
+      "empty": "لا توجد تقييمات بعد",
+      "emptyHint": "شاركنا تجربتك بعد إتمام عملية شراء أو فحص أو طلب صيانة.",
+      "error": "تعذّر تحميل تقييماتك",
+      "retry": "حاول مرة أخرى",
+      "itemA11y": "تقييم بقلم {{name}}، {{rating}} نجوم"
+    },
+    "write": {
+      "cta": "كتابة تقييم",
+      "ctaA11y": "كتابة تقييم",
+      "modalTitle": "كتابة تقييم",
+      "ratingLabel": "تقييمك",
+      "titleLabel": "العنوان",
+      "titlePlaceholder": "لخّص تجربتك",
+      "bodyLabel": "تقييمك",
+      "bodyPlaceholder": "ما الذي أعجبك أو لم يعجبك؟ هل كانت العملية سلسة؟",
+      "charsRemaining": "{{n}} متبقٍ",
+      "submitBtn": "إرسال التقييم",
+      "submitting": "جارٍ الإرسال…",
+      "successToast": "تم إرسال التقييم",
+      "errorAlreadySubmitted": "لقد قيّمت هذا المنتج مسبقًا. احذف تقييمك الحالي لإرسال تقييم جديد.",
+      "errorTargetNotReviewable": "يمكنك التقييم فقط بعد إتمام عملية شراء أو فحص أو طلب صيانة.",
+      "dismiss": "إغلاق"
+    },
+    "delete": {
+      "modalTitle": "حذف هذا التقييم؟",
+      "modalBody": "سيُحذف تقييمك نهائيًا.",
+      "confirm": "حذف",
+      "cancel": "احتفاظ"
+    },
+    "target": {
+      "listing": "شراء سيارة",
+      "serviceInspection": "فحص كونسيرج",
+      "serviceMaintenance": "طلب صيانة"
+    },
+    "aggregate": {
+      "averageRating": "متوسط التقييم: {{rating}} من 5",
+      "totalCount": "{{count}} تقييم",
+      "ratingDistribution": "{{star}} نجوم: {{count}} تقييم",
+      "noReviewsYet": "لا توجد تقييمات بعد — كن أول من يقيّم هذه السيارة."
+    },
+    "star": {
+      "filledA11y": "{{n}} نجوم، ممتلئة",
+      "emptyA11y": "{{n}} نجوم، فارغة",
+      "ratingValueA11y": "{{n}} من {{total}} نجوم"
+    },
+    "customerNameAnonymous": "مجهول"
+  },
+  "maintenance": {
+    "list": {
+      "title": "الصيانة",
+      "empty": "لا توجد طلبات صيانة بعد",
+      "emptyHint": "احجز موعد استلام وسنصلح سيارتك على بابك.",
+      "error": "تعذّر تحميل طلبات الصيانة",
+      "retry": "حاول مرة أخرى",
+      "newRequestCta": "طلب جديد",
+      "filterAll": "الكل",
+      "filterOpen": "مفتوح",
+      "filterClosed": "مغلق",
+      "itemA11y": "طلب صيانة {{ref}}، {{vehicle}}"
+    },
+    "detail": {
+      "title": "طلب الصيانة",
+      "error": "تعذّر تحميل هذا الطلب",
+      "scheduledFor": "مجدول في",
+      "adminNotesLabel": "ملاحظات الإدارة",
+      "editBtn": "تعديل الطلب",
+      "cancelBtn": "إلغاء الطلب",
+      "cancelConfirmTitle": "إلغاء هذا الطلب؟",
+      "cancelConfirmBody": "سيُلغى طلب الصيانة ولا يمكن التراجع عن ذلك.",
+      "errorNotCancellable": "لا يمكن إلغاء هذا الطلب بعد الآن."
+    },
+    "form": {
+      "title": "طلب صيانة جديد",
+      "vehicleLabel": "سيارتك",
+      "vehicleSelectCta": "اختر سيارة",
+      "vehiclePlaceholder": "مثال: تويوتا كامري 2021",
+      "governorateLabel": "المحافظة",
+      "pickupAddressLabel": "عنوان الاستلام",
+      "pickupAddressPlaceholder": "القطعة، الشارع، المبنى",
+      "preferredDateLabel": "التاريخ المفضل",
+      "preferredWindowLabel": "الوقت المفضل",
+      "concernCategoryLabel": "نوع الخدمة",
+      "concernNotesLabel": "الوصف",
+      "concernNotesPlaceholder": "اشرح المشكلة أو الخدمة المطلوبة…",
+      "charsRemaining": "{{count}} متبقٍ",
+      "submitBtn": "إرسال الطلب",
+      "submittingBtn": "جارٍ الإرسال…",
+      "successToast": "تم إرسال الطلب"
+    },
+    "governorate": {
+      "capital": "العاصمة",
+      "hawalli": "حولي",
+      "ahmadi": "الأحمدي",
+      "jahra": "الجهراء",
+      "farwaniya": "الفروانية",
+      "mubarak_al_kabeer": "مبارك الكبير"
+    },
+    "window": {
+      "morning": "الصباح",
+      "afternoon": "الظهيرة",
+      "evening": "المساء"
+    },
+    "concern": {
+      "oil_change": "تغيير الزيت",
+      "brakes": "الفرامل",
+      "tires": "الإطارات",
+      "electrical": "الكهرباء",
+      "engine": "المحرك",
+      "other": "أخرى"
+    },
+    "status": {
+      "pending_review": "قيد المراجعة",
+      "scheduled": "مجدول",
+      "in_progress": "جارٍ التنفيذ",
+      "completed": "مكتمل",
+      "cancelled": "ملغى"
+    }
+  },
+  "security": {
+    "title": "الأمان",
+    "sessionsHeading": "الجلسات النشطة",
+    "sessionsEmpty": "لم يتم العثور على جلسات نشطة.",
+    "currentSessionBadge": "هذا الجهاز",
+    "unknownDevice": "جهاز غير معروف",
+    "lastActive": "آخر نشاط {{time}}",
+    "revokeBtn": "إلغاء",
+    "revokingBtn": "جارٍ الإلغاء…",
+    "revokeSuccessToast": "تم إلغاء الجلسة",
+    "revokeErrorToast": "تعذّر إلغاء الجلسة. حاول مرة أخرى.",
+    "signOutAllBtn": "تسجيل الخروج من جميع الأجهزة",
+    "signingOutAllBtn": "جارٍ تسجيل الخروج…",
+    "signOutAllConfirmTitle": "تسجيل الخروج من جميع الأجهزة؟",
+    "signOutAllConfirmBody": "سيتم إلغاء جميع الجلسات الأخرى فورًا. ستبقى مسجلاً دخولك على هذا الجهاز.",
+    "signOutAllConfirmCta": "تسجيل الخروج من كل مكان",
+    "signOutAllSuccessToast": "تم تسجيل الخروج من جميع الأجهزة الأخرى",
+    "signOutAllErrorToast": "تعذّر تسجيل الخروج. حاول مرة أخرى.",
+    "errorBody": "تعذّر تحميل الجلسات. تحقّق من اتصالك وحاول مرة أخرى."
+  },
+  "notificationPrefs": {
+    "title": "تفضيلات الإشعارات",
+    "blurb": "اختر كيف ومتى تتواصل بهبهاني موتورز معك. تنبيهات أمان الحساب تعمل دائمًا.",
+    "channelPush": "دفع",
+    "channelEmail": "بريد",
+    "channelSms": "رسالة",
+    "categoryBookingUpdates": "تحديثات الحجز",
+    "categoryListingAlerts": "تنبيهات الإعلانات",
+    "categoryMarketing": "العروض والترقيات",
+    "categoryAccountSecurity": "أمان الحساب",
+    "lockedLabel": "دائمًا مفعّل",
+    "applyCaption": "قد تستغرق التغييرات بضع دقائق حتى تسري على جميع القنوات.",
+    "saveBtn": "حفظ التغييرات",
+    "savedLabel": "محفوظ",
+    "autoSavedToast": "تم حفظ التفضيلات",
+    "errorBody": "تعذّر تحميل تفضيلاتك. تحقّق من اتصالك وحاول مرة أخرى.",
+    "errorSaveToast": "تعذّر حفظ التفضيلات. حاول مرة أخرى."
+  },
+  "myBookings": {
+    "title": "حجوزاتي",
+    "empty": "لا توجد حجوزات بعد",
+    "emptyHint": "احجز فحص كونسيرج لبيع سيارتك.",
+    "browseCta": "احجز فحص كونسيرج",
+    "error": "تعذّر تحميل الحجوزات",
+    "errorHint": "تحقّق من اتصالك وحاول مرة أخرى.",
+    "retry": "إعادة المحاولة",
+    "itemA11y": "حجز {{ref}}، {{vehicle}}",
+    "statusA11y": "الحالة: {{label}}",
+    "vehicleUnknown": "تفاصيل السيارة قيد التحديث",
+    "scheduledLabel": "مجدول",
+    "offerActive": "عرض: {{amount}} — أجب الآن",
+    "status": {
+      "draft": "مسودة",
+      "in_progress": "جارٍ",
+      "awaiting_inspector_signoff": "بانتظار توقيع الفاحص",
+      "awaiting_customer_signature": "بانتظار توقيعك",
+      "signed_off": "مكتمل"
+    }
+  },
+  "sellTracker": {
+    "header": {
+      "title": "متتبّع الحجز"
+    },
+    "hero": {
+      "eyebrow": "رقم الحجز",
+      "copyA11y": "نسخ رقم الحجز",
+      "copiedTitle": "تم النسخ",
+      "copiedBody": "تم نسخ رقم الحجز إلى الحافظة."
+    },
+    "signed": {
+      "title": "اكتمل الفحص!",
+      "sub": "اكتمل فحص {{vehicle}}. عرضك في الطريق."
+    },
+    "timeline": {
+      "label": "التقدّم",
+      "step1": "استلام الحجز",
+      "step2": "تعيين الفاحص",
+      "step3": "الفحص الميداني",
+      "step4": "التوقيع واستلام العرض",
+      "step4Sub": "يصلك عرض نقدي خلال 24 ساعة.",
+      "inProgress": "جارٍ"
+    },
+    "signReady": {
+      "title": "التوقيع جاهز",
+      "sub": "تحقّق من رسائلك أو بريدك الإلكتروني للحصول على رابط التوقيع."
+    },
+    "inspector": {
+      "title": "الفاحص",
+      "notYetAssigned": "سيتم تعيين فاحص قريبًا.",
+      "role": "فاحص",
+      "completed": "{{count}} فحص",
+      "whatsapp": "واتساب {{firstName}}",
+      "whatsappA11y": "مراسلة {{name}} عبر واتساب",
+      "call": "اتصال",
+      "callA11y": "الاتصال بالفاحص"
+    },
+    "quickActions": {
+      "calendar": "التقويم",
+      "calendarA11y": "إضافة إلى التقويم",
+      "reschedule": "إعادة جدولة",
+      "rescheduleA11y": "إعادة جدولة الفحص",
+      "rescheduleLockedTitle": "إعادة الجدولة غير متاحة",
+      "rescheduleLockedBody": "تم تعيين المفتش بالفعل. يُرجى التواصل مع دعم بهبهاني للسيارات لتغيير الموعد.",
+      "rescheduleLockedDismiss": "حسنًا",
+      "cancel": "إلغاء",
+      "cancelA11y": "إلغاء الحجز"
+    },
+    "reschedule": {
+      "title": "إعادة جدولة الفحص",
+      "confirm": "تأكيد إعادة الجدولة",
+      "confirmA11y": "تأكيد إعادة الجدولة",
+      "errorTitle": "فشلت إعادة الجدولة",
+      "errorBody": "تعذّر إعادة الجدولة — حاول مرة أخرى."
+    },
+    "cancel": {
+      "title": "هل تريد إلغاء الحجز؟",
+      "body": "سيتم إلغاء حجز فحص الكونسيرج نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+      "keep": "الاحتفاظ بالحجز",
+      "confirm": "إلغاء الحجز",
+      "confirmA11y": "تأكيد الإلغاء",
+      "errorTitle": "فشل الإلغاء",
+      "errorBody": "تعذّر الإلغاء — حاول مرة أخرى."
+    },
+    "cancelModal": {
+      "title": "هل تريد إلغاء الحجز؟",
+      "body": "سيتم إلغاء حجز فحص الكونسيرج نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+      "reasonPlaceholder": "السبب (اختياري)",
+      "confirmCta": "إلغاء الحجز",
+      "cancelCta": "الاحتفاظ بالحجز",
+      "errorNotCancellable": "لا يمكن إلغاء هذا الحجز بعد الآن. اسحب للتحديث للاطلاع على الحالة الأخيرة.",
+      "errorNotFoundTitle": "الحجز غير موجود",
+      "errorNotFoundBody": "تعذّر العثور على هذا الحجز. ربما تمت إزالته بالفعل."
+    },
+    "tracker": {
+      "cancelled": {
+        "chip": "ملغى · {{date}}"
+      }
+    },
+    "reportCta": {
+      "label": "تقرير الفحص",
+      "disabledCopy": "التقرير متاح مع عرضك",
+      "disabledA11y": "التقرير غير متاح بعد",
+      "hint": "سيُشارَك تقرير الفحص بمجرد إصدار بهبهاني عرضك النقدي.",
+      "viewReport": "عرض التقرير"
+    },
+    "error": {
+      "title": "تعذّر تحميل هذا الحجز",
+      "hint": "اسحب للتحديث، أو حاول لاحقًا."
+    }
   }
 }

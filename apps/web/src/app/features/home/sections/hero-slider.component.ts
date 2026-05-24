@@ -10,15 +10,28 @@ import {
   signal,
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
+import { LanguageService } from '@behbehani-cpo/shared-i18n';
 
 interface SlideKey {
   id: 'buy' | 'inspect' | 'finance';
+  /** Where the primary CTA should send the user. */
+  primaryRoute: ReadonlyArray<string>;
+  /** Where the secondary CTA should send the user. */
+  secondaryRoute: ReadonlyArray<string>;
 }
 
-const SLIDES: ReadonlyArray<SlideKey> = [{ id: 'buy' }, { id: 'inspect' }, { id: 'finance' }];
+/* Per-slide CTA routes. Built as path segments (locale prefix prepended by the
+   component at click time) so we never have to string-concat URLs. The "finance"
+   slide currently routes to /browse because there's no /finance landing yet. */
+const SLIDES: ReadonlyArray<SlideKey> = [
+  { id: 'buy', primaryRoute: ['browse'], secondaryRoute: ['sell'] },
+  { id: 'inspect', primaryRoute: ['browse'], secondaryRoute: [] },
+  { id: 'finance', primaryRoute: ['browse'], secondaryRoute: ['browse'] },
+];
 
 const AUTO_ADVANCE_MS = 6000;
 
@@ -41,7 +54,18 @@ const AUTO_ADVANCE_MS = 6000;
       aria-roledescription="carousel"
       [attr.aria-label]="'home.hero.label' | translate"
     >
+      <!-- Subtle radial overlay layered on top of the base background so the
+           hero reads as more than just one flat gradient — the bg-grid uses a
+           tiny SVG checker baked in as a data: URL, brand-blue 04-opacity. -->
       <div class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          class="absolute inset-0 opacity-[0.35]"
+          style="background-image: radial-gradient(circle at 20% 20%, rgba(30,58,138,0.10), transparent 45%), radial-gradient(circle at 80% 30%, rgba(30,58,138,0.08), transparent 50%);"
+        ></div>
+        <div
+          class="absolute inset-0 opacity-[0.04]"
+          style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2228%22 height=%2228%22 viewBox=%220 0 28 28%22><path d=%22M0 0h28v28H0z%22 fill=%22none%22/><path d=%22M0 14h28M14 0v28%22 stroke=%22%231E3A8A%22 stroke-width=%220.7%22/></svg>'); background-size: 28px 28px;"
+        ></div>
         <div class="absolute -left-20 -top-20 h-[360px] w-[360px] rounded-full bg-brand-400/55 blur-[40px]"></div>
         <div class="absolute -right-24 top-32 h-[420px] w-[420px] rounded-full bg-brand-100/90 blur-[40px]"></div>
         <div class="absolute -bottom-32 left-1/3 h-[480px] w-[480px] rounded-full bg-brand-50 blur-[40px]"></div>
@@ -71,7 +95,7 @@ const AUTO_ADVANCE_MS = 6000;
           <div class="mt-7 flex w-full flex-col justify-center gap-2.5 sm:mt-9 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-3">
             <button
               type="button"
-              class="inline-flex items-center justify-center gap-3 rounded-pill bg-brand-700 px-6 py-3.5 text-[15px] font-semibold text-white shadow-brand-sm transition-all hover:-translate-y-px hover:bg-brand-600 hover:shadow-brand-blue"
+              class="inline-flex items-center justify-center gap-3 rounded-pill bg-brand-700 px-6 py-3.5 text-[15px] font-semibold text-white shadow-brand-sm transition-all hover:-translate-y-px hover:bg-brand-600 hover:shadow-brand-blue active:scale-[0.98]"
               (click)="onPrimary()"
             >
               <span>{{ slideKey('ctaPrimary') | translate }}</span>
@@ -83,7 +107,7 @@ const AUTO_ADVANCE_MS = 6000;
             </button>
             <button
               type="button"
-              class="inline-flex items-center justify-center gap-2 rounded-pill border border-line bg-white px-6 py-3.5 text-[15px] font-semibold text-ink transition-all hover:border-brand-700 hover:text-brand-700"
+              class="inline-flex items-center justify-center gap-2 rounded-pill border border-line bg-white px-6 py-3.5 text-[15px] font-semibold text-ink transition-all hover:border-brand-700 hover:text-brand-700 active:scale-[0.98]"
               (click)="onSecondary()"
             >
               {{ slideKey('ctaSecondary') | translate }}
@@ -130,27 +154,77 @@ const AUTO_ADVANCE_MS = 6000;
           </button>
         </div>
 
-        <div class="mt-2 flex flex-wrap justify-center gap-3">
-          <span class="inline-flex items-center gap-2 rounded-pill border border-line bg-white px-4 py-2 text-[13px] text-ink-2 shadow-brand-sm">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" class="text-brand-700" aria-hidden="true">
-              <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z" />
-            </svg>
-            <span><strong class="font-bold text-ink">71-pt</strong> {{ 'home.hero.trust.inspection' | translate }}</span>
-          </span>
-          <span class="inline-flex items-center gap-2 rounded-pill border border-line bg-white px-4 py-2 text-[13px] text-ink-2 shadow-brand-sm">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" class="text-brand-700" aria-hidden="true">
-              <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />
-              <circle cx="7" cy="17" r="2" />
-              <circle cx="17" cy="17" r="2" />
-            </svg>
-            <span><strong class="font-bold text-ink">48 hr</strong> {{ 'home.hero.trust.delivery' | translate }}</span>
-          </span>
-          <span class="inline-flex items-center gap-2 rounded-pill border border-line bg-white px-4 py-2 text-[13px] text-ink-2 shadow-brand-sm">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" class="text-brand-700" aria-hidden="true">
-              <path d="M9 14 5 10l4-4M5 10h9a5 5 0 0 1 5 5v3" />
-            </svg>
-            <span><strong class="font-bold text-ink">3-day</strong> {{ 'home.hero.trust.return' | translate }}</span>
-          </span>
+        <!-- Trust chips upgrade: bigger cards with icon + title + sub-label,
+             arranged as flex-wrap so 3-in-a-row on desktop but stack on mobile. -->
+        <div class="mt-8 flex flex-wrap items-stretch justify-center gap-3 sm:gap-4">
+          <div class="flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 shadow-brand-sm">
+            <span class="inline-grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </span>
+            <div class="text-start">
+              <div class="text-[13px] font-bold leading-tight text-ink">{{ 'home.hero.trustInspectionTitle' | translate }}</div>
+              <div class="text-[11px] leading-snug text-muted">{{ 'home.hero.trustInspectionSub' | translate }}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 shadow-brand-sm">
+            <span class="inline-grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />
+                <circle cx="7" cy="17" r="2" />
+                <circle cx="17" cy="17" r="2" />
+              </svg>
+            </span>
+            <div class="text-start">
+              <div class="text-[13px] font-bold leading-tight text-ink">{{ 'home.hero.trustDeliveryTitle' | translate }}</div>
+              <div class="text-[11px] leading-snug text-muted">{{ 'home.hero.trustDeliverySub' | translate }}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 shadow-brand-sm">
+            <span class="inline-grid h-9 w-9 flex-shrink-0 place-items-center rounded-full bg-brand-50 text-brand-700" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M9 14 5 10l4-4M5 10h9a5 5 0 0 1 5 5v3" />
+              </svg>
+            </span>
+            <div class="text-start">
+              <div class="text-[13px] font-bold leading-tight text-ink">{{ 'home.hero.trustReturnTitle' | translate }}</div>
+              <div class="text-[11px] leading-snug text-muted">{{ 'home.hero.trustReturnSub' | translate }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social-proof stat row — bolder numbers, smaller labels, brand-blue
+             accent icons. Centered + wraps for mobile. -->
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center">
+          <div class="inline-flex items-center gap-2">
+            <span class="inline-grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-brand-100 text-brand-700" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="m3 17 6-6 4 4 8-8" />
+                <path d="M14 7h7v7" />
+              </svg>
+            </span>
+            <span class="text-[13px] font-semibold text-ink-2">{{ 'home.hero.statCarsSold' | translate }}</span>
+          </div>
+          <div class="inline-flex items-center gap-2">
+            <span class="inline-grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-brand-100 text-brand-700" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" />
+              </svg>
+            </span>
+            <span class="text-[13px] font-semibold text-ink-2">{{ 'home.hero.statSatisfaction' | translate }}</span>
+          </div>
+          <div class="inline-flex items-center gap-2">
+            <span class="inline-grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-brand-100 text-brand-700" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4">
+                <path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3Z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            </span>
+            <span class="text-[13px] font-semibold text-ink-2">{{ 'home.hero.statInspections' | translate }}</span>
+          </div>
         </div>
       </div>
     </section>
@@ -159,6 +233,8 @@ const AUTO_ADVANCE_MS = 6000;
 export class HeroSliderComponent implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
+  private readonly language = inject(LanguageService);
 
   readonly slides = SLIDES;
   readonly index = signal(0);
@@ -199,11 +275,21 @@ export class HeroSliderComponent implements OnInit {
   }
 
   onPrimary(): void {
-    /* Navigation hook — wire to router when /browse, /sell, /finance routes land. */
+    const segs = this.slides[this.index()].primaryRoute;
+    void this.router.navigate(['/', this.language.current(), ...segs]);
   }
 
   onSecondary(): void {
-    /* Navigation hook — wire to router when /browse, /sell, /finance routes land. */
+    const segs = this.slides[this.index()].secondaryRoute;
+    if (segs.length === 0) {
+      /* Inspect slide secondary CTA is "How it works" — no dedicated page yet;
+         scroll to the #how anchor on the home page instead of going nowhere. */
+      if (!isPlatformBrowser(this.platformId)) return;
+      const el = document.querySelector('app-how-it-works');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    void this.router.navigate(['/', this.language.current(), ...segs]);
   }
 
   onTouchStart(e: TouchEvent): void {

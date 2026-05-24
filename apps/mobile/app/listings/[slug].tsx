@@ -38,7 +38,7 @@ import { fontFamily } from '../../src/theme/theme';
 
 // ─── VDP Sub-components ───────────────────────────────────────────────────────
 import { PhotoGallery } from '../../src/components/vdp/PhotoGallery';
-import { WalkaroundVideoStub } from '../../src/components/vdp/WalkaroundVideoStub';
+import { RichMediaSection } from '../../src/components/vdp/RichMediaSection';
 import { VdpTitleBlock } from '../../src/components/vdp/VdpTitleBlock';
 import { SecondaryCTARow } from '../../src/components/vdp/SecondaryCTARow';
 import { SpecsBlock } from '../../src/components/vdp/SpecsBlock';
@@ -50,6 +50,7 @@ import { DealerCard } from '../../src/components/vdp/DealerCard';
 import { SimilarCarsRail } from '../../src/components/vdp/SimilarCarsRail';
 import { ReserveStickyCTA } from '../../src/components/vdp/ReserveStickyCTA';
 import { ShareIcon, HeartIcon } from '../../src/components/vdp/vdp.icons';
+import { ReviewsSection } from '../../src/components/vdp/ReviewsSection';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 import { ListingDetail, InspectionCategory } from '../../src/components/vdp/vdp.types';
@@ -250,7 +251,11 @@ export default function VDPScreen() {
           onThumbnailPress={setCurrentPhoto}
         />
 
-        <WalkaroundVideoStub />
+        <RichMediaSection
+          walkaroundVideo={detail.walkaroundVideo ?? null}
+          spin360={detail.spin360 ?? null}
+          apiBaseUrl={process.env['EXPO_PUBLIC_API_URL'] ?? ''}
+        />
 
         <VdpTitleBlock
           detail={detail}
@@ -287,6 +292,9 @@ export default function VDPScreen() {
         {detail.dealerName ? (
           <DealerCard dealerName={detail.dealerName} dealerLocation={detail.dealerLocation} />
         ) : null}
+
+        {/* Reviews section — aggregate + inline preview + write CTA (Task v0.19.c) */}
+        {detail.id ? <ReviewsSection listingId={detail.id} /> : null}
 
         <SimilarCarsRail
           items={similarItems}

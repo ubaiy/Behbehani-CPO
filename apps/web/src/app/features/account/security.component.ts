@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@behbehani-cpo/data-access';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
@@ -64,66 +63,32 @@ function relativeTime(iso: string | null): string {
   selector: 'app-account-security',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, TranslateModule],
   template: `
-    @if (!auth.isSignedIn()) {
-      <!-- Guest gate -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div
-          class="rounded-3xl p-6 sm:p-8 text-white"
-          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-        >
-          <h1
-            class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white"
-          >
-            {{ 'account.security.signInRequired.title' | translate }}
+    <!-- Compact hero header (Part C.4) -->
+      <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4">
+        <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">
+            {{ 'account.shell.page.security.title' | translate }}
           </h1>
-          <p class="mt-2 text-[14px] text-white/80">
-            {{ 'account.security.signInRequired.body' | translate }}
+          <p class="text-[13px] text-muted">
+            {{ 'account.shell.page.security.sub' | translate }}
           </p>
         </div>
-      </div>
-      <main class="container-page py-8 sm:py-10 max-w-4xl mx-auto">
-        <div
-          class="rounded-3xl border border-line bg-white p-10 text-center text-[14px] text-muted shadow-brand-sm"
-        >
-          <p>{{ 'account.security.signInRequired.body' | translate }}</p>
-        </div>
-      </main>
-    } @else {
-      <!-- Back link -->
-      <div class="container-page pt-6">
-        <div class="mx-auto max-w-4xl">
-          <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-            {{ 'account.backToHub' | translate }}
-          </a>
-        </div>
-      </div>
-
-      <!-- Hero -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div
-          class="rounded-3xl p-6 sm:p-8 text-white"
-          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-        >
-          <h1
-            class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white"
-          >
-            {{ 'account.security.title' | translate }}
-          </h1>
-          <p class="mt-2 text-[14px] text-white/80">
-            {{ 'account.security.sub' | translate }}
-          </p>
-        </div>
-      </div>
+      </header>
 
       <!-- Cards -->
-      <main class="container-page py-8 sm:py-10">
-        <div class="mx-auto max-w-4xl flex flex-col gap-5">
+      <main>
+        <div class="flex flex-col gap-5">
 
           <!-- Card 1: Last sign-in -->
-          <section class="rounded-2xl border border-line bg-white p-6 shadow-brand-sm">
-            <h2 class="text-[15px] font-semibold text-ink">
+          <section class="rounded-2xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
+            <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
               {{ 'account.security.lastSignIn.label' | translate }}
             </h2>
             @if (lastSignInRelative()) {
@@ -144,9 +109,9 @@ function relativeTime(iso: string | null): string {
           </section>
 
           <!-- Card 2: Active sessions -->
-          <section class="rounded-2xl border border-line bg-white p-6 shadow-brand-sm">
+          <section class="rounded-2xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
             <div class="flex items-center gap-3">
-              <h2 class="text-[15px] font-semibold text-ink">
+              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
                 {{ 'account.security.sessions.title' | translate }}
               </h2>
               <span
@@ -201,8 +166,8 @@ function relativeTime(iso: string | null): string {
           </section>
 
           <!-- Card 3: Sign out of all devices -->
-          <section class="rounded-2xl border border-line bg-white p-6 shadow-brand-sm">
-            <h2 class="text-[15px] font-semibold text-ink">
+          <section class="rounded-2xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
+            <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
               {{ 'account.security.signOutAll.title' | translate }}
             </h2>
             <p class="mt-1 text-[13px] text-muted">
@@ -277,7 +242,6 @@ function relativeTime(iso: string | null): string {
           </div>
         </div>
       }
-    }
   `,
 })
 export class AccountSecurityComponent {

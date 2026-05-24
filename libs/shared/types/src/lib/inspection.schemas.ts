@@ -503,6 +503,15 @@ export type CreateConciergeInspectionResponse = z.infer<typeof CreateConciergeIn
 /**
  * Slim DTO for the customer-facing tracker page (v1.5 — session A renders).
  * No inspector PII, no internal notes — just what the customer needs to see.
+ *
+ * v1.5.13 → v1.5.14 evolution history:
+ *   v1.5.13: inspector shape was { name, phoneE164? } per C v0.22 §3.
+ *   v1.5.14: consolidated with A's [ASK A→B-2] richer spec. Legacy `name` +
+ *            `phoneE164` fields are kept and populated with the same values as
+ *            `fullName` / `whatsappE164` for back-compat with v1.5.13 consumers
+ *            (C's mobile `buildInspectorInfo()` — migrate to new names at
+ *            convenience). `rating` + `completedCount` are optional/undefined
+ *            until the DB rating infrastructure ships (planned v1.6+).
  */
 export const ConciergeBookingStatusSchema = z.object({
   bookingRef: z.string(),
@@ -511,14 +520,130 @@ export const ConciergeBookingStatusSchema = z.object({
   customerPreference: CustomerPreferenceSchema.nullable(),
   /** True once an inspection_officer has been assigned. */
   inspectorAssigned: z.boolean(),
+  /**
+   * v1.5.14: richer inspector identity (consolidated from C v0.22 §3 + A [ASK A→B-2]).
+   * Null when no inspector has been assigned yet (status='draft' typically).
+   *
+   * PII-light: fullName + whatsappE164 only. No email / role / personal address.
+   * `rating` + `completedCount` are undefined until rating infra ships (v1.6+).
+   *
+   * Back-compat: `name` = `fullName`; `phoneE164` = `whatsappE164`. These
+   * legacy fields are populated with the same values so v1.5.13 consumers
+   * continue to work without changes.
+   */
+  inspector: z.object({
+    // v1.5.14 richer fields (A's spec, [ASK A→B-2]):
+    fullName: z.string().min(1),
+    /** Two-character initials, server-computed from first letters of first two name words. E.g. "YM". */
+    initials: z.string().length(2),
+    /** e.g. "4.9" — undefined until rating infrastructure ships (v1.6+). */
+    rating: z.string().regex(/^\d\.\d$/).optional(),
+    /** Undefined until rating infrastructure ships (v1.6+). */
+    completedCount: z.number().int().nonnegative().optional(),
+    whatsappE164: z.string().optional(),
+    // v1.5.13 legacy aliases — populated with same values for back-compat:
+    /** @deprecated Use fullName. Kept for v1.5.13 consumer back-compat. */
+    name: z.string().min(1),
+    /** @deprecated Use whatsappE164. Kept for v1.5.13 consumer back-compat. */
+    phoneE164: z.string().nullable().optional(),
+  }).nullable(),
+
   /** Set when status='signed_off' — maps from inspectorSignedAt server-side. */
   inspectedAt: z.string().datetime().nullable(),
   /** True when status='awaiting_customer_signature' AND the token is still
    *  valid — the storefront uses this to surface a "Sign now" button on the
    *  tracker page that links back to /inspection-sign/:token. */
   signLinkAvailable: z.boolean(),
+
+  /**
+   * v1.5.14 ([ASK A→B-2]): overall score 0-100 from InspectionReport.overallScore.
+   * Null until status='signed_off' and the score has been computed.
+   */
+  overallScore: z.number().int().min(0).max(100).nullable(),
+
+  /**
+   * v1.5.14 ([ASK A→B-2]): presigned S3 GET URL for the report PDF (15-min TTL).
+   * Null until the pdf-worker writes reportPdfKey post-signoff.
+   */
+  inspectionReportPdfUrl: z.string().url().nullable(),
+
+  /**
+   * v1.5.14 ([ASK A→B-2]): publicToken of the latest non-withdrawn offer on
+   * this inspection. Used by tracker UI to deep-link to
+   * /offer/:token/inspection-report. Null until BMC creates an offer
+   * post-signoff.
+   */
+  relatedOfferToken: z.string().nullable(),
+
+  /**
+   * v1.5.14 ([ASK A→B-3]): ISO-8601 timestamp of customer cancellation.
+   * Null while the booking is active.
+   */
+  cancelledAt: z.string().datetime().nullable(),
 });
 export type ConciergeBookingStatus = z.infer<typeof ConciergeBookingStatusSchema>;
+
+// ─── v1.5.13 — Sell-bookings me-scoped reschedule (closes [ASK C→B]) ─────────
+
+/**
+ * PATCH /v1/public/me/sell-bookings/:bookingRef
+ *
+ * Customer self-service reschedule of their own concierge inspection. Only
+ * allowed while the booking is still in `draft` status (no inspector assigned
+ * yet). Once status moves to `in_progress` or beyond, customer must call
+ * support — server returns 409 `BOOKING_NOT_RESCHEDULABLE`.
+ */
+export const RescheduleSellBookingInputSchema = z.object({
+  /** ISO-8601 date (YYYY-MM-DD) — date-only, no time component. Must be ≥ today. */
+  preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'preferredDate must be YYYY-MM-DD'),
+  /** Time window during which the inspector should arrive. */
+  window: z.enum(['morning', 'afternoon', 'evening']),
+}).refine(
+  (v) => {
+    const target = new Date(v.preferredDate + 'T00:00:00Z').getTime();
+    const todayUtc = new Date(new Date().toISOString().slice(0, 10) + 'T00:00:00Z').getTime();
+    return target >= todayUtc;
+  },
+  { message: 'preferredDate must be today or later', path: ['preferredDate'] },
+);
+export type RescheduleSellBookingInputDto = z.infer<typeof RescheduleSellBookingInputSchema>;
+
+/** v1.5.13 — list response for `GET /v1/public/me/sell-bookings`. Returns
+ *  ConciergeBookingStatus[] (slim tracker DTO) for the customer's own bookings,
+ *  filtered to concierge kind, newest first, paginated. */
+export const MySellBookingsListResponseSchema = z.object({
+  items: z.array(ConciergeBookingStatusSchema),
+  total: z.number().int().nonnegative(),
+  page: z.number().int().positive(),
+  pageSize: z.number().int().positive(),
+});
+export type MySellBookingsListResponse = z.infer<typeof MySellBookingsListResponseSchema>;
+
+// ─── v1.5.14 — Sell-bookings me-scoped cancel (closes [ASK A→B-3]) ──────────
+
+/**
+ * POST /v1/public/me/sell-bookings/:bookingRef/cancel
+ *
+ * Customer self-service cancellation of their own concierge inspection.
+ * Only allowed while the booking is still in `draft` status (covers A's
+ * `pending_assignment` + `inspector_assigned` alias names per v1.5-D10 §3).
+ * Once status moves past `draft`, server returns 409 `BOOKING_NOT_CANCELLABLE`.
+ *
+ * Idempotent: re-cancelling an already-cancelled booking returns 200 with the
+ * same `ConciergeBookingStatus` (cancelledAt populated) without erroring.
+ *
+ * Error codes:
+ *   BOOKING_NOT_FOUND        → 404  (unknown ref / not owned / non-concierge;
+ *                                    consolidated with BOOKING_NOT_OWNED to
+ *                                    prevent booking-ref enumeration)
+ *   BOOKING_NOT_CANCELLABLE  → 409  (status past 'draft')
+ *   VALIDATION_ERROR         → 422  (reason > 200 chars)
+ */
+export const CancelSellBookingInputSchema = z.object({
+  /** Optional free-text reason for cancellation (max 200 characters). */
+  reason: z.string().max(200).optional(),
+});
+export type CancelSellBookingInputDto = z.infer<typeof CancelSellBookingInputSchema>;
 
 // ─── Customer inspection view (v1.2 my-bookings page) ────────────────────────
 //

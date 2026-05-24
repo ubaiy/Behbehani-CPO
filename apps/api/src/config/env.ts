@@ -23,6 +23,10 @@ const EnvSchema = z.object({
   MAX_PHOTO_BYTES: z.coerce.number().int().positive().default(10_485_760),   // 10 MB
   MAX_VIDEO_BYTES: z.coerce.number().int().positive().default(104_857_600),  // 100 MB
   MAX_360_BYTES: z.coerce.number().int().positive().default(262_144_000),    // 250 MB
+  /** Max byte size for customer avatar uploads (v1.5.10). Default 5 MB —
+   *  generous for compressed JPEG/PNG headshots, tight enough to discourage
+   *  raw camera dumps. Mobile/web should client-side downscale before PUT. */
+  MAX_AVATAR_BYTES: z.coerce.number().int().positive().default(5_242_880),   // 5 MB
 
   // ─── Aging engine ───
   AGING_ENGINE_CRON: z.string().default('0 2 * * *'),

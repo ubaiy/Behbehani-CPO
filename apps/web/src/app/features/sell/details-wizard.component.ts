@@ -2,11 +2,12 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  PLATFORM_ID,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
@@ -50,42 +51,9 @@ interface MakeOption {
   slug?: string;
 }
 
-/** Brands beyond the catalog list, mirroring the mockup. Display only. */
-const EXTRA_BRANDS: ReadonlyArray<{ name: string; nameAr?: string }> = [
-  { name: 'Acura' },
-  { name: 'Alfa Romeo' },
-  { name: 'Aston Martin' },
-  { name: 'BAIC' },
-  { name: 'Bentley' },
-  { name: 'BYD' },
-  { name: 'Cadillac' },
-  { name: 'Chery' },
-  { name: 'Citroën' },
-  { name: 'Dodge' },
-  { name: 'Ferrari' },
-  { name: 'Fiat' },
-  { name: 'Geely' },
-  { name: 'Genesis' },
-  { name: 'Infiniti' },
-  { name: 'Isuzu' },
-  { name: 'Jaguar' },
-  { name: 'Lamborghini' },
-  { name: 'Lincoln' },
-  { name: 'Maserati' },
-  { name: 'Mazda' },
-  { name: 'McLaren' },
-  { name: 'Mini' },
-  { name: 'Mitsubishi' },
-  { name: 'Peugeot' },
-  { name: 'Ram' },
-  { name: 'Renault' },
-  { name: 'Rolls-Royce' },
-  { name: 'Skoda' },
-  { name: 'Subaru' },
-  { name: 'Suzuki' },
-  { name: 'Volkswagen' },
-  { name: 'Volvo' },
-];
+/* v1.5-D11d: `EXTRA_BRANDS` (32 hardcoded brands) removed per user request —
+   only show brands the admin has seeded in the backend catalog. The sell
+   wizard's `allMakes()` computed now derives strictly from `apiBrands()`. */
 
 /** Models keyed by brand id (from catalog.mock). Falls back to ['Other']. */
 const MODELS_BY_BRAND: Record<string, ReadonlyArray<string>> = {
@@ -250,9 +218,25 @@ const EMPTY_DRAFT: DraftData = {
                     aria-hidden="true"
                   >
                     @if (m.logoUrl) {
-                      <img [src]="m.logoUrl" alt="" loading="lazy" class="h-8 w-8 object-contain" />
+                      <span class="relative inline-block">
+                        <img
+                          [src]="m.logoUrl"
+                          [alt]="localizedMakeLabel(m)"
+                          loading="lazy"
+                          class="h-8 w-8 object-contain"
+                          (error)="onLogoError($event)"
+                        />
+                      </span>
                     } @else if (m.slug) {
-                      <img [src]="fallbackLogo(m.slug)" alt="" loading="lazy" class="h-8 w-8 object-contain" />
+                      <span class="relative inline-block">
+                        <img
+                          [src]="fallbackLogo(m.slug)"
+                          [alt]="localizedMakeLabel(m)"
+                          loading="lazy"
+                          class="h-8 w-8 object-contain"
+                          (error)="onLogoError($event)"
+                        />
+                      </span>
                     } @else {
                       <span class="text-[13px] font-bold text-brand-700">{{ m.name.charAt(0) }}</span>
                     }
@@ -444,6 +428,7 @@ export class SellDetailsWizardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly state = inject(SellWizardStateService);
   private readonly catalog = inject(PublicCatalogService);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly apiBrands = toSignal(this.catalog.brands$(), {
     initialValue: [] as ReadonlyArray<PublicCatalogBrand>,
   });
@@ -452,6 +437,21 @@ export class SellDetailsWizardComponent implements OnInit {
   /** Google Favicon CDN fallback when the brand has no `logoUrl`. */
   fallbackLogo(slug: string): string {
     return `https://www.google.com/s2/favicons?domain=${slug}.com&sz=128`;
+  }
+
+  onLogoError(event: Event): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const img = event.target as HTMLImageElement | null;
+    if (!img) return;
+    const wrapper = img.parentElement;
+    if (!wrapper || wrapper.querySelector('.brand-logo-fallback')) return;
+    img.style.display = 'none';
+    const initial = (img.alt || '?').trim().charAt(0).toUpperCase();
+    const fallback = document.createElement('span');
+    fallback.className = 'brand-logo-fallback inline-grid place-items-center w-8 h-8 rounded-full bg-brand-100 text-brand-700 text-[12px] font-bold';
+    fallback.textContent = initial;
+    fallback.setAttribute('aria-hidden', 'true');
+    wrapper.appendChild(fallback);
   }
 
   readonly currentLocale = computed(() => this.language.current());
@@ -470,25 +470,25 @@ export class SellDetailsWizardComponent implements OnInit {
     return out;
   })();
 
-  readonly allMakes = computed<ReadonlyArray<MakeOption>>(() => {
-    const map = new Map<string, MakeOption>();
-    /* API brands first — they win on duplicates (real logos + canonical slug). */
-    for (const b of this.apiBrands()) {
-      map.set(b.nameEn.toLowerCase(), {
+  /**
+   * v1.5-D11d — STRICTLY backend-driven per user. Was previously merging
+   * `apiBrands` with a hardcoded 32-entry EXTRA_BRANDS tail; user asked us to
+   * stop injecting frontend-side brands so the sell wizard only shows brands
+   * the admin has actually seeded in the catalog. If the API returns empty,
+   * the empty-state UI handles it (see `allMakes().length === 0` branch at
+   * line ~242 of the template).
+   */
+  readonly allMakes = computed<ReadonlyArray<MakeOption>>(() =>
+    this.apiBrands()
+      .map<MakeOption>((b) => ({
         id: b.slug,
         slug: b.slug,
         name: b.nameEn,
         nameAr: b.nameAr,
         logoUrl: b.logoUrl,
-      });
-    }
-    /* Append EXTRA_BRANDS that aren't already covered by the API (de-dupe by name lowercased). */
-    for (const e of EXTRA_BRANDS) {
-      const key = e.name.toLowerCase();
-      if (!map.has(key)) map.set(key, { name: e.name, nameAr: e.nameAr });
-    }
-    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
-  });
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  );
 
   readonly step = signal(0);
   readonly draft = signal<DraftData>({ ...EMPTY_DRAFT });

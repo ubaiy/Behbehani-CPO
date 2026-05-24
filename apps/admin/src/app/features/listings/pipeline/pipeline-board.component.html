@@ -161,6 +161,7 @@
                       [alt]="item.titleEn"
                       class="w-full h-full object-cover"
                       loading="lazy"
+                      (error)="onImgError($event)"
                     />
                   } @else {
                     <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-50 to-slate-100">

@@ -28,6 +28,7 @@ import { CustomerOfferResponseSchema } from '@behbehani-cpo/shared-types';
 import { OfferError } from './offers.errors';
 import {
   getOfferByToken,
+  getInspectionReportByOfferToken,
   submitCustomerResponse,
 } from './offers.service';
 
@@ -65,6 +66,27 @@ offersPublicRouter.get(
     try {
       const view = await getOfferByToken(req.params.token);
       res.json(view);
+    } catch (err) {
+      next(err);
+    }
+  },
+);
+
+// ─── GET /v1/public/concierge/offers/:token/inspection-report ──────────────
+// v1.5.7 — closes [ASK A→B] from CONCIERGE_INSPECTION_API_CONTRACT.md v1.5-D §5.
+// Thin pivot from offer token → linked inspection → PublicInspectionSummary
+// (shape already in shared-types, reused from the inspection-sign page).
+// Errors mapped per A spec: 410 OFFER_LINK_EXPIRED (token expired / withdrawn),
+// 404 INSPECTION_NOT_AVAILABLE (token missing / inspection not signed_off /
+// inspection row gone).
+
+offersPublicRouter.get(
+  '/concierge/offers/:token/inspection-report',
+  publicReadLimiter,
+  async (req, res, next) => {
+    try {
+      const summary = await getInspectionReportByOfferToken(req.params.token);
+      res.json(summary);
     } catch (err) {
       next(err);
     }

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
 import { PRICE_BRACKETS } from '../../../data/catalog.mock';
@@ -7,7 +8,7 @@ import { PRICE_BRACKETS } from '../../../data/catalog.mock';
   selector: 'app-price-brackets',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule],
+  imports: [TranslateModule, RouterLink],
   template: `
     <section class="container-page section">
       <header class="mb-8">
@@ -18,15 +19,19 @@ import { PRICE_BRACKETS } from '../../../data/catalog.mock';
       </header>
       <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
         @for (bracket of brackets; track $index) {
-          <button
-            type="button"
-            class="flex items-center justify-between rounded-[10px] border border-brand-100 bg-brand-50 px-6 py-[22px] text-ink transition-all hover:-translate-y-0.5 hover:border-brand-700 hover:bg-brand-700 hover:text-white"
+          <!-- v1.5-D11b: was a dead <button> with no (click). Now navigates to /browse
+               with budgetMinKwd + budgetMaxKwd seeded from the bracket's lo/hi range.
+               The unbounded-upper bracket ("KWD 20K and above") sends only the min. -->
+          <a
+            [routerLink]="['/', currentLocale(), 'browse']"
+            [queryParams]="queryParamsFor(bracket)"
+            class="flex items-center justify-between rounded-[10px] border border-brand-100 bg-brand-50 px-6 py-[22px] text-ink transition-all hover:-translate-y-0.5 hover:border-brand-700 hover:bg-brand-700 hover:text-white active:scale-[0.98]"
           >
             <span class="text-base font-semibold">{{ labelFor(bracket) }}</span>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
               <path [attr.d]="dirArrow()" />
             </svg>
-          </button>
+          </a>
         }
       </div>
     </section>
@@ -48,5 +53,19 @@ export class PriceBracketsComponent {
       : bracket.labelKey === 'above'
         ? 'KWD 20K and above'
         : 'Under KWD 3,000';
+  }
+
+  /**
+   * v1.5-D11b: build queryParams from the bracket's lo/hi.
+   * - "Under KWD X" (lo=0) → only budgetMaxKwd
+   * - "X – Y" (lo>0, hi<999999) → both budgetMinKwd + budgetMaxKwd
+   * - "X+" (hi=999999, the unbounded bracket) → only budgetMinKwd
+   * browse-page.seedFromQueryParams (v1.5-D11b) parses both.
+   */
+  queryParamsFor(bracket: (typeof PRICE_BRACKETS)[number]): Record<string, number> {
+    const params: Record<string, number> = {};
+    if (bracket.lo > 0) params['budgetMinKwd'] = bracket.lo;
+    if (bracket.hi < 999999) params['budgetMaxKwd'] = bracket.hi;
+    return params;
   }
 }

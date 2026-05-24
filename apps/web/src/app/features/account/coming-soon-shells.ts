@@ -7,17 +7,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComingSoonPageComponent } from './coming-soon-page.component';
 
 @Component({
-  selector: 'bmc-saved-searches-shell',
-  standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ComingSoonPageComponent],
-  template: `<bmc-coming-soon-page featurePath="/account/saved-searches" featureTitleKey="account.comingSoon.savedSearches.title" etaLabelKey="account.comingSoon.eta.q3_2026" [teaserBulletKeys]="bullets" illustrationSlug="search" />`,
-})
-export class SavedSearchesShellComponent {
-  readonly bullets = ['account.comingSoon.savedSearches.bullet1', 'account.comingSoon.savedSearches.bullet2', 'account.comingSoon.savedSearches.bullet3'];
-}
-
-@Component({
   selector: 'bmc-maintenance-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,

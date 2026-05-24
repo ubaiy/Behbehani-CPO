@@ -16,8 +16,12 @@ import { prisma } from '../db/prisma';
  *
  * Strips: vin, costFils, accidentNotes, assignedSalesId, createdById,
  * agingDiscountEnabled, priceHistory, inspectionReport.reportJson,
- * inspectionReport.reportPdfKey, inspectionReport.externalRef, videos,
- * media360, createdAt, updatedAt.
+ * inspectionReport.reportPdfKey, inspectionReport.externalRef,
+ * createdAt, updatedAt.
+ *
+ * v1.5.16 — Surfaces rich-media (walk-around video + 360° exterior spin) so
+ * customer VDP can render the player when present. Only `uploadStatus='complete'`
+ * rows are returned; null when no media has been uploaded for the listing.
  */
 export interface ListingPublicDetail extends ListingPublicSummary {
   // Spec
@@ -45,6 +49,27 @@ export interface ListingPublicDetail extends ListingPublicSummary {
   } | null;
   /** ISO timestamp string — drives the "Listed N days ago" trust badge. */
   listedAt: string;
+  /**
+   * v1.5.16 — Walk-around video (rendered via `<video controls playsinline>`).
+   * Null when no video has been uploaded for this listing or upload is still
+   * pending. `posterUrl` is the poster frame to show before playback starts.
+   */
+  walkaroundVideo: {
+    url: string;
+    mimeType: string;
+    posterUrl: string | null;
+    durationS: number | null;
+  } | null;
+  /**
+   * v1.5.16 — 360° exterior spin. `archiveUrl` is either an MP4 (rendered as
+   * a scrub-bar `<video>` without controls) or a `.zip` of frames (client
+   * unzips client-side). `mimeType` discriminates. Null when no 360 uploaded.
+   */
+  spin360: {
+    archiveUrl: string;
+    mimeType: string;
+    frameCount: number | null;
+  } | null;
 }
 
 /**
@@ -72,7 +97,13 @@ type PublicRow = Prisma.ListingGetPayload<{ include: typeof PUBLIC_INCLUDE }>;
 
 /**
  * Detail include — superset of PUBLIC_INCLUDE used only by `:slug`.
- * Pulls the full ordered photo gallery and the public-safe inspection fields.
+ * Pulls the full ordered photo gallery, public-safe inspection fields, and
+ * (v1.5.16) the rich-media rows (video + 360 spin) when upload is complete.
+ *
+ * For both video + 360 we take just the first complete row — the admin UI
+ * enforces at-most-one of each per listing. `media360` is a 1:1 relation on
+ * the Listing model so it's a singleton, but `videos` is 1:N — we still cap
+ * at 1 (admin enforces a 409 conflict in presignVideo for second uploads).
  */
 const DETAIL_INCLUDE = {
   brand: { select: { id: true, slug: true, nameEn: true, nameAr: true, logoUrl: true } },
@@ -83,16 +114,42 @@ const DETAIL_INCLUDE = {
     select: { cdnUrl: true, sortOrder: true, isHero: true },
   },
   inspectionReport: { select: { overallScore: true, inspectedAt: true } },
+  // v1.5.16 — surface walk-around video (only complete uploads).
+  videos: {
+    where: { uploadStatus: 'complete' },
+    orderBy: { createdAt: 'asc' },
+    take: 1,
+    select: {
+      cdnUrl: true,
+      s3Key: true,
+      mimeType: true,
+      posterS3Key: true,
+      durationS: true,
+    },
+  },
+  // v1.5.16 — surface 360° exterior spin (only when complete).
+  media360: {
+    select: {
+      archiveS3Key: true,
+      mimeType: true,
+      frameCount: true,
+      uploadStatus: true,
+    },
+  },
 } satisfies Prisma.ListingInclude;
 
 type DetailRow = Prisma.ListingGetPayload<{ include: typeof DETAIL_INCLUDE }>;
 
-/** WHERE clause that ensures only PUBLISHED, non-deleted listings escape. */
+/** WHERE clause that ensures only PUBLISHED, non-deleted listings escape.
+ *  `photos: { some: {} }` guarantees at least one photo row exists so the
+ *  public surface never surfaces a listing with a broken/missing hero image.
+ */
 function publicWhere(extra: Prisma.ListingWhereInput = {}): Prisma.ListingWhereInput {
   return {
     deletedAt: null,
     stage: 'listed',
     listedAt: { not: null },
+    photos: { some: {} },
     ...extra,
   };
 }
@@ -156,6 +213,34 @@ function toPublicDetail(row: DetailRow): ListingPublicDetail {
     .filter((p): p is typeof p & { cdnUrl: string } => p.cdnUrl !== null)
     .map((p) => ({ cdnUrl: p.cdnUrl, sortOrder: p.sortOrder, isHero: p.isHero }));
 
+  /* v1.5.16 — Walk-around video. Prefer `cdnUrl` (set on confirm); fall back
+     to `s3Key` for safety. `posterS3Key` becomes posterUrl when present.
+     URLs may be relative paths (`/static/demo-media/...`) for demo content or
+     absolute CDN URLs (Cloudfront/S3 signed) for production — customer client
+     handles both. */
+  const videoRow = row.videos[0] ?? null;
+  const walkaroundVideo: ListingPublicDetail['walkaroundVideo'] =
+    videoRow && (videoRow.cdnUrl || videoRow.s3Key)
+      ? {
+          url: videoRow.cdnUrl ?? videoRow.s3Key,
+          mimeType: videoRow.mimeType ?? 'video/mp4',
+          posterUrl: videoRow.posterS3Key ?? null,
+          durationS: videoRow.durationS ?? null,
+        }
+      : null;
+
+  /* v1.5.16 — 360° spin. Only include when the upload completed; pending /
+     failed uploads are hidden. archiveS3Key may be relative for demo content. */
+  const m360 = row.media360;
+  const spin360: ListingPublicDetail['spin360'] =
+    m360 && m360.uploadStatus === 'complete'
+      ? {
+          archiveUrl: m360.archiveS3Key,
+          mimeType: m360.mimeType ?? 'video/mp4',
+          frameCount: m360.frameCount ?? null,
+        }
+      : null;
+
   return {
     // --- ListingPublicSummary half ---
     id: row.id,
@@ -198,6 +283,9 @@ function toPublicDetail(row: DetailRow): ListingPublicDetail {
     /* `publicWhere` enforces `listedAt: { not: null }`, so the non-null
        assertion here is safe at runtime. */
     listedAt: row.listedAt!.toISOString(),
+    // v1.5.16
+    walkaroundVideo,
+    spin360,
   };
 }
 
@@ -282,26 +370,31 @@ listingsPublicRouter.get('/', async (req, res, next) => {
 
 /** GET /v1/public/listings/featured — hero/featured carousel feed.
  *
- *  We fetch 32 most-recent published listings, then sort in-memory so the
- *  inspected ones land at the top (priority not directly expressible in
- *  Prisma's orderBy for a 1-to-1 optional relation). Final cap: 8.
+ *  v1.5.18 (closes A v1.5-D11f [ASK A→B-5]): now respects the admin-controlled
+ *  `featuredAt` flag set via `PATCH /v1/admin/listings/:id/featured`. The
+ *  previous implementation ignored the flag and returned "8 most-recent listed
+ *  + inspected-first in-memory sort", so admin toggles had no effect on the
+ *  customer rail. Behaviour now:
+ *    - Only listings with `featuredAt IS NOT NULL` are returned.
+ *    - Sorted newest-featured first (matches admin intent: most recently
+ *      promoted appears leftmost).
+ *    - Cap at 8 (matches the home rail visual budget — see web `featured-cars`).
+ *    - Empty list when no admin has flagged anything → home rail collapses
+ *      gracefully (A confirmed `featuredCache$` handles `[]` cleanly).
  */
 listingsPublicRouter.get('/featured', async (_req, res, next) => {
   try {
-    const where = publicWhere();
+    const where: Prisma.ListingWhereInput = {
+      ...publicWhere(),
+      featuredAt: { not: null },
+    };
     const rows = await prisma.listing.findMany({
       where,
       include: PUBLIC_INCLUDE,
-      orderBy: [{ listedAt: 'desc' }],
-      take: 32,
+      orderBy: [{ featuredAt: 'desc' }],
+      take: 8,
     });
-    const sorted = [...rows].sort((a, b) => {
-      const aIns = a.inspectionReport ? 1 : 0;
-      const bIns = b.inspectionReport ? 1 : 0;
-      if (aIns !== bIns) return bIns - aIns;
-      return (b.listedAt?.getTime() ?? 0) - (a.listedAt?.getTime() ?? 0);
-    }).slice(0, 8);
-    res.json({ items: sorted.map(toPublicSummary), total: sorted.length, page: 1, pageSize: 8 });
+    res.json({ items: rows.map(toPublicSummary), total: rows.length, page: 1, pageSize: 8 });
   } catch (err) {
     next(err);
   }
@@ -328,9 +421,35 @@ listingsPublicRouter.get('/low-mileage', async (_req, res, next) => {
  *  Returns the richer `ListingPublicDetail` shape (spec, full ordered photo
  *  gallery, public-safe inspection summary). The list/featured/low-mileage
  *  endpoints intentionally keep the lighter `ListingPublicSummary` shape.
+ *
+ *  Guard: if the listing exists but has 0 photos, return 404 with
+ *  LISTING_NOT_PUBLISHABLE so clients can handle the unpublishable state.
+ *  (publicWhere already excludes 0-photo rows from list queries; this guard
+ *  covers the direct-slug lookup which first checks existence then photos.)
  */
 listingsPublicRouter.get('/:slug', async (req, res, next) => {
   try {
+    // First: check the listing exists and is published (ignoring photo count).
+    const existsWhere: Prisma.ListingWhereInput = {
+      deletedAt: null,
+      stage: 'listed',
+      listedAt: { not: null },
+      slug: req.params.slug,
+    };
+    const exists = await prisma.listing.findFirst({
+      where: existsWhere,
+      select: { id: true, _count: { select: { photos: true } } },
+    });
+    if (!exists) {
+      res.status(404).json({ error: 'not_found' });
+      return;
+    }
+    if (exists._count.photos === 0) {
+      res.status(404).json({ error: 'LISTING_NOT_PUBLISHABLE' });
+      return;
+    }
+
+    // Full fetch with DETAIL_INCLUDE (publicWhere already requires photos:some).
     const where = publicWhere({ slug: req.params.slug });
     const row = await prisma.listing.findFirst({ where, include: DETAIL_INCLUDE });
     if (!row) {

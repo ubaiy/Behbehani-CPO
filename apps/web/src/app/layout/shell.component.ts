@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, HostListener, OnInit, PLATFORM_ID, computed, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,6 +10,7 @@ import { SignInModalComponent } from '../features/auth/sign-in-modal.component';
 import { SignInModalService } from '../features/auth/sign-in-modal.service';
 import { SignUpModalComponent } from '../features/auth/sign-up-modal.component';
 import { CheckoutModalComponent } from '../features/checkout/checkout-modal.component';
+import { SaveSearchModalComponent } from '../features/browse/save-search-modal.component';
 
 interface NavItem {
   id: string;
@@ -28,7 +30,7 @@ const NAV: ReadonlyArray<NavItem> = [
   selector: 'app-shell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, FooterComponent, SignInModalComponent, SignUpModalComponent, CheckoutModalComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslateModule, FooterComponent, SignInModalComponent, SignUpModalComponent, CheckoutModalComponent, SaveSearchModalComponent],
   template: `
     <header
       class="sticky top-0 z-40 border-b border-line/70 bg-white/85 backdrop-blur-md backdrop-saturate-150"
@@ -98,7 +100,7 @@ const NAV: ReadonlyArray<NavItem> = [
           </button>
           @if (isSignedIn()) {
             <!-- Signed-in avatar dropdown -->
-            <div class="relative hidden sm:block">
+            <div class="relative hidden sm:block" data-user-menu-root>
               <button
                 type="button"
                 (click)="toggleUserMenu()"
@@ -138,15 +140,6 @@ const NAV: ReadonlyArray<NavItem> = [
                   >
                     <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
                     {{ 'nav.account' | translate }}
-                  </a>
-                  <a
-                    [routerLink]="['/', currentLocale(), 'account', 'profile']"
-                    (click)="closeUserMenu()"
-                    role="menuitem"
-                    class="flex min-h-[44px] items-center gap-2.5 px-4 py-2.5 text-[13px] font-medium text-ink-2 hover:bg-surface-soft hover:text-ink"
-                  >
-                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 21a8 8 0 0 1 16 0"/><path d="m17 3 2 2-2 2"/></svg>
-                    {{ 'account.profile.title' | translate }}
                   </a>
                   <a
                     [routerLink]="['/', currentLocale(), 'account', 'inspections']"
@@ -267,6 +260,7 @@ const NAV: ReadonlyArray<NavItem> = [
     <app-sign-in-modal />
     <app-sign-up-modal />
     <app-checkout-modal />
+    <app-save-search-modal />
   `,
 })
 export class ShellComponent implements OnInit {
@@ -276,6 +270,13 @@ export class ShellComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly signInModal = inject(SignInModalService);
   private readonly auth = inject(AuthService);
+  /* v1.5-D7 outside-click fix: the backdrop overlay relied on `fixed inset-0` but
+     `backdrop-filter` on the header creates a containing block for fixed
+     descendants, constraining the backdrop to the header's height. So clicks
+     below the header didn't dismiss the dropdown. @HostListener('document:click')
+     gives us a viewport-wide listener that fires regardless of stacking context. */
+  private readonly host = inject(ElementRef<HTMLElement>);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly currentLocale = computed(() => this.language.current());
   readonly menuOpen = signal(false);
@@ -342,6 +343,25 @@ export class ShellComponent implements OnInit {
   }
 
   closeUserMenu(): void {
+    this.userMenuOpen.set(false);
+  }
+
+  /**
+   * v1.5-D7: Defense-in-depth outside-click handler for the avatar dropdown.
+   * The in-template `fixed inset-0` backdrop fails inside a header that has
+   * `backdrop-filter` (CSS containing-block rule) — this listener fires at
+   * the document level regardless of stacking context.
+   */
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(e: MouseEvent): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!this.userMenuOpen()) return;
+    const target = e.target as Node | null;
+    if (!target) return;
+    /* If the click landed inside the dropdown trigger or panel, ignore — the
+       toggle / menuitem clicks already handle close. Otherwise dismiss. */
+    const dropdownRoot = this.host.nativeElement.querySelector('[data-user-menu-root]');
+    if (dropdownRoot && dropdownRoot.contains(target)) return;
     this.userMenuOpen.set(false);
   }
 

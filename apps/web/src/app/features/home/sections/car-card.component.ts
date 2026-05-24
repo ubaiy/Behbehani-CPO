@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
 import type { CarBadge, FeaturedCar } from '../../../data/catalog.types';
 import { fmtKm, fmtKwd } from '../../../data/kwd';
-import { BRANDS } from '../../../data/catalog.mock';
+/* v1.5-D11e: BRANDS lookup gone — using car().brandNameEn/Ar from API. */
 import { HeartToggleService } from '../../../data/heart-toggle.service';
 
 interface BadgeStyle {
@@ -160,10 +160,12 @@ export class CarCardComponent implements OnInit {
     this.heartToggle.hydrate([this.car().id]);
   }
 
+  /** v1.5-D11e: prefer the API-supplied display name (populated by
+      toFeaturedCar), fall back to the slug if absent. */
   readonly brandName = computed(() => {
-    const brand = BRANDS.find((b) => b.id === this.car().brand);
-    if (!brand) return this.car().brand;
-    return this.currentLocale() === 'ar' ? brand.nameAr : brand.name;
+    const c = this.car();
+    const localized = this.currentLocale() === 'ar' ? c.brandNameAr : c.brandNameEn;
+    return localized || c.brand;
   });
 
   readonly mileage = computed(() => fmtKm(this.car().mileage, this.currentLocale()));

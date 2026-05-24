@@ -9,7 +9,6 @@ import type {
   PublicCatalogBodyType,
   PublicListingSort,
 } from '@behbehani-cpo/shared-types';
-import { FEATURED_CARS, BRANDS, BODY_TYPES } from './catalog.mock';
 import type { FeaturedCar } from './catalog.types';
 
 export interface PublicListingsQuery {
@@ -68,6 +67,36 @@ export interface ListingPublicDetail {
   photos?: ReadonlyArray<ListingPublicDetailPhoto>;
   inspectionReport?: { overallScore: number | null; inspectedAt: string | null } | null;
   listedAt?: string;
+  // ---- v1.5.16 rich-media fields (optional — null when listing has no completed media) ----
+  /** Promotional walk-around video. `url`/`posterUrl` may be relative
+   *  (`/static/demo-media/...` for demo content served by API) OR absolute
+   *  (CDN/S3 for production). Consumers must resolve via `absUrl()`. */
+  walkaroundVideo?: {
+    url: string;
+    mimeType: string;
+    posterUrl: string | null;
+    durationS: number | null;
+  } | null;
+  /** 360° exterior spin asset. `archiveUrl` may be a `video/mp4` (a single MP4
+   *  of the rotation) OR `application/zip` (frame sequence). v1 frontend only
+   *  renders the MP4 path; zip fallback shows a "coming soon" placeholder.
+   *  May be relative — resolve via `absUrl()`. */
+  spin360?: {
+    archiveUrl: string;
+    mimeType: string;
+    frameCount: number | null;
+  } | null;
+}
+
+/**
+ * v1.5.16 rich-media URLs may be relative (`/static/demo-media/...`, served
+ * by the API at its origin — NOT under `/v1`) or absolute (CDN/S3). This
+ * helper prefixes relatives with the API origin (stripping the `/v1` suffix
+ * from the configured baseUrl) and passes absolutes through.
+ */
+export function absUrl(u: string, apiBaseUrl: string): string {
+  const origin = apiBaseUrl.replace(/\/v1\/?$/, '');
+  return u.startsWith('/') ? `${origin}${u}` : u;
 }
 
 /**
@@ -90,35 +119,44 @@ export class PublicCatalogService {
     return `${this.config.baseUrl}/public/catalog`;
   }
 
+  /* v1.5-D11e — Featured + low-mileage rails now strictly backend-driven.
+     If the backend returns empty or errors, the home page shows the empty
+     state (the rails handle [] gracefully by collapsing). No frontend-injected
+     mock cars. */
   private readonly featuredCache$ = this.http
     .get<ListingPublicListResponse>(`${this.listingsBase}/featured`)
     .pipe(
-      map((res) => (res.items.length > 0 ? res.items.map(toFeaturedCar) : MOCK_FEATURED)),
-      catchError(() => of(MOCK_FEATURED)),
+      map((res) => res.items.map(toFeaturedCar)),
+      catchError(() => of([] as ReadonlyArray<FeaturedCar>)),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
   private readonly lowMileageCache$ = this.http
     .get<ListingPublicListResponse>(`${this.listingsBase}/low-mileage`)
     .pipe(
-      map((res) => (res.items.length > 0 ? res.items.map(toFeaturedCar) : MOCK_LOW_MILEAGE)),
-      catchError(() => of(MOCK_LOW_MILEAGE)),
+      map((res) => res.items.map(toFeaturedCar)),
+      catchError(() => of([] as ReadonlyArray<FeaturedCar>)),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
+  /* v1.5-D11d — Brands + body-types now strictly backend-driven per user.
+     If the backend returns an empty list OR is unreachable, we return [] so
+     ONLY admin-created catalog items render anywhere. Consumers (home brand
+     grid / sell wizard / browse filter) treat empty as "no brands available
+     yet — go seed the catalog in admin". No frontend-injected entries. */
   private readonly brandsCache$ = this.http
     .get<{ items: PublicCatalogBrand[] }>(`${this.catalogBase}/brands`)
     .pipe(
-      map((res) => (res.items.length > 0 ? res.items : MOCK_BRANDS)),
-      catchError(() => of(MOCK_BRANDS)),
+      map((res) => res.items ?? []),
+      catchError(() => of([] as ReadonlyArray<PublicCatalogBrand>)),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
   private readonly bodyTypesCache$ = this.http
     .get<{ items: PublicCatalogBodyType[] }>(`${this.catalogBase}/body-types`)
     .pipe(
-      map((res) => (res.items.length > 0 ? res.items : MOCK_BODY_TYPES)),
-      catchError(() => of(MOCK_BODY_TYPES)),
+      map((res) => res.items ?? []),
+      catchError(() => of([] as ReadonlyArray<PublicCatalogBodyType>)),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
@@ -147,12 +185,14 @@ export class PublicCatalogService {
    * accepts the existing summary shape — extended fields will be `undefined`
    * and the component must apply its own sensible defaults.
    */
+  /* v1.5-D11e — VDP detail strictly backend-driven. 404 / network error
+     returns null; VDP page shows the not-found state. No buildMockDetail. */
   detail$(slug: string): Observable<ListingPublicDetail | null> {
     let cached = this.detailCache.get(slug);
     if (!cached) {
       cached = this.http.get<ListingPublicDetail>(`${this.listingsBase}/${slug}`).pipe(
         map((res) => res ?? null),
-        catchError(() => of(buildMockDetail(slug))),
+        catchError(() => of(null)),
         shareReplay({ bufferSize: 1, refCount: false }),
       );
       this.detailCache.set(slug, cached);
@@ -160,7 +200,8 @@ export class PublicCatalogService {
     return cached;
   }
 
-  /** Filtered list — fresh request each call (filter combinations are unbounded). */
+  /** Filtered list — fresh request each call (filter combinations are unbounded).
+      v1.5-D11e: returns [] on error instead of filterMock. */
   list$(query: PublicListingsQuery): Observable<ReadonlyArray<FeaturedCar>> {
     const params: Record<string, string> = {};
     if (query.brand) params['brand'] = query.brand;
@@ -171,23 +212,30 @@ export class PublicCatalogService {
     if (query.pageSize !== undefined) params['pageSize'] = String(query.pageSize);
     return this.http.get<ListingPublicListResponse>(this.listingsBase, { params }).pipe(
       map((res) => res.items.map(toFeaturedCar)),
-      catchError(() => of(filterMock(query))),
+      catchError(() => of([] as ReadonlyArray<FeaturedCar>)),
     );
   }
 }
 
-/** Convert API DTO → the existing FeaturedCar shape used by car-card. */
+/** v1.5-D11e: Convert API DTO → the FeaturedCar shape used by card components.
+ *  Brand + body display names are populated from the rich API objects so card
+ *  components don't need a separate catalog lookup (the old `BRANDS.find()`
+ *  shim is gone — that was tied to the deleted mock data). */
 function toFeaturedCar(item: ListingPublicSummary): FeaturedCar {
   return {
     id: item.id,
     slug: item.slug,
     brand: item.brand.slug,
+    brandNameEn: item.brand.nameEn,
+    brandNameAr: item.brand.nameAr,
     model: item.titleEn || `${item.model.nameEn}`,
     year: item.year,
     mileage: item.mileageKm,
     price: Math.round(Number(item.priceFils) / 1000),
     monthly: Math.round(Number(item.monthlyFils) / 1000),
     body: item.bodyType.slug,
+    bodyNameEn: item.bodyType.nameEn,
+    bodyNameAr: item.bodyType.nameAr,
     transmission: capitalize(item.transmission),
     fuel: capitalize(item.fuelType),
     sellerType: 'Platform',
@@ -203,111 +251,8 @@ function capitalize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-/* ===== Mock fallbacks — used when the API is unreachable or returns empty.
-   The mock dataset already has the FeaturedCar shape, so no conversion needed. ===== */
-const MOCK_FEATURED: ReadonlyArray<FeaturedCar> = FEATURED_CARS.slice(0, 8);
-const MOCK_LOW_MILEAGE: ReadonlyArray<FeaturedCar> = [...FEATURED_CARS]
-  .sort((a, b) => a.mileage - b.mileage)
-  .slice(0, 8);
-const MOCK_BRANDS: ReadonlyArray<PublicCatalogBrand> = BRANDS.map((b) => ({
-  id: b.id,
-  slug: b.id,
-  nameEn: b.name,
-  nameAr: b.nameAr,
-  logoUrl: null,
-  listingCount: deterministicCount(b.id),
-}));
-const MOCK_BODY_TYPES: ReadonlyArray<PublicCatalogBodyType> = BODY_TYPES.map((b) => ({
-  id: b.id,
-  slug: b.id,
-  nameEn: b.name,
-  nameAr: b.nameAr,
-  listingCount: deterministicCount(b.id),
-}));
-
-function deterministicCount(id: string): number {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  return 20 + (Math.abs(h) % 80);
-}
-
-/** Build a passable `ListingPublicDetail` from the mock catalog so the VDP
-    renders during local dev or while the API endpoint is being extended.
-    Matches by slug, but if the slug is unknown, returns the first mock car
-    so the page is still demoable. Returns `null` only if the mock pool is
-    somehow empty. */
-function buildMockDetail(slug: string): ListingPublicDetail | null {
-  if (FEATURED_CARS.length === 0) return null;
-  const car =
-    FEATURED_CARS.find((c) => c.id.toLowerCase() === slug.toLowerCase()) ?? FEATURED_CARS[0];
-  const brand = BRANDS.find((b) => b.id === car.brand);
-  const body = BODY_TYPES.find((b) => b.id === car.body);
-  const brandRef = {
-    id: car.brand,
-    slug: car.brand,
-    nameEn: brand?.name ?? car.brand,
-    nameAr: brand?.nameAr ?? car.brand,
-    logoUrl: null,
-  };
-  const bodyRef = {
-    id: car.body,
-    slug: car.body,
-    nameEn: body?.name ?? car.body,
-    nameAr: body?.nameAr ?? car.body,
-  };
-  return {
-    id: car.id,
-    slug,
-    titleEn: `${car.year} ${brand?.name ?? car.brand} ${car.model}`,
-    titleAr: `${brand?.nameAr ?? car.brand} ${car.model} ${car.year}`,
-    brand: brandRef,
-    model: { id: car.model, nameEn: car.model, nameAr: car.model },
-    bodyType: bodyRef,
-    year: car.year,
-    mileageKm: car.mileage,
-    priceFils: String(car.price * 1000),
-    monthlyFils: String(car.monthly * 1000),
-    transmission: (car.transmission.toLowerCase() as ListingPublicDetail['transmission']) ?? 'automatic',
-    fuelType: (car.fuel.toLowerCase() as ListingPublicDetail['fuelType']) ?? 'petrol',
-    heroPhotoUrl: car.image || null,
-    badge: (car.badge === 'priceDrop' || car.badge === 'premium' || car.badge === 'selfListed'
-      ? 'inspected'
-      : car.badge) as ListingPublicDetail['badge'],
-    inspected: car.inspected,
-    // extended (best-effort mocks)
-    exteriorColor: 'White Pearl',
-    interiorColor: 'Black',
-    drivetrain: 'awd',
-    seats: 5,
-    doors: 4,
-    engineCc: 2500,
-    cylinders: 4,
-    gccSpec: true,
-    previousOwners: 1,
-    serviceHistory: true,
-    accidentHistory: false,
-    descriptionEn: null,
-    descriptionAr: null,
-    photos: car.image
-      ? [
-          { cdnUrl: car.image, sortOrder: 0, isHero: true },
-          { cdnUrl: car.image, sortOrder: 1, isHero: false },
-          { cdnUrl: car.image, sortOrder: 2, isHero: false },
-          { cdnUrl: car.image, sortOrder: 3, isHero: false },
-        ]
-      : [],
-    inspectionReport: car.inspected ? { overallScore: 92, inspectedAt: '2026-04-12T00:00:00Z' } : null,
-    listedAt: '2026-05-01T00:00:00Z',
-  };
-}
-
-function filterMock(query: PublicListingsQuery): ReadonlyArray<FeaturedCar> {
-  let pool = FEATURED_CARS.slice();
-  if (query.brand) pool = pool.filter((c) => c.brand === query.brand);
-  if (query.body) pool = pool.filter((c) => c.body === query.body);
-  if (query.budgetMaxFils !== undefined) {
-    const maxKwd = query.budgetMaxFils / 1000;
-    pool = pool.filter((c) => c.price <= maxKwd);
-  }
-  return pool.slice(0, query.pageSize ?? 8);
-}
+/* v1.5-D11e: all MOCK_* fallbacks (MOCK_FEATURED, MOCK_LOW_MILEAGE, MOCK_BRANDS,
+   MOCK_BODY_TYPES) + buildMockDetail + filterMock + deterministicCount REMOVED
+   per user. Backend is now the sole source of truth for catalog data. Empty
+   API responses surface as empty UI states (rails collapse, brand grid shows
+   "no brands yet", VDP shows not-found). */

@@ -22,6 +22,51 @@ export const ProfilePatchSchema = z.object({
 });
 export type ProfilePatchDto = z.infer<typeof ProfilePatchSchema>;
 
+// ─── Avatar upload (v1.5.10 — closes A v1.5-D7 TODO) ─────────────────────────
+
+/** Allowed avatar MIME types. Server rejects everything else with code
+ *  `AVATAR_MIME_NOT_ALLOWED` (422). Kept narrow on purpose — animated GIFs
+ *  + HEIC/HEIF + raw camera formats are explicitly excluded so the CDN
+ *  doesn't have to deal with format conversion or huge file sizes. */
+export const AvatarMimeTypeSchema = z.enum([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]);
+export type AvatarMimeType = z.infer<typeof AvatarMimeTypeSchema>;
+
+/** POST /v1/public/me/avatar/upload-url — client requests a presigned PUT URL.
+ *
+ *  Flow (3-step, mirrors admin Documents v1.4.4 pattern):
+ *    1. Client POSTs this endpoint with mimeType + fileSizeBytes
+ *    2. Client PUTs the image bytes directly to the returned `url`
+ *    3. Client calls existing PATCH /v1/public/me/profile with the returned
+ *       `key` as `avatarUrl` (server then prefixes CDN_BASE_URL in toPublic)
+ *
+ *  Validation:
+ *   - mimeType ∈ { image/jpeg, image/png, image/webp } (Zod refine)
+ *   - fileSizeBytes ≤ env.MAX_AVATAR_BYTES (default 5 MB; service enforces)
+ *   - fileSizeBytes ≥ 1024 (1 KB minimum — catches empty/bogus uploads)
+ */
+export const AvatarUploadUrlInputSchema = z.object({
+  mimeType: AvatarMimeTypeSchema,
+  fileSizeBytes: z.number().int().min(1024).max(50_000_000),  // hard upper bound; service enforces env.MAX_AVATAR_BYTES
+});
+export type AvatarUploadUrlInputDto = z.infer<typeof AvatarUploadUrlInputSchema>;
+
+/** Response shape for POST /v1/public/me/avatar/upload-url. */
+export const AvatarUploadUrlResponseSchema = z.object({
+  /** Pre-signed S3 PUT URL — client uploads bytes via plain HTTP PUT. */
+  url: z.string().url(),
+  /** Relative S3 key (e.g. "avatars/<userId>/<uuid>.jpg") — client passes this
+   *  back to PATCH /me/profile as `avatarUrl`. */
+  key: z.string(),
+  /** ISO-8601 timestamp after which the presigned URL is no longer valid.
+   *  Currently env.S3_PRESIGN_TTL_SEC (default 900s = 15 min). */
+  expiresAt: z.string().datetime(),
+});
+export type AvatarUploadUrlResponseDto = z.infer<typeof AvatarUploadUrlResponseSchema>;
+
 // ─── Email change ─────────────────────────────────────────────────────────────
 
 /** POST /v1/public/me/email — initiates OTP flow. EA-1: returns 202 {otpId, expiresAt}. */
@@ -178,5 +223,8 @@ export const ME_ACCOUNT_ERROR_CODES = [
   'ME_CURRENT_PASSWORD_REQUIRED',
   'ME_CURRENT_PASSWORD_INCORRECT',
   'ME_OTP_INVALID',
+  // v1.5.10 — avatar upload presigned-URL endpoint
+  'AVATAR_TOO_LARGE',
+  'AVATAR_MIME_NOT_ALLOWED',
 ] as const;
 export type MeAccountErrorCode = (typeof ME_ACCOUNT_ERROR_CODES)[number];

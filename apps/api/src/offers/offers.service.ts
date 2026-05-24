@@ -394,7 +394,67 @@ export async function getOfferByToken(token: string): Promise<PublicOfferView> {
       row.adminCounterAmountFils !== null ? Number(row.adminCounterAmountFils) : null,
     canRespond,
     publicTokenExpiresAt: row.publicTokenExpiresAt.toISOString(),
+    // v1.5.4: surfaced so mobile/web offer page can deep-link to the inspection
+    // report viewer. The `inspection` include is already populated by
+    // OFFER_INCLUDE; this is a no-cost field add.
+    inspectionReportId: row.inspection.id,
   };
+}
+
+/**
+ * public-shared (v1.5.7 — ASK A→B v1.5-D §5)
+ *
+ * Pivots offer `:token` → offer → offer.inspection → PublicInspectionSummary.
+ * Used by A's `/offer/:token/inspection-report` page so the customer can read
+ * the CPO inspection details on the same shared link they used to view their
+ * offer.
+ *
+ * Error mapping (per CONCIERGE_INSPECTION_API_CONTRACT.md v1.5-D §5):
+ *   - token not found            → 404 `INSPECTION_NOT_AVAILABLE`
+ *   - publicTokenExpiresAt < now → 410 `OFFER_LINK_EXPIRED`
+ *   - offer.status === withdrawn → 410 `OFFER_LINK_EXPIRED`
+ *   - inspection not signed_off  → 404 `INSPECTION_NOT_AVAILABLE`
+ *   - inspection row missing     → 404 `INSPECTION_NOT_AVAILABLE`
+ *
+ * 5xx surfaces unchanged via the global error handler — A treats those as
+ * `network_error` per its `OffersService.getInspectionReport$` discriminated
+ * union.
+ */
+export async function getInspectionReportByOfferToken(
+  token: string,
+): Promise<import('@behbehani-cpo/shared-types').PublicInspectionSummary> {
+  const offer = await repo.findOfferByPublicToken(token);
+  if (!offer) {
+    throw new OfferError(404, 'Inspection not available', 'INSPECTION_NOT_AVAILABLE');
+  }
+  if (offer.publicTokenExpiresAt.getTime() < Date.now()) {
+    throw new OfferError(410, 'Offer link has expired', 'OFFER_LINK_EXPIRED');
+  }
+  if (offer.status === 'withdrawn') {
+    throw new OfferError(410, 'Offer link has expired', 'OFFER_LINK_EXPIRED');
+  }
+
+  // Delegate to inspections.service for the signed-off check + summary mapping.
+  // Translate any InspectionError into the canonical OfferError surface so the
+  // offers-public.controller error adapter formats the response correctly.
+  try {
+    const { getInspectionReportById } = await import('../inspections/inspections.service');
+    return await getInspectionReportById(offer.inspection.id);
+  } catch (err) {
+    if (
+      err &&
+      typeof err === 'object' &&
+      'name' in err &&
+      (err as { name?: string }).name === 'InspectionError'
+    ) {
+      const ie = err as { code?: string };
+      // INSPECTION_NOT_AVAILABLE is the only code the helper throws — surface
+      // it under the same code via OfferError so the controller adapter emits
+      // the contracted shape.
+      throw new OfferError(404, 'Inspection not available', ie.code ?? 'INSPECTION_NOT_AVAILABLE');
+    }
+    throw err;
+  }
 }
 
 /**

@@ -183,6 +183,18 @@ export default function RootLayout() {
           <Stack.Screen name="offers/[token]/accepted" options={{ headerShown: false }} />
           <Stack.Screen name="offers/[token]/declined" options={{ headerShown: false }} />
           <Stack.Screen name="offers/[token]/expired" options={{ headerShown: false }} />
+          {/* Saved Searches — wired to B v1.5.3 backend. */}
+          <Stack.Screen name="saved-searches/index" options={{ headerShown: false }} />
+          {/* Task v0.16 — customer inspections list (real /v1/public/me/inspections). */}
+          <Stack.Screen name="inspections/index" options={{ headerShown: false }} />
+          {/* Task v0.17 — customer documents (real /v1/public/me/documents). */}
+          <Stack.Screen name="documents/index" options={{ headerShown: false }} />
+          {/* Task v0.19.a — notifications inbox (real /v1/public/me/notifications). */}
+          <Stack.Screen name="notifications/index" options={{ headerShown: false }} />
+          {/* Task v0.18.b — profile, addresses, favourites (real /v1/public/me/* endpoints). */}
+          <Stack.Screen name="profile/index" options={{ headerShown: false }} />
+          <Stack.Screen name="addresses/index" options={{ headerShown: false }} />
+          <Stack.Screen name="favorites/index" options={{ headerShown: false }} />
           <Stack.Screen name="inspections/[id]" options={{ headerShown: false }} />
           {/* Task G1 — customer reserve flow (mirrors web v1.4.11 checkout-modal). */}
           <Stack.Screen
@@ -200,6 +212,23 @@ export default function RootLayout() {
             name="inspection-sign/[token]"
             options={{ headerShown: false, presentation: 'modal' }}
           />
+          {/* Task v0.19.b — maintenance pickup (list / detail / new-request modal). */}
+          <Stack.Screen name="maintenance/index" options={{ headerShown: false }} />
+          <Stack.Screen name="maintenance/[id]" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="maintenance/new"
+            options={{ headerShown: false, presentation: 'modal' }}
+          />
+          {/* Task v0.19.c — customer reviews list (real /v1/public/me/reviews). */}
+          <Stack.Screen name="reviews/index" options={{ headerShown: false }} />
+          {/* Task v0.22.a — security: active sessions + sign-out-all. */}
+          <Stack.Screen name="security/index" options={{ headerShown: false }} />
+          {/* Task v0.22.a — notification preferences (push/email/sms per category). */}
+          <Stack.Screen name="notification-preferences/index" options={{ headerShown: false }} />
+          {/* Task v0.22.b — sell-concierge booking history list. */}
+          <Stack.Screen name="my-bookings/index" options={{ headerShown: false }} />
+          {/* Task v0.22.b — sell-concierge tracker by bookingRef. */}
+          <Stack.Screen name="sell/concierge/tracker/[bookingRef]" options={{ headerShown: false }} />
           <Stack.Screen name="auth/sign-in" options={{ title: 'Sign In' }} />
           <Stack.Screen name="auth/sign-up" options={{ title: 'Create Account' }} />
           <Stack.Screen name="auth/otp" options={{ title: 'Verify' }} />

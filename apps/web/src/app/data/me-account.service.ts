@@ -1,10 +1,14 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { API_CONFIG } from '@behbehani-cpo/data-access';
 import { AuthService } from '@behbehani-cpo/data-access';
 import type { PublicUser } from '@behbehani-cpo/shared-types';
-import type { OtpInitiateResponseDto } from '@behbehani-cpo/shared-types';
+import type {
+  OtpInitiateResponseDto,
+  AvatarUploadUrlInputDto,
+  AvatarUploadUrlResponseDto,
+} from '@behbehani-cpo/shared-types';
 
 // ─── Result unions (v1.3.5 §1) ───────────────────────────────────────────────
 
@@ -30,6 +34,14 @@ export type VerifyChangeResult =
 
 export type ChangePasswordResult =
   | { kind: 'ok' }
+  | { kind: 'validation_error'; message: string }
+  | { kind: 'unauthenticated' }
+  | { kind: 'network_error' };
+
+export type UploadAvatarResult =
+  | { kind: 'ok'; user: PublicUser }
+  | { kind: 'too_large' }
+  | { kind: 'mime_rejected' }
   | { kind: 'validation_error'; message: string }
   | { kind: 'unauthenticated' }
   | { kind: 'network_error' };
@@ -131,6 +143,60 @@ export class MeAccountService {
           if (err.status === 401) return of({ kind: 'unauthenticated' as const });
           const msg = err.error?.message as string | undefined;
           return of({ kind: 'validation_error' as const, message: msg ?? 'Password change failed' });
+        }),
+      );
+  }
+
+  /**
+   * v1.5-D8: end-to-end avatar upload (3-step flow against B v1.5.10):
+   *   1. POST /me/avatar/upload-url → presigned S3 PUT URL + key
+   *   2. PUT raw image bytes directly to S3 url
+   *   3. PATCH /me/profile with { avatarUrl: key } → updated PublicUser
+   *
+   * AuthService user signal is patched on success (step 3 already does this
+   * via updateProfile's tap). Errors are mapped to a discriminated union
+   * mirroring B's `ME_ACCOUNT_ERROR_CODES`.
+   */
+  uploadAvatar(file: File): Observable<UploadAvatarResult> {
+    const input: AvatarUploadUrlInputDto = {
+      mimeType: file.type as AvatarUploadUrlInputDto['mimeType'],
+      fileSizeBytes: file.size,
+    };
+
+    return this.http
+      .post<AvatarUploadUrlResponseDto>(`${this.base}/avatar/upload-url`, input)
+      .pipe(
+        switchMap((presigned) =>
+          // Step 2: raw S3 PUT — auth interceptor must SKIP this URL (cross-origin S3).
+          // Angular HttpClient strips default headers for non-`/api` paths but we set the
+          // Content-Type explicitly so S3 stores the right MIME.
+          this.http
+            .put(presigned.url, file, {
+              headers: { 'Content-Type': file.type },
+              observe: 'response',
+            })
+            .pipe(
+              switchMap(() =>
+                // Step 3: PATCH profile with the new key — updateProfile patches AuthService.
+                this.updateProfile({ avatarUrl: presigned.key }).pipe(
+                  map((res): UploadAvatarResult => {
+                    if (res.kind === 'ok') return { kind: 'ok' as const, user: res.user };
+                    if (res.kind === 'validation_error') return res;
+                    if (res.kind === 'unauthenticated') return res;
+                    return { kind: 'network_error' as const };
+                  }),
+                ),
+              ),
+            ),
+        ),
+        catchError((err: HttpErrorResponse) => {
+          if (err.status === 0) return of({ kind: 'network_error' as const });
+          if (err.status === 401) return of({ kind: 'unauthenticated' as const });
+          const code = err.error?.code as string | undefined;
+          if (code === 'AVATAR_TOO_LARGE') return of({ kind: 'too_large' as const });
+          if (code === 'AVATAR_MIME_NOT_ALLOWED') return of({ kind: 'mime_rejected' as const });
+          const msg = err.error?.message as string | undefined;
+          return of({ kind: 'validation_error' as const, message: msg ?? 'Avatar upload failed' });
         }),
       );
   }

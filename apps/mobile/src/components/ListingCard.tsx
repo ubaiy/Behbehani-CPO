@@ -14,7 +14,6 @@
 import React, { useRef, useEffect } from 'react';
 import {
   Animated,
-  Image,
   Pressable,
   StyleSheet,
   StyleProp,
@@ -27,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import type { ListingPublicSummary } from '@behbehani-cpo/shared-types';
 import { brand, slate, red } from '../theme/colors';
 import { fontFamily, fontSize, radius, shadows, spacing } from '../theme/theme';
+import { ImageWithFallback } from './common/ImageWithFallback';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -98,11 +98,13 @@ function PhotoArea({
   return (
     <View style={styles.photoArea}>
       {heroPhotoUrl ? (
-        <Image
+        <ImageWithFallback
           source={{ uri: heroPhotoUrl }}
           style={StyleSheet.absoluteFillObject}
           resizeMode="cover"
           accessibilityIgnoresInvertColors
+          fallbackSize={40}
+          fallbackStyle={StyleSheet.absoluteFillObject}
         />
       ) : (
         <View style={styles.photoPlaceholder} />

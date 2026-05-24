@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '@behbehani-cpo/data-access';
@@ -107,52 +106,30 @@ function cloneCellGrid(grid: CellGrid): CellGrid {
   selector: 'app-account-notifications',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, TranslateModule],
   template: `
-    <!-- ===== BACK LINK ===== -->
-    <div class="container-page pt-6">
-      <div class="mx-auto max-w-4xl">
-        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-          {{ 'account.backToHub' | translate }}
-        </a>
-      </div>
-    </div>
-
-    <!-- ===== HERO ===== -->
-    <div class="container-page py-8 mx-auto max-w-4xl">
-      <div class="rounded-3xl p-6 sm:p-8 text-white"
-           style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-        <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">
-          {{ 'account.hub.tiles.notifications.title' | translate }}
-        </p>
-        <h1
-          class="font-display font-extrabold text-white text-[clamp(24px,3vw,36px)] leading-tight tracking-[-0.02em]"
-        >
-          {{ 'account.notifications.title' | translate }}
+    <!-- ===== COMPACT HERO HEADER (Part C.4) ===== -->
+    <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4">
+      <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+        </svg>
+      </span>
+      <div class="min-w-0">
+        <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">
+          {{ 'account.shell.page.notifications.title' | translate }}
         </h1>
-        <p class="mt-2 text-white/80 text-[14px]">
-          {{ 'account.notifications.sub' | translate }}
+        <p class="text-[13px] text-muted">
+          {{ 'account.shell.page.notifications.sub' | translate }}
         </p>
       </div>
-    </div>
+    </header>
 
     <!-- ===== MAIN ===== -->
-    <main class="container-page py-8 sm:py-10 max-w-4xl mx-auto">
-
-      <!-- GUEST GATE -->
-      @if (!auth.isSignedIn()) {
-        <div class="rounded-3xl border border-line bg-white p-10 text-center shadow-brand-sm">
-          <h2 class="font-display font-bold text-[20px] text-ink mb-2">
-            {{ 'account.notifications.signInRequired.title' | translate }}
-          </h2>
-          <p class="text-[14px] text-muted">
-            {{ 'account.notifications.signInRequired.body' | translate }}
-          </p>
-        </div>
-      }
+    <main>
 
       <!-- LOADING SKELETON -->
-      @else if (state().kind === 'loading') {
+      @if (state().kind === 'loading') {
         <div class="rounded-3xl border border-line bg-white p-8 shadow-brand-sm animate-pulse">
           <div class="h-5 w-40 bg-slate-200 rounded mb-6"></div>
           @for (i of [1, 2, 3, 4]; track i) {

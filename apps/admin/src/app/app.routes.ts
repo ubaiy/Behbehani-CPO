@@ -164,6 +164,30 @@ export const appRoutes: Route[] = [
             (m) => m.OrderDetailPageComponent,
           ),
       },
+      {
+        path: 'operations/maintenance',
+        canActivate: [adminRoleGuard(['operations_manager', 'maintenance_coordinator', 'general_manager', 'super_admin'])],
+        loadComponent: () =>
+          import('./features/maintenance/maintenance-list-page.component').then(
+            (m) => m.MaintenanceListPageComponent,
+          ),
+      },
+      {
+        path: 'operations/maintenance/:id',
+        canActivate: [adminRoleGuard(['operations_manager', 'maintenance_coordinator', 'general_manager', 'super_admin'])],
+        loadComponent: () =>
+          import('./features/maintenance/maintenance-detail-page.component').then(
+            (m) => m.MaintenanceDetailPageComponent,
+          ),
+      },
+      {
+        path: 'operations/feature-waitlists',
+        canActivate: [adminRoleGuard(['operations_manager', 'general_manager', 'super_admin'])],
+        loadComponent: () =>
+          import('./features/feature-waitlists/feature-waitlist-list-page.component').then(
+            (m) => m.FeatureWaitlistListPageComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

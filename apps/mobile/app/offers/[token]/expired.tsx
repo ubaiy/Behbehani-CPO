@@ -1,6 +1,10 @@
 /**
  * Offer expired — terminal screen.
  * Route: /offers/[token]/expired
+ *
+ * v0.18.a: wired to real `GET /v1/public/concierge/offers/:token` for the
+ * expiry timestamp. If the server returns 410 TOKEN_EXPIRED (no body), we
+ * fall back to the static copy — error state never blocks this screen.
  */
 
 import React from 'react';
@@ -13,14 +17,30 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-import { router } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import type { PublicOfferView } from '@behbehani-cpo/shared-types';
 import { brand, slate } from '../../../src/theme/colors';
+import { offersPublicApiClient } from '../../../src/services/http';
 
 const WHATSAPP_URL = 'whatsapp://send?phone=96522473006&text=Hi%20Behbehani';
 
 export default function OfferExpiredScreen() {
+  const { token } = useLocalSearchParams<{ token: string }>();
   const { t } = useTranslation();
+
+  // The expired terminal page may be loaded after the customer's token has
+  // already been invalidated server-side — so we tolerate fetch failures and
+  // simply omit the expiry timestamp instead of blocking the screen.
+  const { data: offer } = useQuery<PublicOfferView, Error>({
+    queryKey: ['offer', token],
+    queryFn: () => offersPublicApiClient.getByToken(token as string),
+    enabled: typeof token === 'string' && token.length > 0,
+    retry: false,
+  });
+
+  const expiredOn = offer ? formatExpiry(offer.validUntil) : null;
 
   const openWhatsApp = () => {
     Linking.openURL(WHATSAPP_URL).catch(() => {
@@ -41,8 +61,8 @@ export default function OfferExpiredScreen() {
         </View>
         <Text style={s.heroTitle}>{t('offers.expired.heroTitle')}</Text>
         <Text style={s.heroSub}>
-          {t('offers.expired.heroSub')}{' '}
-          <Text style={s.expiredOn}>Mon, 26 May · 23:59</Text>
+          {t('offers.expired.heroSub')}
+          {expiredOn ? <> <Text style={s.expiredOn}>{expiredOn}</Text></> : null}
         </Text>
       </View>
 
@@ -58,7 +78,7 @@ export default function OfferExpiredScreen() {
         {/* Request new inspection — brand-700 primary */}
         <TouchableOpacity
           style={s.primaryBtn}
-          onPress={() => router.push('/(tabs)/sell' as any)}
+          onPress={() => router.push('/(tabs)/sell' as never)}
           accessibilityLabel={t('offers.expired.newInspectionA11y')}
         >
           <Text style={s.primaryBtnText}>{t('offers.expired.newInspectionBtn')}</Text>
@@ -77,7 +97,7 @@ export default function OfferExpiredScreen() {
       {/* ── Back to account ───────────────────────────────────────────── */}
       <View style={s.footer}>
         <TouchableOpacity
-          onPress={() => router.push('/(tabs)/account' as any)}
+          onPress={() => router.push('/(tabs)/account' as never)}
           accessibilityLabel={t('offers.expired.backToAccountA11y')}
         >
           <Text style={s.footerLink}>{t('offers.expired.backToAccount')}</Text>
@@ -85,6 +105,27 @@ export default function OfferExpiredScreen() {
       </View>
     </ScrollView>
   );
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatExpiry(iso: string): string {
+  try {
+    const d = new Date(iso);
+    const date = d.toLocaleDateString('en-KW', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
+    const time = d.toLocaleTimeString('en-KW', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    return `${date} · ${time}`;
+  } catch {
+    return '—';
+  }
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────

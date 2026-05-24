@@ -52,6 +52,16 @@ jest.mock('../listings/listings.service', () => ({
   changeStage: (...args: unknown[]) => changeListingStageMock(...args),
 }));
 
+// Task #66 (2026-05-21): mock the pdf-worker so this spec doesn't open a real
+// BullMQ Redis socket on import (the worker module instantiates a Queue against
+// `redisClient()` at module-load time). Without this mock, jest emits
+// "A worker process has failed to exit gracefully" because the socket lingers
+// past the test run. The signoff flow only needs `enqueueInspectionReportPdf`
+// to be callable — its dispatch is fire-and-forget from inspections.service.
+jest.mock('../jobs/pdf-worker', () => ({
+  enqueueInspectionReportPdf: jest.fn().mockResolvedValue(undefined),
+}));
+
 import * as repo from './inspections.repo';
 import {
   createConciergeInspection,

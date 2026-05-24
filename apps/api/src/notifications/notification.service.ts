@@ -17,6 +17,12 @@
  *  - Throws if the dispatch failed (caller catches + logs to AuditLog as FAILED)
  *  - Returns void on success
  *  - Async only
+ *
+ * v1.5 — Inbox persistence: pass `inboxMeta` to `send()` or call `sendInApp()`
+ * to persist a Notification row for the customer inbox. Persistence is
+ * best-effort (try/catch + log); a failed DB row insert will never cause an
+ * otherwise-successful channel dispatch to fail.
+ * TODO: harden inbox-row failure semantics in v1.5.7
  */
 
 import { prisma } from '../db/prisma';
@@ -52,9 +58,46 @@ export interface NotificationPayload {
   meta?:    Record<string, unknown>;
 }
 
+/** v1.5 — Inbox categories (separate from preference categories). */
+export type InboxCategory =
+  | 'order'
+  | 'offer'
+  | 'inspection'
+  | 'document'
+  | 'maintenance'
+  | 'system'
+  | 'marketing';
+
+export type InboxIconHint = 'order' | 'offer' | 'inspection' | 'doc' | 'system';
+
+/**
+ * v1.5 — Optional inbox persistence metadata. When supplied to `send()`, a
+ * Notification row is persisted for each successfully dispatched channel (plus
+ * any explicitly listed inApp channels in `alsoInApp`). Persistence is
+ * best-effort — a failed insert will never fail the channel dispatch.
+ */
+export interface InboxMeta {
+  category:   InboxCategory;
+  iconHint?:  InboxIconHint | null;
+  deepLink?:  string | null;
+  expiresAt?: Date | null;
+  /**
+   * When true, also persist an 'inApp' channel row regardless of which
+   * channel adapters actually fired. Useful for purely in-app alerts that
+   * never go to push/email/SMS.
+   */
+  alsoInApp?: boolean;
+}
+
 export interface SendOptions {
   /** Override the user's preferences for accountSecurity (always sends regardless of toggles). */
   forceDispatch?: boolean;
+  /**
+   * v1.5 — When provided, a Notification row is persisted per dispatched
+   * channel. Best-effort: insert failure is logged but does NOT fail the
+   * dispatch.
+   */
+  inboxMeta?: InboxMeta;
 }
 
 export interface SendResult {
@@ -83,6 +126,42 @@ const adapters = new Map<NotificationChannel, ChannelAdapter>();
  */
 export function registerAdapter(channel: NotificationChannel, adapter: ChannelAdapter): void {
   adapters.set(channel, adapter);
+}
+
+// ─── v1.5 — Inbox persistence ─────────────────────────────────────────────────
+
+/**
+ * Persist a single Notification inbox row. Called after each successful
+ * channel dispatch (and optionally for inApp-only rows).
+ *
+ * Best-effort: callers MUST wrap in try/catch.
+ */
+async function persistInboxRow(input: {
+  userId:    string;
+  channel:   'push' | 'email' | 'sms' | 'inApp';
+  category:  InboxCategory;
+  titleEn:   string;
+  titleAr:   string;
+  bodyEn:    string;
+  bodyAr:    string;
+  deepLink?:  string | null;
+  iconHint?:  InboxIconHint | null;
+  expiresAt?: Date | null;
+}): Promise<void> {
+  await prisma.notification.create({
+    data: {
+      userId:    input.userId,
+      channel:   input.channel,
+      category:  input.category,
+      titleEn:   input.titleEn,
+      titleAr:   input.titleAr,
+      bodyEn:    input.bodyEn,
+      bodyAr:    input.bodyAr,
+      deepLink:  input.deepLink  ?? null,
+      iconHint:  input.iconHint  ?? null,
+      expiresAt: input.expiresAt ?? null,
+    },
+  });
 }
 
 /**
@@ -173,10 +252,70 @@ export async function send(
 
   // TODO v1.4: write a row to AuditLog summarising the SendResult for compliance.
 
+  // v1.5 — Persist inbox rows (best-effort) for each successfully dispatched
+  // channel, and optionally for inApp when alsoInApp is true.
+  if (options.inboxMeta) {
+    const meta = options.inboxMeta;
+    const persistChannels: Array<'push' | 'email' | 'sms' | 'inApp'> = [
+      ...result.dispatched,
+      ...(meta.alsoInApp ? (['inApp'] as const) : []),
+    ];
+    for (const ch of persistChannels) {
+      try {
+        await persistInboxRow({
+          userId:    userId,
+          channel:   ch,
+          category:  meta.category,
+          titleEn:   payload.title.en,
+          titleAr:   payload.title.ar,
+          bodyEn:    payload.body.en,
+          bodyAr:    payload.body.ar,
+          deepLink:  meta.deepLink  ?? payload.deepLink ?? null,
+          iconHint:  meta.iconHint  ?? null,
+          expiresAt: meta.expiresAt ?? null,
+        });
+      } catch (persistErr) {
+        // Best-effort: log and continue; do not fail the dispatch result.
+        // TODO: harden inbox-row failure semantics in v1.5.7
+        console.error('[notification.service] inbox persist failed', {
+          userId, channel: ch, error: persistErr,
+        });
+      }
+    }
+  }
+
   return result;
 }
 
 /** Read-only view of which channels currently have registered adapters. */
 export function getRegisteredChannels(): NotificationChannel[] {
   return Array.from(adapters.keys());
+}
+
+// ─── v1.5 — In-app only dispatch ──────────────────────────────────────────────
+
+/**
+ * Persist a pure in-app notification without routing to push/email/SMS.
+ * Use this for system events the customer should see in their inbox but that
+ * don't warrant an external channel notification (e.g. minor status updates).
+ *
+ * Best-effort semantics: throws on DB failure, so callers should handle.
+ */
+export async function sendInApp(
+  userId: string,
+  payload: NotificationPayload,
+  meta: InboxMeta,
+): Promise<void> {
+  await persistInboxRow({
+    userId,
+    channel:   'inApp',
+    category:  meta.category,
+    titleEn:   payload.title.en,
+    titleAr:   payload.title.ar,
+    bodyEn:    payload.body.en,
+    bodyAr:    payload.body.ar,
+    deepLink:  meta.deepLink  ?? payload.deepLink ?? null,
+    iconHint:  meta.iconHint  ?? null,
+    expiresAt: meta.expiresAt ?? null,
+  });
 }

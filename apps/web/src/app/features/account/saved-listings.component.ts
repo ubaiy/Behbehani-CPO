@@ -57,45 +57,25 @@ function savedAgo(iso: string, locale: 'en' | 'ar'): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, TranslateModule],
   template: `
-    <!-- Back link — inside max-w-4xl to align with hero column -->
-    <div class="container-page pt-6">
-      <div class="mx-auto max-w-4xl">
-        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-          {{ 'account.backToHub' | translate }}
-        </a>
-      </div>
-    </div>
-
-    <!-- Hero — rounded-3xl framed card -->
-    <div class="container-page py-8 mx-auto max-w-4xl">
-      <div class="rounded-3xl p-6 sm:p-8 text-white" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-        <h1 class="font-display text-[clamp(24px,3vw,32px)] font-bold leading-tight tracking-[-0.025em] text-white">
-          {{ 'account.savedListings.title' | translate }}
+    <!-- Compact hero header (Part C.4) -->
+    <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4">
+      <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+      </span>
+      <div class="min-w-0">
+        <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">
+          {{ 'account.shell.page.savedCars.title' | translate }}
         </h1>
-        <p class="mt-1 text-[14px] text-white/85">
-          {{ 'account.savedListings.sub' | translate }}
+        <p class="text-[13px] text-muted">
+          {{ 'account.shell.page.savedCars.sub' | translate }}
         </p>
-        <!-- Sub-nav -->
-        <nav class="mt-4 flex items-center gap-3 text-[13px]" [attr.aria-label]="'account.subNav' | translate">
-          <a
-            [routerLink]="['/', locale(), 'my-bookings']"
-            class="inline-flex items-center rounded-pill px-4 py-1.5 font-semibold text-white/70 hover:text-white"
-          >
-            {{ 'account.myBookings.tab' | translate }}
-          </a>
-          <a
-            [routerLink]="['/', locale(), 'my-bookings', 'saved-cars']"
-            class="inline-flex items-center rounded-pill bg-white/20 px-4 py-1.5 font-semibold text-white"
-            aria-current="page"
-          >
-            {{ 'account.savedListings.tab' | translate }}
-          </a>
-        </nav>
       </div>
-    </div>
+    </header>
 
-    <main class="bg-surface-soft min-h-[60vh]">
-      <div class="container-page py-8 sm:py-10">
+    <main>
+      <div>
 
         <!-- Loading -->
         @if (state().kind === 'loading') {
@@ -154,23 +134,23 @@ function savedAgo(iso: string, locale: 'en' | 'ar'): string {
           </div>
         }
 
-        <!-- Empty state -->
+        <!-- Empty state (illustrated SVG: heart + car) -->
         @if (state().kind === 'empty') {
-          <div class="rounded-3xl border border-line bg-white p-8 text-center shadow-brand-sm">
-            <div class="mx-auto inline-grid h-16 w-16 place-items-center rounded-full bg-brand-50 text-brand-700">
-              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+          <div class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-12 text-center shadow-brand-sm">
+            <div class="mx-auto mb-5 w-20 h-20 rounded-3xl bg-brand-100 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" class="text-brand-700" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
               </svg>
             </div>
-            <h2 class="mt-4 font-display text-[22px] font-bold tracking-[-0.025em] text-ink">
+            <h2 class="font-display text-[18px] font-bold text-ink mb-2">
               {{ 'account.savedListings.empty.title' | translate }}
             </h2>
-            <p class="mt-2 text-[14px] text-muted">
+            <p class="text-[14px] text-muted max-w-md mx-auto mb-6">
               {{ 'account.savedListings.empty.body' | translate }}
             </p>
             <a
               [routerLink]="['/', locale(), 'browse']"
-              class="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-pill bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+              class="inline-flex min-h-[48px] items-center gap-2 rounded-pill bg-brand-700 px-7 py-3 text-sm font-semibold text-white hover:bg-brand-800 transition-colors duration-150 active:scale-[0.98] active:transition-transform shadow-brand-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
             >
               {{ 'account.savedListings.empty.cta' | translate }}
             </a>

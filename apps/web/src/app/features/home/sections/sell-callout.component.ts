@@ -1,24 +1,31 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
 
 interface SellPath {
   id: 'instant' | 'concierge' | 'self';
   iconPath: string;
+  /** Sub-segments appended after `/{locale}` for the routerLink. */
+  routeSegments: ReadonlyArray<string>;
 }
 
 const PATHS: ReadonlyArray<SellPath> = [
   {
     id: 'instant',
     iconPath: 'M12 2v3M12 19v3M5 12H2M22 12h-3M19 5l-2 2M7 17l-2 2M19 19l-2-2M7 7 5 5M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z',
+    // Instant 60-second valuation begins in the details wizard.
+    routeSegments: ['sell', 'details'],
   },
   {
     id: 'concierge',
     iconPath: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21a8 8 0 0 1 16 0',
+    routeSegments: ['sell', 'concierge'],
   },
   {
     id: 'self',
     iconPath: 'M4 6h16M4 12h16M4 18h10',
+    routeSegments: ['sell', 'self-service'],
   },
 ];
 
@@ -26,7 +33,7 @@ const PATHS: ReadonlyArray<SellPath> = [
   selector: 'app-sell-callout',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TranslateModule],
+  imports: [RouterLink, TranslateModule],
   template: `
     <section class="container-page section">
       <div class="grid overflow-hidden rounded-[24px] bg-brand-700 text-white lg:min-h-[460px] lg:grid-cols-[1fr_1.4fr]">
@@ -45,8 +52,8 @@ const PATHS: ReadonlyArray<SellPath> = [
           </h2>
           <div class="mt-2 flex flex-col gap-3">
             @for (p of paths; track p.id) {
-              <button
-                type="button"
+              <a
+                [routerLink]="['/', currentLocale(), ...p.routeSegments]"
                 class="group flex items-center gap-4 rounded-xl border border-white/15 bg-white/[0.08] p-4 text-start transition-all hover:translate-x-1 hover:bg-white/[0.16]"
               >
                 <span class="inline-grid h-10 w-10 flex-shrink-0 place-items-center rounded-full bg-white/15" aria-hidden="true">
@@ -63,7 +70,7 @@ const PATHS: ReadonlyArray<SellPath> = [
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path [attr.d]="dirArrow()" />
                 </svg>
-              </button>
+              </a>
             }
           </div>
         </div>

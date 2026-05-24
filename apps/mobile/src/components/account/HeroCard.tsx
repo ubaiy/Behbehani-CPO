@@ -5,6 +5,7 @@
  * Uses expo-linear-gradient when available; falls back to solid brand[900].
  */
 
+import React, { useState } from 'react';
 import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { brand } from '../../theme/colors';
@@ -42,6 +43,7 @@ export function HeroCard({
   onSignOut,
 }: Props) {
   const { t } = useTranslation();
+  const [avatarFailed, setAvatarFailed] = useState(false);
   return (
     <LinearGradient
       colors={[brand[900], brand[700], brand[600]]}
@@ -51,8 +53,12 @@ export function HeroCard({
     >
       <View style={styles.heroLeft}>
         <View style={styles.avatar}>
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+          {avatarUrl && !avatarFailed ? (
+            <Image
+              source={{ uri: avatarUrl }}
+              style={styles.avatarImage}
+              onError={() => setAvatarFailed(true)}
+            />
           ) : (
             <Text style={styles.avatarInitials}>{initials}</Text>
           )}

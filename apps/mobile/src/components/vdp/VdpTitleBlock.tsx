@@ -27,7 +27,7 @@ export function VdpTitleBlock({ detail, priceFils, monthlyFils }: VdpTitleBlockP
       {detail.inspected && (
         <View style={styles.inspectedBadge}>
           <ShieldIcon size={12} color={brand[800]} />
-          <Text style={styles.inspectedBadgeText}>{t('vdp.alDamanInspectedBadge')}</Text>
+          <Text style={styles.inspectedBadgeText}>{t('vdp.behbehaniInspectedBadge')}</Text>
         </View>
       )}
 

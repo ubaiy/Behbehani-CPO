@@ -4,11 +4,12 @@
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { formatKWD, formatKm, filsToKWD } from './vdp.helpers';
+import { ImageWithFallback } from '../common/ImageWithFallback';
 
 interface SimilarItem {
   id: string;
@@ -33,7 +34,13 @@ function SimilarCard({ item, onPress }: SimilarCardProps) {
     <TouchableOpacity style={styles.similarCard} onPress={onPress} activeOpacity={0.85}>
       <View style={styles.similarCardHero}>
         {item.heroPhotoUrl ? (
-          <Image source={{ uri: item.heroPhotoUrl }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+          <ImageWithFallback
+            source={{ uri: item.heroPhotoUrl }}
+            style={StyleSheet.absoluteFillObject}
+            resizeMode="cover"
+            fallbackSize={32}
+            fallbackStyle={StyleSheet.absoluteFillObject}
+          />
         ) : (
           <View style={styles.similarCardHeroPlaceholder} />
         )}

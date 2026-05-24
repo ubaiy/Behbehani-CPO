@@ -38,6 +38,7 @@ import type {
   InspectionReportJson,
   InspectionKpiResponse,
   INSPECTION_STATUSES,
+  CancelSellBookingInputDto,
 } from '@behbehani-cpo/shared-types';
 import {
   INSPECTION_RUBRIC,
@@ -46,7 +47,7 @@ import {
 import { env } from '../config/env';
 import { maskVin } from '@behbehani-cpo/shared-types';
 import { recordAudit } from '../middleware/audit';
-import { publicUrl } from '../lib/s3';
+import { publicUrl, presignGetUrl } from '../lib/s3';
 import { InspectionError } from './inspections.errors';
 import * as repo from './inspections.repo';
 import { changeStage as changeListingStage } from '../listings/listings.service';
@@ -55,6 +56,7 @@ import {
   sendSignLinkEmail,
   buildSignLinkUrl,
 } from '../notifications/notifications.service';
+import { send as sendNotification } from '../notifications/notification.service';
 
 // ─── Score computation ──────────────────────────────────────────────────────
 
@@ -234,7 +236,53 @@ function collectItemsNeedingAttention(
     }));
 }
 
-function toBookingStatus(row: repo.InspectionDetailRow): ConciergeBookingStatus {
+/**
+ * Map an InspectionDetailRow to the customer-facing ConciergeBookingStatus DTO.
+ *
+ * v1.5.14: promoted to async to presign the report PDF URL (presignGetUrl).
+ * All callers must be awaited — see call sites below.
+ *
+ * Initials algorithm: split fullName on whitespace, take first character of
+ * the first two words (or first char twice if only one word), uppercase.
+ * Examples: "Yousef Mohammed" → "YM", "Ali" → "AA", "  " → "??" (fallback).
+ */
+async function toBookingStatus(row: repo.InspectionDetailRow): Promise<ConciergeBookingStatus> {
+  // ── Presign PDF URL (defensive — never break the DTO if S3 is down) ────
+  let inspectionReportPdfUrl: string | null = null;
+  if (row.reportPdfKey) {
+    try {
+      const presigned = await presignGetUrl(row.reportPdfKey);
+      inspectionReportPdfUrl = presigned.url;
+    } catch (err) {
+      console.error('[toBookingStatus] presignGetUrl failed — returning null for inspectionReportPdfUrl', err);
+    }
+  }
+
+  // ── Inspector shape (v1.5.14 consolidated) ─────────────────────────────
+  let inspector: ConciergeBookingStatus['inspector'] = null;
+  if (row.inspector) {
+    const fullName = row.inspector.fullName ?? '';
+    // Initials: first letter of first 2 space-delimited words (uppercased).
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    const initials =
+      parts.length >= 2
+        ? (parts[0][0] + parts[1][0]).toUpperCase()
+        : parts.length === 1
+          ? (parts[0][0] + parts[0][0]).toUpperCase()
+          : '??';
+    const whatsappE164 = row.inspector.mobile ?? undefined;
+    inspector = {
+      // v1.5.14 richer fields (A's spec, [ASK A→B-2]):
+      fullName,
+      initials,
+      // rating + completedCount: undefined until DB columns ship (v1.6+)
+      whatsappE164,
+      // v1.5.13 legacy aliases — same values for back-compat:
+      name: fullName,
+      phoneE164: row.inspector.mobile ?? null,
+    };
+  }
+
   return {
     bookingRef: row.bookingRef ?? '',
     status: row.status,
@@ -247,12 +295,19 @@ function toBookingStatus(row: repo.InspectionDetailRow): ConciergeBookingStatus 
           }
         : null,
     inspectorAssigned: row.inspectorId !== null,
+    inspector,
     inspectedAt: row.inspectorSignedAt ? row.inspectorSignedAt.toISOString() : null,
     signLinkAvailable:
       row.status === 'awaiting_customer_signature' &&
       row.customerSignToken !== null &&
       row.customerSignTokenExpiresAt !== null &&
       row.customerSignTokenExpiresAt.getTime() > Date.now(),
+    // v1.5.14 new fields ([ASK A→B-2]):
+    overallScore: row.overallScore ?? null,
+    inspectionReportPdfUrl,
+    relatedOfferToken: (row as repo.InspectionDetailRow & { offers?: Array<{ publicToken: string | null }> }).offers?.[0]?.publicToken ?? null,
+    // v1.5.14 cancellation ([ASK A→B-3]):
+    cancelledAt: row.cancelledAt ? row.cancelledAt.toISOString() : null,
   };
 }
 
@@ -343,7 +398,224 @@ export async function getInspectionByBookingRef(
 ): Promise<ConciergeBookingStatus | null> {
   const row = await repo.findInspectionByBookingRef(bookingRef);
   if (!row || row.kind !== 'concierge') return null;
-  return toBookingStatus(row);
+  return await toBookingStatus(row);
+}
+
+// ─── v1.5.13: Me-scoped sell-bookings (closes [ASK C→B] from MOBILE v0.22 §3) ─
+
+/**
+ * public-shared (v1.5.13)
+ *
+ * List authenticated customer's own concierge sell-bookings, newest first,
+ * paginated. Returned shape mirrors the no-auth tracker (ConciergeBookingStatus[])
+ * so mobile/web can reuse the same row component. CPO inspections (non-concierge)
+ * are filtered out — those are operator-internal and never surfaced to customers.
+ */
+export async function listMySellBookings(
+  customerId: string,
+  filter: { page: number; pageSize: number },
+): Promise<{
+  items: ConciergeBookingStatus[];
+  total: number;
+  page: number;
+  pageSize: number;
+}> {
+  const page = Math.max(1, Math.floor(filter.page));
+  const pageSize = Math.max(1, Math.min(100, Math.floor(filter.pageSize)));
+
+  // The repo's existing `findMany` returns SUMMARY-shaped rows but we need
+  // DETAIL_INCLUDE for `toBookingStatus` (which expects InspectionDetailRow).
+  // Query directly with the same include so we get the inspector relation +
+  // signature artifacts in one round-trip.
+  const where = { customerId, kind: 'concierge' as const };
+  const [rows, total] = await Promise.all([
+    prisma.inspectionReport.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        listing: { select: { id: true, stockNumber: true, titleEn: true, vin: true } },
+        customer: { select: { id: true, fullName: true, mobile: true, email: true } },
+        inspector: { select: { id: true, fullName: true, mobile: true } },
+        // v1.5.14: mirror DETAIL_INCLUDE offers shape for relatedOfferToken
+        offers: {
+          where: { status: { not: 'withdrawn' } },
+          orderBy: { createdAt: 'desc' as const },
+          take: 1,
+          select: { publicToken: true, publicTokenExpiresAt: true, status: true },
+        },
+      },
+    }),
+    prisma.inspectionReport.count({ where }),
+  ]);
+
+  return {
+    items: await Promise.all(rows.map(async (row) => await toBookingStatus(row as repo.InspectionDetailRow))),
+    total,
+    page,
+    pageSize,
+  };
+}
+
+/**
+ * public-shared (v1.5.13)
+ *
+ * Read one of the authenticated customer's concierge sell-bookings by ref.
+ * Returns null when either (a) the booking doesn't exist, (b) it exists but
+ * belongs to another customer, or (c) it's a CPO inspection (non-concierge).
+ * Controller surfaces null as 404 to avoid leaking existence information.
+ */
+export async function getMySellBookingByRef(
+  customerId: string,
+  bookingRef: string,
+): Promise<ConciergeBookingStatus | null> {
+  const row = await repo.findInspectionByBookingRef(bookingRef);
+  if (!row || row.kind !== 'concierge') return null;
+  if (row.customerId !== customerId) return null;  // ownership check — 404 not 403 to prevent enumeration
+  return await toBookingStatus(row);
+}
+
+/**
+ * public-shared (v1.5.13)
+ *
+ * Customer self-service reschedule of their own concierge sell-booking.
+ *
+ * Allowed only while status === 'draft' (no inspector assigned yet). Once an
+ * inspector is on the way or has been at the vehicle, customer must call
+ * support — server returns 409 `BOOKING_NOT_RESCHEDULABLE` so mobile/web can
+ * surface the "Contact support to reschedule" copy.
+ *
+ * Updates customerPreferredDate + customerPreferredWindow. Returns the fresh
+ * ConciergeBookingStatus.
+ *
+ * Throws:
+ *   - InspectionError(404, 'BOOKING_NOT_FOUND')        — unknown ref / not owned / CPO
+ *   - InspectionError(409, 'BOOKING_NOT_RESCHEDULABLE') — status past 'draft'
+ */
+export async function rescheduleMySellBooking(
+  customerId: string,
+  bookingRef: string,
+  input: { preferredDate: string; window: 'morning' | 'afternoon' | 'evening' },
+): Promise<ConciergeBookingStatus> {
+  const row = await repo.findInspectionByBookingRef(bookingRef);
+  if (!row || row.kind !== 'concierge' || row.customerId !== customerId) {
+    throw new InspectionError(404, 'Booking not found', 'BOOKING_NOT_FOUND');
+  }
+  if (row.status !== 'draft') {
+    throw new InspectionError(
+      409,
+      'This booking can no longer be rescheduled. Please contact support.',
+      'BOOKING_NOT_RESCHEDULABLE',
+    );
+  }
+
+  await prisma.inspectionReport.update({
+    where: { id: row.id },
+    data: {
+      // Date-only column (@db.Date) — Prisma accepts ISO date strings or Date.
+      customerPreferredDate: new Date(input.preferredDate + 'T00:00:00Z'),
+      customerPreferredWindow: input.window,
+    },
+  });
+
+  // Re-fetch to surface fresh DTO with the updated preference + any other
+  // server-side derived flags (signLinkAvailable etc.).
+  const fresh = await repo.findInspectionByBookingRef(bookingRef);
+  // Defensive: row was just updated — fresh must exist.
+  if (!fresh) {
+    throw new InspectionError(404, 'Booking not found after reschedule', 'BOOKING_NOT_FOUND');
+  }
+  return await toBookingStatus(fresh);
+}
+
+/**
+ * public-shared (v1.5.14)
+ *
+ * Customer self-service cancellation of their own concierge sell-booking.
+ * Closes [ASK A→B-3] (CONCIERGE_INSPECTION_API_CONTRACT.md v1.5-D10 §3).
+ *
+ * Allowed only while status === 'draft'. The 'draft' state covers both
+ * `pending_assignment` + `inspector_assigned` as named in A's v1.5-D10 §3
+ * (those are A's UI-alias names for the single 'draft' DB state).
+ *
+ * Idempotent: if `cancelledAt` is already set, returns current DTO without
+ * re-writing any DB fields and without erroring.
+ *
+ * Notifies the assigned inspector (best-effort — never fails the cancel).
+ *
+ * Throws:
+ *   - InspectionError(404, 'BOOKING_NOT_FOUND')        — unknown ref / not owned / CPO
+ *   - InspectionError(409, 'BOOKING_NOT_CANCELLABLE')   — status past 'draft'
+ */
+export async function cancelMySellBooking(
+  customerId: string,
+  bookingRef: string,
+  input: CancelSellBookingInputDto,
+): Promise<ConciergeBookingStatus> {
+  const row = await repo.findInspectionByBookingRef(bookingRef);
+  if (!row || row.kind !== 'concierge' || row.customerId !== customerId) {
+    // Consolidated 404 — prevents booking-ref enumeration (same pattern as
+    // BOOKING_NOT_FOUND in v1.5.13 reschedule + ownership check).
+    throw new InspectionError(404, 'Booking not found', 'BOOKING_NOT_FOUND');
+  }
+
+  // Idempotent: re-cancel on already-cancelled returns current state (200).
+  if (row.cancelledAt) {
+    const fresh = await repo.findInspectionByBookingRef(bookingRef);
+    return await toBookingStatus(fresh!);
+  }
+
+  // State-machine guard. Only 'draft' is cancellable per v1.5-D10 §3.
+  if (row.status !== 'draft') {
+    throw new InspectionError(
+      409,
+      'This booking can no longer be cancelled. Please contact support.',
+      'BOOKING_NOT_CANCELLABLE',
+    );
+  }
+
+  await prisma.inspectionReport.update({
+    where: { id: row.id },
+    data: {
+      cancelledAt:        new Date(),
+      cancellationReason: input.reason ?? null,
+    },
+  });
+
+  // Notify inspector if assigned. Best-effort — never fail the cancel over a
+  // notification dispatch error.
+  if (row.inspectorId) {
+    try {
+      await sendNotification(
+        row.inspectorId,
+        'bookingUpdates',
+        {
+          title: {
+            en: `Customer cancelled inspection ${bookingRef}`,
+            ar: `ألغى العميل الفحص ${bookingRef}`,
+          },
+          body: {
+            en: input.reason ?? 'No reason provided.',
+            ar: input.reason ?? 'لم يتم تقديم سبب.',
+          },
+        },
+        {
+          inboxMeta: {
+            category: 'inspection',
+            iconHint: 'inspection',
+            alsoInApp: true,
+          },
+        },
+      );
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[cancelMySellBooking] inspector notification failed', err);
+    }
+  }
+
+  const fresh = await repo.findInspectionByBookingRef(bookingRef);
+  return await toBookingStatus(fresh!);
 }
 
 /**
@@ -396,6 +668,34 @@ export async function getInspectionBySignToken(
   }
   const customerFirstName = (row.customer?.fullName ?? '').split(/\s+/)[0] ?? '';
   return { summary: toPublicSummary(row), customerFirstName };
+}
+
+/**
+ * public-shared (v1.5.7 — ASK A→B v1.5-D §5)
+ * Fetches a `signed_off` inspection's public summary by its id, with the same
+ * shape as `/inspection-sign/:token`. Used by the `getInspectionReportByOfferToken`
+ * helper in offers.service so the customer's /offer/:token/inspection-report
+ * page can render the CPO inspection details.
+ *
+ * Throws `InspectionError(404, 'INSPECTION_NOT_AVAILABLE')` when:
+ *   - the row doesn't exist
+ *   - the inspection is not yet `signed_off` (we don't surface in-progress reports
+ *     to customers via the offer flow — they're surfaced via the sign-link instead)
+ *
+ * Caller (offers.service) catches the InspectionError and re-throws as OfferError
+ * so the offers-public.controller's error adapter emits the right HTTP envelope.
+ */
+export async function getInspectionReportById(
+  id: string,
+): Promise<PublicInspectionSummary> {
+  const row = await repo.findInspectionById(id);
+  if (!row) {
+    throw new InspectionError(404, 'Inspection not available', 'INSPECTION_NOT_AVAILABLE');
+  }
+  if (row.status !== 'signed_off') {
+    throw new InspectionError(404, 'Inspection not available', 'INSPECTION_NOT_AVAILABLE');
+  }
+  return toPublicSummary(row);
 }
 
 /**

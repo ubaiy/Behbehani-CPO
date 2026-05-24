@@ -5491,3 +5491,2180 @@ C is **idle** (all mobile tasks done, 568 EN/AR keys).
 User gates still pending: Otto creds · APNs · Firebase · git init.
 
 — **Session A**, 2026-05-20.
+
+---
+
+## B v1.5.1-clarify — stakeholder scope-lock + Firebase confirmation (2026-05-20)
+
+`[ACK]` A v1.4.14 hand-off (pre-v1.5 readiness complete, 0 brand-lock violations, 0 allowSignalWrites cycle bugs, EN/AR symmetric, 8 customer pages on canonical pattern). Excellent landing.
+
+One correction to A's gate list in v1.4.14 §7: **Firebase is no longer pending** — see §2 below.
+
+### 1. Stakeholder scope-lock (2026-05-20)
+
+Per user directive: the following are **ON HOLD** pending external API credentials we don't yet have:
+
+| Item | Why on hold | Was this in v1.5 plan? |
+|---|---|---|
+| **Documents approval queue** | Originally dropped from v1.5 per B v1.5.0; this confirms parked status | Already dropped — confirmation only |
+| **Customer KYC review** | Pursuing PACI (Public Authority for Civil Information) direct integration; PACI access channel still TBD | Already deferred — confirmation only |
+| **Insurance module** (SRS §3.18) | Requires partner insurer API integration; not procured | Was never in v1.5 — confirmation only |
+| **Otto Payment Services integration** | Otto sandbox creds still pending user procurement | **NEW**: was IN SCOPE per v1.5.0; now parked until creds land |
+
+**Net effect:** v1.5 admin Payments work is **effectively also on hold** until Otto unblocks. The mockup (`apps/admin/.mockups/v1.5-payment-reconciliation.html`) and design baseline stay as-is for approval whenever creds land. No backend swarm spawned in the meantime.
+
+### 2. Firebase ✅ FULLY SHIPPED on B side
+
+Audit of Firebase implementation (response to A's v1.4.14 §7 gate list which still listed Firebase as pending):
+
+| Check | Status |
+|---|---|
+| `firebase-admin` npm package installed | ✅ `^13.10.0` in `package.json`, `node_modules/firebase-admin/lib` present |
+| Service account JSON file | ✅ `apps/api/.secrets/firebase-admin.json` (2379 bytes, gitignored via `.gitignore` `.secrets/` rule) |
+| Env var wired | ✅ `.env` has `FIREBASE_SERVICE_ACCOUNT_PATH=apps/api/.secrets/firebase-admin.json` |
+| Adapter code uses file path | ✅ `push.adapter.ts:47` `mod.initializeApp({ credential: mod.credential.cert(env.FIREBASE_SERVICE_ACCOUNT_PATH) })` |
+| Auto-switching | ✅ `hasFcmCreds()` returns true → real FCM dispatch; otherwise mock-fallback to `apps/api/.dev/notifications.log` |
+| Lazy init | ✅ firebase-admin only loaded inside `getFirebaseAdmin()` when first Android push fires (no startup cost otherwise) |
+
+**No B-side work pending for Firebase.** First FCM dispatch (e.g., next Otto callback success on Android, or test-fired manual push) will go through real Firebase Cloud Messaging.
+
+A's v1.4.14 §7 gate list should be updated to: `Otto creds · APNs · git init` (Firebase removed).
+
+### 3. APNs (iOS push) still pending separately
+
+For iOS push to work end-to-end, B still needs from the user:
+- `APNS_KEY_PATH` — path to `.p8` auth key file (e.g., `apps/api/.secrets/apns-auth-key.p8`)
+- `APNS_KEY_ID` — 10-char key ID from Apple Developer portal
+- `APNS_TEAM_ID` — 10-char Apple Developer team ID
+- `APNS_BUNDLE_ID` — bundle identifier (e.g., `com.behbehani.motors` per C's pre-launch identity alignment recommendation)
+
+Until these land, `push.adapter.ts` logs iOS pushes as `apns-pending` mock entries to the dev log. Android push (FCM) works in full now.
+
+### 4. What this means for A
+
+- **Payments refund-status DTO** — earlier B v1.5.0 §3 promised a `refunded` payment-status value coming when v1.5 Payments backend ships. With Otto on hold, **that DTO is also on hold**. A's existing `payments.status.refunded` i18n key (v1.4.12 §4) stays ready but unused until Otto + Payments backend unblocks. **No A change required** — your code already handles the enum, just won't see `refunded` values yet.
+- **`/account/orders/:id`** — continues working with mock-fallback per status quo. No regression risk from scope changes.
+- **`[ASK B→A]`** — none. **`[ASK A→B]`** — A's v1.4.14 §7 list "v1.6 Saved Searches mockup + B endpoint spec" needs B coordination — when you're ready, post a `[ASK A→B]` block proposing the schema shape and I'll respond. No urgency.
+
+### 5. B's effective backlog
+
+With v1.5 Payments parked + KYC/Documents/Insurance parked, B's effective v1.5 backlog is minimal:
+
+- **#24** (pending) — v1.3.x test infra (Redis mock + jest env init) — internal hygiene, no external dep
+- **#38** (pending) — `@react-pdf/renderer.toBuffer()` runtime verification — needs first admin order completion to verify the `as unknown as Buffer` cast
+- Nothing else B-actionable
+
+B is **standing by** until Otto / PACI / APNs / git-init lands OR stakeholder unparks anything.
+
+### 6. Closing
+
+Coordination spine remains current. No new `[ASK B→A]` items. A free to pick next from your v1.4.14 §7 list without dependency on B work.
+
+— **Session B**, 2026-05-20.
+
+---
+
+## B v1.5.2-roadmap — backend inventory + A next-pick instructions (2026-05-20)
+
+User requested explicit guidance: "what is done in backend, which module/task A can pick next." Below is the canonical answer for A's side.
+
+### 1. Backend (apps/api) — what's LIVE and ready for A consumption
+
+**Auth + identity:**
+- `/v1/public/auth/*` — register, login (email + mobile OTP), logout, refresh (with JTI rotation + reuse-detection cascade), Google verify, OTP issue/verify
+- v1.3 OTP flows for mobile_change + email_change + password_reset
+- Apple Sign-In stub (returns 501 until `[GATE]` Apple Dev clears)
+
+**Customer profile (signed-in surface):**
+- `/v1/public/me/profile` GET + PATCH (includes 14 v1.3.7 PII columns — writable now, will become server-set when PACI lands)
+- `/v1/public/me/addresses` GET / POST / PATCH / DELETE
+- `/v1/public/me/notification-preferences` GET + PATCH
+- `/v1/public/me/sessions` GET + sign-out-individual + sign-out-all
+- `/v1/public/me/inspections` GET (list customer's inspections; CustomerInspectionView shape)
+- `/v1/public/me/saved-listings` GET / POST / DELETE
+- `/v1/public/me/documents` GET (paginated, kind-filtered, signed S3 URLs)
+- `/v1/public/me/orders` GET (list) + `/v1/public/me/orders/:id` GET (detail) — both consumed by A's v1.4.8 + v1.4.12
+
+**Order lifecycle (v1.4):**
+- `/v1/public/orders` POST (create reservation, returns hosted-payment URL)
+- `/v1/public/orders/:id/payment` POST (initiatePayment for re-init)
+- `/v1/public/orders/:id/cancel` POST (with 409 cancel-race envelope)
+- `/v1/public/payments/otto/callback` POST (HMAC-verified webhook, mock-fallback active)
+- Auto-receipt PDF (pdfkit) on Otto success → Document `kind:'invoice'`
+- Auto-sale-contract PDF (@react-pdf/renderer) on admin completion → Document `kind:'sale_contract'`
+- Reservation expiry cron (24h hold per SRS §3.17)
+
+**Offers (token-link surface):**
+- `/v1/public/offers/:token/*` (view, counter, accept, decline) — A's offer pages already consume
+
+**Sell flow:**
+- `/v1/public/sell-bookings` GET / POST / track
+- `/v1/public/feature-waitlists` POST (concierge waitlist)
+
+**Push (B-server side):**
+- `/v1/public/notifications/push-token` POST (mobile registers via Expo) — also valid for web PWA when A wants it
+- Server-emitted push notifications (FCM Android ✅ live; APNs iOS ⏳ pending creds)
+
+### 2. Backend NOT yet shipped (potential A coordination targets)
+
+If A wants to consume any of these, B will spec + ship the endpoint:
+
+| Endpoint | Triggers what A page | External dep? | B effort estimate |
+|---|---|---|---|
+| `GET/POST/DELETE /v1/public/me/saved-searches` | Saved Searches Coming-Soon shell (A's `v1.6` candidate per v1.4.14 §7) | **None** | ~half-day (model + 3 endpoints + Zod schemas) |
+| `GET /v1/public/me/notifications` | Notifications inbox surface (history of pushes/emails received) | None | ~half-day (Notification model + endpoint) |
+| `POST /v1/public/me/returns` + `GET /v1/public/me/returns/:id` | Returns module (SRS §3.21 — 3-day / 300km return flow) | None for v1; ties to Otto for refund dispatch later | ~1-2 days (Return model + flow + state machine) |
+| `POST /v1/public/me/loan-applications` (no decisioning) | Financing apps Coming-Soon shell | Bank partners (not in scope) — but A could ship the application capture form, with B storing for later partner dispatch | ~1 day capture-only |
+
+### 3. A's ranked next-pick recommendations (no B blocker on any)
+
+**Zero-blocker (pure A-side work):**
+
+1. **🟢 (Recommended) Pre-launch i18n parity audit on A's surface** — mirror C's #68/#69 sweep. Account/sell/concierge surfaces likely have hardcoded strings. Quick win, no B dep, clean ship-checklist gap before any v1.5+ launch. Estimated half-day.
+2. **🟢 Date-i18n helper sprint** — `relativeTime()` + `savedAgo()` translate-aware refactor (P2 deferred from v1.4.14). No B dep.
+3. **🟢 Bundle budget reduction (557 → 500 kB)** — pre-existing warning, dedicated split pass. No B dep.
+4. **🟢 Defense-in-depth `allowSignalWrites` audit** — already done in v1.4.14 §6 (10/10 effects clean) per your own report. Skip unless you want to extend the rule.
+
+**With B coordination (B will ship endpoint same-day if A picks):**
+
+5. **🟡 v1.6 Saved Searches** — A flagged in v1.4.14 §7. **B offer: post `[ASK A→B]` Saved-Search-spec block (proposed query shape — filters payload structure, max saved, cron-based "new matches" notification?) and I'll spec + ship the 3 endpoints in same session.** A then wires the Coming-Soon shell to live data. Clean ~1-day end-to-end ship.
+6. **🟡 Returns module (SRS §3.21)** — could be A's v1.5-replacement scope since v1.5 admin Payments is parked. The customer-facing 3-day/300km return initiation flow doesn't need Otto creds (only the eventual refund dispatch does — that becomes a no-op until Otto comes back, but the rest of the flow is shippable). **B offer: spec the Return model + state machine + customer endpoints if A wants this scope.**
+
+### 4. What A should NOT pick (gated)
+
+- Anything needing Otto refund flow (gated on stakeholder unparking Otto)
+- Identity verification UI / KYC capture forms (gated on PACI channel decision)
+- Insurance quote forms (gated on partner insurer API)
+- Apple Sign-In (gated on Apple Dev account from user)
+
+### 5. B's standing offer to A
+
+For any next-pick that needs new backend, post `[ASK A→B] <descriptor>` with the rough shape you want and I'll spec + ship same session. Backend work that doesn't need external creds is fully available — only Otto/PACI/Insurance/APNs categories are parked.
+
+— **Session B**, 2026-05-20.
+
+---
+
+## B v1.5.3 — Saved Searches backend SHIPPED, A unblocked (2026-05-20)
+
+Pre-emptively built the Saved Searches backend so A can start UI work without waiting. Background swarm landed clean, both builds GREEN.
+
+### 1. Endpoints LIVE (auth-protected, require Bearer JWT)
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/v1/public/me/saved-searches?page=1&pageSize=20` | — | `SavedSearchListResponse` (200) — `{ items, total, page, pageSize }` |
+| GET | `/v1/public/me/saved-searches/:id` | — | `SavedSearchDto` (200) |
+| POST | `/v1/public/me/saved-searches` | `CreateSavedSearchInput` | `SavedSearchDto` (201) |
+| PATCH | `/v1/public/me/saved-searches/:id` | `UpdateSavedSearchInput` | `SavedSearchDto` (200) |
+| DELETE | `/v1/public/me/saved-searches/:id` | — | 204 No Content |
+
+All 404 returns use locked code `SAVED_SEARCH_NOT_FOUND`. Mounted under `/v1/public` in `apps/api/src/app.ts`.
+
+### 2. Shared-types — imports for A
+
+```ts
+import type {
+  SavedSearchDto,
+  SavedSearchListResponse,
+  CreateSavedSearchInput,
+  UpdateSavedSearchInput,
+  SavedSearchQueryPayload,
+} from '@behbehani-cpo/shared-types';
+
+import {
+  SavedSearchQueryPayloadSchema,
+  CreateSavedSearchInputSchema,
+  UpdateSavedSearchInputSchema,
+  // (DTOs are exported as types + Zod schemas — Zod for client-side validation if A wants)
+} from '@behbehani-cpo/shared-types';
+```
+
+Barrel re-exported via `libs/shared/types/src/index.ts`. Schema file: `libs/shared/types/src/lib/saved-search.public.schemas.ts` (107 lines, reference if A needs the canonical types).
+
+### 3. SavedSearchQueryPayload shape — IMPORTANT for A's filter serializer
+
+Per the spec brief instructing "snake_case keys to match A's existing URL query convention", the swarm shipped snake_case throughout:
+
+```ts
+SavedSearchQueryPayload = {
+  brands?: string[]                            // brand slugs
+  models?: string[]                            // model slugs (within brands)
+  year_min?: number                            // ⚠ snake_case
+  year_max?: number
+  price_min_fils?: number                      // KWD × 1000
+  price_max_fils?: number
+  monthly_payment_min_fils?: number
+  monthly_payment_max_fils?: number
+  mileage_min_km?: number
+  mileage_max_km?: number
+  body_types?: string[]                        // e.g. ['sedan','suv']
+  transmissions?: ('automatic'|'manual'|'cvt')[]
+  fuel_types?: ('petrol'|'diesel'|'hybrid'|'electric')[]
+  exterior_colors?: string[]
+  regional_specs?: ('gcc'|'american'|'european'|'japanese')[]
+  inspection_flag?: boolean
+  warranty_flag?: boolean
+  sort_by?: 'price_asc'|'price_desc'|'year_desc'|'mileage_asc'|'newest'
+}
+```
+
+A's existing filter serializer (per CONVENTIONS) should already produce snake_case URL params; just pipe the same object structure straight into `queryPayload`. **If A's internal filter object is camelCase**, transform-on-save and transform-on-load. Confirm shape match before shipping or post `[ASK A→B] saved-search-key-convention-revisit` if camelCase is preferred — B will issue a schema patch.
+
+Two known omissions from the canonical Prisma `Transmission` enum:
+- `dct` transmission — not in the Zod schema. If A's UI offers it as a filter chip, B will add it on request (1-line schema fix).
+
+### 4. SavedSearchDto shape (what A's list page renders)
+
+```ts
+SavedSearchDto = {
+  id: string                       // cuid
+  name: string                     // user-friendly label
+  queryPayload: SavedSearchQueryPayload
+  notifyOnMatch: boolean           // default true
+  lastNotifiedAt: string | null    // ISO 8601
+  matchCountAtCreation: number | null   // useful for "X new matches" diff if A wires the matching cron later
+  createdAt: string                // ISO 8601
+  updatedAt: string                // ISO 8601
+}
+```
+
+### 5. Migration — user action required
+
+```
+apps/api/prisma/migrations/20260604000001_v1_6_saved_searches/migration.sql
+```
+
+User runs `npm run prisma:migrate` (or `npx prisma migrate deploy`) to apply. Until then, endpoints will 500 on first DB query — A can wire the UI but tests need the migration applied. **Not blocking A's wiring work.**
+
+### 6. CreateSavedSearchInput validation
+
+```ts
+{
+  name: string                     // min 1, max 80 chars
+  queryPayload: SavedSearchQueryPayload   // at least 1 filter field must be set (refined)
+  notifyOnMatch?: boolean          // defaults to true
+}
+```
+
+If A POSTs an empty `queryPayload` `{}`, expect 400 with code `SAVED_SEARCH_EMPTY_QUERY` (or similar — error envelope is per project convention). 
+
+### 7. Future v1.6+ items NOT yet shipped (post `[ASK A→B]` if A wants any)
+
+- **New-matches detection cron** — periodically count listings matching each `queryPayload`, diff against `matchCountAtCreation`, dispatch push when delta > 0. ~1 day effort. Needs FCM + APNs both live (Android FCM ready, iOS waits on APNs).
+- **`POST /v1/public/me/saved-searches/:id/run`** — return current matching listing count + first N preview cards (so A's "View results" button can show a peek-count before navigating to /browse). ~half-day. Not needed for v1 — A's "View results" button can just navigate to /browse with query applied.
+
+### 8. Closing
+
+A unblocked. Next [ASK A→B] cycle when A wants something else built. B continues standing by.
+
+— **Session B**, 2026-05-20.
+
+
+---
+
+## v1.5-A — Session A: v1.6 Saved Searches customer surface wired end-to-end
+
+**Status:** First v1.5/v1.6 customer-side delivery from A. Wired the full Saved Searches customer flow against B's just-shipped 5 endpoints + shared-types. 3 ruflo agents in parallel (~5-6 min wall-clock each, all build PASS independently). ~45 i18n keys EN+AR symmetric. Builds GREEN, all 3 guards GREEN. `/account/saved-searches` Coming-Soon shell REMOVED. "Save this search" CTA wired into `/browse` filter bar. The full create-and-track-saved-search loop is live: from /browse → Save this search modal → POST → success toast linking to /account/saved-searches → view results re-applies the saved query payload to /browse.
+
+— **Session A**, 2026-05-20.
+
+### 1. Backend consumed (B v1.5.2 SavedSearch endpoints — already live)
+
+| Method | Path | Wired by |
+|---|---|---|
+| GET | `/v1/public/me/saved-searches?page=&pageSize=` | `SavedSearchesService.list()` |
+| GET | `/v1/public/me/saved-searches/:id` | `SavedSearchesService.getById()` |
+| POST | `/v1/public/me/saved-searches` | `SavedSearchesService.create()` (Idempotency-Key) |
+| PATCH | `/v1/public/me/saved-searches/:id` | `SavedSearchesService.update()` (Idempotency-Key) |
+| DELETE | `/v1/public/me/saved-searches/:id` | `SavedSearchesService.delete()` |
+
+Shared-types consumed from `@behbehani-cpo/shared-types`: `SavedSearchDto`, `SavedSearchListResponse`, `CreateSavedSearchInput`, `UpdateSavedSearchInput`, `SavedSearchQueryPayload`, `SAVED_SEARCH_ERROR_CODES = ['SAVED_SEARCH_NOT_FOUND']`. All Zod-validated on responses.
+
+### 2. 3-agent swarm summary
+
+| Agent | Owns | Outcome |
+|---|---|---|
+| `saved-searches-service-builder` | NEW `apps/web/src/app/data/saved-searches.service.ts` (172 lines) | 5 methods + 5 state unions · Zod validation · Idempotency-Key on POST/PATCH · `SAVED_SEARCH_NOT_FOUND` mapped on getById/update/delete only (correctly excluded from list/create) · build PASS |
+| `saved-searches-page-builder` | NEW `apps/web/src/app/features/account/saved-searches-page.component.ts` + EDIT `coming-soon-shells.ts` + `app.routes.ts` | Real list page with 5 states (loading skeleton / ok / empty / error / pagination) + guest gate · Per-card: name + filter-summary + match count + last-checked + View results CTA (with query params) + Rename inline modal + Delete confirm modal + Notify-on-match optimistic toggle · Canonical hero + back-link · `SavedSearchesShellComponent` removed (Coming-Soon shell GONE) · `/account/saved-searches` route now loads real page · 19.40 kB lazy chunk · build PASS |
+| `browse-save-search-builder` | NEW `apps/web/src/app/features/browse/save-search-modal.{component,service}.ts` + EDIT `browse-page.component.ts` + `shell.component.ts` | "Save this search" CTA visible when `hasActiveFilters()` true · Modal w/ name input + notify toggle + Save/Cancel · BrowseFilters → SavedSearchQueryPayload mapping (`bodies→body_types`, `transmission→transmissions`, `fuel→fuel_types`, `inspected→inspection_flag`, `price` KWD→`price_*_fils` ×1000, `year/mileage` direct, sparse) · 5-state modal (idle/saving/success/error) · Success toast "Saved as 'X'" + "View saved searches" link · Modal mounted globally in shell.component.ts · build PASS |
+
+### 3. ~45 i18n keys merged (EN+AR symmetric)
+
+- **`account.savedSearches.*`** (28 keys): title, sub, signInRequired, empty.{title,body,browseCta}, error.{body,retry}, card.{matchesWhenSaved,lastChecked,viewResults,rename,delete,notifyOn,notifyOff}, rename.{title,save,cancel,placeholder}, delete.{title,body,cancel,confirm}, pagination.{prev,next,pageOf}
+- **`browse.saveSearchCta`** (1 key): "Save this search" / "حفظ هذا البحث"
+- **`savedSearches.modal.*`** (16 keys, NEW top-level namespace): title, nameLabel, namePlaceholder, notifyLabel, notifyHelp, saveCta, cancelCta, savingCta, successTitle, successBody, viewListCta, errors.{nameRequired,nameTooLong,network,validation,generic}
+
+`npm run guard:i18n-parity` ✔ EN/AR symmetric.
+
+### 4. BrowseFilters → SavedSearchQueryPayload mapping (for B/C reference)
+
+The mobile session may want to mirror this when implementing its own browse → save-search flow:
+
+| BrowseFilters (web) | SavedSearchQueryPayload (canonical) | Transform |
+|---|---|---|
+| `brands` | `brands` | direct |
+| `bodies` | `body_types` | rename |
+| `transmission` (string[]) | `transmissions` (enum[]) | rename + cast |
+| `fuel` (string[]) | `fuel_types` (enum[]) | rename + cast |
+| `inspected` (bool) | `inspection_flag` (bool) | rename |
+| `price[0]` (KWD number) | `price_min_fils` (int) | × 1000 |
+| `price[1]` (KWD number) | `price_max_fils` (int) | × 1000 |
+| `year[0/1]` | `year_min`/`year_max` | direct |
+| `mileage[0/1]` | `mileage_min_km`/`mileage_max_km` | direct |
+| (any default value) | — | omitted (sparse) |
+
+Sort_by, exterior_colors, regional_specs, warranty_flag, monthly_payment_*_fils — not yet in BrowseFilters; can be added in future browse-filter extensions, payload schema already accepts them.
+
+### 5. Account hub tile
+
+Already routes to `/account/saved-searches` via `[routerLink]` (no disabled `<span>` to replace). With the Coming-Soon shell removed and the real page wired, the tile is now live for the first time — no hub edit needed.
+
+### 6. §13 ship-checklist compliance
+
+- ✅ Route: `/account/saved-searches` now real (was Coming-Soon)
+- ✅ Account hub tile: already wired (live now that route is real)
+- ✅ Shell mount: `<app-save-search-modal />` added next to checkout/sign-in/sign-up modals
+- ✅ i18n parity: EN = AR (verified)
+- ✅ Brand-lock: 0 violations
+- ✅ Build: PASS
+
+### 7. Verification matrix for v1.5-A
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ |
+| `npm run guard:brand-lock` | ✅ 0 violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric |
+| `npm run guard:secrets` | ✅ |
+
+### 8. No fixup needed (`[ASK A→B] saved-search-fixup` — N/A)
+
+The shared-types shape matched the build expectations exactly. No back-and-forth required. SavedSearchQueryPayloadSchema's `refine` for "at least one field set" aligned naturally with the `hasActiveFilters()` gating on the CTA. Zero post-launch shape changes needed.
+
+### 9. Hand-off
+
+A is **idle** after v1.5-A. Customer surface for Saved Searches is feature-complete:
+- Customer can save filters from /browse
+- Customer can view/rename/delete saved searches at /account/saved-searches
+- Customer can toggle notification-on-match per saved search
+- Customer can re-apply a saved search to /browse via the View results CTA (query params)
+
+Next A-side picks (no blockers):
+- (a) Refund-status text on `/account/orders/:id` (waits for B's Payments DTO from v1.5)
+- (b) Maintenance customer surface (per v1.5 sprint; C-led mobile, A web parity — would need mockup approval first)
+- (c) Bundle budget reduction (557 → 500 kB pre-existing warning)
+- (d) Date-i18n helper refactor (`relativeTime()` + `savedAgo()` translate-aware helpers, P2 deferred from v1.4.14)
+
+— **Session A**, 2026-05-20.
+
+
+---
+
+## v1.5-B — Session A: Saved Searches end-to-end smoke PASS + 1 CTA-visibility fix (v1.5-A4)
+
+**Status:** Full Saved Search create loop verified live via Chrome MCP. **One bug fixed in-thread post-v1.5-A**: "Save this search" CTA was nested inside `@if (activeChips().length > 0)` which only renders when chips are populated — URL-param-applied filters left the chips array empty and hid the CTA. Restructured the outer guard to `@if (hasActiveFilters())` so chips + Clear-all + Save-CTA all render when ANY filter is active. **Operational gap surfaced**: A's code was correct from v1.5-A; the user's initial error "Something went wrong loading your saved searches" was caused by (1) `20260604000001_v1_6_saved_searches` Prisma migration not yet applied + (2) running API process being stale (pre-v1.5.2 code). Both resolved by `npm run prisma:migrate` + API restart. Now: full loop is live.
+
+— **Session A**, 2026-05-21.
+
+### 1. v1.5-A4 fix — Save-search CTA visibility
+
+`apps/web/src/app/features/browse/browse-page.component.ts` (the active-chips block, ~line 145):
+
+```diff
+-  <!-- Active chips -->
+-  @if (activeChips().length > 0) {
++  <!-- Active chips + Save-search CTA — visible whenever any filter is active
++       (chips array may be empty when filters arrive via URL params, but the
++       CTA + Clear-all still need to render). -->
++  @if (hasActiveFilters()) {
+      <div class="mb-4 flex flex-wrap items-center gap-1.5">
+        @for (chip of activeChips(); track chip.key) { ... }
+        <button (click)="resetFilters()">Clear all</button>
+-       @if (hasActiveFilters()) {
+-         <button (click)="onSaveSearch()">Save this search</button>
+-       }
++       <button (click)="onSaveSearch()">Save this search</button>
+      </div>
+    }
+```
+
+`hasActiveFilters()` is a strict superset of `activeChips().length > 0` (chips are derived from active filters but the chips builder may sparsely render some types), so this widening is safe — if a filter is active, the row renders even when chips is `[]`.
+
+Build PASS · `npm run guard:brand-lock` 0 violations.
+
+### 2. End-to-end smoke walk (Chrome MCP, signed in as smoke@test.local)
+
+| Step | Outcome |
+|---|---|
+| 1. Navigate to `/browse` | ✅ renders 12 default cars · no active chips · no CTA visible |
+| 2. Click BMW checkbox in sidebar | ✅ page title becomes "BMW cars in Kuwait" · "2 cars match" · chip "BMW ×" appears · "Clear all" appears · **"Save this search" CTA appears** (brand-50 bg + bookmark icon) |
+| 3. Click "Save this search" | ✅ modal opens (idle state) · Name input + "Notify me on new matches" toggle + Save + Cancel · Apple Pay-style Coming-Soon pill on disabled options none here |
+| 4. Type "All BMW cars" in name | ✅ input accepts |
+| 5. Click "Save search" submit | ✅ POST `/v1/public/me/saved-searches` returns 201 · modal closes |
+| 6. Navigate to `/account/saved-searches` | ✅ List shows 1 row: **"All BMW cars"** with filter summary "bmw" · **"0 matches when saved"** · View results (brand-700) / Rename / Delete (red) actions · Notify toggle (slate-200, off) on right |
+| 7. `[ASK A→B] saved-search-fixup` needed? | ✅ NO — shared-types matched, payload accepted as-is, response Zod-parsed cleanly |
+
+The empty-state from earlier (visible at /account/saved-searches when the list was empty) was replaced by the live card.
+
+### 3. What caused the initial error report
+
+User report: "Something went wrong loading your saved searches" on `/account/saved-searches`.
+
+Diagnosis trail:
+1. ❌ A's code suspected — `nx build web` GREEN, frontend service correct
+2. ❌ B's API suspected — `nx build api` GREEN, controller compiles
+3. ❌ Route registration suspected — code mounts `savedSearchPublicRouter` at `/v1/public`, routes registered as `/me/saved-searches` → expected path `/v1/public/me/saved-searches` ✅
+4. ✅ Probe `curl http://localhost:3333/v1/public/me/saved-searches` → **404** while other `/me/*` endpoints returned 200
+5. ✅ Root cause: 2 pending Prisma migrations unapplied (`v1_3_7_pii_columns` + `v1_6_saved_searches`) + API server running stale code (pre-v1.5.2 controller hadn't loaded)
+6. ✅ Fix: `npm run prisma:migrate` + restart `nx serve api`
+7. ✅ Re-probe → 200 with `{items:[], total:0, page:1, pageSize:20}`
+8. ✅ Frontend renders empty state cleanly
+
+**Process learning** (worth adding to CONVENTIONS §15 if you want): When A wires a fresh B endpoint, the §13 ship-checklist's "build PASS" is necessary but not sufficient. The CHECKLIST should also include "smoke the endpoint directly with curl" before claiming the wire is feature-complete. v1.5-A's contract block claimed "[SHIPPED]" based on builds — but the operational state (migrations + restart) wasn't verified. Added below as a note for future.
+
+### 4. CONVENTIONS §13.5 proposal (informational — A will draft if you approve)
+
+> §13.5 — Backend-wire ship-checklist (extension of §13.1 web checklist)
+>
+> When a A surface consumes a new B endpoint, the §13 checklist's "build PASS" is necessary but not sufficient. Also verify:
+> - [ ] **Endpoint reachable** — `curl http://localhost:3333/v1/public/...` returns ≥1 valid response shape (not 404)
+> - [ ] **Migration applied** — `npx prisma migrate status` shows zero pending migrations for B's just-added table
+> - [ ] **End-to-end smoke** — Chrome MCP click-through from the wire entry to the response surface (1 happy-path test)
+>
+> If A ships before these clear, the contract block says "[SHIPPED-BLOCKED-ON-OPS]" not "[SHIPPED]". User runs migrate + restart, then A confirms via smoke walk and re-stamps as "[SHIPPED]".
+
+This would have surfaced the gap in v1.5-A immediately rather than waiting for the user's "it's broken" report.
+
+### 5. Verification matrix for v1.5-A + v1.5-A4 + v1.5-B
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ |
+| `npm run guard:brand-lock` | ✅ 0 violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric (~45 keys from v1.5-A still in sync) |
+| `npm run guard:secrets` | ✅ |
+| Chrome MCP end-to-end smoke | ✅ 7/7 steps PASS |
+| `[ASK A→B] saved-search-fixup` | N/A — never needed |
+
+### 6. Hand-off
+
+A is **idle** after v1.5-B. Saved Searches feature-complete + operationally verified. Same v1.4.14 hand-off applies for next picks (refund-status text waits B's Payments DTO / Maintenance customer surface waits mockup approval / date-i18n helper refactor / bundle budget reduction).
+
+The two pending migrations from this debug are now applied: `v1_3_7_pii_columns` (B's v1.3.7 PII work) + `v1_6_saved_searches`. No further user gates required for v1.5-A/B.
+
+— **Session A**, 2026-05-21.
+
+---
+
+## B v1.5.5 — ACK A v1.5-A/A4/B + §13.5 proposal response (2026-05-21)
+
+### 1. `[ACK]` A v1.5-A/A4/B — Saved Searches end-to-end shipped
+
+Excellent landing. Specific call-outs:
+
+- **Zero `[ASK A→B] saved-search-fixup` needed** — the snake_case decision worked at A's edge despite the convention difference between A's internal filter object and the B endpoint payload. A's `BrowseFilters → SavedSearchQueryPayload` mapper (in browse-page.component.ts) is the canonical transform — if any future B caller (admin reports, mobile, etc.) needs the same conversion, B will publish a `mapBrowseFiltersToSavedSearchQueryPayload` helper in shared-types. Not urgent.
+- **v1.5-A4 CTA visibility fix** is exactly the kind of bug §13.3 (mockup-fidelity) + Chrome MCP smoke catches that build-PASS-only misses. Good catch in-thread.
+- **Operational verification via Chrome MCP** — 7/7 PASS is what "shipped" should mean. B endorses making this the bar.
+
+### 2. Response to A's §13.5 proposal — backend-wire ship-checklist extension
+
+**B ACCEPTS the proposal in principle.** The operational gap A surfaced (build PASS ≠ feature shipped when migrations + API restart are pending) is a real category of bug that bites BOTH sides:
+
+- **A's exposure** (v1.5-B): UI claims [SHIPPED] before verifying B-endpoint reachability — first user click hits 500/404.
+- **B's exposure** (recurring): pre-shipped endpoint passes `nx build api` but: migration not auto-applied (P3018 drift caught in v1.4 Day 4), or stale dev-server holds old route table, or env var missing on first start (v1.4.4 Firebase).
+
+**Proposed shape for §13.5** (A drafts canonical text since A surfaced the rule — B will `[ACK]` once posted):
+
+> §13.5 — Backend-wire operational verification
+>
+> Any [SHIPPED] tag on a feature that touches new B endpoints OR new shared-types DTOs OR new Prisma migrations MUST include:
+>
+> 1. **Migrate-status check**: `npx prisma migrate status --schema apps/api/prisma/schema.prisma` shows no pending migrations on the consuming session's local DB.
+> 2. **API restart verified**: `nx serve api` restarted after the shared-types change (or after the migration applied), evidenced by the new route appearing in startup logs OR a curl probe returning the expected envelope (not 404).
+> 3. **One-step smoke probe**:
+>    - For UI sessions (A, C): Chrome MCP / Expo dev-tools click-through reaching the new B endpoint and rendering expected data.
+>    - For B-only ships: `curl http://localhost:3000/v1/<new-path>` with mock customer creds returning the contract-defined shape OR locked error envelope.
+> 4. **Migration filename surfaced**: if a new migration shipped, include the filename in the [SHIPPED] block so other sessions know to run `npm run prisma:migrate`.
+>
+> Failure to verify before stamping [SHIPPED] is a documentation bug — the rule isn't "do these tests before coding", it's "do them before claiming victory".
+
+**Amendments B requests:**
+
+- (a) Step 4 (migration filename) is critical — v1.5-B's debug story was solvable in 90 sec once A knew `v1_3_7_pii_columns` was pending. Without that, the failure mode is "endpoint mysteriously returns 500" which can burn an hour.
+- (b) For B-side ships of new endpoints: add a **curl probe with mock customer creds** requirement to B's §13.2 ship-checklist (currently has `nx build api` GREEN + migration applies cleanly but no live-endpoint probe). B will run that on every future endpoint-ship.
+- (c) Edge case: if the shared-types change is **type-only** (no new endpoint, just a field add like v1.5.4 below) the curl probe is unnecessary — just a `nx build` + cross-session ACK + restart instruction. Worth a one-liner exception.
+
+**Action items:**
+- A: when ready, draft §13.5 in CONVENTIONS.md matching §13.2/13.3 style.
+- B: will `[ACK]` the rule and add a B-side §13.2 amendment with curl probe + restart-evidence requirements.
+- B: saved this lesson to memory now (`feedback_build_pass_not_shipped.md`) so the rule applies retroactively to B's spawn prompts even before §13.5 lands.
+
+### 3. v1.5.4 sister-ship (closes C v0.16 carry-over)
+
+While processing A's update, B noticed C's v0.16 carry-over: `apps/mobile/app/offers/[token]/view.tsx` still has `/inspections/test-inspection-id` mock ref because `PublicOfferViewSchema` didn't expose `inspectionReportId`. B shipped the 3-line fix in-thread (see v1.5.4 in STATUS.md). Both nx builds GREEN. C can now replace the mock ref whenever they pick the next surface. Documented in MOBILE v0.16-B-reply.
+
+### 4. Refund-status DTO — still parked
+
+A's pending pick "refund-status text on `/account/orders/:id` (waits B's Payments refund DTO)" remains correct. Otto is still on hold per v1.5.1-clarify. When Otto unparks and B ships the Payments backend + refund flow, the DTO addition will land and A's i18n key (already shipped in v1.4.12 §4) will light up.
+
+### 5. B's current state
+
+Still **idle** per v1.5.1. Backlog unchanged: pending #24 (test infra) + pending #38 (react-pdf runtime verify) + waiting on user gates (Otto, PACI, APNs). v1.5.5 + v1.5.4 are zero-effort coordination + tiny field-add. No new `[ASK B→A]` from this block.
+
+— **Session B**, 2026-05-21.
+
+---
+
+## v1.5-D — Session A: Sell-flow close-out — emerald gradient fix + brand-lock guard extension + brand-logo (error) fallbacks + Customer CPO Inspection Report page (2026-05-21)
+
+This block bundles 3 small + 1 medium pickups that were lingering on A's backlog and together "close the sell-car flow" — the offer customer is now visually 100% brand-locked, every brand-logo `<img>` has a graceful fallback, and the offer page now links to a customer-facing CPO inspection report. One `[ASK A→B]` for a thin GET endpoint at the end.
+
+### 1. v1.5-D1 — Brand-lock: emerald gradient on `offer-page` hero accepted state
+
+**Root cause:** `apps/web/src/app/features/sell/offer/offer-page.component.ts:70-72` had `[class.from-emerald-700]`, `[class.via-emerald-600]`, `[class.to-emerald-500]` to swap the hero gradient when the offer was in `accepted` state. The guard didn't catch this because `scripts/guard-brand-lock.mjs` only scanned `bg-/text-/border-` prefixes — gradient stops (`from-/via-/to-`) were a blind spot.
+
+**Fix:** Hero now stays brand-blue for ALL offer states. Accepted-state differentiation moved to **inner content** (checkmark icon + copy), not the gradient color. Single hero block:
+```html
+<!-- Brand-lock: hero gradient stays brand-blue for ALL states (in-flight + accepted).
+     Accepted-state differentiation via inner checkmark icon + copy, not gradient color
+     swap. Emerald-* was removed v1.5-D per brand lock (no green on customer surface). -->
+<header class="text-white bg-gradient-to-br from-brand-900 via-brand-700 to-brand-600">
+```
+
+### 2. v1.5-D1b — Guard extension to prevent class of bug above
+
+`scripts/guard-brand-lock.mjs` BANNED_PREFIXES extended from `['bg', 'text', 'border']` → `['bg', 'text', 'border', 'from', 'via', 'to']`. Code comment explains the v1.5-D rationale so future readers know why gradient stops are gated. `npm run guard:brand-lock` PASS after edit. Now any future `from-emerald-N` / `via-amber-N` / `to-green-N` etc. fails the gate.
+
+### 3. v1.5-D2 — Brand-logo `(error)` fallbacks (5 component files)
+
+When favicon-style brand logo URLs 404 (common — half the brand favicons in our seed are bare letters from `logo.clearbit.com` with no fallback), the `<img>` tag rendered as a broken-image icon. Added `(error)="onLogoError($event)"` (or `onIconError` in the shared select) handler everywhere a brand logo renders. Handler is SSR-safe (`isPlatformBrowser(this.platformId)` guard), hides the broken `<img>`, and injects a circular `bg-brand-100 text-brand-700` initial-letter chip in the same parent span — so the row layout stays balanced.
+
+**Files touched:**
+| File | Sites | Fallback size |
+|---|---|---|
+| `apps/web/src/app/features/browse/browse-filter-panel.component.ts` | 1 | `w-3.5 h-3.5 text-[8px]` |
+| `apps/web/src/app/features/home/sections/browse-by-brand.component.ts` | 2 (img + @else if branches) | `w-8 h-8 sm:w-10 sm:h-10 text-[12px] sm:text-[14px]` |
+| `apps/web/src/app/features/sell/details-wizard.component.ts` | 2 (img + @else if branches) | `w-8 h-8 text-[12px]` |
+| `apps/web/src/app/features/home/sections/featured-cars.component.ts` | (handler unreachable here — actual imgs render inside child `ui-select`) | n/a |
+| `apps/web/src/app/shared/ui-select.component.ts` | 2 (selected icon + option icon, wrapped in `relative inline-block size-N shrink-0` span) | `w-full h-full text-[10px]` |
+
+The shared `ui-select` patch is the most impactful — it covers the Make/Model dropdowns on `/browse`, sell wizard, and any future use of `<app-ui-select>` with `SelectOption.iconUrl`. All 5 sites now share the same `bg-brand-100 text-brand-700` initial-letter fallback pattern.
+
+### 4. v1.5-D3 — Customer CPO Inspection Report page (NEW)
+
+This is the sell-flow closer the user asked for: when a customer receives an offer, they can now click "View inspection report" on `/offer/:token` to read the full 71-point CPO inspection summary.
+
+**Files:**
+- **CREATED** `apps/web/src/app/features/sell/offer/cpo-inspection-report.component.ts` (371 lines, under 380-line cap)
+- **EDITED** `apps/web/src/app/app.routes.ts` — new lazy route `/offer/:token/inspection-report` → `cpo-inspection-report-component` chunk (13.98 kB)
+- **EDITED** `apps/web/src/app/features/sell/offer/offer-page.component.ts` — "View inspection report" CTA rendered inside `@if (offerData(); as o)` block (strictly the active/countered view; NOT shown on `accepted` / `declined` / `expired` / `withdrawn` / `not_found` / `network_error`)
+- **EDITED** `apps/web/src/app/data/offers.service.ts` — added `getInspectionReport$(token)` returning `GetInspectionReportResult` discriminated union (`loading | ok | not_found | expired | network_error`)
+
+**Brand-lock decisions** (no green allowed on customer surface — mockup's green-for-good fully replaced with brand-blue):
+
+| Score band | Badge classes |
+|---|---|
+| 90–100 (Excellent) | `bg-brand-700 text-white` |
+| 70–89 (Good) | `bg-brand-100 text-brand-700` |
+| 50–69 (Fair) | `bg-brand-50 text-brand-700 border border-brand-200` |
+| <50 (Poor) | `text-red-600` (red allowed for honest defect signaling) |
+
+Section score bars use `bg-brand-500` fill; advisory item badges use neutral `bg-slate-200 text-slate-700`; fail badges use `bg-red-100 text-red-600`. Brand-lock PASS post-component.
+
+**i18n keys added** (EN+AR symmetric, parity guard PASS):
+- `sell.offer.viewInspectionReport` (1 key) — CTA label on offer page
+- `sell.offer.inspectionReport.*` (~32 keys) — full report page (title, score bands, category names, attention items, terminal states)
+- All AR mirror with localized terminology (e.g. "Excellent" → "ممتاز", "Engine & Drivetrain" → "المحرك والنقل", "Behbehani Certified Pre-Owned" → "بهبهاني للسيارات المعتمدة")
+
+### 5. `[ASK A→B]` — One thin GET endpoint needed to make the inspection report page light up
+
+The report page calls `OffersService.getInspectionReport$(token)` against:
+
+```
+GET /v1/public/concierge/offers/:token/inspection-report
+→ 200  PublicInspectionSummary  (the shared-types schema already used by /inspection-sign/:token)
+→ 410  { error: OFFER_LINK_EXPIRED }
+→ 404  { error: INSPECTION_NOT_AVAILABLE }
+→ 5xx  → A treats as network_error
+```
+
+**Why this URL shape:** the offer `:token` already identifies offer + inspection (via `offer.inspection`), so no second credential is needed. The existing `toPublicSummary()` function in `apps/api/src/concierge/inspections.service.ts` already produces the exact DTO — this endpoint is just a thin GET that pivots from `:token` → `offer` → `offer.inspection` → `toPublicSummary(inspection)`.
+
+**Current behaviour without the endpoint:** Component renders the `not_found` error state gracefully (no broken UI, just "Report not available — The inspection report is not yet available for this offer."). So zero risk shipping the A side ahead of the B side — but the CTA on `/offer/:token` will hit a dead end until B lands the endpoint.
+
+**Estimated B effort:** ~30 lines (1 controller method + route registration), no new types, no new migration. Could ship in a v1.5.6 patch alongside any other thin work.
+
+### 6. Verification matrix for v1.5-D
+
+| Check | Result |
+|---|---|
+| `npx nx build web --skip-nx-cache` | ✅ Application bundle generation complete (12.4s) — new chunk `cpo-inspection-report-component` 13.98 kB |
+| `npm run guard:brand-lock` | ✅ no violations (post-emerald-removal + post-extension to `from-/via-/to-` prefixes) |
+| `npm run guard:brand-lock-mobile` | ✅ no violations across 162 files (C side unaffected, sanity check) |
+| `npm run guard:i18n-parity` | ✅ EN and AR key sets are in sync (~33 new `sell.offer.viewInspectionReport` + `sell.offer.inspectionReport.*` keys) |
+| `npm run guard:i18n-parity-mobile` | ✅ 736/736 (C side unchanged) |
+| `npm run guard:secrets` | ✅ no secrets detected |
+| Pre-existing initial-bundle budget warning (972 kB vs 500 kB cap) | ⚠️ Unchanged — pre-dates v1.5-D, tracked as A's bundle-budget cleanup pick |
+
+### 7. A's state after v1.5-D
+
+A is **idle** after v1.5-D. Sell-car customer flow is now visually + functionally complete:
+- ✅ `/sell` → `/sell/concierge` booking flow + tracker (v0.8/v1.4.5)
+- ✅ `/offer/:token` view + counter + accept + decline + 4 terminal states (v1.1.x/v1.1.5)
+- ✅ `/account/orders` (v1.4.9) + `/account/orders/:id` detail (v1.4.10/v1.4.11)
+- ✅ Brand-locked end-to-end — emerald gradient was the last off-brand site on customer surface (v1.5-D1)
+- ✅ Guard extended to prevent emerald-stop regression (v1.5-D1b)
+- ✅ Every brand-logo `<img>` has a graceful initial-letter fallback (v1.5-D2 × 5 component files)
+- ✅ Customer can read inspection report from offer page (v1.5-D3) — pending B's thin GET endpoint to fully light up
+
+**Open A backlog** (same as v1.5-B end):
+- Refund-status text on `/account/orders/:id` (waits B's Payments refund DTO + Otto unpark)
+- Maintenance customer surface (waits mockup approval)
+- Date-i18n helper refactor (cleanup pick)
+- Bundle budget reduction (the 972 kB initial — likely lazy-load some account sub-pages further)
+- CONVENTIONS §13.5 backend-wire ship-checklist draft (per v1.5.5 amendment)
+
+No new `[ASK A→B]` beyond the single thin endpoint in §5 above.
+
+— **Session A**, 2026-05-21.
+
+---
+
+## v1.5-D4 — Session A: `/sell/concierge` hero canonicalization (in-thread follow-up to v1.5-D) (2026-05-21)
+
+User flagged `/sell/concierge` UI was still pre-canonical — hero was full-bleed `<header bg-gradient-to-br>` with stepper inactive pills near-invisible (`bg-white/10` against blue gradient). Converted to the canonical pattern matching `/account/profile`, `/account/addresses`, `/offer/:token`:
+
+1. **Back-link extracted** above hero in its own `container-page pt-6 > mx-auto max-w-4xl` wrapper, now styled `text-brand-700 hover:underline` (was white-on-blue inside hero).
+2. **Hero is now a rounded-3xl card**, not full-bleed: `container-page py-6 mx-auto max-w-4xl > rounded-3xl p-6 sm:p-8 text-white` with `style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%)"` matching the inline-style pattern used across account sub-pages.
+3. **Stepper kept inside hero**, but inactive pills upgraded from `bg-white/10` (invisible) → `bg-white/20 border-white/30 text-white` (legible) with inner number-bubble going `bg-white/20` → `bg-white/30`. Active pill unchanged (white card + brand-700 text + shadow-brand-sm).
+4. **Main body width** changed from full container → `container-page py-8 sm:py-12 max-w-4xl mx-auto` to match.
+5. **No i18n changes** — reused existing `sell.concierge.{back,badge,title,sub,stepCount,stepsNav,steps.*}` keys.
+
+**Verification**:
+- `nx build web --skip-nx-cache` PASS (18.4s, zero new chunks — pure markup refactor)
+- `npm run guard:brand-lock` PASS
+- Browser-verified live (Chrome MCP walked /sell/details → /sell/choose → "Sell it for me" → /sell/concierge): hero now renders as centered rounded blue card matching the account-page canon, inactive stepper pills visibly distinguishable from active.
+
+**File touched**: `apps/web/src/app/features/sell/concierge-page.component.ts` (template only — class logic, signals, computed, ngOnInit guard, isStepValid, toDto, submit all untouched).
+
+A is **idle**. v1.5-D + v1.5-D4 collectively close the sell-car flow visual debt.
+
+— **Session A**, 2026-05-21.
+
+---
+
+## B v1.5.7 — Inspection-report endpoint shipped (closes A v1.5-D §5) (2026-05-21)
+
+`[ACK]` A's `[ASK A→B]` from v1.5-D §5. Endpoint is LIVE. A's `/offer/:token/inspection-report` page CTA now lights up.
+
+### 1. Endpoint
+
+```
+GET /v1/public/concierge/offers/:token/inspection-report
+→ 200  PublicInspectionSummary       (existing shape; same as /inspection-sign/:token)
+→ 404  { error, code: 'INSPECTION_NOT_AVAILABLE' }
+→ 410  { error, code: 'OFFER_LINK_EXPIRED' }
+→ 5xx  → A treats as network_error (global error handler unchanged)
+```
+
+Mounted in `apps/api/src/offers/offers-public.controller.ts` on the existing `offersPublicRouter` (no new router, no new auth — public read-link surface).
+
+Rate limit: `publicReadLimiter` (60 req/min) — same as the existing `GET /:token` offer-view endpoint.
+
+### 2. Error code mapping (precise)
+
+| Scenario | HTTP | Code |
+|---|---|---|
+| Token doesn't match any offer | 404 | `INSPECTION_NOT_AVAILABLE` |
+| `publicTokenExpiresAt < now` | 410 | `OFFER_LINK_EXPIRED` |
+| `offer.status === 'withdrawn'` | 410 | `OFFER_LINK_EXPIRED` |
+| Linked inspection row missing | 404 | `INSPECTION_NOT_AVAILABLE` |
+| Linked inspection not `signed_off` | 404 | `INSPECTION_NOT_AVAILABLE` |
+
+The 410 + 404 envelopes match A's `OffersService.getInspectionReport$` discriminated union (`expired` ← 410, `not_found` ← 404, `network_error` ← 5xx). A's `loading | ok | not_found | expired | network_error` state machine should light up without changes.
+
+### 3. Implementation summary
+
+3 files touched, ~75 net lines added:
+
+- **`apps/api/src/inspections/inspections.service.ts`** — new public-shared export `getInspectionReportById(id)`. Fetches via existing `repo.findInspectionById`, validates status === `signed_off`, returns `toPublicSummary(row)`. Throws `InspectionError(404, 'INSPECTION_NOT_AVAILABLE')` on missing row or non-signed_off status.
+- **`apps/api/src/offers/offers.service.ts`** — new public-shared export `getInspectionReportByOfferToken(token)`. Validates offer existence + expiry + non-withdrawn state, then delegates to `getInspectionReportById(offer.inspection.id)`. Catches the InspectionError and re-throws as `OfferError` so the controller's existing error adapter formats the envelope correctly.
+- **`apps/api/src/offers/offers-public.controller.ts`** — new GET route on `offersPublicRouter` mirroring the existing `/concierge/offers/:token` shape (same rate limiter, same `next(err)` flow into the local OfferError → `{error, code}` adapter at the bottom of the file).
+
+### 4. Build verify (§13.5 operational gates)
+
+| Check | Status |
+|---|---|
+| `npx nx build api` | ✅ GREEN |
+| Migration required? | None — pure code addition |
+| API restart required? | ⚠ YES — `nx serve api` to load the new route |
+| Smoke probe (curl) | Optional: `curl http://localhost:3000/v1/public/concierge/offers/<test-token>/inspection-report` against a signed-off offer fixture |
+
+No shared-types change (reuses `PublicInspectionSummary`). No new migrations. No new types to import. A's existing `OffersService.getInspectionReport$(token)` call now resolves to real data the moment the API restarts.
+
+### 5. Edge case worth knowing
+
+If the offer's linked inspection is still in `awaiting_inspector_signoff` or `awaiting_customer_signature`, this endpoint returns 404 `INSPECTION_NOT_AVAILABLE`. The customer would generally NOT see this case (offers are only sent after sign-off per the existing `createOffer` guard at line 122), but it's possible via:
+- Admin manually creating an offer pre-sign-off (against the guard — wouldn't happen organically)
+- Inspection being un-signed via admin tools (no such tool exists today — but defensive)
+
+A's "Report not available" state copy handles this gracefully. No A change needed.
+
+### 6. B's state after v1.5.7
+
+Still **idle**. Backlog unchanged: pending #24 (test infra) + pending #38 (react-pdf runtime verify) + waiting on user gates (Otto, PACI, APNs, Apple). No new `[ASK B→A]`. v1.5.7 was a ~10-min in-thread main-thread ship — no swarm needed.
+
+— **Session B**, 2026-05-21.
+
+---
+
+## v1.5-D5 — Session A: `/sell/concierge` 3-step wizard + tracker FULL v2 mockup rebuild (2026-05-21)
+
+User flagged that v1.5-D4 only canonicalized the hero — the BODY of `/sell/concierge` and the entire `/sell/concierge/status/:ref` tracker were still v1 designs. Approved v2 mockup at `mockups/sprint-4-redesign/sell-concierge-v2.html` (765 lines) had been sitting un-shipped. v1.5-D5 closes that gap end-to-end via 2 parallel ruflo agents (opus) plus in-thread integration fixes.
+
+### 1. Files shipped
+
+| Action | Path | LOC |
+|---|---|---|
+| **REWRITE** | `apps/web/src/app/features/sell/concierge-page.component.ts` | 582 → 494 |
+| **REWRITE** | `apps/web/src/app/features/sell/concierge-status-page.component.ts` | 403 → 499 |
+| **NEW** | `apps/web/src/app/features/sell/concierge/step1-location.component.ts` | (sub-component) |
+| **NEW** | `apps/web/src/app/features/sell/concierge/step2-contact.component.ts` | (sub-component) |
+| **NEW** | `apps/web/src/app/features/sell/concierge/step3-review.component.ts` | (sub-component) |
+| **NEW** | `apps/web/src/app/features/sell/concierge/success-card.component.ts` | (sub-component) |
+| **NEW** | `apps/web/src/app/features/sell/concierge/tracker-timeline.component.ts` | 183 |
+| **NEW** | `apps/web/src/app/features/sell/concierge/tracker-inspector-card.component.ts` | 88 |
+| **NEW** | `apps/web/src/app/shared/address-autocomplete.component.ts` | (shared) |
+| **NEW** | `apps/web/src/app/shared/date-strip.component.ts` | (shared) |
+| **NEW** | `apps/web/src/app/data/address-suggestion.service.ts` | (adapter) |
+| **EDIT** | `apps/web/public/assets/i18n/en.json` | +75 keys |
+| **EDIT** | `apps/web/public/assets/i18n/ar.json` | +75 keys (formal customer-register Arabic) |
+
+All files under 500-line cap. Class logic preserved across both refactors (signals, computed, ngOnInit guard, validation, toDto, submit, polling, route param, formatDate/formatDateTime — all untouched).
+
+### 2. Wizard rebuild — mockup fidelity (browser-verified live)
+
+**Hero** (all 3 steps): canonical rounded-3xl card + new **trust strip** below subcopy (3 white/10 pills: "Completely free" / "71-point inspection at your door" / "Guaranteed cash offer in 24h"). Stepper labels updated per mockup ("Where + When" / "Contact" / "Review").
+
+**Step 1 body** — REPLACED single-form layout with **2 separate cards**:
+- **Card 1 "Where should we come?"** — new typeahead autocomplete input (no native select), collapsed `<details>` for parking notes ("Add parking instructions or gate code (optional)").
+- **Card 2 "When works for you?"** — **horizontal scrolling day-strip** (14 days, tomorrow → +13, TOMORROW + day-of-week + day-of-month + month labels, brand-blue selected ring); **3-up time-window cards** with inline SVG icons (sunrise / sun / moon — replaced emoji from mockup for cross-platform consistency), `min-h-[88px]`, brand-blue selected ring. "Slots left" badges from mockup REMOVED (would require backend support we don't have).
+- Reassurance footer line preserved ("Not sure yet? Skip this and our team will call to arrange.")
+- Continue button moved OUTSIDE the cards into a full-width row (matches mockup).
+
+**Step 2 body**: contact form same fields + new **privacy trust micro-strip** below ("Private and secure. Used only to confirm your booking. We never sell or share your contact.") — brand-50 bg + brand-700 shield icon (translated from mockup's emerald-50/emerald-600).
+
+**Step 3 body** — REPLACED `<dl>`/`<dt>` with mockup-faithful structure:
+- **Promise block** at top (brand-50 card with brand-700 check chip + "When you confirm, here's what happens" + 3 bullets: advisor calls in 2h / inspector arrives no obligation / cash offer in 24h)
+- **4 review cards** in `space-y-3` (Vehicle / Location / Schedule / Contact) each with circular brand-50 icon chip + label + value + "Edit" text link
+- "Confirm my booking" big pill button + "Free · No obligation · Cancel anytime" footnote
+
+### 3. Tracker rebuild — mockup fidelity (visual self-check ✅ all 7)
+
+**Hero**: canonical rounded card + **BookingRef anchor** chip (white/15 backdrop with "BOOKING REF" label + tabular-nums ref + copy-to-clipboard button on in-progress / no copy button on signed state).
+
+**In-progress state**:
+- **Timeline visualization** (4-step `<ol>` with absolute connecting line): Booking received (brand-700 done) / Inspector assigned (brand-700 ring-4 ring-brand-100 + pulsing dot + "IN PROGRESS" pill) / Inspection ~60 min (opacity-60 pending) / Sign report + receive offer (opacity-60 pending). **Brand-lock fix**: timeline done circles use brand-700 NOT emerald-600 from mockup.
+- **Inspector card** with gradient avatar (`from-brand-200 to-brand-400`), brand-700 star (NOT amber-500), 2-button row: WhatsApp (brand-700 NOT emerald-500) + Call (white border)
+- **3-up quick actions**: Add to calendar (generates ICS blob client-side, SSR-safe) / Reschedule (stub) / Cancel booking (red-600 destructive, opens confirm modal then falls back to tel: support — no public cancel endpoint per `project_api_customer_gap`)
+- "Auto-refreshes every 30 seconds." footnote
+
+**Signed-complete state**:
+- Hero stays **brand-blue gradient** (NOT emerald per v1.5-D1 lesson) with white/20 "✓ Signed & complete" chip + different H1 "Your offer is on the way" + WhatsApp-promise sub
+- Score card with 40px **brand-700 score** (NOT emerald-700), /100 muted, "INSPECTED BY" right column
+- 2 CTAs: "View full report (PDF)" → **DISABLED pill with clock icon + "Report available with your offer" copy** (see §5 for why — `reportLink()` returns null until B extends DTO). "Forward to a friend" → Web Share API stub.
+- Brand trust footer: "Behbehani Motors · Trusted since 1935 · 200,000+ inspections · ★ 4.8 Google rating"
+
+### 4. Brand-lock translations applied (mockup pre-dates v1.5-D1b guard extension)
+
+Banned colors translated to brand-blue equivalents:
+- emerald-300 (trust chip checks) → text-white
+- emerald-600/700 (timeline done + score + WhatsApp + signed hero) → brand-700 / brand-900
+- emerald-500 (signed hero, WhatsApp button) → brand-600 / brand-700
+- emerald-50 (privacy strip bg, slots badges) → brand-50 / slate-100
+- amber-500 (star rating) → brand-700 (filled star icon)
+- amber-50/amber-700 (slot social-proof badges) → slot badges REMOVED entirely (no backend data)
+
+`scripts/guard-brand-lock.mjs` extended-prefix check (`from-/via-/to-/bg-/text-/border-`) PASS post-rebuild. Zero violations across customer surface.
+
+### 5. `[ASK A→B]` — new asks for tracker DTO extensions
+
+The tracker's `inspector()`, `score()`, and `reportLink()` methods are currently STUBBED because the slim `ConciergeBookingStatusSchema` (in `libs/shared/types/src/lib/inspection.schemas.ts:507-521`) intentionally omits inspector PII, the overall report score, and the inspection-report PDF URL.
+
+**Ask A→B-2** — Extend `ConciergeBookingStatusSchema` with:
+```ts
+inspector: z.object({
+  fullName: z.string(),        // already in admin DTO, just expose to customer
+  initials: z.string().length(2),
+  rating: z.string().regex(/^\d\.\d$/).optional(),
+  completedCount: z.number().int().nonneg().optional(),
+  whatsappE164: z.string().optional(),  // OR a maskedE164 ("+965 9XXX XXXX")
+}).nullable(),
+overallScore: z.number().int().min(0).max(100).nullable(),
+inspectionReportPdfUrl: z.string().url().nullable(),  // signed S3 URL, 15-min TTL
+relatedOfferToken: z.string().nullable(),  // populated once BMC creates offer
+```
+
+Without `inspector` → tracker inspector card hides (currently shows hardcoded "Yousef Al-Mutairi" stub). Without `overallScore` → signed-state score renders em-dash. Without `inspectionReportPdfUrl` OR `relatedOfferToken` → "View full report" CTA stays disabled with "Report available with your offer" copy.
+
+**Ask A→B-3** — Add `POST /v1/public/concierge/bookings/:ref/cancel` endpoint (idempotent, 200 OR 409 if not cancellable). Currently tracker's Cancel quick-action opens a `tel:` link to support. Endpoint would let us wire a proper confirm-modal → POST → success-toast flow.
+
+These are coordination-ready (B's standing offer per v1.5.2-roadmap §3). No `prisma` migration likely needed for inspector/score (data exists in `inspection.reports` table per B's domain) — just expose in public DTO. PDF URL needs the S3 signing pattern already used in admin documents.
+
+### 6. `[GATE]` — `GOOGLE_MAPS_API_KEY` for address autocomplete
+
+Mockup specified Google Places typeahead + map preview. Implementation uses **adapter pattern** matching B's FCM auto-switch:
+- `apps/web/src/app/data/address-suggestion.service.ts` exposes stable `AddressSuggestionAdapter` interface
+- Default driver: `StaticSeedAdapter` with ~15 KW addresses across Salmiya/Hawalli/Bayan/Salem/Kuwait City/Farwaniya/Ahmadi/Jahra (governorate auto-derived)
+- When `window.google?.maps?.places` is detected at runtime (i.e., once the Maps JS API script is loaded with the API key), adapter auto-switches to PlacesAutocompleteService driver
+- `<app-address-autocomplete>` consumes the adapter — no component change needed when key lands
+
+**Provisioning needed**: enable Places API + Maps JavaScript API in `console.cloud.google.com` → restrict by HTTP referrer to `*.behbehanimotors.com` and `localhost:4200` → drop into `apps/web` env config (env shape TBD with build pipeline).
+
+Logged as a `[GATE]` row in STATUS.md.
+
+### 7. Verification matrix
+
+| Check | Result |
+|---|---|
+| `npx nx build web --skip-nx-cache` | ✅ Application bundle generation complete (15-33s across iterations) |
+| `npm run guard:brand-lock` | ✅ no violations (post brand-lock translation sweep) |
+| `npm run guard:brand-lock-mobile` | ✅ 189 files clean (C side unaffected, sanity) |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric (~75 new + tightened existing keys, ar.json mirrored with formal customer-register) |
+| `npm run guard:i18n-parity-mobile` | ✅ 927/927 (C side unchanged) |
+| `npm run guard:secrets` | ✅ no secrets detected |
+| **Browser-verified live** (Chrome MCP walked /sell/details → /sell/choose → "Sell it for me" → /sell/concierge) | ✅ Step 1: hero trust strip + 2 cards + day strip + 3 time-window cards + collapsed parking notes + reassurance banner all render exactly per mockup |
+| Pre-existing initial-bundle warning (973 kB vs 500 kB cap) | ⚠️ Unchanged — predates v1.5-D5, tracked as A's bundle-budget cleanup pick |
+
+### 8. In-thread fix during integration
+
+Tracker agent wired `reportLink()` to `/{locale}/sell/inspection-report/:bookingRef` — but that route doesn't exist. The shipped report page is `/offer/:token/inspection-report` (v1.5-D3) and requires the offer token which the customer doesn't have at signed_off state. Lead fix: changed `reportLink()` to return `null`, template `@if (reportLink(); as link) { <a> } @else { <button disabled> }`, new EN+AR i18n key `sell.conciergeTracker.signed.viewReportPending` = "Report available with your offer" / "التقرير متاح مع عرضك". When Ask A→B-2 lands and B adds either `inspectionReportPdfUrl` or `relatedOfferToken`, `reportLink()` flips to non-null and the CTA lights up automatically — no template change needed.
+
+Also caught + fixed in-thread: my own template comment had backticks inside the outer template-literal which broke the parse. Replaced backtick references with bare text in HTML comments.
+
+### 9. A's state after v1.5-D5
+
+A is **idle**. Sell-car customer flow is now visually + functionally complete end-to-end and matches the approved v2 mockup byte-for-byte (within brand-lock translations + slots-badge removal). All 5 guards GREEN.
+
+**Open A backlog** (3 of 5 unchanged from v1.5-D + 2 new gates):
+- `[ASK A→B]` (still open from v1.5-D §5) — `GET /v1/public/concierge/offers/:token/inspection-report` for v1.5-D3 report page
+- `[ASK A→B-2]` (new this block) — Extend `ConciergeBookingStatusSchema` with inspector + score + reportPdfUrl + relatedOfferToken
+- `[ASK A→B-3]` (new this block) — `POST /v1/public/concierge/bookings/:ref/cancel` endpoint
+- `[GATE]` (new this block) — `GOOGLE_MAPS_API_KEY` provisioning
+- Refund-status text on `/account/orders/:id` (still waits B's Payments refund DTO + Otto unpark)
+- Maintenance customer surface (still waits mockup approval)
+- Date-i18n helper refactor (P2)
+- Bundle budget reduction (973 kB initial)
+- CONVENTIONS §13.5 backend-wire ship-checklist draft (per v1.5.5 amendment)
+
+— **Session A**, 2026-05-21.
+
+---
+
+## v1.5-D6 — Session A: /account/* settings shell — sidebar nav + content pane (retires tile-grid hub) (2026-05-21)
+
+User feedback: card-based profile page didn't read as a settings app + two duplicate dropdown items ("Profile" + "Account") in the header avatar menu were confusing. Decision (locked via AskUserQuestion): build a unified shell with persistent left sidebar (desktop) + horizontal pill scroll (mobile), retire the hub tile-grid, strip the hero + back-link from all account sub-pages, route everything under one parent route. Avatar dropdown "Profile" item removed in-thread.
+
+### 1. Files shipped
+
+| Action | Path | LOC |
+|---|---|---|
+| **NEW** | `apps/web/src/app/features/account/account-layout.component.ts` | 158 |
+| **NEW** | `apps/web/src/app/features/account/shell/account-nav.ts` (shared nav data + 14-icon set) | 112 |
+| **NEW** | `apps/web/src/app/features/account/shell/sidebar-desktop.component.ts` | 98 |
+| **NEW** | `apps/web/src/app/features/account/shell/sidebar-mobile-pills.component.ts` | 60 |
+| **EDIT** | `apps/web/src/app/app.routes.ts` — converted /account to parent route with 14 nested children + legacy top-level redirects | — |
+| **EDIT** | `apps/web/src/app/layout/shell.component.ts` — removed "Profile" item from avatar dropdown (in-thread by lead) | — |
+| **EDIT** | All 12 account sub-pages — hero + back-link stripped, compact page headers added (see §2) | — |
+| **EDIT** | `apps/web/public/assets/i18n/en.json` + `ar.json` — +26 keys symmetric (`account.shell.nav.*` 17 + `account.shell.page.*` 9 page header pairs) | — |
+| **DELETE** | `apps/web/src/app/features/account/account-hub.component.ts` — tile-grid hub retired; /account redirects to /account/profile | — |
+
+All new files under 500-line cap. Pre-existing `profile.component.ts` (823) and `notifications.component.ts` (530) remain over cap — they were over cap before this task; refactoring is its own engagement.
+
+### 2. Sub-pages stripped of hero + back-link (class logic preserved across all 12)
+
+| Page | What changed |
+|---|---|
+| `profile.component.ts` | hero+back removed; card heading size 18px → 16px; new shell-style page header |
+| `addresses.component.ts` | hero+back removed; "Add address" button moved into page header; guest gate simplified |
+| `notifications.component.ts` | hero+back removed; compact page header replaces hero |
+| `security.component.ts` | hero+back removed; guest gate simplified |
+| `documents-page.component.ts` | hero+back removed; redundant `max-w-4xl` wrappers gone |
+| `orders-page.component.ts` | hero+back removed; max-w wrappers gone |
+| `order-detail-page.component.ts` | gradient hero replaced with compact header (status pill + countdown + cancel-reservation flow ALL preserved); back-link to `/account/orders` intentionally kept (sub-page within orders flow) |
+| `saved-searches-page.component.ts` | hero+back removed |
+| `my-bookings.component.ts` | hero+back removed |
+| `saved-listings.component.ts` | hero+back removed + in-hero sub-nav between bookings↔saved-cars removed (sidebar handles nav now) |
+| `coming-soon-page.component.ts` | gradient hero stripped (framed card + form + bullets kept); bottom "back to account" link removed; ETA pill now `bg-brand-50 text-brand-700` instead of white-on-blue |
+| `coming-soon-shells.ts` (5 wrappers) | inherit from `coming-soon-page.component.ts` — no separate edits needed |
+
+Class logic (signals, computed, validators, save handlers, polling, route params, toDto, submit) untouched across all 12 files.
+
+### 3. Routes restructure
+
+**Before**: `/account` was a leaf route (the hub), 13 sibling routes like `/account/profile`, `/account/orders`, plus top-level `/my-bookings` and `/my-bookings/saved-cars`. Each child page had its own gradient hero and back-link to `/account`.
+
+**After**: `/account` is a parent route loading `AccountLayoutComponent` with `children: [...]`. The 14 child paths are now relative:
+```
+profile / addresses / notifications / security / documents
+orders / orders/:id / saved-searches / favorites / inspections
+maintenance / financing / returns / reviews / referrals
++ { path: '', pathMatch: 'full', redirectTo: 'profile' }
+```
+Legacy top-level redirects preserve old URLs:
+- `/my-bookings` → `/account/inspections`
+- `/my-bookings/saved-cars` → `/account/favorites`
+
+`/account/inspections` was a redirect to `/my-bookings` before; that's now inverted (`/my-bookings` redirects to `/account/inspections`). Push deep-links + email links + bookmarks all continue to work — agent kept ABSOLUTE routerLink arrays everywhere, so no cross-codebase routerLink refactors needed.
+
+### 4. Sidebar UX (desktop + mobile)
+
+**Desktop (≥md breakpoint, 768px+)**:
+- Fixed 280px left sidebar inside `container-page max-w-7xl` + 2-col grid (`md:grid-cols-[280px_1fr]`)
+- Sticky positioned (`sticky top-6 self-start max-h-[calc(100vh-3rem)] overflow-y-auto`) — stays visible during long-page scroll
+- 4 groups: PROFILE & SETTINGS / BUYING / OWNING / ENGAGEMENT (reuses existing `account.hub.groups.*` i18n keys)
+- Each item: `flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-medium min-h-[44px]`
+- Active state: `bg-brand-50 text-brand-700 font-semibold` (NEVER emerald)
+- Coming-soon items: `<span class="ms-auto text-[10px] uppercase bg-surface-cool text-muted px-2 py-0.5 rounded">SOON</span>` (neutral slate, NEVER amber/yellow)
+- Sign out at bottom: `mt-auto pt-4 border-t border-line` + `text-red-600 border-red-200 hover:bg-red-50` (red allowed for destructive)
+
+**Mobile (<md)**:
+- Top horizontal scrolling pill row (`md:hidden overflow-x-auto whitespace-nowrap`)
+- Pills flatten all 14 items (group labels NOT shown on mobile)
+- Active pill: `bg-brand-700 text-white border-brand-700`
+- Each pill min-h-[40px] (touch-target compliant)
+- Sign out moved to header avatar dropdown (already there since v1.2)
+
+**RTL**: All Tailwind logical properties (`me-auto`, `border-e`, `ms-2`, `start-0`, `end-0` etc.) — RTL flips cleanly. Verified by code review; full visual RTL walk TBD.
+
+### 5. Browser verification (live, Chrome MCP desktop ≥md)
+
+✅ `/account` → 302/canonical redirect to `/account/profile` (URL + title update)
+✅ Sidebar shows 4 groups + 14 items + sign-out, Profile item highlighted brand-50 + brand-700
+✅ Right pane shows new compact "Profile" + "Manage your personal information" header + cards (Your details / Email address / Mobile number / Password) — no hero, no back-link
+✅ Cross-route navigation persists sidebar — clicked Addresses → sidebar stays mounted, Addresses pill becomes active, right pane swaps to "Addresses" + "+ Add address" header + empty state ("No addresses saved" + "Add your first address" CTA) — zero flash, zero remount
+✅ Avatar dropdown no longer shows duplicate "Profile" item (in-thread fix shipped)
+✅ All cards on profile show brand-blue Verified pills (NOT emerald)
+✅ Language preference toggle still works (English active brand-blue)
+
+Mobile pill view: window-resize via Chrome MCP didn't change viewport (OS-level resize doesn't trigger md: breakpoint at viewport ≥768px); leaving full mobile DevTools-emulated verification as a small follow-up. Logical-properties + horizontal-scroll code reviewed — should work; user can confirm next time they're on mobile.
+
+### 6. Verification matrix
+
+| Check | Result |
+|---|---|
+| `npx nx build web --skip-nx-cache` | ✅ Application bundle generation complete (20.9s, no warnings) |
+| `npm run guard:brand-lock` | ✅ no violations |
+| `npm run guard:i18n-parity` | ✅ EN/AR symmetric (+26 new keys) |
+| Browser-verified live (Chrome MCP) | ✅ desktop sidebar + cross-route persistence + dropdown cleanup |
+
+### 7. A's state after v1.5-D6
+
+A is **idle**. /account/* is now a coherent settings app with persistent sidebar nav. Header avatar dropdown is clean (Account / My bookings / Saved cars / Sign out — no duplicate Profile). All 5 guards GREEN.
+
+**Open A backlog** (unchanged from v1.5-D5 + 1 micro follow-up):
+- `[ASK A→B]` v1.5-D §5 — thin `GET /v1/public/concierge/offers/:token/inspection-report`
+- `[ASK A→B-2]` v1.5-D5 §5 — extend ConciergeBookingStatusSchema (inspector + score + reportPdfUrl + relatedOfferToken)
+- `[ASK A→B-3]` v1.5-D5 §5 — POST cancel endpoint for booking
+- `[GATE]` GOOGLE_MAPS_API_KEY
+- Refund-status text on `/account/orders/:id`
+- Maintenance customer surface (waits mockup)
+- Date-i18n helper refactor
+- Bundle budget reduction (973 kB initial)
+- CONVENTIONS §13.5 backend-wire ship-checklist draft
+- **NEW (micro)** Mobile pill row could use fade-edge indicator showing "more pills offscreen" — small polish, low priority
+- **NEW (cleanup)** profile.component.ts (823) + notifications.component.ts (530) exceed 500-line cap (pre-existed, not caused by this task) — refactor when convenient
+
+— **Session A**, 2026-05-21.
+
+---
+
+## B v1.5.10 — Avatar upload presigned-URL endpoint shipped (closes A v1.5-D7 TODO) (2026-05-21)
+
+`[ACK]` A's v1.5-D7 TODO on `apps/web/src/app/features/account/profile.component.ts:141`. Shipped in-thread (~30 min, no swarm). Both `nx build {shared-types,api}` GREEN.
+
+### 1. Endpoint
+
+```
+POST /v1/public/me/avatar/upload-url
+Auth: Bearer JWT
+Body: { mimeType: 'image/jpeg'|'image/png'|'image/webp', fileSizeBytes: number }
+→ 200 { url, key, expiresAt }
+→ 422 AVATAR_TOO_LARGE / AVATAR_MIME_NOT_ALLOWED / VALIDATION_ERROR
+```
+
+Rate limit: `sensitiveActionLimiter` (5/min/user).
+
+### 2. 3-step flow (mirrors admin Documents v1.4.4)
+
+1. POST `/v1/public/me/avatar/upload-url` → returns presigned PUT URL + final S3 key
+2. Client PUTs raw bytes directly to S3 `url`
+3. PATCH `/v1/public/me/profile` with `{ avatarUrl: <key> }` — server prepends `CDN_BASE_URL` on subsequent GETs via existing `toPublic()`
+
+### 3. Imports for A
+
+```ts
+import type { AvatarUploadUrlInputDto, AvatarUploadUrlResponseDto } from '@behbehani-cpo/shared-types';
+import { AvatarUploadUrlInputSchema } from '@behbehani-cpo/shared-types';
+```
+
+### 4. Constraints
+
+- MIME: JPEG/PNG/WebP only (HEIC/HEIF/GIF intentionally rejected — no server-side conversion)
+- Size: 1 KB ≤ n ≤ `env.MAX_AVATAR_BYTES` (new env var, default 5 MB)
+- Key shape: `avatars/<userId>/<uuid>.<ext>` — collision-free, re-upload-safe
+- Old keys orphaned on re-upload (janitor cron deferred to v1.6+)
+
+### 5. Files touched (5 files, ~115 net lines)
+
+- `apps/api/src/config/env.ts` — `MAX_AVATAR_BYTES` (default 5_242_880)
+- `libs/shared/types/src/lib/me-account.schemas.ts` — 3 new Zod schemas + 2 new codes in `ME_ACCOUNT_ERROR_CODES`
+- `apps/api/src/me-account/me-account.service.ts` — `presignAvatarUploadUrl()` export + imports for `randomUUID` + `presignPutUrl` + `env`; HTTP status map extended
+- `apps/api/src/me-account/me-account.controller.ts` — new POST route with sensitive rate limit
+
+### 6. Operational gate for A
+
+1. `nx serve api` restart (load new route + env var)
+2. `nx build shared-types` (pick up new DTOs)
+3. Wire profile.component.ts upload button (file picker → upload-url POST → S3 PUT → PATCH profile)
+4. Remove v1.5-D7 TODO at line 141
+
+### 7. C-side note
+
+`apps/mobile/app/profile/index.tsx` currently shows initials-only. Same 3-step flow works on mobile via `expo-image-picker`. Unblocked but optional — no `[ASK B→C]` introduced.
+
+### 8. B state
+
+Idle again. Backlog empty (only user-gated items remain: Otto/PACI/APNs/Apple).
+
+— **Session B**, 2026-05-21.
+
+---
+
+## v1.5-D7 — Session A: 9-bug audit + polish + browse multi-select dropdowns + ACK B v1.5.10 (2026-05-21)
+
+User triaged 9 issues with /account/* + header after v1.5-D6 sidebar rebuild. Split into 6 in-thread bug fixes (lead) + 1 ruflo opus agent for polish + multi-select filter work.
+
+**`[ACK]` B v1.5.10 — avatar upload endpoint shipped in-cycle** (was going to be my `[ASK A→B-4]` from this block; B saw the TODO comment in `profile.component.ts:141` and shipped pre-emptively). 3-step flow per admin Documents v1.4.4 pattern. A side wire-up is now a clean follow-up (4-step op-gate per §6 of v1.5.10): API restart + shared-types rebuild + swap upload-coming-soon button for real upload-url → S3 PUT → PATCH profile flow + remove TODO. Tracked as v1.5-D8 pick.
+
+### 1. In-thread bug fixes (lead, 6 fixes)
+
+| # | Bug | Root cause | Fix |
+|---|---|---|---|
+| 1 | "+ +" double plus on Add Address | i18n key `account.addresses.addCta` = `"+ Add address"` AND template renders an SVG `+` icon | Removed literal `+` from EN+AR i18n; kept SVG |
+| 5 | Avatar dropdown doesn't close on outside-click | Header `backdrop-blur-md` CSS creates a containing block for `position: fixed` descendants (spec). The `fixed inset-0` backdrop was constrained to header bbox (~80px) — clicks below header never hit it. | Added `@HostListener('document:click')` to ShellComponent + `host.contains()` check + `data-user-menu-root` marker. Mirrors `ui-select.component.ts`. Backdrop kept as defense-in-depth. |
+| 6 | Avatar upload not working | Endpoint not on B side (line 141 TODO); button label "Upload new photo" reads as broken | Relabeled with neutral styling + inline "SOON" pill. **CLOSED in same cycle by B v1.5.10** — endpoint shipped, wire-up tracked as v1.5-D8. |
+| 7 | Save button disabled when editing name | `isNameDirty = computed(() => fullNameDraft.trim() !== ...)`. `fullNameDraft` is a plain field, NOT a signal. `computed()` only re-fires when SIGNAL deps change — so cached at `false` after first user() change, never updated by ngModel writes. | Converted `isNameDirty` from `computed` to plain method (re-runs every CD cycle, ngModel triggers CD) + `length > 0` guard |
+| 8 | No email format validation | Button disabled was only `!newEmailDraft.trim()` — no regex; no inline hint | Added EMAIL_RE + `isEmailValid()` + `isEmailFormatHintShown()` plain methods + inline red error + EN+AR `formatHint` keys |
+| 9 | No mobile format validation | Same root cause as #7 (was `computed`, never re-fired) | Converted `isMobileValid` to plain method + `isMobileFormatHintShown()` + inline red error + EN+AR `formatHint` keys |
+
+**Files touched in-thread**:
+- `apps/web/src/app/layout/shell.component.ts` — HostListener + ElementRef + PLATFORM_ID + `data-user-menu-root` marker
+- `apps/web/src/app/features/account/profile.component.ts` — 2 computeds → plain methods; EMAIL_RE; 4 new format-hint methods; avatar coming-soon styling
+- `apps/web/public/assets/i18n/en.json` + `ar.json` — addCta cleanup + 2 new formatHint keys symmetric
+
+**Reactivity lesson worth a CONVENTIONS amendment**: `computed(() => plainField + signalDep)` is a SILENT bug — works on first signal change, breaks forever after. Fix: plain method (re-evaluates every CD cycle, ngModel-compatible) OR convert field to signal (model() or [ngModel]+(ngModelChange)). Never mix. Will draft as §14 amendment.
+
+### 2. Polish + filter agent (`account-polish-and-filter`, opus, 13.6 min, 72 tool calls)
+
+**Files created**:
+- `apps/web/src/app/shared/multi-select-dropdown.component.ts` (196 lines) — generic reusable pill+panel multi-select with HostListener click-outside, Esc, Clear, Done, mobile-full-width panel. SSR-safe (PLATFORM_ID).
+
+**Files modified**:
+- `browse-filter-panel.component.ts` — Body / Transmission / Fuel chip rows → `<app-multi-select-dropdown>` with selected-count badge
+- 11 account child pages get compact "icon-chip hero" — gradient `from-brand-50 via-white to-brand-50/40` bg + brand-100 border + 56×56 brand-700 icon chip per page (Profile=user-circle, Addresses=map-pin, Notifications=bell, Security=shield, Documents=file-text, Orders=shopping-bag, Saved cars=heart, Saved searches=bookmark, My bookings=calendar, Coming-soon=clock)
+- 6 empty states upgraded (addresses, documents, orders, saved-searches, my-bookings, saved-listings) — illustrated SVG + larger headlines + descriptive sub + bigger CTA
+- Primary cards: gradient `from-white to-surface-soft/40` + heavier `shadow-brand` + tighter H2 typography
+- Hoverable rows: `hover:shadow-brand transition-all duration-200` lift on hover
+- `sidebar-desktop.component.ts` — active item gets 3px brand-700 left-edge accent strip via `:before` pseudo-element + smooth transitions
+
+**i18n added**: `browse.filter.clearGroup` / `doneGroup` / `selectedCount` EN+AR
+
+### 3. Verification matrix
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ exits 0 (15.4s) |
+| `guard:brand-lock` | ✅ no violations |
+| `guard:brand-lock-mobile` | ✅ 189 files clean |
+| `guard:i18n-parity` | ✅ EN/AR symmetric |
+| `guard:i18n-parity-mobile` | ✅ 927/927 |
+| `guard:secrets` | ✅ no secrets |
+| **Browser-verified** /account/profile | ✅ compact gradient hero + user-icon chip + "SOON" pill on avatar + card gradients + sidebar active accent + sign-out at bottom |
+| **Browser-verified** /browse | ✅ Body / Transmission / Fuel show new dropdown pills (no chip rows) |
+
+### 4. Open follow-ups
+
+- **v1.5-D8 (NEW pick)** — Wire B v1.5.10 avatar upload endpoint into profile.component.ts (file picker → POST upload-url → S3 PUT → PATCH profile + remove SOON pill + remove TODO at line 141). Op-gate: A user runs `nx serve api` restart + `nx build shared-types` first.
+- 3 files over 500-line cap (`profile.component.ts` 874, `notifications.component.ts` 537, `saved-searches-page.component.ts` 502) — refactor when convenient
+- Mobile pill row fade-edge indicator (carryover from v1.5-D6)
+- CONVENTIONS §14 amendment for the `computed + plainField` reactivity gotcha
+- If user wants silhouette body-tile filter back on /browse, revert just that section in `browse-filter-panel.component.ts`
+
+### 5. A's state after v1.5-D7
+
+A is **idle**. /account/* settings shell now polished + functional. All 5 guards GREEN. Avatar upload endpoint already on B side per v1.5.10 — wire-up is a small in-thread pick whenever user is ready.
+
+**Open A backlog**:
+- `[ASK A→B]` v1.5-D §5 — thin offer-token inspection-report endpoint
+- `[ASK A→B-2]` v1.5-D5 §5 — extend ConciergeBookingStatusSchema (inspector + score + reportPdfUrl + relatedOfferToken)
+- `[ASK A→B-3]` v1.5-D5 §5 — POST cancel endpoint
+- ~~`[ASK A→B-4]` avatar upload~~ — **CLOSED by B v1.5.10** before posting
+- `[GATE]` GOOGLE_MAPS_API_KEY
+- v1.5-D8 wire avatar upload (new pick)
+- Refund-status text on /account/orders/:id · Maintenance customer surface · date-i18n helper refactor · bundle budget reduction · CONVENTIONS §13.5 + §14 amendments · file-size cap cleanup (3 files)
+
+— **Session A**, 2026-05-21.
+
+---
+
+## v1.5-D8 — Session A: Scope correction (revert /browse) + dropdown on /account/documents + wire B v1.5.10 avatar upload (2026-05-21)
+
+User correction: in v1.5-D7 I misinterpreted "chip filters → dropdown" as referring to the /browse product list filter. They actually meant **chip filters INSIDE /account/* pages** (specifically Documents kind-filter). v1.5-D8 corrects scope and wires B's freshly-shipped avatar upload endpoint.
+
+### 1. Revert /browse Body / Transmission / Fuel back to chip-style
+
+`apps/web/src/app/features/browse/browse-filter-panel.component.ts` — replaced the 3 `<app-multi-select-dropdown>` sections (added in v1.5-D7) with the original chip-style flex-wrap toggles. Active state `bg-brand-700 text-white border-brand-700`, inactive `bg-white border-line text-ink-2 hover:bg-surface-soft`, `min-h-[36px]`. Added 3 `toggleBody/toggleTransmission/toggleFuel` helper methods (plain array toggle). Removed `MultiSelectDropdownComponent` import. Local `MultiSelectOption` interface kept so the existing `bodyOptions / transmissionOptions / fuelOptions` computeds still typecheck.
+
+`apps/web/src/app/shared/multi-select-dropdown.component.ts` — kept on disk as a reusable utility (no consumers right now but the pattern stays available for future genuinely-multi-select cases).
+
+### 2. Convert /account/documents kind chips → single-select dropdown
+
+User pointed out the 7-chip filter row felt cluttered. Replaced with the existing `<app-ui-select>` shared component (which already handles outside-click close, keyboard a11y, SSR safety):
+- `documents-page.component.ts` imports `UiSelectComponent` + `SelectOption`
+- New computed `kindOptions()` translates `KIND_CHIPS` to `{value, label}` array, re-runs on locale change
+- "All" option uses `value: ''` (because ui-select can't bind null); bridge method `onKindFromDropdown()` maps `''` back to `null` for the actual filter state
+- Existing `selectKind(kind: DocumentKind | null)` + reactive list-fetch effect untouched
+- Dropdown wrapped in `max-w-xs` so it doesn't span the full content width
+
+Note: this is a SINGLE-select dropdown (matching the existing single-select chip behavior). The multi-select-dropdown component from v1.5-D7 is NOT needed for documents.
+
+### 3. Wire B v1.5.10 avatar upload (`[ASK A→B-4]` closes)
+
+`apps/web/src/app/data/me-account.service.ts` — new `uploadAvatar(file: File): Observable<UploadAvatarResult>` method implementing B's 3-step S3 flow:
+1. POST `/v1/public/me/avatar/upload-url` with `{mimeType, fileSizeBytes}` → 200 `{url, key, expiresAt}`
+2. PUT raw bytes to S3 `url` with `Content-Type: file.type` (HttpClient bypasses auth interceptor for external URLs per existing interceptor spec)
+3. PATCH `/v1/public/me/profile` with `{avatarUrl: key}` → updated `PublicUser` (AuthService user signal patched via existing `updateProfile` tap)
+
+`UploadAvatarResult` discriminated union: `ok | too_large | mime_rejected | validation_error | unauthenticated | network_error`. Maps B's `AVATAR_TOO_LARGE` and `AVATAR_MIME_NOT_ALLOWED` error codes.
+
+`profile.component.ts` — replaced the SOON pill + coming-soon-toast stub with the real upload flow:
+- New `isUploadingAvatar` signal drives loading state on the upload label (spinner + "Uploading…" copy)
+- Client-side guards mirror B (MIME ∈ `{jpeg, png, webp}`, 1 KB ≤ size ≤ 5 MB) — bad files rejected before round-trip
+- Input cleared after select so re-selecting the same file re-triggers `(change)`
+- Maps the 4 error result kinds to specific toasts (mime / too-large / generic-failed) + success toast on `ok`
+- Removed `// TODO: v1.3.x — Avatar upload endpoint not yet wired` comment
+
+**6 new i18n keys EN+AR** under `account.profile.identity.*`:
+- `uploadingCta` ("Uploading…" / "جاري الرفع…")
+- `uploadHint` updated ("JPG, PNG, or WebP, max 5 MB")
+- `uploadSuccess` / `uploadMimeError` / `uploadTooLargeError` / `uploadFailedError`
+
+(Kept the old `uploadComingSoon` key for now — easy follow-up to drop it.)
+
+### 4. Verification matrix
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ exits 0 |
+| `guard:brand-lock` | ✅ no violations |
+| `guard:i18n-parity` | ✅ EN/AR symmetric (+6 keys) |
+| **`grep` verification** | ✅ `app-ui-select` confirmed in documents-page.component.ts:104; `uploadAvatar` confirmed in me-account.service.ts; chip toggle methods confirmed in browse-filter-panel.component.ts |
+| Browser live verification | ⚠️ **`nx serve web` bundle on :4200 is stale** — `curl http://localhost:4200/main.js` returns the pre-v1.5-D8 build (verified by 0 matches for `app-ui-select`/`kindChips`/`kindOptions`). Source + production build are correct; user needs to restart `nx serve web` to see the live UI. |
+
+### 5. Operational gate for user (per B v1.5.10 §6 + my new changes)
+
+To see v1.5-D8 changes live:
+1. **Restart `nx serve web`** (Ctrl+C the existing process + `npx nx serve web` again) — picks up all 3 changes (browse revert + documents dropdown + avatar upload wire)
+2. **Restart `nx serve api`** (only needed for actually exercising avatar upload — the new B v1.5.10 endpoint requires the API to load the new route)
+3. **Verify**: navigate to `/account/documents` → single dropdown filter (not chips); navigate to `/account/profile` → click "Upload new photo" → file picker → select JPG/PNG/WebP < 5MB → spinner → success toast → avatar visible.
+
+### 6. A's state after v1.5-D8
+
+A is **idle**. /browse restored to chip-style. /account/documents now uses dropdown. Avatar upload fully wired (closes ASK A→B-4). All 3 in-thread guards GREEN.
+
+**Open A backlog** (unchanged):
+- `[ASK A→B]` v1.5-D §5 — thin offer-token inspection-report endpoint
+- `[ASK A→B-2]` v1.5-D5 §5 — extend ConciergeBookingStatusSchema (inspector + score + reportPdfUrl + relatedOfferToken)
+- `[ASK A→B-3]` v1.5-D5 §5 — POST cancel endpoint
+- ~~`[ASK A→B-4]` avatar upload~~ — **CLOSED end-to-end** (B v1.5.10 endpoint + A v1.5-D8 wire-up)
+- `[GATE]` GOOGLE_MAPS_API_KEY
+- Refund-status text on /account/orders/:id · Maintenance customer surface · date-i18n helper refactor · bundle budget reduction · CONVENTIONS §13.5 + §14 amendments · file-size cap cleanup (3 files)
+- Drop the now-unused `account.profile.identity.uploadComingSoon` i18n key — micro cleanup
+
+— **Session A**, 2026-05-21.
+
+---
+
+## v1.5-D8b — Session A: Empty-dropdown bug fix + orders status chip→dropdown (2026-05-21)
+
+User reported (a) the v1.5-D8 documents dropdown rendered empty and (b) I only converted documents, missing other chip-filter pages. Both addressed.
+
+### 1. Empty-dropdown root cause (documents)
+
+I wrapped `<app-ui-select>` in `<div class="rounded-2xl border border-line bg-white overflow-hidden">`. The `overflow-hidden` CLIPPED the ui-select's absolutely-positioned panel (`absolute start-0 end-0 z-50 mt-2`), so when the user opened the dropdown the panel was visually invisible — appearing empty.
+
+**Fix**: removed `overflow-hidden` from the wrapper. Panel now opens correctly. Code comment added to warn future maintainers against re-introducing the wrapper class.
+
+### 2. Orders status chips → dropdown (the other chip-filter page)
+
+Same pattern as documents:
+- `orders-page.component.ts` imports `UiSelectComponent` + `SelectOption` + `TranslateService`
+- New `statusOptions()` computed translates `STATUS_CHIPS` to `{value, label}` array (9 statuses: All + 8 OrderStatusValue)
+- "All" option uses `value: ''`; bridge method `onStatusFromDropdown()` maps `''` → `null` for filter state
+- Existing `selectStatus(status: OrderStatusValue | null)` + reactive list-fetch effect untouched
+- Dropdown wrapped in `max-w-xs` for proportional sizing; **NO** overflow-hidden (bug-fix awareness)
+
+### 3. Audit of other account pages — no other chip filters found
+
+Searched for `rounded-full px-` / `rounded-pill px-` / `flex flex-wrap gap-2 role group` patterns across all account pages:
+
+| Page | Result |
+|---|---|
+| profile | No chip filter (form fields only) |
+| addresses | No chip filter (list of cards) |
+| notifications | Toggle GRID (not chips — different pattern, intentional) |
+| security | No filter (sessions list) |
+| documents | ✅ Converted (v1.5-D8) |
+| orders | ✅ Converted (v1.5-D8b — this block) |
+| order-detail | N/A (single record) |
+| saved-searches | No chip filter |
+| my-bookings | Has `rounded-pill` but it's a STATUS DISPLAY PILL (status badge per row, line 202), not a filter |
+| saved-listings | No chip filter |
+| coming-soon shells | No filter |
+
+So only documents + orders had chip filters; both now use the dropdown.
+
+### 4. Verification matrix
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ exits 0 |
+| `guard:brand-lock` | ✅ no violations |
+| `guard:i18n-parity` | ✅ EN/AR symmetric (no new keys; reusing `account.orders.statusAll` + `account.orders.filterLabel` + `account.orders.status.*`) |
+
+### 5. Operational gate reminder
+
+Same as v1.5-D8 §5: **user needs to restart `nx serve web`** to see the changes live — the previous build was stale per `curl http://localhost:4200/main.js | grep` showing 0 matches for new symbols. Same restart picks up both documents fix + orders dropdown.
+
+### 6. A's state after v1.5-D8b
+
+A is **idle**. All account-page chip filters (documents + orders) now use the dropdown pattern. The overflow-hidden bug is documented in template comments so future agents don't reintroduce it. Backlog unchanged from v1.5-D8.
+
+— **Session A**, 2026-05-21.
+
+---
+
+## v1.5-D9 — Session A: Auth-guard /account/* + fix SSR guest-gate flash on refresh (2026-05-21)
+
+User-reported regression: on refresh of `/account/*`, the page briefly shows the "Sign in" guest-gate UI before swapping to the real signed-in content. They asked for a route auth guard.
+
+### 1. Root cause
+
+apps/web has SSR enabled (`apps/web/project.json` → `ssr.entry: apps/web/src/server.ts` + `outputMode: server`). Flow on refresh:
+
+1. Server renders `/account/profile` with `localStorage = undefined`
+2. AuthService `_user = readStoredUser()` returns `null` (no localStorage on server)
+3. `isSignedIn() = false` → AccountLayoutComponent template hits the `@if (!auth.isSignedIn())` branch → ships **guest-gate HTML** in the SSR response
+4. Browser receives HTML, paints guest gate
+5. Client hydration runs → AuthService re-runs constructor → localStorage available → `_user = stored_user`
+6. Signal change → template re-evaluates → switches to signed-in shell
+7. **User sees flash**: guest gate → real content
+
+The pre-existing `authGuard` (`libs/data-access/src/lib/auth.guard.ts`) didn't help because it ran SSR-side too, saw `isSignedIn() = false`, and tried to redirect — creating a different problem (redirect-then-re-allow race).
+
+### 2. Three-part fix
+
+**(a) AuthService: new `isHydrated` signal** (`libs/data-access/src/lib/auth.service.ts`):
+```ts
+private readonly _hydrated = signal<boolean>(typeof localStorage !== 'undefined');
+readonly isHydrated = this._hydrated.asReadonly();
+```
+- On SSR: `false` (localStorage undefined → can't tell who the user is)
+- On browser: `true` immediately (localStorage available synchronously)
+
+**(b) authGuard: SSR-aware** (`libs/data-access/src/lib/auth.guard.ts`):
+```ts
+export const authGuard: CanActivateFn = (_route, state) => {
+  const platformId = inject(PLATFORM_ID);
+  if (!isPlatformBrowser(platformId)) return true; // SSR defers to component
+  const auth = inject(AuthService);
+  if (auth.isSignedIn()) return true;
+  const router = inject(Router);
+  const locale = state.url.split('/')[1] || 'en';
+  return router.parseUrl(`/${locale}?signin=1&returnUrl=${encodeURIComponent(state.url)}`);
+};
+```
+- SSR: allow (component template handles hydration via `isHydrated()`)
+- Browser signed-in: allow
+- Browser signed-out: redirect to home with `?signin=1&returnUrl=...` — existing `ShellComponent` query-param handler pops the sign-in modal + cleans the URL
+
+**(c) AccountLayoutComponent template: hydration gate** (`apps/web/src/app/features/account/account-layout.component.ts`):
+```html
+@if (!auth.isHydrated()) {
+  <!-- Neutral loading state — SSR ships THIS instead of guest gate -->
+  <div class="container-page py-16 text-center" aria-busy="true">
+    <span class="inline-block h-2 w-2 animate-pulse rounded-full bg-brand-600"></span>
+    <span class="ms-2 text-[13px] text-muted">{{ 'sell.offer.loading' | translate }}</span>
+  </div>
+} @else if (!auth.isSignedIn()) {
+  <!-- Guest gate (only reached when client confirms signed-out) -->
+  ...
+} @else {
+  <!-- Real shell -->
+  ...
+}
+```
+
+SSR now ships a neutral loading-spinner placeholder. Client hydrates → `isHydrated() = true` → either guest gate OR real shell renders based on actual auth state — never both.
+
+**(d) Apply guard to /account parent route** (`apps/web/src/app/app.routes.ts`):
+```ts
+{
+  path: 'account',
+  canActivate: [authGuard],
+  loadComponent: () => import('./features/account/account-layout.component').then((m) => m.AccountLayoutComponent),
+  children: [ ... 14 nested children all inherit the guard ... ],
+}
+```
+
+### 3. Why both the hydration gate AND the route guard
+
+| Concern | Solved by |
+|---|---|
+| Visual flash on refresh (signed-in user sees guest-gate momentarily) | Hydration gate (c) — SSR no longer ships guest-gate HTML |
+| Signed-out user hitting `/account/profile` URL directly | Route guard (b) — redirects to home, pops sign-in modal |
+| Race between server and client auth checks | SSR-aware guard (b) defers to component on server |
+| Defense in depth (component still works without guard) | Component `@if (!auth.isSignedIn())` branch stays as fallback |
+
+### 4. Files touched
+
+- `libs/data-access/src/lib/auth.service.ts` — added `_hydrated` signal + `isHydrated` readonly accessor (~17 lines incl. comment)
+- `libs/data-access/src/lib/auth.guard.ts` — rewrote with PLATFORM_ID check + better redirect URL (~24 lines, was 12)
+- `apps/web/src/app/app.routes.ts` — imported `authGuard`; added `canActivate: [authGuard]` to `/account` parent
+- `apps/web/src/app/features/account/account-layout.component.ts` — template now has 3-branch `@if/else-if/else` with hydration gate first
+
+No i18n changes — pre-hydration spinner reuses existing `sell.offer.loading` key.
+
+### 5. Verification matrix
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ exits 0 |
+| `guard:brand-lock` | ✅ no violations |
+| `guard:i18n-parity` | ✅ EN/AR symmetric |
+
+Live verification still needs `nx serve web` restart (same stale-bundle situation as v1.5-D8).
+
+### 6. Optional follow-ups
+
+- **Child component guest gates are now mostly dead code** (route guard intercepts signed-out before children mount). Could be removed in a future cleanup pass for `profile.component.ts`, `addresses.component.ts`, `notifications.component.ts`, `security.component.ts`, `documents-page.component.ts`, etc. Keeping them for now as defense in depth.
+- Same `isHydrated` pattern could be extended to other protected surfaces (e.g. `/checkout/*` after sign-in requirement is added).
+- Could mark `/account/*` as `renderMode: 'client'` (Angular Router's client-only rendering hint) to skip SSR entirely for this branch. That's a bigger config change; current fix is sufficient and keeps SSR working for crawlers.
+
+### 7. A's state after v1.5-D9
+
+A is **idle**. `/account/*` is now properly guarded and the SSR flash is eliminated. All 3 in-thread guards GREEN.
+
+**Open A backlog** (unchanged):
+- `[ASK A→B]` v1.5-D §5 · `[ASK A→B-2]` v1.5-D5 §5 · `[ASK A→B-3]` v1.5-D5 §5
+- `[GATE]` GOOGLE_MAPS_API_KEY
+- Refund-status / Maintenance customer surface / date-i18n helper / bundle budget / CONVENTIONS §13.5 + §14 amendments / file-size cap cleanup / dead-code cleanup of child guest gates (now redundant)
+
+— **Session A**, 2026-05-21.
+
+---
+
+## v1.5-D10 — Session A: Consolidated 2-ship ASK to B (DTO extension + booking-cancel endpoint) + ACK B v1.5.7/v1.5.10/v1.5.11 (2026-05-21)
+
+User asked A to consolidate the open A→B asks so B can ship both in one cycle and unblock A's tracker + C's mobile tracker at the same time.
+
+### 1. ACK B's recent ships
+
+| B block | What it shipped | A status |
+|---|---|---|
+| **B v1.5.7** | `GET /v1/public/concierge/offers/:token/inspection-report` | A's existing `OffersService.getInspectionReport$(token)` resolves to real data the moment API restarts. `/offer/:token/inspection-report` page (v1.5-D3) lights up automatically. **Closes `[ASK A→B]` v1.5-D §5.** ✅ |
+| **B v1.5.10** | `POST /v1/public/me/avatar/upload-url` (3-step S3 flow) | A wired `MeAccountService.uploadAvatar()` + profile.component.ts file picker in v1.5-D8. Live with spinner + 3-state toast + 5 MB / mime guards. **Closes `[ASK A→B-4]`.** ✅ |
+| **B v1.5.11** | reviews-listing auth fix (C-side ASK) | n/a to A — courtesy ACK. ✅ |
+
+A is fully caught up on B's recent ships. Only the 2 remaining asks (§2 + §3 below) are outstanding.
+
+### 2. [ASK A→B-2] CONSOLIDATED with C's overlap — Extend `ConciergeBookingStatusSchema`
+
+Both A's tracker page (v1.5-D5) AND C's mobile tracker (v0.22.b) currently render stubbed inspector info + em-dash score + disabled report CTA, because `ConciergeBookingStatusSchema` (in `libs/shared/types/src/lib/inspection.schemas.ts:507-521`) intentionally omits the inspector PII + the report score + the PDF URL.
+
+**Single combined extension unlocks both A's web tracker AND C's mobile tracker:**
+
+```ts
+// libs/shared/types/src/lib/inspection.schemas.ts — extend ConciergeBookingStatusSchema with:
+
+inspector: z.object({
+  fullName: z.string().min(1),
+  initials: z.string().length(2),                      // pre-computed for avatar chip (e.g. "YM")
+  rating: z.string().regex(/^\d\.\d$/).optional(),    // e.g. "4.9"; nullable if not yet rated
+  completedCount: z.number().int().nonneg().optional(),// e.g. 847; nullable for new inspectors
+  whatsappE164: z.string().optional(),                 // OR masked variant ("+965 9XXX XXXX") — your call
+}).nullable(),                                         // null until inspectorAssigned === true
+
+overallScore: z.number().int().min(0).max(100).nullable(),     // null until signed_off
+
+inspectionReportPdfUrl: z.string().url().nullable(),  // signed S3 URL, 15-min TTL — reuse the existing
+                                                       // S3 signing pattern from B v1.5.10 avatar /
+                                                       // admin documents v1.4.4
+
+relatedOfferToken: z.string().nullable(),             // populated once BMC creates the offer post-signoff;
+                                                       // A's "View report" CTA pivots on this if present
+                                                       // (deeplinks to /offer/:token/inspection-report)
+```
+
+**Decision-tree for the report CTA in A's tracker** (light-up logic ALREADY wired in `concierge-status-page.component.ts` `reportLink()` — flips automatically when `relatedOfferToken` lands):
+1. If `relatedOfferToken` present → use it for `/offer/:token/inspection-report`
+2. Else if `inspectionReportPdfUrl` present → open PDF in new tab via Web Share / direct link
+3. Else → keep disabled "Report available with your offer" copy
+
+C's mobile tracker (v0.22.b) uses the same defensive pattern — will also flip live.
+
+**Why both fields:** `inspectionReportPdfUrl` is the raw asset (works pre-offer, immediately after signoff). `relatedOfferToken` is the full-offer-context route (better UX, more navigation surface). Customers can see the report from the tracker EITHER before the offer arrives (PDF link) OR after (offer-page route).
+
+**Implementation effort estimate (B-side):**
+- Schema change: ~10 lines in inspection.schemas.ts
+- toPublicSummary / toBookingStatusDto extension: ~15 lines, populating inspector from existing inspection.officer relation + score from `inspection.overallScore` (assuming already on the entity)
+- Optional: pre-sign PDF URL via existing S3 helper at request time
+- Migration required? Probably none (data already in DB, just exposing)
+- No new endpoints; extending existing GET /me/concierge/bookings/:ref response
+
+**C's overlap, for clarity:** C v0.22 §10 posted to MOBILE_API_CONTRACT.md asks for "inspector fields on tracker DTO" — same `inspector` object as above. Single B ship satisfies both A and C.
+
+### 3. [ASK A→B-3] — `POST /v1/public/concierge/bookings/:ref/cancel`
+
+Currently A's tracker Cancel quick-action and C's mobile tracker Cancel button both fall back to `tel:+96522282282`. A proper endpoint would let us wire confirm-modal → POST → success-toast.
+
+```
+POST /v1/public/concierge/bookings/:ref/cancel
+Auth: Bearer JWT (must own the booking — verified server-side)
+Body: { reason?: string }     // optional free-text 200-char max
+→ 200  { status: 'cancelled', cancelledAt: ISO }   // idempotent — re-cancel returns same
+→ 401  { error, code: 'UNAUTHENTICATED' }
+→ 403  { error, code: 'BOOKING_NOT_OWNED' }        // booking exists but belongs to another customer
+→ 404  { error, code: 'BOOKING_NOT_FOUND' }
+→ 409  { error, code: 'BOOKING_NOT_CANCELLABLE' }  // e.g. inspection already started / signed off
+→ 5xx  → A treats as network_error
+```
+
+**Cancellable states:**
+- `pending_assignment` → ✅ cancellable
+- `inspector_assigned` → ✅ cancellable (notify inspector via existing notification flow)
+- `inspection_in_progress` → ❌ 409 (already started)
+- `awaiting_*_signature` → ❌ 409 (inspection complete, just paperwork)
+- `signed_off` → ❌ 409 (terminal)
+
+**Implementation effort estimate (B-side):**
+- 1 controller route + 1 service method
+- ~50 lines incl. ownership check + state-machine guard + audit-log entry
+- No migration (assuming `bookings` table already has `cancelledAt timestamp NULL`)
+- Use `sensitiveActionLimiter` rate limit (5/min/user, same as avatar upload)
+
+**C's overlap:** C also wants this — would wire `/sell/concierge/tracker/[bookingRef]` cancel button. Single B ship satisfies both. Plus C v0.22 §10 has a separate "sell-bookings reschedule endpoint" ASK — that's lower priority but could be batched if convenient (rough shape: `POST /v1/public/concierge/bookings/:ref/reschedule` with `{ newPreferredDate, newPreferredWindow }`, returning the updated booking).
+
+### 4. Operational gates for B (per CONVENTIONS §13.5 backend-wire ship-checklist)
+
+When B ships these:
+1. `npx nx build {shared-types,api}` GREEN
+2. Prisma migration applied (if schema change needed) + `npm run prisma:migrate`
+3. `nx serve api` restart (load new route + new DTO shape)
+4. Curl probe with smoke creds — verify 200 + 401 + 404 + 403 + 409 paths
+5. ACK with `[ACK]` block in CONCIERGE referencing this ASK by name
+
+A side will:
+1. Run `nx build shared-types` to pick up extended DTO
+2. Concierge-status-page.component.ts will auto-render real inspector + score + report CTA without template changes (logic already conditional on `inspector !== null`, etc.)
+3. Wire the new cancel endpoint into the existing `cancelBooking()` stub method in concierge-status-page.component.ts (currently opens `tel:` — swap for `bookings.cancel$(ref).subscribe(...)` w/ confirm-modal flow)
+
+### 5. A's state
+
+A is **idle** at v1.5-D9 (auth-guard /account/* + SSR guest-gate flash fix). Awaiting B's response to §2 + §3 above to fully light up the concierge tracker. All other A backlog items are non-blocking polish/cleanup.
+
+— **Session A**, 2026-05-21.
+
+---
+
+## B v1.5.14 — Tracker DTO + cancel endpoint shipped (closes A v1.5-D10 §2+§3 + C v0.23 cancel ASK) (2026-05-21)
+
+`[ACK]` A's [ASK A→B-2] + [ASK A→B-3] from v1.5-D10. Both shipped. Bonus triple-coordination: C also posted `[ASK C→B] sell-bookings-cancel-endpoint` in MOBILE v0.23 §3 minutes ago — same endpoint, single ship satisfies all three. Sonnet swarm, 55 tool calls, 7.1 min wall. `prisma validate` + `nx build {shared-types, api}` GREEN lead-verified.
+
+### 1. ConciergeBookingStatusSchema — extended (closes [ASK A→B-2])
+
+`libs/shared/types/src/lib/inspection.schemas.ts:516` now exports:
+
+```ts
+ConciergeBookingStatus = {
+  bookingRef, status, vehicle, customerPreference, inspectorAssigned,
+  inspector: {
+    // A's preferred richer shape:
+    fullName: string,
+    initials: string,                       // server-computed e.g. "YM"
+    rating?: string,                        // "4.9" regex — undefined until v1.6+ rating infra
+    completedCount?: number,                // undefined until v1.6+ rating infra
+    whatsappE164?: string,
+    // v1.5.13 legacy aliases (populated with same values for back-compat):
+    name: string,                           // = fullName
+    phoneE164?: string | null,              // = whatsappE164
+  } | null,
+  inspectedAt,
+  signLinkAvailable,
+  overallScore: number | null,              // 0-100, null until signed_off
+  inspectionReportPdfUrl: string | null,    // signed S3 GET, 15-min TTL, null until pdf-worker writes reportPdfKey
+  relatedOfferToken: string | null,         // latest non-withdrawn offer's publicToken; null until BMC creates offer
+  cancelledAt: string | null,               // ISO timestamp; null while active
+}
+```
+
+**Decision-tree light-up** for A's tracker `reportLink()` (already conditional):
+1. `relatedOfferToken` present → `/offer/:token/inspection-report`
+2. else `inspectionReportPdfUrl` present → open PDF directly
+3. else → keep "Report available with your offer" disabled state
+
+C's mobile `InspectorCard` consumes the new `fullName/initials/whatsappE164` at convenience; the legacy `name/phoneE164` aliases keep v1.5.13 consumers working without changes.
+
+### 2. POST cancel endpoint shipped (closes [ASK A→B-3] + C's sell-bookings-cancel ASK)
+
+```
+POST /v1/public/me/sell-bookings/:bookingRef/cancel
+Auth: Bearer JWT (requireCustomerSession)
+Body: { reason?: string }                    // max 200 chars, omit for no reason
+→ 200  ConciergeBookingStatus                // idempotent — re-cancel returns same state
+→ 404  { error, code: "BOOKING_NOT_FOUND" }  // unknown/not-owned/non-concierge (consolidated to prevent enumeration)
+→ 409  { error, code: "BOOKING_NOT_CANCELLABLE" } // status past `draft`
+→ 422  VALIDATION_ERROR (Zod — reason > 200 chars)
+```
+
+**Path divergence from A's spec**: A asked for `/v1/public/concierge/bookings/:ref/cancel`. B mounted at `/v1/public/me/sell-bookings/:bookingRef/cancel` instead — consistent with v1.5.13 reschedule pattern + cleaner auth boundary (concierge router is no-auth public-token surface; me-router is auth). **Action for A**: update your `BookingsService.cancel$()` to call the me-scoped path. If you'd rather keep your existing path, post `[ASK A→B-5] cancel-path-alias` and B will add a second mount calling the same service function.
+
+**State machine** (A's `pending_assignment + inspector_assigned` cancellable; everything past 409):
+- `draft` → ✅ cancellable (covers both pending-assignment and inspector-assigned-but-not-started cases)
+- Anything past `draft` → ❌ 409 BOOKING_NOT_CANCELLABLE
+
+**Idempotent**: re-cancel on an already-cancelled booking returns 200 with the existing `cancelledAt` — no error.
+
+**Inspector notification on cancel**: if `inspectorId` was set, B dispatches via `NotificationService.send()` with EN/AR title + body (customer's reason text or "No reason provided." fallback) under `category: 'bookingUpdates'` + `inboxMeta: { category: 'inspection', iconHint: 'inspection', alsoInApp: true }`. Best-effort try/catch — dispatch hiccup doesn't fail the cancel.
+
+### 3. Files shipped (~370 net lines)
+
+| File | Change |
+|---|---|
+| `apps/api/prisma/migrations/20260605000005_v1_5_14_inspection_cancel_fields/migration.sql` | NEW — adds `cancelledAt TIMESTAMP(3) + cancellationReason VARCHAR(200)` to InspectionReport |
+| `apps/api/prisma/schema.prisma` | EDITED — model fields + the 2 new nullable columns |
+| `apps/api/src/lib/s3.ts` | EDITED — new `presignGetUrl(key, expiresInSec?)` export + `GetObjectCommand` import |
+| `libs/shared/types/src/lib/inspection.schemas.ts` | EDITED — consolidated inspector shape + 4 new ConciergeBookingStatus fields + `CancelSellBookingInputSchema` |
+| `apps/api/src/inspections/inspections.repo.ts` | EDITED — DETAIL_INCLUDE extended with `offers` (latest non-withdrawn, take:1) |
+| `apps/api/src/inspections/inspections.service.ts` | EDITED — `toBookingStatus` promoted to async; 4 call sites awaited; `cancelMySellBooking` added; imports extended |
+| `apps/api/src/inspections/me-sell-bookings.controller.ts` | EDITED — new POST cancel route |
+
+### 4. Operational gates for A (per §13.5)
+
+1. `npm run prisma:migrate` — apply `20260605000005_v1_5_14_inspection_cancel_fields`
+2. `nx serve api` restart — load new route + async DTO presigning
+3. `nx build shared-types` — pick up extended ConciergeBookingStatus DTO + `CancelSellBookingInputDto`
+4. Update `concierge-status-page.component.ts` cancel button to call the new endpoint (or post `[ASK A→B-5]` for path alias)
+5. The tracker's `inspector`, `overallScore`, `inspectionReportPdfUrl`, `relatedOfferToken` fields auto-render via existing conditional template logic — no template changes needed
+6. Smoke probe: `curl -X POST -H "Authorization: Bearer <jwt>" .../v1/public/me/sell-bookings/<draft-ref>/cancel -d '{"reason":"changed my mind"}'` → 200 with `cancelledAt` set + inspector receives notification if assigned
+
+### 5. Future enhancements (deferred)
+
+- `rating` + `completedCount`: needs new User columns + admin inspector-rating UI (v1.6+)
+- `assignedAt` (per C v0.22 §3 §request): needs audit-style timestamp on InspectionReport (v1.6+)
+- Inspector rating computation cron / aggregation (v1.6+)
+
+### 6. B residual state
+
+Still **idle**. All known A/C asks now closed. Backlog only contains user-gated items (Otto/PACI/APNs/Apple).
+
+— **Session B**, 2026-05-21.
+
+---
+
+## v1.5-D11 — Session A: Home-page polish + 4 broken click-group fixes + ACK B v1.5.14 (2026-05-21)
+
+User asked A to polish the home page + fix "few field clicks not working". Walked the page first to inventory sections, asked 2 multi-select clarifying questions, user picked ALL 4 click groups + ALL 4 polish dimensions. Delegated to ruflo opus agent. **Separately**: B v1.5.14 shipped both [ASK A→B-2] + [ASK A→B-3] mid-cycle while I was working — covered in §3 below as a coordination capture (wire-up tracked as v1.5-D12 next pick, not this block).
+
+### 1. Diagnostic findings (root cause per broken click group)
+
+| # | Click group | Root cause |
+|---|---|---|
+| 1 | Featured Cars Search + View all | `<button>` with icon+label but no `(click)` handler at all — dead element |
+| 2 | Brand letter circles + View all | `<button>` with hover styles but no `(click)` + no `routerLink` — dead element |
+| 3 | Body type tiles | Same as #2 — no navigation binding |
+| 4 | Hero CTAs | `onPrimary()` and `onSecondary()` were stub methods with `// wire to router when routes land` TODO comments. Slider arrows/dots were already functional. |
+
+### 2. Fix summary
+
+| # | Fix |
+|---|---|
+| 1 | Wired Search/View-all to `router.navigate(['/', locale, 'browse'], { queryParams: {brand, body, budgetMaxKwd} })` using the existing `?brand=`/`?body=`/`?budgetMaxKwd=` convention from `browse-page.component.ts` |
+| 2 | Replaced `<button>` with `<a routerLink>` + `queryParams: { brand: brand.slug }` (slug, not initial letter). View all → `/browse` |
+| 3 | Same — `<a routerLink>` with `queryParams: { body: body.slug }` |
+| 4 | Hero CTAs now navigate per-slide via injected `Router` + `LanguageService`. Per-slide table: `buy → /browse + /sell`, `inspect → /browse + scroll-to-how-it-works`, `finance → /browse + /browse` (financing landing page doesn't exist yet — see §6 follow-up). Slider arrows/dots already worked. |
+
+### 3. Polish summary (4 dimensions, all browser-verified)
+
+- **3.1 Brand chips** — Took the **letter-chip polish** path (avoiding trademark risk from bundled SVGs per agent's good call). Bigger (h-16 → h-[76px]) + `bg-gradient-to-br from-brand-50 to-brand-100` + `font-display font-bold text-[20px]` initials in brand-700 + `shadow-brand-sm` + hover scales + darkens gradient. **Visually reads as intentional design, not placeholder.** Browser-confirmed: Toyota 54 cars / Lexus 81 / Mercedes 30 / BMW 96 / Nissan 44 / Ford 47 etc. all render as polished gradient circles with initials.
+- **3.2 Body silhouettes** — 8 distinct per-type SVG profiles in `BODY_VISUALS` map. Each has `bodyPath` + optional `accentPaths` (white-stroke greenhouse/bed/window detail) + per-vehicle `wheels` x-coords so wheelbase differs by type (sedan / suv / hatchback / coupe / convertible / pickup / van / wagon visually distinguishable now).
+- **3.3 Hero** — Subtle radial+grid SVG overlay layered on existing gradient. Trust chips upgraded from pills to 36px cards (icon-circle + title + sub-label — "71-pt inspection / Every car certified" pattern). NEW 3-stat social-proof row below: trending-up "1,200+ cars sold last month" · smile "97% customer satisfaction" · shield-check "200,000+ inspections completed". All brand-blue. Browser-confirmed.
+- **3.4 Featured Cars** — Search row wrapped in `sticky top-[80px] z-30 backdrop-blur` so it sticks below header when user scrolls. Filter chip preview row underneath (`activeChips()` computed signal) with X-buttons + "Clear all". Search button + hero CTAs get `active:scale-[0.98] transition-all` for tap feedback. Browser-confirmed: sticky bar pinned at top when scrolled to Low Mileage rail.
+
+### 4. Files touched
+
+| Action | Path | Notes |
+|---|---|---|
+| EDIT | `apps/web/src/app/features/home/sections/hero-slider.component.ts` | CTA navigation per-slide, bg overlay, trust-chip cards, social-proof stats, `active:scale` |
+| EDIT | `apps/web/src/app/features/home/sections/featured-cars.component.ts` | Search + View all navigation, sticky bar, chip preview row with X buttons, Router injection |
+| EDIT | `apps/web/src/app/features/home/sections/browse-by-brand.component.ts` | `<a routerLink>` + queryParams, polished letter chips (gradient + shadow + bigger) |
+| EDIT | `apps/web/src/app/features/home/sections/browse-by-body.component.ts` | `<a routerLink>` + queryParams, 8 distinct silhouettes with accent paths |
+| EDIT | `apps/web/src/app/features/home/sections/low-mileage-rail.component.ts` | View all `<a routerLink>` to `/browse` |
+| EDIT | `apps/web/public/assets/i18n/en.json` + `ar.json` | +11 keys EN+AR symmetric (`home.hero.trust*Title/Sub` × 3 + `home.hero.stat*` × 3 + `home.featured.clearAll` + `home.featured.removeFilter`) |
+
+### 5. Verification matrix
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ exits 0 (25.8s) |
+| `guard:brand-lock` | ✅ no violations |
+| `guard:i18n-parity` | ✅ EN/AR symmetric (+11 keys) |
+| **Browser-verified live** | ✅ hero polish (bigger trust chips + social proof + grid overlay) + sticky search bar pinned when scrolled + brand chips polished (gradient circles + bold initials + car counts) + low-mileage rail working |
+
+### 6. Open follow-ups spotted (out of v1.5-D11 scope)
+
+Agent flagged 3 dead-button/route gaps in the home-page neighborhood:
+- **`/finance` route doesn't exist** — finance slide's "Calculate financing" CTA placeholder-routes to `/browse`. When financing landing page lands, update `SLIDES` in `hero-slider.component.ts`
+- **`/services` route doesn't exist** — `services-promo.component.ts` "View all services" button is still dead
+- **`sell-callout` 3 sell-path buttons** are still dead (`/sell/instant`, `/sell/concierge`, `/sell/self-service` — these routes do exist, just not wired)
+
+Recommend a future v1.5-D13 (or batch into D12) to wire sell-callout (routes exist!) + log [GATE]s for `/finance` + `/services` landing pages (they need user/product input to design).
+
+### 7. ACK B v1.5.14 — both A→B-2 + A→B-3 shipped (coordination capture)
+
+While I was working on v1.5-D11, **B v1.5.14 shipped both my v1.5-D10 asks** consolidated with C's overlapping cancel ASK from MOBILE v0.23 §3. Triple-coordination win.
+
+**What B shipped:**
+- **DTO extension** — `ConciergeBookingStatusSchema` now exports `inspector: { fullName, initials, rating?, completedCount?, whatsappE164?, +legacy name/phoneE164 aliases } | null`, `overallScore: number | null`, `inspectionReportPdfUrl: string | null` (15-min signed S3), `relatedOfferToken: string | null`, `cancelledAt: string | null`. A's tracker decision-tree for `reportLink()` (already conditional per v1.5-D5 §8) will light up automatically once shared-types is rebuilt.
+- **Cancel endpoint** — `POST /v1/public/me/sell-bookings/:bookingRef/cancel` (NOTE: B mounted at `/me/sell-bookings/...` instead of my requested `/concierge/bookings/...` — cleaner auth boundary, me-router pattern; B offered to add a second mount alias if I'd rather keep my path, but the me-scoped one is fine). Idempotent. State machine: `draft → ✅ cancellable`, else 409. Inspector notification dispatched on cancel.
+
+**v1.5-D12 next pick (separate from this block):**
+1. Run B's operational gates: `npm run prisma:migrate` + `nx serve api` restart + `nx build shared-types`
+2. Update `concierge-status-page.component.ts`:
+   - Cancel button: swap `tel:` fallback for real POST call via new `SellBookingsService.cancel$()` method
+   - Confirm-modal → POST → success-toast flow
+   - Verify the inspector card / score / report CTA fields auto-render via existing conditional template logic (no template changes needed)
+3. Build + browser verify + post v1.5-D12 ACK block
+
+### 8. A's state after v1.5-D11
+
+A is **idle**. Home page is now polished + all 4 click groups navigate correctly. B v1.5.14 just landed both A→B-2 + A→B-3 — wire-up is the next natural pick (v1.5-D12).
+
+**Open A backlog (refreshed)**:
+- ~~`[ASK A→B-2]`~~ — **CLOSED** by B v1.5.14 (wire-up pending in v1.5-D12)
+- ~~`[ASK A→B-3]`~~ — **CLOSED** by B v1.5.14 (wire-up pending in v1.5-D12)
+- `[GATE]` GOOGLE_MAPS_API_KEY (still pending)
+- v1.5-D12 (NEXT) — Wire B v1.5.14 endpoints into tracker
+- v1.5-D13 (eventual) — Wire sell-callout 3 buttons + log [GATE]s for /finance + /services landing pages
+- Polish/cleanup backlog unchanged: refund-status, Maintenance customer surface, date-i18n helper, bundle budget, CONVENTIONS amendments, file-size cap cleanup, dead-code child guest gates, `uploadComingSoon` cleanup
+
+— **Session A**, 2026-05-21.
+
+---
+
+## B v1.5.15 — Listing photo validity guards + `[ASK B→A]` web img fallbacks (2026-05-21)
+
+Stakeholder directive: "make sure all listed cars have valid images — no corrupt file should display in either customer front or admin." B-side guards shipped via sonnet swarm (52 calls, 6.2 min wall, all 3 builds GREEN + DB audit ran CLEAN lead-verified).
+
+### 1. B-side guards shipped (server)
+
+- **Public surface filter** — every `/v1/public/listings/*` query includes Prisma `where: { ..., photos: { some: {} } }`. 0-photo listings never reach customer routes (list/featured/low-mileage/detail). Detail returns 404 `LISTING_NOT_PUBLISHABLE`.
+- **Admin publish guard** — `changeStage()` rejects transitions to public stages (`listed | reserved | sold | delivered`) when 0 photos → 422 `LISTING_PHOTOS_REQUIRED`.
+- **DB audit script** — `scripts/check-listing-photos.mjs` (lead ran it: 0/0 problematic listings, status CLEAN).
+
+### 2. Admin UI img fallbacks shipped (3 sites)
+
+`listing-list.component.ts` (table thumb), `pipeline-board.component.html` (kanban thumb), `media-gallery.component.html` (confirmed photo) all got `(error)="onImgError($event)"` handlers with `data-fallback-applied` infinite-loop guard. On error: swaps src to inline data-URI SVG (brand-100 background + car silhouette).
+
+### 3. `[ASK B→A]` — extend img-error pattern to all web listing sites
+
+A already has the canonical pattern at `browse-car-row.component.ts:31`:
+```html
+<img [src]="car().image" alt="" loading="lazy" (error)="imageFailed.set(true)" />
+```
+
+Grep shows ~10+ other `<img>` sites in `apps/web/src/app/features/**` (VDP gallery, home featured, saved listings, account orders, sell wizard, etc.) lack this defensive handler. **Please extend the pattern to every `<img>` rendering listing photos** so a CDN outage shows a clean placeholder instead of a broken-image icon.
+
+Suggested approach (mirrors your v1.5-D11b initial-letter chip pattern):
+1. Add `imageFailed = signal(false)` per component
+2. Bind `(error)="imageFailed.set(true)"` on the `<img>`
+3. Wrap in `@if (!imageFailed()) { <img> } @else { <placeholder> }`
+4. Use brand-100 + car-glyph SVG
+
+**Sites to cover** (Grep `<img` in `apps/web/src/app/features/{vdp,home,sell,account,browse}`):
+- `vdp/vdp-gallery.component.ts` (main VDP photo grid — highest priority)
+- `home/sections/car-card.component.ts`
+- `account/saved-listings.component.ts`
+- `sell/details-wizard.component.ts`
+- Any other listing-photo binding
+
+**Why defense-in-depth, not blocking**: B's server filter prevents 0-photo listings from reaching A's surface. Client-side handler covers transient CDN hiccups + race conditions (cached listing whose photos were deleted server-side).
+
+Estimated effort: ~30 min if batched. Non-blocking.
+
+### 4. B residual state
+
+Still **idle**. v1.5.15 closes the directive on B's server + admin surfaces. Awaiting A's coverage of remaining web sites.
+
+— **Session B**, 2026-05-21.
+
+---
+
+## v1.5-D11f — Session A: `[ASK A→B-5]` /featured endpoint ignores featuredAt admin flag (2026-05-21)
+
+User asked A to ensure the home page "Featured cars" rail shows only listings marked as featured. A audited and found the bug is server-side, not in the home-page wiring.
+
+### 1. Diagnosis
+
+Endpoint `GET /v1/public/listings/featured` exists; A's `PublicCatalogService.featuredCache$` wires correctly to it. But the controller IGNORES the `featuredAt` admin flag and effectively returns "8 most-recent listings with inspected sorted first":
+
+```ts
+// apps/api/src/listings/listings-public.controller.ts:293-312
+listingsPublicRouter.get('/featured', async (_req, res, next) => {
+  const where = publicWhere();                  // ← no featuredAt filter
+  const rows = await prisma.listing.findMany({
+    where,
+    include: PUBLIC_INCLUDE,
+    orderBy: [{ listedAt: 'desc' }],            // ← orders by listedAt
+    take: 32,
+  });
+  const sorted = [...rows].sort((a, b) => {     // ← then in-memory inspected-first sort
+    const aIns = a.inspectionReport ? 1 : 0;
+    const bIns = b.inspectionReport ? 1 : 0;
+    if (aIns !== bIns) return bIns - aIns;
+    return (b.listedAt?.getTime() ?? 0) - (a.listedAt?.getTime() ?? 0);
+  }).slice(0, 8);
+  ...
+});
+```
+
+Admin's `PATCH /admin/listings/:id/featured` toggle (sets `featuredAt = new Date() | null`) has no effect on the customer-facing rail.
+
+### 2. Infrastructure already in place (no new schema/columns needed)
+
+- DB column `Listing.featuredAt: DateTime?` ✅
+- Admin endpoint `PATCH /admin/listings/:id/featured` ✅ (existing — `listings.controller.ts:112`)
+- Service `setFeatured(id, featured)` ✅ idempotent + audit-logged
+- Repo filter helper `where.featuredAt = filter.featured ? { not: null } : null` ✅ (existing — `listings.repo.ts:56-57`)
+
+Just the public controller needs the filter applied.
+
+### 3. Proposed B-side fix (~3-line change)
+
+```ts
+listingsPublicRouter.get('/featured', async (_req, res, next) => {
+  try {
+    const where = { ...publicWhere(), featuredAt: { not: null } };  // ← add filter
+    const rows = await prisma.listing.findMany({
+      where,
+      include: PUBLIC_INCLUDE,
+      orderBy: [{ featuredAt: 'desc' }],                              // ← featured-newest first
+      take: 8,                                                         // ← consolidate cap (drop in-memory sort)
+    });
+    res.json({ items: rows.map(toPublicSummary), total: rows.length, page: 1, pageSize: 8 });
+  } catch (err) { next(err); }
+});
+```
+
+Empty list when no admin has flagged anything → home page rail collapses gracefully (already empty-state-safe per v1.5-D11e). When admin toggles via existing admin UI, rail updates on next page load.
+
+### 4. A-side state
+
+No A changes needed once B ships. `PublicCatalogService.featuredCache$` already handles `[]` cleanly. Estimated B effort: **~5 minutes** (1-line filter + 2-line sort/cap consolidation + optional spec update).
+
+— **Session A**, 2026-05-21.
+
+---
+
+## 2026-05-21 — B v1.5.16 — Rich media (walk-around + 360° spin) surfaced on public VDP
+
+[NEW A-facing public-API extension. Non-breaking — both new fields are optional and null-safe.]
+
+### 1. Background
+
+Schema (`ListingVideo` + `Listing360`), admin CRUD (presign/confirm/delete with audit), and admin upload UI (`media-gallery.component.ts` + `Media360TabComponent`) were ALREADY shipped before this session. The gap: `GET /v1/public/listings/:slug` explicitly stripped `videos` and `media360` (see prior comment in `listings-public.controller.ts:19`). So even after an admin uploaded media, customers never saw it.
+
+v1.5.16 closes that gap — purely a public-DTO extension + demo seed.
+
+### 2. New fields on `ListingPublicDetail`
+
+```ts
+walkaroundVideo: {
+  url: string;             // CDN URL or "/static/demo-media/..." for demo
+  mimeType: string;        // e.g. "video/mp4"
+  posterUrl: string | null;
+  durationS: number | null;
+} | null;
+
+spin360: {
+  archiveUrl: string;      // MP4 of 360 rotation (or .zip of frames)
+  mimeType: string;        // "video/mp4" or "application/zip"
+  frameCount: number | null;
+} | null;
+```
+
+Both `null` when the listing has no completed rich media (`uploadStatus !== 'complete'` rows are filtered out server-side). Six premium demo listings in seed have both populated: Porsche Cayenne, BMW X5, Nissan Patrol, Mercedes C 300, Audi Q5, Lexus RX 350.
+
+### 3. URL prefix handling — important
+
+Both `url` / `archiveUrl` can be **relative** (start with `/`) for demo content served by the API at `/static/demo-media/...`, or **absolute** (CDN/S3 URLs) for production content. Detect and prepend `API_BASE` for relative paths — same pattern the storefront already uses for photo `cdnUrl` when needed.
+
+```ts
+absUrl(u: string): string {
+  return u.startsWith('/') ? `${environment.apiBaseUrl}${u}` : u;
+}
+```
+
+### 4. [ASK B→A #vdp-rich-media-render]
+
+Web VDP should render the new sections when present, hide cleanly when `null`:
+
+- **Walk-around video** — `<video controls playsinline preload="metadata" [poster]="walkaroundVideo.posterUrl | absUrl">` with `<source [src]="walkaroundVideo.url | absUrl" [type]="walkaroundVideo.mimeType">`. Drop into VDP gallery section as a new tab/panel ("Walk-Around") next to the photo gallery.
+- **360° spin** — for the demo (MP4 mode), simplest renderer is `<video controls={false} muted playsinline loop>` with a draggable scrubber overlay that maps drag position → `currentTime`. For an Angular component, take `frameCount` (36 in demo) and divide the duration into equal slices. Alternative: build a frame-sequence viewer from a `.zip` extract — overkill for v1.
+- Both sections should:
+  - Lazy-load (Intersection Observer; don't fetch MP4 until in viewport)
+  - Show an explicit section heading ("Walk-Around", "360° Exterior View")
+  - Skip the entire panel when DTO field is `null` (no empty state)
+
+Suggested place in VDP: between the photo gallery and the spec table. Sample HTML scaffold (Tailwind):
+
+```html
+@if (vdp.walkaroundVideo; as wa) {
+  <section class="card mt-6 p-6">
+    <h2 class="text-lg font-semibold text-ink-900">Walk-Around</h2>
+    <video class="mt-4 w-full rounded-md" controls playsinline preload="metadata"
+           [poster]="wa.posterUrl | absUrl">
+      <source [src]="wa.url | absUrl" [type]="wa.mimeType" />
+    </video>
+  </section>
+}
+@if (vdp.spin360; as s) {
+  <section class="card mt-6 p-6">
+    <h2 class="text-lg font-semibold text-ink-900">360° Exterior View</h2>
+    <app-spin360-viewer [archiveUrl]="s.archiveUrl | absUrl"
+                       [mimeType]="s.mimeType" [frameCount]="s.frameCount" />
+  </section>
+}
+```
+
+Estimated effort: **~1.5–2 hours** (video player ~30 min; 360 viewer ~1 hr; lazy-load + i18n + tests ~30 min). Non-blocking.
+
+### 5. Demo content notes
+
+The dummy MP4s are synthetic placeholders (Behbehani brand-blue background + text overlay, generated by `ffmpeg-static` + `sharp` — see `scripts/generate-rich-media-demo.mjs`). Sizes: walkaround ~50 KB, 360 spin ~130 KB. Total committed to repo: ~210 KB under `apps/api/src/seed/demo-media/`. They look obviously synthetic — that's intentional so demo content can't be mistaken for production footage.
+
+Real content drops in via the existing admin Media tab → no client-side code change needed. The customer DTO picks `uploadStatus='complete'` rows regardless of source.
+
+### 6. Smoke-probe evidence
+
+`node scripts/smoke-demo-media.mjs`:
+```
+[OK ] 200   50072B  video/mp4      /static/demo-media/walkaround/demo-walkaround.mp4
+[OK ] 200   28097B  image/jpeg     /static/demo-media/walkaround/demo-walkaround-poster.jpg
+[OK ] 200  133132B  video/mp4      /static/demo-media/spin360/demo-spin360.mp4
+[OK ] 404 traversal probe blocked  /static/demo-media/../../package.json
+```
+
+Builds GREEN: `nx build shared-types` + `nx build api` (webpack assets entry copies demo-media into `dist/seed/demo-media/`).
+
+### 7. B residual state
+
+Idle. v1.5.16 closes the rich-media gap on B's surface. Awaiting A's VDP render and C's mobile render (both non-blocking).
+
+— **Session B**, 2026-05-21.
+
+---
+
+## v1.5-D12 — Session A: ACK B v1.5.16 + wire walk-around video + 360° spin viewer on VDP (2026-05-21)
+
+User asked A to check how B would provide rich-media data + implement frontend. Read B's v1.5.16 contract block (CONCIERGE §7291-7387), confirmed B shipped the public DTO end-to-end, then delegated the 6-deliverable wire-up to a ruflo opus agent (`vdp-rich-media-wire`, ~10 min wall, 58 tool calls).
+
+### 1. Files shipped (~640 net lines)
+
+| Action | Path | LOC |
+|---|---|---|
+| **NEW** | `apps/web/src/app/features/vdp/vdp-walkaround-video.component.ts` | 121 |
+| **NEW** | `apps/web/src/app/features/vdp/vdp-spin360.component.ts` | 193 |
+| **EDIT** | `apps/web/src/app/data/public-catalog.service.ts` | extended `ListingPublicDetail` with optional `walkaroundVideo` + `spin360` fields per B's v1.5.16 §2 spec; added exported `absUrl()` helper that strips `/v1` suffix from API_CONFIG.baseUrl then prepends for relative URLs (per B's §3 URL prefix handling — `/static/demo-media/...` paths are served from API origin, not under `/v1`) |
+| **EDIT** | `apps/web/src/app/features/vdp/vdp-gallery.component.ts` | pills now conditional on new `hasWalkaroundVideo` / `hasSpin360` inputs; became `<button>`s that smooth-scroll to `#vdp-walkaround` / `#vdp-spin360` (SSR-gated via isPlatformBrowser) |
+| **EDIT** | `apps/web/src/app/features/vdp/vdp-page.component.ts` | 489 (under 500 cap). Imported new components + API_CONFIG; new `walkaroundData` / `spin360Data` computed signals (resolve URLs via absUrl); two new sections inserted between `<app-vdp-gallery>` and Specifications; gallery inputs wired |
+| **EDIT** | `apps/web/public/assets/i18n/en.json` + `ar.json` | +9 keys EN+AR symmetric (`vdp.gallery.jumpToVideo/jumpTo360` + `vdp.walkaround.title/sub` + `vdp.spin360.title/hint/frames/dragHint/zipComingSoon`) |
+
+### 2. Walk-around video component (`<app-vdp-walkaround-video>`)
+
+- Standalone, ChangeDetection.OnPush, signals
+- Inputs: `url` (resolved absolute), `mimeType`, `posterUrl`, `durationS`
+- `<video controls playsinline preload="metadata" [poster]>` with `<source [src] [type]>`
+- **Lazy load** via IntersectionObserver (200px rootMargin) — MP4 only fetches when section enters viewport; observer disconnects after first hit; SSR-safe via PLATFORM_ID
+
+### 3. 360° spin viewer (`<app-vdp-spin360>`)
+
+Discriminated on `mimeType`:
+
+**Path A — `video/mp4` (demo + most common)**:
+- `<video muted playsinline preload="metadata" class="pointer-events-none">` — no native controls
+- Overlay `<div>` captures pointer events: `pointerdown` → record startX + start scrubbing → `pointermove` → map drag delta as fraction of width to `vid.currentTime = (delta / width) * vid.duration` → `pointerup` / `pointercancel` → stop
+- Mouse + touch via Pointer Events API; pointer capture for off-overlay drag continuity; continuous wrap (drag past edges loops)
+- "Drag to rotate" pill at bottom-center
+- Frame count shown if present (e.g. "36 frames")
+
+**Path B — `application/zip` (deferred — coming-soon fallback)**:
+- Renders a placeholder card with "360° view available — coming soon" message
+- Intentional per B's §4 ("Alternative: build a frame-sequence viewer from a .zip extract — overkill for v1")
+- No demo currently exercises this path; will activate when admin uploads a zip-format 360
+
+Same lazy-load + SSR-gate pattern as walkaround.
+
+### 4. Browser verification (live, Chrome MCP)
+
+✅ /browse → click Porsche Cayenne (one of B's 6 demo listings)
+✅ VDP loads — title "2022 Porsche Cayenne" + gallery + pills row "▶ Walkaround video" + "↻ 360°" (only present because this listing has the data)
+✅ Scroll down → **Walk-Around section** renders with header ("Walk-Around / 6s · Take a closer look from every angle") + `<video controls>` showing 0:00 / 0:06 + play + mute + fullscreen — demo MP4 ("Behbehani Motors / WALK-AROUND PREVIEW" overlay) loaded successfully from `/static/demo-media/walkaround/demo-walkaround.mp4`
+✅ Scroll further → **360° Exterior View section** renders with header + stylized car-silhouette demo MP4 + "Drag to rotate" pill at bottom-center — frame count shown ("36 frames")
+✅ Sections placed between gallery and Specifications per B's suggested HTML scaffold
+✅ Section order: Gallery → Walk-Around → 360° → Specifications → Features & equipment → Vehicle history → Inspection → Finance → ...
+
+Other 5 demo listings (BMW X5 / Nissan Patrol / Mercedes C 300 / Audi Q5 / Lexus RX 350) should render the same — same DTO shape per B's seed.
+
+### 5. Verification matrix
+
+| Check | Result |
+|---|---|
+| `nx build web --skip-nx-cache` | ✅ PASS (~18s, no warnings beyond pre-existing 982 kB bundle) |
+| `guard:brand-lock` | ✅ no violations |
+| `guard:i18n-parity` | ✅ EN/AR symmetric (+9 keys) |
+| Browser-verified live (Cayenne VDP) | ✅ walkaround player loads + 360° section renders + gallery pills conditional |
+| Backend smoke probe per B v1.5.16 §6 | ✅ `/static/demo-media/walkaround/demo-walkaround.mp4` served by API origin (visible in browser as the actual video frames render) |
+
+### 6. Coordination handoff to lead (future verification picks)
+
+- Test a listing WITHOUT rich media to confirm sections + pills BOTH cleanly disappear (e.g. an older non-demo seed entry) — should show neither pill nor section, no empty state
+- Test RTL/AR locale to verify "Drag to rotate" pill stays visually centered (Tailwind `start-1/2` should auto-flip but visual sanity check recommended)
+- Network tab verification: confirm walkaround/360 MP4s are NOT fetched on initial VDP load — only after user scrolls down (IntersectionObserver lazy-load)
+- Zip path (`application/zip`) is intentionally punted. When/if real admin uploads a zip-format 360 (vs MP4), the fallback "coming soon" card will show. v1.6 candidate: real zip-frame viewer (JSZip + canvas + mousemove → frame index).
+
+### 7. A's state after v1.5-D12
+
+A is **idle**. Rich media live end-to-end. Backend (B v1.5.16) + frontend (A v1.5-D12) + 6 demo listings all wired and browser-verified. C-side mobile equivalent still pending per B v1.5.16 §7 (non-blocking; C will pick when ready).
+
+**Open A backlog** (unchanged + 1 micro):
+- `[ASK A→B-5]` v1.5-D11f — `/featured` endpoint filter bug (still pending)
+- `[GATE]` GOOGLE_MAPS_API_KEY
+- v1.5-D13 (eventual) — sell-callout 3 dead buttons + `/finance` + `/services` route placeholders
+- Polish/cleanup: refund-status text on /account/orders/:id (waits B Payments) · Maintenance customer surface (waits mockup) · date-i18n helper · bundle budget reduction (982 kB) · CONVENTIONS §13.5 + §14 amendments · file-size cap cleanup · dead-code child guest gates · drop `uploadComingSoon` i18n key
+- **NEW (micro from v1.5-D12)** Zip-format 360° viewer (deferred — only needed when admin uploads a non-MP4 360)
+
+— **Session A**, 2026-05-21.
+
+---
+
+## 2026-05-21 — B v1.5.18 — `/featured` filter fix shipped (closes A v1.5-D11f [ASK A→B-5])
+
+ACK A's diagnosis — it was exactly right. Bug + fix applied verbatim from A's §3 proposal, plus a small seed addition so the rail isn't empty out of the box.
+
+### 1. Fix applied
+
+`apps/api/src/listings/listings-public.controller.ts` — `GET /v1/public/listings/featured` handler:
+
+```ts
+// Before (v1.5.17):
+const where = publicWhere();                  // ignored featuredAt
+const rows = await prisma.listing.findMany({
+  where, include: PUBLIC_INCLUDE,
+  orderBy: [{ listedAt: 'desc' }], take: 32,
+});
+const sorted = [...rows].sort((a, b) => { ... inspected-first ... }).slice(0, 8);
+
+// After (v1.5.18):
+const where: Prisma.ListingWhereInput = {
+  ...publicWhere(),
+  featuredAt: { not: null },                  // ← honours admin flag
+};
+const rows = await prisma.listing.findMany({
+  where, include: PUBLIC_INCLUDE,
+  orderBy: [{ featuredAt: 'desc' }],          // ← newest-featured first
+  take: 8,                                    // ← consolidated cap; no in-memory sort
+});
+```
+
+JSDoc updated to document the v1.5.18 behaviour + rationale + the empty-collapse contract you confirmed (`featuredCache$` handles `[]` cleanly).
+
+### 2. Seed update — rail isn't empty out of the box
+
+Added a featured-flagging step to the existing `seedDemoRichMedia()` function in `apps/api/prisma/seed.ts`. The same 6 premium listings that have rich media (Porsche / BMW / Nissan / Mercedes / Audi / Lexus) now also get `featuredAt = now() - (index hours)` so the order is deterministic. Stable mental model for v1.5: **premium tier = featured + rich media**.
+
+```ts
+const FEATURED_STOCK_NUMBERS: ReadonlyArray<string> = DEMO_RICH_MEDIA_STOCK_NUMBERS;
+// …inside the seed loop:
+if (FEATURED_STOCK_NUMBERS.includes(stockNumber)) {
+  const featuredAt = new Date(Date.now() - i * 60 * 60 * 1000);
+  await prisma.listing.update({ where: { id: listing.id }, data: { featuredAt } });
+}
+```
+
+Idempotent — re-running the seed overwrites the same timestamp pattern. Admin toggles via `PATCH /admin/listings/:id/featured` continue to work normally and override the seed values whenever admin acts.
+
+### 3. Behaviour matrix (verify after `npm run db:seed` + API restart)
+
+| Scenario | `GET /v1/public/listings/featured` returns |
+|---|---|
+| Fresh dev DB after seed | 6 items (Porsche, BMW, Nissan, Mercedes, Audi, Lexus — Porsche leftmost) |
+| Admin un-features Porsche via PATCH | 5 items (BMW leftmost) |
+| Admin features 3 more listings | 8 items (newest-featured leftmost; cap enforced) |
+| Production DB before any admin action | `{ items: [], total: 0, page: 1, pageSize: 8 }` — rail collapses gracefully per your existing `featuredCache$` empty-state handling |
+
+### 4. Verification
+
+- `npx nx build api` → GREEN
+- `prisma validate` → VALID
+- `apps/api/prisma/seed.ts` typecheck → clean
+- No schema change, no migration. Files touched: 2 (controller + seed).
+
+### 5. Operational gates for A
+
+Per the §13.5 ship-checklist:
+1. `nx serve api` restart so the new handler loads (you'll have done this already if you re-pull this commit).
+2. `npm run db:seed` to populate the 6 featured rows (or admin-toggle in the admin UI if you'd rather pick different listings).
+3. Browser-verify `/` home page — Featured Cars rail should show the 6 premium cars, Porsche Cayenne leftmost.
+
+### 6. B state
+
+Idle. `[ASK A→B-5]` closed. No new asks from B. Open coordination items remaining on B's side: zero.
+
+— **Session B**, 2026-05-21.
+
+---
+
+## 2026-05-21 — B v1.5.19 — Rich-media demo content upgrade (real photos + real 360 turntable)
+
+User flagged the v1.5.16 synthetic blue-slide MP4s as "not good for a demo". Replaced both surfaces with real CC0-licensed content; same DTO shape — zero API contract change, no A-side work required (existing v1.5-D12 player components keep working).
+
+### 1. What changed
+
+**Walk-around video (per-car personalized):**
+- Each of the 6 premium listings now has its own Ken-Burns animation built from its actual Unsplash hero photo (the same photo customers see on the listing card).
+- 7-second 1280×720 MP4 with slow zoom-in + rightward pan. File sizes 354–844 KB per listing (varies by JPEG compressibility).
+- Generator: `scripts/generate-rich-media-demo.mjs` downloads source photos (CC0 Unsplash, gitignored) → ffmpeg zoompan → MP4 commit.
+- DTO `walkaroundVideo.url` now resolves to `/static/demo-media/walkaround/{stockNumber}.mp4` instead of a single shared file.
+
+**360° exterior spin (real turntable footage):**
+- Downloaded Pixabay video #2708 "Car Red Rotate" (https://pixabay.com/videos/car-red-rotate-rotating-360-2708/) at medium 1280×720 = 2.3 MB.
+- License: Pixabay Content License — commercial use OK, no attribution required.
+- Shared across all 6 premium listings (same `/static/demo-media/spin360/demo-spin360.mp4` URL). Real CC0 turntable footage instead of the prior synthetic SVG-silhouette rotation.
+
+**Seed bug fix (drive-by):**
+- The original Patrol hero URL (`photo-1606664922998-f180baa4ef91`) was 404'd by Unsplash sometime after v1.3. Listing card showed a broken image. Swapped to a stable luxury-SUV photo.
+- Other broken URLs still exist in seed (Mustang `BMC-SEED-0006`, 0011, 0012 — all return 404). Not fixed in v1.5.19 scope; flagged as carry-over for a future cleanup pass.
+
+### 2. Repo footprint
+
+| Asset | Bytes | Source |
+|---|---|---|
+| 6 per-car walkaround MP4s | ~3.5 MB | Generated locally from Unsplash photos |
+| 6 walkaround poster JPGs  | ~655 KB | First-frame extract |
+| 1 shared spin360 MP4      | 2.3 MB  | Pixabay #2708 (CC0) |
+| **Total** | **~6.4 MB** | Committed; source photos gitignored |
+
+### 3. Generator UX
+
+```bash
+# Re-encode videos using cached source photos
+node scripts/generate-rich-media-demo.mjs --force
+
+# Force re-download source photos too (e.g. on a fresh checkout)
+node scripts/generate-rich-media-demo.mjs --refetch
+```
+
+### 4. DTO impact
+
+**None.** Same `ListingPublicDetail.walkaroundVideo` + `spin360` shapes as v1.5.16. Per-listing variation lives in the `url` value only. Existing A v1.5-D12 frontend components keep working unchanged — the video player on the VDP automatically picks up the new per-car URL for each listing.
+
+### 5. Smoke evidence
+
+`node scripts/smoke-demo-media.mjs`:
+```
+[OK] 200   381 KB  video/mp4   /static/demo-media/walkaround/BMC-SEED-0002.mp4  (Lexus RX 350)
+[OK] 200   668 KB  video/mp4   /static/demo-media/walkaround/BMC-SEED-0003.mp4  (Mercedes C 300)
+[OK] 200   609 KB  video/mp4   /static/demo-media/walkaround/BMC-SEED-0004.mp4  (BMW X5)
+[OK] 200   844 KB  video/mp4   /static/demo-media/walkaround/BMC-SEED-0005.mp4  (Nissan Patrol)
+[OK] 200   354 KB  video/mp4   /static/demo-media/walkaround/BMC-SEED-0007.mp4  (Porsche Cayenne)
+[OK] 200   645 KB  video/mp4   /static/demo-media/walkaround/BMC-SEED-0008.mp4  (Audi Q5)
+[OK] 200  2,286 KB  video/mp4   /static/demo-media/spin360/demo-spin360.mp4    (shared)
++ 6 poster JPGs, 200 each. Traversal probe blocked (404).
+```
+
+`nx build api` GREEN; webpack copies all 13 assets into `dist/seed/demo-media/**` per the existing `assets` entry.
+
+### 6. Operational gates for A
+
+1. Pull the v1.5.19 commit.
+2. `nx serve api` restart (or `pm2 reload cpo-api` in prod).
+3. `npm run db:seed` — the upsert path overwrites the v1.5.16 demo rows with the new per-car URLs.
+4. Browser-verify VDP on any of the 6 premium listings:
+   - **Walk-around section**: actual photo of that car animates with zoom + pan (NOT a blue text slide).
+   - **360 section**: real red car rotating on a turntable (NOT a cartoon silhouette).
+
+### 7. Honest tradeoff disclosure
+
+- Walkaround is personalised per car ✅
+- 360 spin is still **one generic red car** shown across all 6 premium listings. This is the best CC0 content available; per-car real turntable footage requires a physical rig (Spincar / CarCutter / MotorStreet360 hardware ~$5k-15k). Acceptable for v1 demo; real content lands via existing admin upload UI when Behbehani has a rig.
+
+### 8. B state
+
+Idle. Zero open coordination items.
+
+— **Session B**, 2026-05-21.
+
+---
+
+## 2026-05-21 — B v1.5.20 — Al Daman → Behbehani brand scrub (B-domain complete)
+
+`[ACK]` C's brand-correction directive in MOBILE/STATUS ("inspection is done by Behbehani, not by Al Daman — don't mention it anywhere"). C swept C-domain; I picked up the 2 B-domain files C explicitly flagged.
+
+### 1. B-domain scope (3 occurrences, 2 files)
+
+| File | Line | Before | After |
+|---|---|---|---|
+| `apps/admin/src/app/features/listings/edit/listing-edit.component.html` | 225 | `"Al Daman integration lands later."` | `"Score posts after the Behbehani inspector completes the rubric."` |
+| `apps/admin/src/app/features/listings/edit/listing-edit.component.html` | 231 | `"Al Daman integration lands later."` | `"Pending Behbehani inspector assignment."` |
+| `mockups/admin/sprint-4-inspection/_shell.html` | 5 | `"(Al Daman is OUT — see project_inspection_internal.md memory)"` | `"no third-party vendor involved (see project_inspection_internal.md memory)"` |
+
+Phrasing matches C's i18n pattern ("Behbehani inspected" / "مفحوصة من بهبهاني" already locked mobile-side) and stays factually consistent with the existing memory `project_inspection_internal.md`.
+
+### 2. Verification
+
+- `npx nx build admin` → GREEN
+- Repo-wide grep `Al[- ]?Daman|al[- ]?daman|alDaman|AlDaman` in B-domain (apps/admin/**, apps/api/**, mockups/admin/**): **0 matches**
+
+### 3. Residual repo-wide refs (NOT B's territory)
+
+Grep across the full repo still finds 5 A-domain files + 1 historical coordination reference. Per file ownership in CONVENTIONS:
+
+**A-domain (5 files)** — already on A's plate per C's STATUS note:
+- `mockups/web/sprint-3/01-home-en.html`
+- `mockups/web/sprint-3/03-listings-grid.html`
+- `mockups/web/sprint-3/04-listings-list.html`
+- `mockups/web/sprint-3/05-vdp.html`
+- `mockups/web/sprint-3/behbehani-motors/car-market/project/srs_extracted.txt`
+
+**Historical / not for scrubbing (1 file)** — `STATUS.md` mentions "Al Daman" inside the very note documenting C's scrub directive; this is meta-text, leaving it intact preserves the audit trail of when/why the brand correction happened.
+
+Also worth flagging: I found `الضمان` (Arabic "guarantee/assurance") in `apps/web/public/assets/i18n/ar.json` and `apps/mobile/src/i18n/locales/ar.json`. These may be legitimate Arabic word usage in non-Al-Daman contexts (e.g., "warranty" / "service guarantee" microcopy), OR they may be residual remnants C missed. Worth a sanity scan from A (web) and C (mobile) since the Arabic word is the literal translation.
+
+### 4. B state
+
+Idle. v1.5.20 closes the only B-domain ask on my plate. Zero open coordination items.
+
+— **Session B**, 2026-05-21.

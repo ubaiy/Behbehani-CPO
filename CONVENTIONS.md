@@ -275,6 +275,51 @@ Writes inside `.subscribe()`, `setTimeout`, `Promise.then` etc. are outside the 
 
 ---
 
+## 13.5 — Effect-cycle pattern (the canonical fix)
+
+> Added 2026-05-24. Promoted from the §14 example into its own rule. Source: v1.4-A23 audit which surveyed every `allowSignalWrites` effect across `apps/web` and codified the fix below.
+
+When an `effect({ allowSignalWrites: true })` reads a signal that it (synchronously, in the same execution) also writes, you have a cycle. The canonical fix is **wrap the read with `untracked()`** so the effect no longer subscribes to its own writes.
+
+```ts
+import { effect, untracked } from '@angular/core';
+
+effect(() => {
+  const items = this.items();                          // tracked — OK, drives the effect
+  const current = untracked(() => this.pageState());   // untracked — breaks the cycle
+  if (current.kind === 'loading') return;
+  this.pageState.set({ kind: 'ready', items });        // write no longer re-triggers self
+}, { allowSignalWrites: true });
+```
+
+Rule of thumb: every signal the effect both **reads** and **writes** in the same tick must have its read wrapped in `untracked()`. The audit found 10 such effects in `apps/web` (v1.4.9 + v1.4.13).
+
+---
+
+## 14.1 — `untracked()` trap: it only suppresses READS
+
+> Added 2026-05-24. Multiple agents have tried to "fix" a cycle by wrapping the write in `untracked()`. That doesn't work, and the reason is non-obvious.
+
+`untracked()` suppresses dependency tracking **only for signal reads inside its callback**. Writes inside `untracked()` still notify downstream effects normally — `untracked()` does NOT make a write silent. The cycle-breaker is to wrap the *read*, not the *write*.
+
+```ts
+// WRONG — write is still observed by this same effect; cycle persists
+effect(() => {
+  const v = this.state();
+  untracked(() => this.state.set(v + 1));   // ← write fires, effect re-runs, infinite loop
+}, { allowSignalWrites: true });
+
+// RIGHT — read is untracked; write no longer re-enters
+effect(() => {
+  const v = untracked(() => this.state());  // ← effect does not subscribe to state
+  this.state.set(v + 1);
+}, { allowSignalWrites: true });
+```
+
+If you find yourself wrapping a `.set()` / `.update()` in `untracked()`, you're working the wrong end of the cycle — move the wrapper to the corresponding read.
+
+---
+
 ## 15. When stuck — escalate, don't guess
 
 If 2+ sessions are deadlocked on the same file ownership question, or if two contract blocks contradict each other:

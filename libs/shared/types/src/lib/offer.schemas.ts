@@ -107,6 +107,11 @@ export const PublicOfferViewSchema = z.object({
   // 'countered_by_admin' (admin countered, awaiting customer decision).
   canRespond: z.boolean(),
   publicTokenExpiresAt: z.string().datetime(),
+  // Linked inspection UUID — enables mobile/web to deep-link from the offer
+  // page to the inspection-report viewer (e.g. /inspections/:id). Surfaced
+  // in v1.5.4 to unblock C v0.16 carry-over (mock `test-inspection-id` ref
+  // in apps/mobile/app/offers/[token]/view.tsx "View Inspection" CTA).
+  inspectionReportId: z.string().uuid(),
 });
 export type PublicOfferView = z.infer<typeof PublicOfferViewSchema>;
 

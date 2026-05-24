@@ -45,7 +45,9 @@ let nextId = 0;
         <span class="flex items-center justify-between gap-2 text-sm font-semibold text-ink">
           <span class="flex min-w-0 items-center gap-2">
             @if (selectedIcon(); as iconUrl) {
-              <img [src]="iconUrl" alt="" class="size-4 shrink-0 object-contain" loading="lazy" />
+              <span class="relative inline-block size-4 shrink-0">
+                <img [src]="iconUrl" [alt]="selectedLabel()" class="size-4 object-contain" loading="lazy" (error)="onIconError($event)" />
+              </span>
             }
             <span class="truncate">{{ selectedLabel() }}</span>
           </span>
@@ -93,7 +95,9 @@ let nextId = 0;
               >
                 <span class="flex min-w-0 items-center gap-2.5">
                   @if (option.iconUrl) {
-                    <img [src]="option.iconUrl" alt="" class="size-5 shrink-0 object-contain" loading="lazy" />
+                    <span class="relative inline-block size-5 shrink-0">
+                      <img [src]="option.iconUrl" [alt]="option.label" class="size-5 object-contain" loading="lazy" (error)="onIconError($event)" />
+                    </span>
                   }
                   <span class="truncate">{{ option.label }}</span>
                 </span>
@@ -208,5 +212,26 @@ export class UiSelectComponent implements OnInit {
     if (target && !this.host.nativeElement.contains(target)) {
       this.open.set(false);
     }
+  }
+
+  /**
+   * Fallback when a brand/favicon image fails to load.
+   * Hides the broken <img> and injects a circular initial-letter chip in its
+   * wrapper span so the row stays visually balanced. SSR-safe.
+   */
+  onIconError(event: Event): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const img = event.target as HTMLImageElement | null;
+    if (!img) return;
+    const wrapper = img.parentElement;
+    if (!wrapper || wrapper.querySelector('.brand-logo-fallback')) return;
+    img.style.display = 'none';
+    const initial = (img.alt || '?').trim().charAt(0).toUpperCase();
+    const fallback = document.createElement('span');
+    fallback.className =
+      'brand-logo-fallback inline-grid place-items-center w-full h-full rounded-full bg-brand-100 text-brand-700 text-[10px] font-bold';
+    fallback.textContent = initial;
+    fallback.setAttribute('aria-hidden', 'true');
+    wrapper.appendChild(fallback);
   }
 }

@@ -15,3 +15,5 @@ export * from './lib/admin-dashboard.service';
 export * from './lib/admin-inspections.service';
 export * from './lib/admin-documents.service';
 export * from './lib/admin-orders.service';
+export * from './lib/admin-maintenance.service';
+export * from './lib/admin-feature-waitlist.service';

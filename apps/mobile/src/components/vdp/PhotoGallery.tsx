@@ -11,13 +11,13 @@ import {
   FlatList,
   ScrollView,
   TouchableOpacity,
-  Image,
   Dimensions,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { brand, slate } from '../../theme/colors';
 import { fontFamily } from '../../theme/theme';
 import { CarSilhouette } from './vdp.icons';
+import { ImageWithFallback } from '../common/ImageWithFallback';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GALLERY_HEIGHT = SCREEN_WIDTH * (10 / 16); // 16:10 ratio
@@ -58,7 +58,13 @@ export function PhotoGallery({
               </View>
             ) : (
               <View style={styles.gallerySlide}>
-                <Image source={{ uri: item }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+                <ImageWithFallback
+                  source={{ uri: item }}
+                  style={StyleSheet.absoluteFillObject}
+                  resizeMode="cover"
+                  fallbackSize={56}
+                  fallbackStyle={StyleSheet.absoluteFillObject}
+                />
               </View>
             )
           }
@@ -96,7 +102,12 @@ export function PhotoGallery({
                 activeOpacity={0.8}
               >
                 {typeof photo === 'string' && photo.startsWith('http') ? (
-                  <Image source={{ uri: photo }} style={styles.thumbnailImage} resizeMode="cover" />
+                  <ImageWithFallback
+                    source={{ uri: photo }}
+                    style={styles.thumbnailImage}
+                    resizeMode="cover"
+                    fallbackSize={20}
+                  />
                 ) : (
                   <View style={styles.thumbnailPlaceholder} />
                 )}

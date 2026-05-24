@@ -21,9 +21,12 @@ import {
   DEFAULT_NOTIFICATION_PREFERENCES,
   NotificationPreferencesSchema,
 } from '@behbehani-cpo/shared-types';
+import { randomUUID } from 'node:crypto';
 import { prisma } from '../db/prisma';
 import { findById, hashPassword, toPublic, verifyPassword } from '../auth/users.repo';
 import { issueOtp, verifyOtp } from '../auth/otp.service';
+import { presignPutUrl } from '../lib/s3';
+import { env } from '../config/env';
 import type { PublicUser } from '@behbehani-cpo/shared-types';
 
 // ─── Error class ─────────────────────────────────────────────────────────────
@@ -47,6 +50,9 @@ export function mapMeAccountErrorToHttp(
     ME_CURRENT_PASSWORD_REQUIRED: 422,
     ME_CURRENT_PASSWORD_INCORRECT: 401,
     ME_OTP_INVALID: 400,
+    // v1.5.10 — avatar upload presign
+    AVATAR_TOO_LARGE: 422,
+    AVATAR_MIME_NOT_ALLOWED: 422,
   };
   return { status: statusByCode[err.code], body: { code: err.code, error: err.message } };
 }
@@ -106,6 +112,56 @@ export async function patchProfile(
 
   const updated = await prisma.user.update({ where: { id: userId }, data });
   return toPublic(updated);
+}
+
+// ─── 2b. POST /v1/public/me/avatar/upload-url ────────────────────────────────
+// v1.5.10 — closes A v1.5-D7 TODO ("avatar upload endpoint not yet on B side").
+// 3-step pre-signed S3 PUT flow mirroring admin Documents v1.4.4:
+//   (1) client POSTs this endpoint with mimeType + fileSizeBytes
+//   (2) client PUTs raw bytes to the returned `url`
+//   (3) client calls PATCH /me/profile with `avatarUrl: returned.key`
+//
+// The server-set key is `avatars/<userId>/<uuid>.<ext>` — collision-free per
+// user, stable across re-uploads (old key becomes orphaned on PATCH; cleanup
+// is deferred to a v1.6+ janitor cron). Returned key has NO CDN prefix —
+// `toPublic()` in users.repo.ts:108 prepends env.CDN_BASE_URL on every
+// subsequent GET /me.
+
+const AVATAR_MIME_TO_EXT: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png':  'png',
+  'image/webp': 'webp',
+};
+
+export async function presignAvatarUploadUrl(
+  userId: string,
+  input: { mimeType: 'image/jpeg' | 'image/png' | 'image/webp'; fileSizeBytes: number },
+): Promise<{ url: string; key: string; expiresAt: string }> {
+  // Enforce env-driven byte cap. Zod also caps at 50 MB as a hard upper bound
+  // (defense in depth) — this is the soft policy cap that scales with config.
+  if (input.fileSizeBytes > env.MAX_AVATAR_BYTES) {
+    throw new MeAccountError(
+      'AVATAR_TOO_LARGE',
+      `Avatar exceeds max size (${env.MAX_AVATAR_BYTES} bytes)`,
+    );
+  }
+
+  const ext = AVATAR_MIME_TO_EXT[input.mimeType];
+  if (!ext) {
+    // Zod should have caught this — defensive only.
+    throw new MeAccountError('AVATAR_MIME_NOT_ALLOWED', 'Unsupported avatar MIME type');
+  }
+
+  // Stable key per upload. Re-uploads land at a new key (different uuid) so
+  // CDN-cached old avatars don't have to be invalidated.
+  const key = `avatars/${userId}/${randomUUID()}.${ext}`;
+
+  const presign = await presignPutUrl(key, input.mimeType, input.fileSizeBytes);
+  return {
+    url:       presign.url,
+    key:       presign.key,
+    expiresAt: presign.expiresAt.toISOString(),
+  };
 }
 
 // ─── 3. POST /v1/public/me/email — initiate (EA-1) ───────────────────────────

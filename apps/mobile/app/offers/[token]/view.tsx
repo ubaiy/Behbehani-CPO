@@ -6,6 +6,10 @@
  * and 3 sticky-bottom CTAs: Decline / Counter / Accept.
  *
  * D1 compliance: NO "one counter", "1 round", "only counter" copy anywhere.
+ *
+ * v0.18.a: wired to real `GET /v1/public/concierge/offers/:token` via
+ * `offersPublicApiClient.getByToken`. The inspection-card CTA now navigates
+ * with `offer.inspectionReportId` (closes the v0.16 mock test-id carry-over).
  */
 
 import React from 'react';
@@ -17,33 +21,58 @@ import {
   StyleSheet,
   I18nManager,
   Platform,
-  SafeAreaView,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { useQuery } from '@tanstack/react-query';
+import type { PublicOfferView } from '@behbehani-cpo/shared-types';
 import { brand, slate } from '../../../src/theme/colors';
-
-// ─── Svg helpers (inline paths — no external lib needed) ──────────────────────
-
-function ChevronLeft({ color = '#fff', size = 20 }: { color?: string; size?: number }) {
-  return (
-    <View style={{ width: size, height: size }}>
-      <Text style={{ color, fontSize: size * 0.8, lineHeight: size, transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }}>‹</Text>
-    </View>
-  );
-}
-
-function ChevronRight({ size = 20 }: { size?: number }) {
-  return (
-    <Text style={{ color: slate[400], fontSize: size * 0.9, lineHeight: size, transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }}>›</Text>
-  );
-}
+import { offersPublicApiClient } from '../../../src/services/http';
+import { formatKwd } from '../../../src/components/orders/orders.utils';
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function OfferViewScreen() {
   const { token } = useLocalSearchParams<{ token: string }>();
   const { t } = useTranslation();
+
+  const { data: offer, isLoading, isError } = useQuery<PublicOfferView, Error>({
+    queryKey: ['offer', token],
+    queryFn: () => offersPublicApiClient.getByToken(token as string),
+    enabled: typeof token === 'string' && token.length > 0,
+  });
+
+  // ─── Loading / error branches ─────────────────────────────────────────────
+
+  if (isLoading) {
+    return (
+      <View style={s.root}>
+        <View style={s.centerState}>
+          <Text style={s.centerMuted}>{t('offers.view.loading')}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (isError || !offer) {
+    return (
+      <View style={s.root}>
+        <View style={s.centerState}>
+          <Text style={s.centerError}>{t('offers.view.error')}</Text>
+          <Text style={s.centerMuted}>{t('offers.view.retry')}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // ─── Derived display values ───────────────────────────────────────────────
+
+  const offerKwd = offer.offerAmountKwd || formatKwd(offer.offerAmountFils);
+  const badgeText = `CONCIERGE OFFER · ${offer.bookingRef}`;
+  const validUntilFormatted = formatValidUntil(offer.validUntil);
+  const vehicleTitle = offer.vehicleLabel || '—';
+  const hasInspection =
+    typeof offer.inspectionReportId === 'string' && offer.inspectionReportId.length > 0;
 
   return (
     <View style={s.root}>
@@ -67,7 +96,7 @@ export default function OfferViewScreen() {
           {/* Badge */}
           <View style={s.badge}>
             <View style={s.badgeDot} />
-            <Text style={s.badgeText}>CONCIERGE OFFER · BMC-CON-001234</Text>
+            <Text style={s.badgeText}>{badgeText}</Text>
           </View>
 
           <Text style={s.heroTitle}>{t('offers.view.heroTitle')}</Text>
@@ -78,52 +107,45 @@ export default function OfferViewScreen() {
           {/* Offer amount card */}
           <View style={s.offerCard}>
             <Text style={s.offerLabel}>{t('offers.view.offerLabel')}</Text>
-            <Text style={s.offerAmount}>KWD 4,850.000</Text>
+            <Text style={s.offerAmount}>{offerKwd}</Text>
             <View style={s.validRow}>
               <Text style={s.clockIcon}>⏱</Text>
               <Text style={s.validText}>
                 {t('offers.view.validUntil')}{' '}
-                <Text style={s.validBold}>Mon, 26 May · 23:59</Text>
-                {'  '}
-                <Text style={s.validMuted}>6d 14h left</Text>
+                <Text style={s.validBold}>{validUntilFormatted}</Text>
               </Text>
             </View>
           </View>
         </View>
 
         {/* ── Inspection report link ────────────────────────────────────── */}
-        <View style={s.section}>
-          <TouchableOpacity
-            style={s.inspectionCard}
-            onPress={() => router.push('/inspections/test-inspection-id' as any)}
-            accessibilityLabel={t('offers.view.inspectionA11y')}
-          >
-            <View style={s.inspectionIcon}>
-              <Text style={s.inspectionIconText}>✓</Text>
-            </View>
-            <View style={s.inspectionBody}>
-              <Text style={s.inspectionTitle}>{t('offers.view.inspectionTitle')}</Text>
-              <Text style={s.inspectionSub}>{t('offers.view.inspectionSub')}</Text>
-            </View>
-            <Text style={[s.chevronRight, { transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }]}>›</Text>
-          </TouchableOpacity>
-        </View>
+        {hasInspection && (
+          <View style={s.section}>
+            <TouchableOpacity
+              style={s.inspectionCard}
+              onPress={() =>
+                offer.inspectionReportId &&
+                router.push(`/inspections/${offer.inspectionReportId}` as never)
+              }
+              accessibilityLabel={t('offers.view.inspectionA11y')}
+            >
+              <View style={s.inspectionIcon}>
+                <Text style={s.inspectionIconText}>✓</Text>
+              </View>
+              <View style={s.inspectionBody}>
+                <Text style={s.inspectionTitle}>{t('offers.view.inspectionTitle')}</Text>
+                <Text style={s.inspectionSub}>{t('offers.view.inspectionSub')}</Text>
+              </View>
+              <Text style={[s.chevronRight, { transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }]}>›</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* ── Vehicle context ───────────────────────────────────────────── */}
         <View style={s.section}>
           <Text style={s.sectionLabel}>{t('offers.view.yourCar')}</Text>
           <View style={s.vehicleCard}>
-            <Text style={s.vehicleTitle}>2020 Toyota Camry GLE</Text>
-            <View style={s.vehicleGrid}>
-              <Text style={s.vehicleKey}>{t('offers.view.mileage')}</Text>
-              <Text style={s.vehicleVal}>42,500 km</Text>
-              <Text style={s.vehicleKey}>{t('offers.view.vin')}</Text>
-              <Text style={[s.vehicleVal, s.mono]}>··· ··· A12345</Text>
-              <Text style={s.vehicleKey}>{t('offers.view.transmission')}</Text>
-              <Text style={s.vehicleVal}>Automatic</Text>
-              <Text style={s.vehicleKey}>{t('offers.view.governorate')}</Text>
-              <Text style={s.vehicleVal}>Hawalli</Text>
-            </View>
+            <Text style={s.vehicleTitle}>{vehicleTitle}</Text>
           </View>
         </View>
 
@@ -149,18 +171,20 @@ export default function OfferViewScreen() {
         {/* Accept — primary, flex 1.4 */}
         <TouchableOpacity
           style={[s.cta, s.ctaAccept, { flex: 1.4 }]}
-          onPress={() => router.push(`/offers/${token}/accepted` as any)}
+          onPress={() => router.push(`/offers/${token}/accepted` as never)}
           accessibilityLabel={t('offers.view.acceptA11y')}
+          disabled={!offer.canRespond}
         >
-          <Text style={s.ctaAcceptText}>{t('offers.view.acceptBtn')} — KWD 4,850.000</Text>
+          <Text style={s.ctaAcceptText}>{t('offers.view.acceptBtn')} — {offerKwd}</Text>
         </TouchableOpacity>
 
         <View style={s.ctaRow}>
           {/* Counter — white + brand border */}
           <TouchableOpacity
             style={[s.cta, s.ctaCounter, { flex: 1 }]}
-            onPress={() => router.push(`/offers/${token}/counter` as any)}
+            onPress={() => router.push(`/offers/${token}/counter` as never)}
             accessibilityLabel={t('offers.view.counterA11y')}
+            disabled={!offer.canRespond}
           >
             <Text style={s.ctaCounterText}>{t('offers.view.counterBtn')}</Text>
           </TouchableOpacity>
@@ -168,8 +192,9 @@ export default function OfferViewScreen() {
           {/* Decline — text-only */}
           <TouchableOpacity
             style={[s.cta, s.ctaDecline, { flex: 1 }]}
-            onPress={() => router.push(`/offers/${token}/declined` as any)}
+            onPress={() => router.push(`/offers/${token}/declined` as never)}
             accessibilityLabel={t('offers.view.declineA11y')}
+            disabled={!offer.canRespond}
           >
             <Text style={s.ctaDeclineText}>{t('offers.view.declineBtn')}</Text>
           </TouchableOpacity>
@@ -179,12 +204,42 @@ export default function OfferViewScreen() {
   );
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** ISO → "Mon, 26 May · 23:59" (Behbehani convention). */
+function formatValidUntil(iso: string): string {
+  try {
+    const d = new Date(iso);
+    const date = d.toLocaleDateString('en-KW', {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+    });
+    const time = d.toLocaleTimeString('en-KW', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+    return `${date} · ${time}`;
+  } catch {
+    return '—';
+  }
+}
+
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#fff' },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 180 },
+
+  // Loading / error
+  centerState: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 24, gap: 8,
+  },
+  centerMuted: { color: slate[500], fontSize: 14, textAlign: 'center' },
+  centerError: { color: slate[900], fontSize: 16, fontFamily: 'PlusJakartaSans_700Bold', textAlign: 'center' },
 
   // Hero
   hero: {
@@ -251,10 +306,6 @@ const s = StyleSheet.create({
   // Vehicle card
   vehicleCard: { borderRadius: 16, borderWidth: 1, borderColor: slate[200], backgroundColor: '#fff', padding: 16 },
   vehicleTitle: { color: slate[900], fontSize: 15, fontFamily: 'PlusJakartaSans_700Bold' },
-  vehicleGrid: { marginTop: 12 },
-  vehicleKey: { color: slate[600], fontSize: 12, marginBottom: 2 },
-  vehicleVal: { color: slate[900], fontSize: 12, fontFamily: 'PlusJakartaSans_500Medium', textAlign: 'right', marginBottom: 8 },
-  mono: { fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace' },
 
   // Terms
   termsCard: { backgroundColor: slate[50], borderRadius: 12, borderWidth: 1, borderColor: slate[200], padding: 12 },

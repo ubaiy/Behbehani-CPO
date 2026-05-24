@@ -8,7 +8,6 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '@behbehani-cpo/data-access';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
@@ -35,38 +34,35 @@ type State =
   selector: 'bmc-coming-soon-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RouterLink, TranslateModule],
+  imports: [FormsModule, TranslateModule],
   template: `
-    <!-- Single framed card: max-w-4xl, rounded-3xl, one border, one shadow -->
-    <div class="container-page py-10 sm:py-14">
-      <div class="max-w-4xl mx-auto rounded-3xl overflow-hidden border border-line shadow-brand bg-white">
+    <!-- Compact hero header (Part C.4 — clock icon for coming-soon shells) -->
+    <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4 flex-wrap">
+      <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </span>
+      <div class="min-w-0 flex-1">
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted mb-1">
+          {{ 'account.comingSoon.eyebrow' | translate }}
+        </p>
+        <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink leading-tight tracking-[-0.02em]">
+          {{ featureTitleKey | translate }}
+        </h1>
+      </div>
+      <!-- ETA pill — neutral surface, brand text (brand-lock safe; no amber/yellow) -->
+      <span
+        class="inline-flex items-center rounded-full bg-brand-50 border border-brand-200 px-3 py-1 text-[12px] font-semibold text-brand-700 flex-shrink-0"
+      >
+        {{ etaLabelKey | translate }}
+      </span>
+    </header>
 
-        <!-- ── Hero strip (top half of frame) ── -->
-        <div
-          class="px-6 py-8"
-          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-        >
-          <!-- eyebrow -->
-          <p class="text-white/70 text-[11px] font-semibold uppercase tracking-wider mb-1">
-            {{ 'account.comingSoon.eyebrow' | translate }}
-          </p>
-          <!-- heading row: title left, pill right -->
-          <div class="flex items-center justify-between gap-3 flex-wrap">
-            <h1 class="font-display font-bold text-white text-[26px] leading-tight">
-              {{ featureTitleKey | translate }}
-            </h1>
-            <!-- Coming Soon pill — white-on-blue for dark bg contrast -->
-            <span
-              class="inline-flex items-center rounded-full bg-white/15 border border-white/30 px-3 py-1 text-[12px] font-semibold text-white/90 flex-shrink-0"
-            >
-              {{ etaLabelKey | translate }}
-            </span>
-          </div>
-        </div>
-
-        <!-- ── White content area (bottom half of frame) ── -->
-        <div class="bg-white p-6 md:p-10">
-          <div class="max-w-2xl mx-auto">
+    <!-- Single framed card holding the illustration + form + bullets -->
+    <div class="rounded-3xl border border-line shadow-brand-sm bg-white">
+      <div class="p-6 md:p-10">
+        <div class="max-w-2xl mx-auto">
 
             <!-- 80×80 illustration box — CENTERED -->
             <div
@@ -180,20 +176,11 @@ type State =
               </ul>
             }
 
-            <!-- Back link AT THE BOTTOM — CENTERED -->
-            <div class="text-center mt-8">
-              <a
-                [routerLink]="['/', locale(), 'account']"
-                class="text-brand-700 text-sm font-semibold hover:underline"
-              >
-                {{ 'account.comingSoon.backLink' | translate }}
-              </a>
-            </div>
+            <!-- Back link removed — shell sidebar handles navigation -->
 
           </div>
         </div>
       </div>
-    </div>
   `,
 })
 export class ComingSoonPageComponent implements OnInit {

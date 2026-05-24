@@ -8,12 +8,12 @@ import {
   signal,
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@behbehani-cpo/data-access';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
 import { SignInModalService } from '../auth/sign-in-modal.service';
 import { DocumentsService } from '../../data/documents.service';
+import { UiSelectComponent, type SelectOption } from '../../shared/ui-select.component';
 import type { DocumentKind, DocumentListResponseDto } from '@behbehani-cpo/shared-types';
 
 // ── Kind filter chip data ────────────────────────────────────────────────────
@@ -70,71 +70,44 @@ function relativeTime(iso: string): string {
   selector: 'app-documents-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, TranslateModule, UiSelectComponent],
   template: `
-    @if (!auth.isSignedIn()) {
-      <!-- Guest gate -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div
-          class="rounded-3xl p-6 sm:p-8 text-white"
-          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-        >
-          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-            {{ 'account.documents.title' | translate }}
+    <!-- Compact hero header (Part C.4) -->
+      <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4">
+        <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">
+            {{ 'account.shell.page.documents.title' | translate }}
           </h1>
-          <p class="mt-2 text-[14px] text-white/80">{{ 'account.documents.signInRequired.body' | translate }}</p>
+          <p class="text-[13px] text-muted">
+            {{ 'account.shell.page.documents.sub' | translate }}
+          </p>
         </div>
-      </div>
-      <main class="container-page py-8 sm:py-10 max-w-4xl mx-auto">
-        <div class="rounded-3xl border border-line bg-white p-10 text-center text-[14px] text-muted shadow-brand-sm">
-          <p>{{ 'account.documents.signInRequired.body' | translate }}</p>
-        </div>
-      </main>
-    } @else {
-      <!-- Back link -->
-      <div class="container-page pt-6">
-        <div class="mx-auto max-w-4xl">
-          <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-            {{ 'account.backToHub' | translate }}
-          </a>
-        </div>
-      </div>
+      </header>
 
-      <!-- Hero -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div
-          class="rounded-3xl p-6 sm:p-8 text-white"
-          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-        >
-          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-            {{ 'account.documents.title' | translate }}
-          </h1>
-          <p class="mt-2 text-[14px] text-white/80">{{ 'account.documents.sub' | translate }}</p>
-        </div>
-      </div>
-
-      <!-- Filter chips -->
-      <div class="container-page pb-4">
-        <div class="mx-auto max-w-4xl">
-          <div class="flex flex-wrap gap-2" role="group" [attr.aria-label]="'account.documents.filterLabel' | translate">
-            @for (chip of kindChips; track chip.value) {
-              <button
-                type="button"
-                (click)="selectKind(chip.value)"
-                [class]="chip.value === selectedKind()
-                  ? 'min-h-[44px] rounded-full px-4 py-1.5 text-[13px] font-medium bg-brand-700 text-white transition-colors'
-                  : 'min-h-[44px] rounded-full px-4 py-1.5 text-[13px] font-medium bg-white border border-line text-ink-2 hover:border-brand-300 transition-colors'"
-              >
-                {{ chip.label | translate }}
-              </button>
-            }
-          </div>
+      <!-- v1.5-D8: chip row REPLACED with single-select dropdown per user feedback.
+           NOTE: NO overflow-hidden wrapper here — ui-select opens its panel as an
+           absolutely-positioned child, and overflow-hidden on the parent would
+           clip the panel (bug caught in v1.5-D8 follow-up). -->
+      <div class="pb-4 max-w-xs">
+        <div class="rounded-2xl border border-line bg-white">
+          <app-ui-select
+            [label]="'account.documents.filterLabel' | translate"
+            [options]="kindOptions()"
+            [value]="selectedKind() ?? ''"
+            [placeholder]="'account.documents.kindAll' | translate"
+            (valueChange)="onKindFromDropdown($event)"
+          />
         </div>
       </div>
 
       <!-- Content area -->
-      <main class="container-page py-4 pb-14">
-        <div class="mx-auto max-w-4xl flex flex-col gap-3">
+      <main class="pb-4">
+        <div class="flex flex-col gap-3">
 
           @if (listState().kind === 'loading') {
             <!-- Skeleton rows -->
@@ -165,18 +138,21 @@ function relativeTime(iso: string): string {
           } @else if (listState().kind === 'ok') {
             @let resp = okValue();
             @if (resp && resp.items.length === 0) {
-              <!-- Empty state -->
-              <div class="rounded-2xl border border-line bg-white p-10 text-center shadow-brand-sm">
-                <svg class="mx-auto h-12 w-12 text-brand-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                </svg>
-                <p class="mt-4 text-[15px] font-semibold text-ink">{{ 'account.documents.empty.title' | translate }}</p>
-                <p class="mt-1.5 text-[13px] text-muted max-w-xs mx-auto">{{ 'account.documents.empty.body' | translate }}</p>
+              <!-- Empty state (illustrated SVG: folder + arrow) -->
+              <div class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-12 text-center shadow-brand-sm">
+                <div class="mx-auto mb-5 w-20 h-20 rounded-3xl bg-brand-100 flex items-center justify-center">
+                  <svg class="w-10 h-10 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 12v6m0 0l-2-2m2 2l2-2"/>
+                  </svg>
+                </div>
+                <h2 class="font-display font-bold text-[18px] text-ink mb-2">{{ 'account.documents.empty.title' | translate }}</h2>
+                <p class="text-[14px] text-muted max-w-md mx-auto">{{ 'account.documents.empty.body' | translate }}</p>
               </div>
             } @else if (resp) {
               <!-- Document cards -->
               @for (doc of resp.items; track doc.id) {
-                <article class="rounded-2xl border border-line bg-white p-4 shadow-brand-sm">
+                <article class="rounded-2xl border border-line bg-white p-4 shadow-brand-sm hover:shadow-brand hover:border-brand-200 transition-all duration-200">
                   <div class="flex items-center gap-4">
                     <!-- Kind icon -->
                     <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-50" aria-hidden="true">
@@ -238,7 +214,6 @@ function relativeTime(iso: string): string {
           }
         </div>
       </main>
-    }
   `,
 })
 export class DocumentsPageComponent {
@@ -248,9 +223,24 @@ export class DocumentsPageComponent {
   private readonly signInModal = inject(SignInModalService);
   private readonly platformId = inject(PLATFORM_ID);
 
+  private readonly translate = inject(TranslateService);
   readonly locale = computed(() => this.language.current());
   readonly kindChips = KIND_CHIPS;
   readonly skeletons = [1, 2, 3];
+
+  /**
+   * v1.5-D8: translated option list for `<app-ui-select>`. Computed re-runs
+   * when locale changes so labels switch EN↔AR. The "All" option uses `''`
+   * because ui-select can't bind null directly; `onKindFromDropdown` maps
+   * `''` back to `null` for the actual filter.
+   */
+  readonly kindOptions = computed<ReadonlyArray<SelectOption>>(() => {
+    this.language.current(); // dep for re-translation
+    return KIND_CHIPS.map((chip) => ({
+      value: chip.value ?? '',
+      label: this.translate.instant(chip.label),
+    }));
+  });
 
   readonly selectedKind = signal<DocumentKind | null>(null);
   readonly currentPage = signal(1);
@@ -287,6 +277,11 @@ export class DocumentsPageComponent {
   selectKind(kind: DocumentKind | null): void {
     this.selectedKind.set(kind);
     this.currentPage.set(1);
+  }
+
+  /** v1.5-D8: bridge ui-select's string emit → DocumentKind|null. */
+  onKindFromDropdown(value: string): void {
+    this.selectKind((value === '' ? null : (value as DocumentKind)));
   }
 
   reload(): void {

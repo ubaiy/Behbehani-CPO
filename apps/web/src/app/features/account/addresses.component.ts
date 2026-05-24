@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@behbehani-cpo/data-access';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
@@ -55,47 +55,31 @@ interface ModalState {
   selector: 'app-account-addresses',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, TranslateModule],
   template: `
-    @if (!auth.isSignedIn()) {
-      <!-- Hero — unauthenticated: rounded-3xl card -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div class="rounded-3xl p-6 sm:p-8 text-white"
-             style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight text-white">
-            {{ 'account.addresses.signInRequired.title' | translate }}
+    <!-- Compact hero header (Part C.4) -->
+      <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4 flex-wrap">
+        <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </span>
+        <div class="min-w-0 flex-1">
+          <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">
+            {{ 'account.shell.page.addresses.title' | translate }}
           </h1>
-          <p class="mt-2 text-[14px] text-white/80">{{ 'account.addresses.signInRequired.body' | translate }}</p>
+          <p class="text-[13px] text-muted">
+            {{ 'account.shell.page.addresses.sub' | translate }}
+          </p>
         </div>
-      </div>
-    } @else {
-      <!-- Back link -->
-      <div class="container-page pt-6">
-        <div class="mx-auto max-w-4xl">
-          <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-            {{ 'account.backToHub' | translate }}
-          </a>
-        </div>
-      </div>
+        <button type="button" (click)="openCreate()"
+          class="inline-flex items-center gap-2 shrink-0 rounded-xl bg-brand-700 hover:bg-brand-800 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors duration-150 active:scale-[0.98] active:transition-transform min-h-[44px] shadow-brand-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+          {{ 'account.addresses.addCta' | translate }}
+        </button>
+      </header>
 
-      <!-- Hero — rounded-3xl framed card (not full-bleed) -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div class="rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 text-white"
-             style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-          <div>
-            <p class="text-white/70 text-[11px] font-semibold uppercase tracking-wider mb-1">{{ 'account.addresses.tab' | translate }}</p>
-            <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight text-white">{{ 'account.addresses.title' | translate }}</h1>
-            <p class="mt-2 text-[14px] text-white/80">{{ 'account.addresses.sub' | translate }}</p>
-          </div>
-          <button type="button" (click)="openCreate()"
-            class="inline-flex items-center gap-2 shrink-0 rounded-xl bg-white/15 hover:bg-white/25 border border-white/30 px-5 py-2.5 text-[13px] font-semibold text-white transition-colors min-h-[44px]">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            {{ 'account.addresses.addCta' | translate }}
-          </button>
-        </div>
-      </div>
-
-      <main class="container-page py-8 sm:py-10 mx-auto max-w-4xl">
+      <main>
         @if (pageState().kind === 'loading') {
           <div class="flex items-center justify-center py-20">
             <div class="w-8 h-8 rounded-full border-2 border-brand-200 border-t-brand-700 animate-spin"></div>
@@ -107,16 +91,17 @@ interface ModalState {
           </div>
         }
         @if (pageState().kind === 'empty') {
-          <div class="rounded-2xl border border-dashed border-line bg-white p-10 text-center shadow-brand-sm">
-            <div class="mx-auto mb-4 w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center">
-              <svg class="w-8 h-8 text-brand-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+          <div class="rounded-3xl border border-dashed border-line bg-gradient-to-br from-white to-surface-soft/40 p-12 text-center shadow-brand-sm">
+            <div class="mx-auto mb-5 w-20 h-20 rounded-3xl bg-brand-100 flex items-center justify-center">
+              <svg class="w-10 h-10 text-brand-700" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
               </svg>
             </div>
-            <p class="font-display font-semibold text-[16px] text-ink-2 mb-1">{{ 'account.addresses.empty.title' | translate }}</p>
-            <p class="text-[13px] text-muted mb-5">{{ 'account.addresses.empty.body' | translate }}</p>
+            <h2 class="font-display font-bold text-[18px] text-ink mb-2">{{ 'account.addresses.empty.title' | translate }}</h2>
+            <p class="text-[14px] text-muted max-w-md mx-auto mb-6">{{ 'account.addresses.empty.body' | translate }}</p>
             <button type="button" (click)="openCreate()"
-              class="inline-flex items-center gap-2 rounded-xl bg-brand-700 hover:bg-brand-800 px-6 py-3 text-[13px] font-semibold text-white transition-colors shadow-brand-sm min-h-[44px]">
+              class="inline-flex items-center gap-2 rounded-xl bg-brand-700 hover:bg-brand-800 px-7 py-3 text-[14px] font-semibold text-white transition-colors duration-150 active:scale-[0.98] active:transition-transform shadow-brand-sm min-h-[48px]">
               {{ 'account.addresses.empty.cta' | translate }}
             </button>
           </div>
@@ -124,7 +109,7 @@ interface ModalState {
         @if (pageState().kind === 'ok') {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             @for (addr of addresses(); track addr.id) {
-              <div class="relative rounded-2xl border border-line bg-white p-5 shadow-brand-sm flex flex-col gap-3">
+              <div class="relative rounded-2xl border border-line bg-white p-5 shadow-brand-sm hover:shadow-brand hover:border-brand-200 transition-all duration-200 flex flex-col gap-3">
                 <div class="flex items-start justify-between gap-2">
                   <div class="flex items-center gap-2 min-w-0">
                     <span class="font-display font-bold text-[14px] text-ink truncate">{{ addr.label }}</span>
@@ -172,7 +157,6 @@ interface ModalState {
           </div>
         }
       </main>
-    }
 
     <!-- Add / Edit Modal -->
     @if (modal().open) {

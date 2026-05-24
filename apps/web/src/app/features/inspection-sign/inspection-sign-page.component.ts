@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { LanguageService } from '@behbehani-cpo/shared-i18n';
+import { LanguageService, fmtDate } from '@behbehani-cpo/shared-i18n';
 import type {
   CustomerSignDto,
   PublicInspectionSummary,
@@ -415,23 +415,11 @@ export class InspectionSignPageComponent implements OnInit {
   }
 
   formatDate(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleDateString(this.currentLocale() === 'ar' ? 'ar-KW' : 'en-KW', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return fmtDate(iso, this.currentLocale(), 'medium');
   }
 
   formatDateTime(iso: string): string {
-    const d = new Date(iso);
-    return d.toLocaleString(this.currentLocale() === 'ar' ? 'ar-KW' : 'en-KW', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+    return fmtDate(iso, this.currentLocale(), 'datetime');
   }
 
   private applyFetch(res: FetchSignPageResult): void {

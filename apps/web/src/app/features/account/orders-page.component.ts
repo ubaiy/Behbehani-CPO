@@ -9,10 +9,11 @@ import {
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@behbehani-cpo/data-access';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
 import { SignInModalService } from '../auth/sign-in-modal.service';
+import { UiSelectComponent, type SelectOption } from '../../shared/ui-select.component';
 import { OrdersService } from '../../data/orders.service';
 import type {
   OrderStatusValue,
@@ -63,71 +64,43 @@ function statusPillClass(status: OrderStatusValue): string {
   selector: 'app-orders-page',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, RouterLink, TranslateModule, UiSelectComponent],
   template: `
-    @if (!auth.isSignedIn()) {
-      <!-- Guest gate -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div
-          class="rounded-3xl p-6 sm:p-8 text-white"
-          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-        >
-          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-            {{ 'account.orders.title' | translate }}
+    <!-- Compact hero header (Part C.4) -->
+      <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4">
+        <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">
+            {{ 'account.shell.page.orders.title' | translate }}
           </h1>
-          <p class="mt-2 text-[14px] text-white/80">{{ 'account.orders.signInRequired.body' | translate }}</p>
+          <p class="text-[13px] text-muted">
+            {{ 'account.shell.page.orders.sub' | translate }}
+          </p>
         </div>
-      </div>
-      <main class="container-page py-8 sm:py-10 max-w-4xl mx-auto">
-        <div class="rounded-3xl border border-line bg-white p-10 text-center text-[14px] text-muted shadow-brand-sm">
-          <p>{{ 'account.orders.signInRequired.body' | translate }}</p>
-        </div>
-      </main>
-    } @else {
-      <!-- Back link — inside max-w-4xl to align with hero column -->
-      <div class="container-page pt-6">
-        <div class="mx-auto max-w-4xl">
-          <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-            {{ 'account.backToHub' | translate }}
-          </a>
-        </div>
-      </div>
+      </header>
 
-      <!-- Hero — rounded-3xl framed card -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div
-          class="rounded-3xl p-6 sm:p-8 text-white"
-          style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);"
-        >
-          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-            {{ 'account.orders.title' | translate }}
-          </h1>
-          <p class="mt-2 text-[14px] text-white/80">{{ 'account.orders.sub' | translate }}</p>
-        </div>
-      </div>
-
-      <!-- Status filter chips -->
-      <div class="container-page pb-4">
-        <div class="mx-auto max-w-4xl">
-          <div class="flex flex-wrap gap-2" role="group" [attr.aria-label]="'account.orders.filterLabel' | translate">
-            @for (chip of statusChips; track chip.value) {
-              <button
-                type="button"
-                (click)="selectStatus(chip.value)"
-                [class]="chip.value === selectedStatus()
-                  ? 'min-h-[44px] rounded-full px-4 py-1.5 text-[13px] font-medium bg-brand-700 text-white transition-colors'
-                  : 'min-h-[44px] rounded-full px-4 py-1.5 text-[13px] font-medium bg-white border border-line text-ink-2 hover:border-brand-300 transition-colors'"
-              >
-                {{ chip.label | translate }}
-              </button>
-            }
-          </div>
+      <!-- v1.5-D8 follow-up: 9-chip row REPLACED with single-select dropdown,
+           matching the /account/documents pattern. NO overflow-hidden wrapper —
+           ui-select's panel is absolutely positioned and would be clipped. -->
+      <div class="pb-4 max-w-xs">
+        <div class="rounded-2xl border border-line bg-white">
+          <app-ui-select
+            [label]="'account.orders.filterLabel' | translate"
+            [options]="statusOptions()"
+            [value]="selectedStatus() ?? ''"
+            [placeholder]="'account.orders.statusAll' | translate"
+            (valueChange)="onStatusFromDropdown($event)"
+          />
         </div>
       </div>
 
       <!-- Content area -->
-      <main class="container-page py-4 pb-14">
-        <div class="mx-auto max-w-4xl flex flex-col gap-3">
+      <main class="pb-4">
+        <div class="flex flex-col gap-3">
 
           @if (listState().kind === 'loading') {
             @for (_ of skeletons; track $index) {
@@ -156,16 +129,18 @@ function statusPillClass(status: OrderStatusValue): string {
           } @else if (listState().kind === 'ok') {
             @let resp = okValue();
             @if (resp && filteredItems().length === 0) {
-              <!-- Empty state -->
-              <div class="rounded-2xl border border-line bg-white p-10 text-center shadow-brand-sm">
-                <svg class="mx-auto h-12 w-12 text-brand-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                </svg>
-                <p class="mt-4 text-[15px] font-semibold text-ink">{{ 'account.orders.empty.title' | translate }}</p>
-                <p class="mt-1.5 text-[13px] text-muted max-w-xs mx-auto">{{ 'account.orders.empty.body' | translate }}</p>
+              <!-- Empty state (illustrated SVG: shopping bag) -->
+              <div class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-12 text-center shadow-brand-sm">
+                <div class="mx-auto mb-5 w-20 h-20 rounded-3xl bg-brand-100 flex items-center justify-center">
+                  <svg class="w-10 h-10 text-brand-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                  </svg>
+                </div>
+                <h2 class="font-display font-bold text-[18px] text-ink mb-2">{{ 'account.orders.empty.title' | translate }}</h2>
+                <p class="text-[14px] text-muted max-w-md mx-auto mb-6">{{ 'account.orders.empty.body' | translate }}</p>
                 <a
                   [routerLink]="['/', locale(), 'browse']"
-                  class="mt-5 inline-flex min-h-[44px] items-center rounded-lg bg-brand-700 px-5 py-2.5 text-[14px] font-medium text-white hover:bg-brand-800 transition-colors"
+                  class="inline-flex min-h-[48px] items-center rounded-lg bg-brand-700 px-7 py-3 text-[14px] font-semibold text-white hover:bg-brand-800 transition-colors duration-150 active:scale-[0.98] active:transition-transform shadow-brand-sm"
                 >
                   {{ 'account.orders.empty.browseCta' | translate }}
                 </a>
@@ -175,7 +150,7 @@ function statusPillClass(status: OrderStatusValue): string {
               @for (order of filteredItems(); track order.id) {
                 <a
                   [routerLink]="['/', locale(), 'account', 'orders', order.id]"
-                  class="block rounded-2xl border border-line bg-white shadow-brand-sm hover:shadow-md transition-shadow no-underline"
+                  class="block rounded-2xl border border-line bg-white shadow-brand-sm hover:shadow-brand hover:border-brand-200 transition-all duration-200 no-underline"
                 >
                   <div class="flex items-start gap-4 p-4">
                     <div class="flex flex-1 flex-col min-w-0 gap-1">
@@ -229,7 +204,6 @@ function statusPillClass(status: OrderStatusValue): string {
 
         </div>
       </main>
-    }
   `,
 })
 export class OrdersPageComponent {
@@ -239,9 +213,24 @@ export class OrdersPageComponent {
   private readonly signInModal = inject(SignInModalService);
   private readonly platformId = inject(PLATFORM_ID);
 
+  private readonly translate = inject(TranslateService);
   readonly locale = computed(() => this.language.current());
   readonly statusChips = STATUS_CHIPS;
   readonly skeletons = [1, 2, 3];
+
+  /**
+   * v1.5-D8 follow-up: translated option list for `<app-ui-select>`. Computed
+   * re-runs when locale changes so labels switch EN↔AR. The "All" option uses
+   * `''` because ui-select can't bind null directly; `onStatusFromDropdown`
+   * maps `''` back to `null` for the filter state.
+   */
+  readonly statusOptions = computed<ReadonlyArray<SelectOption>>(() => {
+    this.language.current(); // dep for re-translation
+    return STATUS_CHIPS.map((chip) => ({
+      value: chip.value ?? '',
+      label: this.translate.instant(chip.label),
+    }));
+  });
 
   readonly selectedStatus = signal<OrderStatusValue | null>(null);
   readonly currentPage = signal(1);
@@ -284,6 +273,11 @@ export class OrdersPageComponent {
 
   selectStatus(status: OrderStatusValue | null): void {
     this.selectedStatus.set(status);
+  }
+
+  /** v1.5-D8 follow-up: bridge ui-select's string emit → OrderStatusValue|null. */
+  onStatusFromDropdown(value: string): void {
+    this.selectStatus(value === '' ? null : (value as OrderStatusValue));
   }
 
   reload(): void {

@@ -11,7 +11,6 @@ import {
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
@@ -50,6 +49,7 @@ function passwordStrength(pw: string): 0 | 1 | 2 | 3 | 4 {
 }
 
 const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -57,55 +57,45 @@ const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
   selector: 'app-account-profile',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, RouterLink, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   template: `
     <!-- Guest gate -->
     @if (!auth.isSignedIn()) {
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div class="rounded-3xl p-6 sm:p-8 text-white"
-             style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold text-white">
-            {{ 'account.profile.title' | translate }}
-          </h1>
-        </div>
+      <div class="rounded-3xl border border-line bg-white p-10 text-center shadow-brand-sm">
+        <h1 class="font-display text-[20px] font-bold text-ink mb-2">
+          {{ 'account.profile.title' | translate }}
+        </h1>
+        <p class="text-[14px] text-muted">{{ 'account.myBookings.signInRequired.body' | translate }}</p>
+        <button
+          type="button"
+          (click)="signInModal.open()"
+          class="mt-5 inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+        >
+          {{ 'nav.signIn' | translate }}
+        </button>
       </div>
-      <main class="container-page py-8 max-w-3xl mx-auto">
-        <div class="rounded-3xl border border-line bg-white p-10 text-center shadow-brand-sm">
-          <p class="text-[14px] text-muted">{{ 'account.myBookings.signInRequired.body' | translate }}</p>
-          <button
-            type="button"
-            (click)="signInModal.open()"
-            class="mt-5 inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
-          >
-            {{ 'nav.signIn' | translate }}
-          </button>
-        </div>
-      </main>
     } @else {
 
-      <!-- Back link -->
-      <div class="container-page pt-6">
-        <div class="mx-auto max-w-4xl">
-          <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-            {{ 'account.backToHub' | translate }}
-          </a>
-        </div>
-      </div>
-
-      <!-- Hero -->
-      <div class="container-page py-8 mx-auto max-w-4xl">
-        <div class="rounded-3xl p-6 sm:p-8 text-white"
-             style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-          <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-            {{ 'account.profile.title' | translate }}
+      <!-- Compact hero header (Part C.4 — gradient bg + icon chip) -->
+      <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4">
+        <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">
+            {{ 'account.shell.page.profile.title' | translate }}
           </h1>
-          <p class="mt-2 text-[14px] text-white/80">{{ 'account.profile.sub' | translate }}</p>
+          <p class="text-[13px] text-muted">
+            {{ 'account.shell.page.profile.sub' | translate }}
+          </p>
         </div>
-      </div>
+      </header>
 
       <!-- Loading -->
       @if (state().kind === 'loading') {
-        <div class="container-page py-16 max-w-3xl mx-auto text-center text-muted text-[14px]" aria-busy="true">
+        <div class="py-16 text-center text-muted text-[14px]" aria-busy="true">
           <span class="inline-block h-2 w-2 animate-pulse rounded-full bg-brand-600"></span>
           <span class="ms-2">{{ 'sell.offer.loading' | translate }}</span>
         </div>
@@ -125,12 +115,12 @@ const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
 
       <!-- Cards -->
       @if (state().kind === 'ready' || state().kind === 'saving') {
-        <main class="container-page py-8 sm:py-10">
-          <div class="mx-auto max-w-3xl space-y-6">
+        <main>
+          <div class="space-y-6">
 
             <!-- ── Card 1: Identity ─────────────────────────────────────── -->
-            <section class="rounded-3xl border border-line bg-white p-6 shadow-brand-sm">
-              <h2 class="font-display text-[18px] font-bold text-ink">
+            <section class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
+              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
                 {{ 'account.profile.identity.title' | translate }}
               </h2>
 
@@ -147,10 +137,19 @@ const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
                     {{ initials() }}
                   </div>
                 }
-                <div class="flex flex-wrap gap-2">
-                  <label class="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-pill border border-line bg-white px-4 py-2 text-[13px] font-semibold text-ink-2 hover:bg-surface-soft transition-colors">
-                    {{ 'account.profile.identity.uploadCta' | translate }}
-                    <input type="file" accept="image/jpeg,image/png" class="sr-only" (change)="onAvatarFileSelected($event)" />
+                <div class="flex flex-wrap items-center gap-2">
+                  <!-- v1.5-D8: live avatar upload (B v1.5.10 endpoint, 3-step S3 flow). -->
+                  <label class="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-pill border border-line bg-white px-4 py-2 text-[13px] font-semibold text-ink-2 hover:bg-surface-soft transition-colors"
+                    [class.opacity-50]="isUploadingAvatar()"
+                    [class.cursor-not-allowed]="isUploadingAvatar()">
+                    @if (isUploadingAvatar()) {
+                      <svg viewBox="0 0 24 24" width="14" height="14" class="animate-spin text-brand-700" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+                      {{ 'account.profile.identity.uploadingCta' | translate }}
+                    } @else {
+                      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                      {{ 'account.profile.identity.uploadCta' | translate }}
+                    }
+                    <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" (change)="onAvatarFileSelected($event)" [disabled]="isUploadingAvatar()" />
                   </label>
                   @if (user()?.avatarUrl) {
                     <button
@@ -218,8 +217,8 @@ const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
             </section>
 
             <!-- ── Card 2: Email ────────────────────────────────────────── -->
-            <section class="rounded-3xl border border-line bg-white p-6 shadow-brand-sm">
-              <h2 class="font-display text-[18px] font-bold text-ink">
+            <section class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
+              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
                 {{ 'account.profile.email.title' | translate }}
               </h2>
 
@@ -264,13 +263,17 @@ const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
                       <button
                         type="button"
                         (click)="onSendEmailCode()"
-                        [disabled]="!newEmailDraft.trim() || state().kind === 'saving'"
-                        class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
+                        [disabled]="!isEmailValid() || state().kind === 'saving'"
+                        class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
                       >
                         {{ isSavingEmail() ? ('account.profile.email.sendingCta' | translate) : ('account.profile.email.sendCodeCta' | translate) }}
                       </button>
                     </div>
-                    @if (emailError()) {
+                    @if (isEmailFormatHintShown()) {
+                      <p class="mt-2 text-[12px] text-red-600" role="alert">
+                        {{ 'account.profile.email.formatHint' | translate }}
+                      </p>
+                    } @else if (emailError()) {
                       <p class="mt-2 text-[12px] text-red-600" role="alert">{{ emailError() }}</p>
                     }
                     <button type="button" (click)="closeEmailPanel()" class="mt-3 text-[12px] font-semibold text-brand-700 hover:text-brand-800 min-h-[44px] px-2">
@@ -311,8 +314,8 @@ const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
             </section>
 
             <!-- ── Card 3: Mobile ──────────────────────────────────────── -->
-            <section class="rounded-3xl border border-line bg-white p-6 shadow-brand-sm">
-              <h2 class="font-display text-[18px] font-bold text-ink">
+            <section class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
+              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
                 {{ 'account.profile.mobile.title' | translate }}
               </h2>
 
@@ -358,12 +361,16 @@ const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
                         type="button"
                         (click)="onSendMobileCode()"
                         [disabled]="!isMobileValid() || state().kind === 'saving'"
-                        class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
+                        class="inline-flex min-h-[44px] items-center rounded-pill bg-brand-700 px-5 text-[13px] font-semibold text-white hover:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 transition-colors"
                       >
                         {{ isSavingMobile() ? ('account.profile.mobile.sendingCta' | translate) : ('account.profile.mobile.sendCodeCta' | translate) }}
                       </button>
                     </div>
-                    @if (mobileError()) {
+                    @if (isMobileFormatHintShown()) {
+                      <p class="mt-2 text-[12px] text-red-600" role="alert">
+                        {{ 'account.profile.mobile.formatHint' | translate }}
+                      </p>
+                    } @else if (mobileError()) {
                       <p class="mt-2 text-[12px] text-red-600" role="alert">{{ mobileError() }}</p>
                     }
                     <button type="button" (click)="closeMobilePanel()" class="mt-3 text-[12px] font-semibold text-brand-700 hover:text-brand-800 min-h-[44px] px-2">
@@ -404,8 +411,8 @@ const KUWAIT_MOBILE_RE = /^(?:\+?965)?[569]\d{7}$/;
             </section>
 
             <!-- ── Card 4: Password ────────────────────────────────────── -->
-            <section class="rounded-3xl border border-line bg-white p-6 shadow-brand-sm">
-              <h2 class="font-display text-[18px] font-bold text-ink">
+            <section class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-6 shadow-brand">
+              <h2 class="font-display text-[17px] sm:text-[18px] font-bold text-ink tracking-[-0.01em]">
                 {{ 'account.profile.password.title' | translate }}
               </h2>
 
@@ -539,7 +546,17 @@ export class AccountProfileComponent {
 
   // ─── Identity card ─────────────────────────────────────────────────────────
   fullNameDraft = '';
-  readonly isNameDirty = computed(() => this.fullNameDraft.trim() !== (this.user()?.fullName ?? ''));
+  /**
+   * v1.5-D7 reactivity FIX: `fullNameDraft` is a plain field bound via
+   * `[(ngModel)]`. A `computed()` only re-evaluates when SIGNAL deps change —
+   * plain-field reads never trigger it, so the dirty check stayed cached at
+   * `false` after initial load and Save button stayed disabled forever.
+   * A plain method gets re-evaluated on every change detection cycle, which
+   * ngModel triggers — so this returns fresh values as the user types.
+   */
+  isNameDirty(): boolean {
+    return this.fullNameDraft.trim() !== (this.user()?.fullName ?? '') && this.fullNameDraft.trim().length > 0;
+  }
   readonly isSavingProfile = computed(() => {
     const s = this.state();
     return s.kind === 'saving' && s.what === 'profile';
@@ -558,6 +575,17 @@ export class AccountProfileComponent {
     const s = this.state();
     return s.kind === 'saving' && s.what === 'email';
   });
+  /** v1.5-D7 added: format validation for the new-email field. Plain method
+      so it re-evaluates on every CD cycle (ngModel triggers CD). */
+  isEmailValid(): boolean {
+    return EMAIL_RE.test(this.newEmailDraft.trim());
+  }
+  isEmailFormatHintShown(): boolean {
+    /* Show the format hint only after the user has typed at least 3 chars —
+       avoids flashing the error on empty/focus state. */
+    const v = this.newEmailDraft.trim();
+    return v.length >= 3 && !EMAIL_RE.test(v);
+  }
 
   // ─── Mobile card ───────────────────────────────────────────────────────────
   readonly mobilePanel = signal<MobilePanel>({ open: false });
@@ -567,7 +595,15 @@ export class AccountProfileComponent {
   });
   newMobileDraft = '';
   mobileOtpCode = '';
-  readonly isMobileValid = computed(() => KUWAIT_MOBILE_RE.test(this.newMobileDraft.trim()));
+  /** v1.5-D7 FIX: was `computed()` — never re-fired because newMobileDraft is a
+      plain field. Plain method re-runs every CD cycle (ngModel triggers CD). */
+  isMobileValid(): boolean {
+    return KUWAIT_MOBILE_RE.test(this.newMobileDraft.trim());
+  }
+  isMobileFormatHintShown(): boolean {
+    const v = this.newMobileDraft.trim();
+    return v.length >= 3 && !KUWAIT_MOBILE_RE.test(v);
+  }
   readonly mobileError = signal<string | null>(null);
   readonly isSavingMobile = computed(() => {
     const s = this.state();
@@ -651,16 +687,52 @@ export class AccountProfileComponent {
       .subscribe(() => this.state.set({ kind: 'ready' }));
   }
 
+  /**
+   * v1.5-D8: live avatar upload wired against B v1.5.10's 3-step S3 flow.
+   * Client-side guards (mime + size) catch bad files before the round-trip;
+   * the 422 codes (AVATAR_TOO_LARGE / AVATAR_MIME_NOT_ALLOWED) are still
+   * mapped server-side as defense-in-depth.
+   */
+  readonly isUploadingAvatar = signal(false);
+
   onAvatarFileSelected(event: Event): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    const file = (event.target as HTMLInputElement).files?.[0];
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    /* Clear the input so re-selecting the same file re-triggers (change). */
+    input.value = '';
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024 || !['image/jpeg', 'image/png'].includes(file.type)) {
-      this.showToast(this.translate.instant('account.profile.identity.uploadComingSoon'));
+
+    const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
+    const MAX_BYTES = 5 * 1024 * 1024; // mirrors B env.MAX_AVATAR_BYTES default
+    if (!ALLOWED_MIME.includes(file.type)) {
+      this.showToast(this.translate.instant('account.profile.identity.uploadMimeError'));
       return;
     }
-    // TODO: v1.3.x — Avatar upload endpoint not yet wired. Show informational toast.
-    this.showToast(this.translate.instant('account.profile.identity.uploadComingSoon'));
+    if (file.size > MAX_BYTES) {
+      this.showToast(this.translate.instant('account.profile.identity.uploadTooLargeError'));
+      return;
+    }
+    if (file.size < 1024) {
+      this.showToast(this.translate.instant('account.profile.identity.uploadTooLargeError'));
+      return;
+    }
+
+    this.isUploadingAvatar.set(true);
+    this.api.uploadAvatar(file)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((res) => {
+        this.isUploadingAvatar.set(false);
+        if (res.kind === 'ok') {
+          this.showToast(this.translate.instant('account.profile.identity.uploadSuccess'));
+        } else if (res.kind === 'too_large') {
+          this.showToast(this.translate.instant('account.profile.identity.uploadTooLargeError'));
+        } else if (res.kind === 'mime_rejected') {
+          this.showToast(this.translate.instant('account.profile.identity.uploadMimeError'));
+        } else {
+          this.showToast(this.translate.instant('account.profile.identity.uploadFailedError'));
+        }
+      });
   }
 
   onRemoveAvatar(): void {

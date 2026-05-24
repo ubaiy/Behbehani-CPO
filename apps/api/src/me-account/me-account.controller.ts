@@ -24,6 +24,7 @@ import { OtpError, mapOtpErrorToHttp } from '../auth/otp.service';
 import {
   AddressInputSchema,
   AddressPatchSchema,
+  AvatarUploadUrlInputSchema,
   EmailChangeRequestSchema,
   EmailChangeVerifySchema,
   MobileChangeRequestSchema,
@@ -44,6 +45,7 @@ import {
   initiateMobileChange,
   mapMeAccountErrorToHttp,
   patchProfile,
+  presignAvatarUploadUrl,
   setDefaultAddress,
   setNotificationPreferences,
   signOutAll,
@@ -111,6 +113,22 @@ meAccountRouter.get('/me', readLimiter, async (req, res, next) => {
 });
 
 // ─── 2. PATCH /v1/public/me/profile ───────────────────────────────────────────
+
+// ─── 2b. POST /v1/public/me/avatar/upload-url ─────────────────────────────────
+// v1.5.10 — closes A v1.5-D7 TODO. Client requests presigned PUT URL; client
+// PUTs raw bytes; client then PATCHes /me/profile with the returned key as
+// `avatarUrl`. 3-step flow mirrors admin Documents v1.4.4 pattern.
+// Rate limited as sensitive (5/min) — defends against avatar-spam exhaustion.
+
+meAccountRouter.post('/me/avatar/upload-url', sensitiveActionLimiter, async (req, res, next) => {
+  try {
+    const dto = AvatarUploadUrlInputSchema.parse(req.body);
+    const result = await presignAvatarUploadUrl(req.customer!.id, dto);
+    res.json(result);
+  } catch (err) {
+    handleError(err, res, next);
+  }
+});
 
 meAccountRouter.patch('/me/profile', mutateLimiter, async (req, res, next) => {
   try {

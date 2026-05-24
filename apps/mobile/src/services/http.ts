@@ -43,6 +43,19 @@ import {
   ListingsPublicApiClient,
   InspectionsPublicApiClient,
   OrdersPublicApiClient,
+  MeInspectionsApiClient,
+  MeDocumentsApiClient,
+  MeSavedSearchesApiClient,
+  OffersPublicApiClient,
+  MeAccountApiClient,
+  MeSavedListingsApiClient,
+  MeNotificationsApiClient,
+  MeMaintenanceApiClient,
+  MeReviewsApiClient,
+  ListingReviewsApiClient,
+  MeSessionsApiClient,
+  MeNotificationPrefsApiClient,
+  MeSellBookingsApiClient,
 } from '@behbehani-cpo/data-access-mobile';
 
 // ─── React Query singleton ────────────────────────────────────────────────────
@@ -260,3 +273,102 @@ export const inspectionsPublicApiClient = new InspectionsPublicApiClient(rawHttp
  * Task #65 / MOBILE_API_CONTRACT.md v0.11 §4-§5.
  */
 export const ordersPublicApiClient = new OrdersPublicApiClient(httpClient);
+
+/**
+ * Me-inspections client uses the intercepted instance — the /v1/public/me/*
+ * namespace is authenticated despite the "public" prefix (established convention).
+ * Task v0.16 / MOBILE_API_CONTRACT.md v0.15-B-roadmap §2.
+ */
+export const meInspectionsApiClient = new MeInspectionsApiClient(httpClient);
+
+/**
+ * Me-documents client uses the intercepted instance — the /v1/public/me/*
+ * namespace is authenticated despite the "public" prefix (established convention).
+ * Task v0.17 / MOBILE_API_CONTRACT.md v1.5.2-roadmap §3.
+ */
+export const meDocumentsApiClient = new MeDocumentsApiClient(httpClient);
+
+/**
+ * Me-saved-searches client uses the intercepted instance — the /v1/public/me/*
+ * namespace is authenticated despite the "public" prefix (established convention).
+ * v1.5.3 — 5 CRUD endpoints wired to the saved-search feature.
+ */
+export const meSavedSearchesApiClient = new MeSavedSearchesApiClient(httpClient);
+
+/**
+ * Offers public client uses the RAW instance.
+ * /v1/public/concierge/offers/:token is gated by the shared-link token in the
+ * path, not Bearer auth — an absent token should not redirect to sign-in.
+ * Same pattern as inspectionsPublicApiClient. v0.18.a wires the 5 mobile offer
+ * state screens to real fetched data and closes the v0.16 carry-over (use
+ * `offer.inspectionReportId` in place of the hardcoded mock test-id).
+ * See: apps/mobile/app/offers/[token]/view.tsx
+ */
+export const offersPublicApiClient = new OffersPublicApiClient(rawHttpClient);
+
+/**
+ * Me-account client uses the intercepted instance — profile + address CRUD.
+ * Task v0.18.b / me-account.schemas.ts / GET+PATCH /v1/public/me/profile
+ * and GET/POST/PATCH/DELETE /v1/public/me/addresses.
+ */
+export const meAccountApiClient = new MeAccountApiClient(httpClient);
+
+/**
+ * Me-saved-listings client uses the intercepted instance — favourites CRUD.
+ * Task v0.18.b / saved-listings.public.schemas.ts / GET/POST/DELETE
+ * /v1/public/me/saved-listings[/:listingId].
+ */
+export const meSavedListingsApiClient = new MeSavedListingsApiClient(httpClient);
+
+/**
+ * Me-notifications client uses the intercepted instance — notifications inbox.
+ * Task v0.19.a / MOBILE_API_CONTRACT.md v1.5.6 §1.
+ * All 5 endpoints: list, unread-count, mark-read, mark-all-read, delete.
+ */
+export const meNotificationsApiClient = new MeNotificationsApiClient(httpClient);
+
+/**
+ * Me-maintenance client uses the intercepted instance — maintenance pickup CRUD.
+ * Task v0.19.b / MOBILE_API_CONTRACT.md v1.5.6 §2.
+ * All 5 endpoints: list (filterable by status), getById, create (Idempotency-Key),
+ * update (PATCH), delete (204).
+ */
+export const meMaintenanceApiClient = new MeMaintenanceApiClient(httpClient);
+
+/**
+ * Me-reviews client uses the intercepted instance — customer review CRUD.
+ * Task v0.19.c / MOBILE_API_CONTRACT.md v1.5.6 §3.
+ * 3 endpoints: list my reviews, create (Idempotency-Key), delete (204).
+ */
+export const meReviewsApiClient = new MeReviewsApiClient(httpClient);
+
+/**
+ * Listing-reviews client uses the RAW instance (no-auth invariant).
+ * /v1/public/listings/:id/reviews is a fully public endpoint — no Bearer token
+ * is expected or required. Using rawHttpClient ensures the 401-refresh interceptor
+ * is never triggered on this route. Same pattern as offersPublicApiClient and
+ * inspectionsPublicApiClient.
+ * Task v0.19.c / MOBILE_API_CONTRACT.md v1.5.6 §3.
+ */
+export const listingReviewsApiClient = new ListingReviewsApiClient(rawHttpClient);
+
+/**
+ * Me-sessions client uses the intercepted instance — active sessions management.
+ * Task v0.22.a / MOBILE_API_CONTRACT.md v1.5.x §session-management.
+ * 3 endpoints: list, revoke single session (DELETE), sign-out-all (POST).
+ */
+export const meSessionsApiClient = new MeSessionsApiClient(httpClient);
+
+/**
+ * Me-notification-prefs client uses the intercepted instance — notification preferences.
+ * Task v0.22.a / CONCIERGE_INSPECTION_API_CONTRACT.md v1.3.0 §6.1.
+ * 2 endpoints: GET + PATCH /v1/public/me/notification-preferences.
+ */
+export const meNotificationPrefsApiClient = new MeNotificationPrefsApiClient(httpClient);
+
+/**
+ * Me-sell-bookings client uses the intercepted instance — sell-concierge booking CRUD.
+ * Task v0.22.b / STATUS.md API row: `/v1/public/sell-bookings (3 endpoints)`.
+ * Endpoints: list (paginated), getByRef, reschedule (PATCH), cancel (POST /cancel — B v1.5.14).
+ */
+export const meSellBookingsApiClient = new MeSellBookingsApiClient(httpClient);

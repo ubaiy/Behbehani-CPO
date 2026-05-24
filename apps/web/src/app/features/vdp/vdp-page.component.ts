@@ -12,30 +12,25 @@ import { Meta, Title } from '@angular/platform-browser';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { switchMap, tap } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { API_CONFIG } from '@behbehani-cpo/data-access';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
-import { PublicCatalogService } from '../../data/public-catalog.service';
+import { PublicCatalogService, absUrl } from '../../data/public-catalog.service';
 import type { ListingPublicDetail } from '../../data/public-catalog.service';
 import type { FeaturedCar } from '../../data/catalog.types';
 import { fmtKm, fmtKwd } from '../../data/kwd';
 import { CarCardComponent } from '../home/sections/car-card.component';
-import { VdpGalleryComponent } from './vdp-gallery.component';
-import type { VdpGalleryPhoto } from './vdp-gallery.component';
+import { VdpMediaViewerComponent } from './vdp-media-viewer.component';
+import type { VdpMediaPhoto } from './vdp-media-viewer.component';
 import { VdpFinanceCalcComponent } from './vdp-finance-calc.component';
 import { VdpInspectionComponent } from './vdp-inspection.component';
 import { VdpPricingCardComponent } from './vdp-pricing-card.component';
 
 /**
- * Vehicle Detail Page. Routes: `/:locale/listings/:slug`.
- *
- * Loads the listing via `PublicCatalogService.detail$()` (which caches per-
- * slug and falls back to a mock detail if the API isn't ready). Renders:
- * gallery, specs grid, features, vehicle history, inspection summary,
- * finance calculator, delivery, similar cars, sticky pricing sidebar and
- * mobile CTA bar.
- *
- * Extended detail fields from the DTO are treated as optional — the
- * template applies sensible defaults (em-dash, `—`) so the page never
- * breaks while the backend rolls out the richer payload.
+ * Vehicle Detail Page. Routes: `/:locale/listings/:slug`. Loads via
+ * `PublicCatalogService.detail$()`. Renders gallery, walk-around video,
+ * 360° spin, specs, features, history, inspection summary, finance calc,
+ * delivery, similar cars, sticky pricing sidebar + mobile CTA. Extended
+ * DTO fields are optional — template applies em-dash defaults.
  */
 @Component({
   selector: 'app-vdp-page',
@@ -45,7 +40,7 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
     TranslateModule,
     RouterLink,
     CarCardComponent,
-    VdpGalleryComponent,
+    VdpMediaViewerComponent,
     VdpFinanceCalcComponent,
     VdpInspectionComponent,
     VdpPricingCardComponent,
@@ -138,8 +133,13 @@ import { VdpPricingCardComponent } from './vdp-pricing-card.component';
       <div class="mx-auto w-full max-w-container px-4 py-6 lg:px-6 lg:py-8">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px] lg:gap-8">
           <main class="min-w-0 space-y-6">
-            <!-- Gallery -->
-            <app-vdp-gallery [photos]="galleryPhotos()" [fallbackUrl]="car()!.heroPhotoUrl" />
+            <!-- v1.5-D13 unified media viewer (Photos / 360° / Video tabs) -->
+            <app-vdp-media-viewer
+              [photos]="galleryPhotos()"
+              [fallbackUrl]="car()!.heroPhotoUrl"
+              [walkaround]="walkaroundData()"
+              [spin360]="spin360Data()"
+            />
 
             <!-- Specifications -->
             <section class="rounded-2xl border border-line bg-white p-5 lg:p-6">
@@ -304,6 +304,7 @@ export class VdpPageComponent {
   private readonly translate = inject(TranslateService);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly api = inject(API_CONFIG);
 
   readonly locale = computed(() => this.language.current());
   readonly isRtl = computed(() => this.locale() === 'ar');
@@ -384,7 +385,26 @@ export class VdpPageComponent {
     return this.translate.instant('vdp.fuel.' + c.fuelType);
   });
 
-  readonly galleryPhotos = computed<ReadonlyArray<VdpGalleryPhoto>>(() => {
+  /** v1.5.16 rich-media — resolves relative `/static/demo-media/...` URLs to
+   *  the API origin. Null when listing has no completed walkaround/spin. */
+  readonly walkaroundData = computed(() => {
+    const wa = this.car()?.walkaroundVideo;
+    if (!wa) return null;
+    const base = this.api.baseUrl;
+    return {
+      url: absUrl(wa.url, base),
+      mimeType: wa.mimeType,
+      posterUrl: wa.posterUrl ? absUrl(wa.posterUrl, base) : null,
+      durationS: wa.durationS,
+    };
+  });
+  readonly spin360Data = computed(() => {
+    const s = this.car()?.spin360;
+    if (!s) return null;
+    return { archiveUrl: absUrl(s.archiveUrl, this.api.baseUrl), mimeType: s.mimeType, frameCount: s.frameCount };
+  });
+
+  readonly galleryPhotos = computed<ReadonlyArray<VdpMediaPhoto>>(() => {
     const c = this.car();
     if (!c) return [];
     const list = c.photos ?? [];

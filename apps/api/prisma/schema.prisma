@@ -156,6 +156,14 @@ model User {
   documents            Document[]          @relation("UserDocuments")
   // v1.4 — Orders placed by this customer.
   orders               Order[]             @relation("UserOrders")
+  // v1.6 — Saved searches (browse-filter presets with optional new-match notifications).
+  savedSearches        SavedSearch[]       @relation("UserSavedSearches")
+  // v1.5 — Notifications inbox (persisted per-dispatch for in-app history).
+  notifications        Notification[]      @relation("UserNotifications")
+  // v1.5.7 — Maintenance pickup requests.
+  maintenanceRequests  MaintenanceRequest[] @relation("UserMaintenanceRequests")
+  // v1.5.8 — Customer reviews.
+  reviews              Review[]            @relation("UserReviews")
 }
 
 // Append-only audit trail (FR-ADM-021).
@@ -350,6 +358,10 @@ model Listing {
   savedBy          SavedListing[]    @relation("ListingSavedBy")
   // v1.4 — Orders placed against this listing.
   orders           Order[]           @relation("ListingOrders")
+  // v1.5.7 — Maintenance requests that reference this CPO listing.
+  maintenanceRequests MaintenanceRequest[] @relation("MaintenanceRequestVehicle")
+  // v1.5.8 — Customer reviews on this listing.
+  reviews             Review[]             @relation("ReviewListingTarget")
 
   @@index([stage, listedAt])
   @@index([brandId, modelId])
@@ -530,6 +542,13 @@ model InspectionReport {
   /// Last time the SMS+email signing link was dispatched. Used to rate-limit
   /// the /resend-link endpoint to at most one send per 60 seconds.
   customerSignTokenLastSentAt DateTime?
+
+  // ── Cancellation (v1.5.14 — closes [ASK A→B-3]) ────────────────────────
+  /// Set when a customer cancels their own concierge booking. Null while active.
+  /// Used for idempotency: re-cancel when non-null returns current state without error.
+  cancelledAt        DateTime? @db.Timestamp(3)
+  /// Optional free-text reason supplied by the customer at cancel time. Max 200 chars.
+  cancellationReason String?   @db.VarChar(200)
 
   // ── Audit ──────────────────────────────────────────────────────────────
   createdAt DateTime @default(now())
@@ -978,4 +997,196 @@ model Payment {
 
   @@index([orderId])
   @@index([status])
+}
+
+// ─── v1.6 — Saved Searches ───────────────────────────────────────────────────
+// Customer-owned browse-filter presets. The queryPayload JSONB column stores the
+// full filter spec (brands, models, year range, price range, etc.) so the
+// storefront can reconstruct the exact browse URL without any join. The
+// notifyOnMatch flag is reserved for a future cron-based "new matches" digest.
+
+model SavedSearch {
+  id                  String    @id @default(cuid())
+  userId              String    @db.Uuid
+  user                User      @relation("UserSavedSearches", fields: [userId], references: [id], onDelete: Cascade)
+  // User-friendly label, e.g. "BMW M3 under 25k".
+  name                String    @db.VarChar(120)
+  // Structured filter payload — shape validated by SavedSearchQueryPayloadSchema.
+  queryPayload        Json
+  // Reserved for future cron-based new-match notifications.
+  notifyOnMatch       Boolean   @default(true)
+  lastNotifiedAt      DateTime?
+  // Count of matching listings when saved; enables "X new matches" diff on reload.
+  matchCountAtCreation Int?
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("saved_search")
+}
+
+// ─── v1.5 — Notifications inbox ──────────────────────────────────────────────
+// Persisted per-dispatch by NotificationService so customers can review their
+// notification history inside the app. Hard-delete on customer dismiss (no
+// soft-delete needed). Localization: titleEn/titleAr/bodyEn/bodyAr stored; DTO
+// surfaces pre-resolved title/body per User.locale at query time.
+
+enum NotificationChannel {
+  push
+  email
+  sms
+  inApp
+
+  @@map("notification_channel")
+}
+
+enum NotificationCategory {
+  order
+  offer
+  inspection
+  document
+  maintenance
+  system
+  marketing
+
+  @@map("notification_category")
+}
+
+enum NotificationIconHint {
+  order
+  offer
+  inspection
+  doc
+  system
+
+  @@map("notification_icon_hint")
+}
+
+model Notification {
+  id        String               @id @default(cuid())
+  userId    String               @db.Uuid
+  user      User                 @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  channel   NotificationChannel
+  category  NotificationCategory
+  titleEn   String
+  titleAr   String
+  bodyEn    String
+  bodyAr    String
+  deepLink  String?
+  iconHint  NotificationIconHint?
+  readAt    DateTime?
+  expiresAt DateTime?
+  createdAt DateTime             @default(now())
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, readAt])
+  @@map("notification")
+}
+
+// ─── v1.5.7 — Maintenance pickup requests ────────────────────────────────────
+// Customer-submitted maintenance pickup requests per SRS §3.22. Pure capture —
+// no external provider dispatch. Admin works the queue manually until v1.6+.
+
+enum MaintenanceConcernCategory {
+  oil_change
+  brakes
+  tires
+  electrical
+  engine
+  other
+
+  @@map("maintenance_concern_category")
+}
+
+enum MaintenanceRequestStatus {
+  pending_review
+  scheduled
+  in_progress
+  completed
+  cancelled
+
+  @@map("maintenance_request_status")
+}
+
+model MaintenanceRequest {
+  id                String                    @id @default(cuid())
+  userId            String                    @db.Uuid
+  user              User                      @relation("UserMaintenanceRequests", fields: [userId], references: [id], onDelete: Cascade)
+  // Optional FK to Listing — set when customer's vehicle was bought through CPO.
+  vehicleListingId  String?                   @db.Uuid
+  vehicleListing    Listing?                  @relation("MaintenanceRequestVehicle", fields: [vehicleListingId], references: [id], onDelete: SetNull)
+  // Fallback free-text description e.g. "2021 Toyota Camry" when no CPO listing.
+  vehicleFreeText   String?
+  governorate       KuwaitGovernorate
+  pickupAddressLine String
+  preferredWindow   PreferredWindow
+  preferredDate     DateTime                  @db.Date
+  concernCategory   MaintenanceConcernCategory
+  concernNotes      String
+  status              MaintenanceRequestStatus  @default(pending_review)
+  adminNotes          String?
+  scheduledFor        DateTime?
+  cancellationReason  String?                   @db.VarChar(500)
+  // Idempotency key supplied by client on POST to prevent double-submit.
+  idempotencyKey    String?                   @unique @db.VarChar(80)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("maintenance_request")
+}
+
+// ─── v1.5.8 — Customer reviews ───────────────────────────────────────────────
+// Polymorphic target: a review can target either a CPO Listing or a Service
+// (inspection or maintenance). Implemented via discriminator + nullable FKs.
+// The service target FK is intentionally NOT a DB FK because it can point to
+// either InspectionReport.id or MaintenanceRequest.id (different tables).
+// Compound uniques prevent one-review-per-target violations at the DB level.
+
+enum ReviewTargetKind {
+  listing
+  service
+
+  @@map("review_target_kind")
+}
+
+enum ReviewServiceKind {
+  inspection
+  maintenance
+
+  @@map("review_service_kind")
+}
+
+model Review {
+  id                String            @id @default(cuid())
+  userId            String            @db.Uuid
+  user              User              @relation("UserReviews", fields: [userId], references: [id], onDelete: Cascade)
+
+  // Discriminator + nullable FKs — only one set of FK fields is populated per row.
+  targetKind        ReviewTargetKind
+  // Listing target (FK enforced — listing must exist).
+  targetListingId   String?           @db.Uuid
+  targetListing     Listing?          @relation("ReviewListingTarget", fields: [targetListingId], references: [id], onDelete: Cascade)
+  // Service target (no DB FK — points at InspectionReport.id OR MaintenanceRequest.id).
+  targetServiceKind ReviewServiceKind?
+  targetServiceId   String?           // free-form CUID — no FK constraint
+
+  rating            Int               // 1-5 enforced by Zod + DB CHECK constraint
+  title             String            @db.VarChar(80)
+  body              String            @db.VarChar(1000)
+  idempotencyKey    String?           @unique @db.VarChar(80)
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([targetListingId, createdAt(sort: Desc)])
+  @@index([targetKind, targetServiceKind, targetServiceId])
+  // One review per customer per listing target:
+  @@unique([userId, targetListingId])
+  // One review per customer per service target:
+  @@unique([userId, targetServiceKind, targetServiceId])
+  @@map("review")
 }

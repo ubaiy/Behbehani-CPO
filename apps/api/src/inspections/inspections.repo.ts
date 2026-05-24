@@ -17,13 +17,26 @@ import { prisma } from '../db/prisma';
 const SUMMARY_INCLUDE = {
   listing: { select: { id: true, stockNumber: true, titleEn: true } },
   customer: { select: { id: true, fullName: true, mobile: true, email: true } },
-  inspector: { select: { id: true, fullName: true } },
+  // v1.5.13: surface inspector.mobile so the tracker DTO can expose phoneE164
+  // to the customer (per [ASK C→B] inspector-fields-on-tracker-dto). PII-light:
+  // only mobile + fullName — no email / role / personal address.
+  inspector: { select: { id: true, fullName: true, mobile: true } },
 } satisfies Prisma.InspectionReportInclude;
 
 const DETAIL_INCLUDE = {
   listing: { select: { id: true, stockNumber: true, titleEn: true, vin: true } },
   customer: { select: { id: true, fullName: true, mobile: true, email: true } },
-  inspector: { select: { id: true, fullName: true } },
+  inspector: { select: { id: true, fullName: true, mobile: true } },
+  // v1.5.14 ([ASK A→B-2]): fetch latest non-withdrawn offer so toBookingStatus()
+  // can populate relatedOfferToken for the deep-link to /offer/:token/inspection-report.
+  // `take: 1` + `orderBy: createdAt desc` ensures we get the most-recent offer.
+  // `status: { not: 'withdrawn' }` prevents surfacing retracted offers.
+  offers: {
+    where: { status: { not: 'withdrawn' } },
+    orderBy: { createdAt: 'desc' as const },
+    take: 1,
+    select: { publicToken: true, publicTokenExpiresAt: true, status: true },
+  },
 } satisfies Prisma.InspectionReportInclude;
 
 export type InspectionSummaryRow = Prisma.InspectionReportGetPayload<{

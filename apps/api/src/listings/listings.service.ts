@@ -8,6 +8,7 @@ import type {
   Paginated,
   UpdateListingDto,
 } from '@behbehani-cpo/shared-types';
+import { prisma } from '../db/prisma';
 import { maskVin } from '@behbehani-cpo/shared-types';
 import {
   createListing as repoCreate,
@@ -237,10 +238,24 @@ export async function update(id: string, dto: UpdateListingDto, actorId: string)
   return toDetail(next);
 }
 
+/**
+ * Stages that surface a listing to the public storefront.
+ * Any transition INTO one of these stages requires at least 1 photo.
+ */
+const PUBLIC_STAGES = new Set<ListingStage>(['listed', 'reserved', 'sold', 'delivered']);
+
 export async function changeStage(id: string, dto: ChangeStageDto, actorId: string): Promise<ListingDetail> {
   const before = await findListingById(id);
   if (!before) throw new ListingError(404, 'Listing not found');
   assertStageTransition(before.stage as ListingStage, dto.stage);
+
+  // Guard: transitioning to any public-visible stage requires at least 1 photo.
+  if (PUBLIC_STAGES.has(dto.stage)) {
+    const photoCount = await prisma.listingPhoto.count({ where: { listingId: id } });
+    if (photoCount === 0) {
+      throw new ListingError(422, 'LISTING_PHOTOS_REQUIRED');
+    }
+  }
 
   const patch: Record<string, Date> = {};
   if (dto.stage === 'listed' && !before.listedAt) patch.listedAt = new Date();

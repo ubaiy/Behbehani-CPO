@@ -1,6 +1,7 @@
 import { Route, Router, UrlTree } from '@angular/router';
 import { inject } from '@angular/core';
 import { localeGuard, DEFAULT_LOCALE } from '@behbehani-cpo/shared-i18n';
+import { authGuard } from '@behbehani-cpo/data-access';
 import { ShellComponent } from './layout/shell.component';
 import { HomeComponent } from './features/home/home.component';
 import { SignInModalService } from './features/auth/sign-in-modal.service';
@@ -109,104 +110,172 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        /* Customer-facing CPO inspection report — reached from the offer page.
+           Token is the same public offer token (no second credential required).
+           Lazy-loaded; noindex set by the component. */
+        path: 'sell/concierge/offer/:token/inspection-report',
+        loadComponent: () =>
+          import('./features/sell/offer/cpo-inspection-report.component').then(
+            (m) => m.CpoInspectionReportComponent,
+          ),
+      },
+      {
         path: 'sell/self-service',
         loadComponent: () =>
           import('./features/sell/self-service-page.component').then(
             (m) => m.SellSelfServicePageComponent,
           ),
       },
+      /* ── /finance + /services — top-nav placeholders (v1.5-D14).
+         Nav links shipped before real pages existed; these are
+         coming-soon shells so the links no longer 404. ── */
+      {
+        path: 'finance',
+        loadComponent: () =>
+          import('./features/marketing/coming-soon-shells').then(
+            (m) => m.MarketingFinanceShellComponent,
+          ),
+      },
+      {
+        path: 'services',
+        loadComponent: () =>
+          import('./features/marketing/coming-soon-shells').then(
+            (m) => m.MarketingServicesShellComponent,
+          ),
+      },
+      {
+        path: 'dealers',
+        loadComponent: () =>
+          import('./features/marketing/coming-soon-shells').then(
+            (m) => m.MarketingDealersShellComponent,
+          ),
+      },
+      /* ── /account/* — persistent shell with left sidebar + nested children
+         v1.5-D9: authGuard protects the parent → all children inherit. Guard
+         is SSR-safe (allows on server; client checks isSignedIn synchronously
+         against localStorage). ── */
       {
         path: 'account',
+        canActivate: [authGuard],
         loadComponent: () =>
-          import('./features/account/account-hub.component').then((m) => m.AccountHubComponent),
-      },
-      {
-        path: 'account/addresses',
-        loadComponent: () =>
-          import('./features/account/addresses.component').then(
-            (m) => m.AccountAddressesComponent,
+          import('./features/account/account-layout.component').then(
+            (m) => m.AccountLayoutComponent,
           ),
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'profile' },
+          {
+            path: 'profile',
+            loadComponent: () =>
+              import('./features/account/profile.component').then((m) => m.AccountProfileComponent),
+          },
+          {
+            path: 'addresses',
+            loadComponent: () =>
+              import('./features/account/addresses.component').then(
+                (m) => m.AccountAddressesComponent,
+              ),
+          },
+          {
+            path: 'notifications',
+            loadComponent: () =>
+              import('./features/account/notifications.component').then(
+                (m) => m.AccountNotificationsComponent,
+              ),
+          },
+          {
+            path: 'security',
+            loadComponent: () =>
+              import('./features/account/security.component').then(
+                (m) => m.AccountSecurityComponent,
+              ),
+          },
+          {
+            path: 'documents',
+            loadComponent: () =>
+              import('./features/account/documents-page.component').then(
+                (m) => m.DocumentsPageComponent,
+              ),
+          },
+          {
+            path: 'orders',
+            loadComponent: () =>
+              import('./features/account/orders-page.component').then(
+                (m) => m.OrdersPageComponent,
+              ),
+          },
+          {
+            path: 'orders/:id',
+            loadComponent: () =>
+              import('./features/account/order-detail-page.component').then(
+                (m) => m.OrderDetailPageComponent,
+              ),
+          },
+          {
+            path: 'saved-searches',
+            loadComponent: () =>
+              import('./features/account/saved-searches-page.component').then(
+                (m) => m.SavedSearchesPageComponent,
+              ),
+          },
+          /* Previously /my-bookings — now nested as /account/inspections */
+          {
+            path: 'inspections',
+            loadComponent: () =>
+              import('./features/account/my-bookings.component').then((m) => m.MyBookingsComponent),
+          },
+          /* Previously /my-bookings/saved-cars — now /account/favorites */
+          {
+            path: 'favorites',
+            loadComponent: () =>
+              import('./features/account/saved-listings.component').then(
+                (m) => m.SavedListingsComponent,
+              ),
+          },
+          {
+            path: 'maintenance',
+            loadComponent: () =>
+              import('./features/account/coming-soon-shells').then(
+                (m) => m.MaintenanceShellComponent,
+              ),
+          },
+          {
+            path: 'financing',
+            loadComponent: () =>
+              import('./features/account/coming-soon-shells').then(
+                (m) => m.FinancingShellComponent,
+              ),
+          },
+          {
+            path: 'returns',
+            loadComponent: () =>
+              import('./features/account/coming-soon-shells').then(
+                (m) => m.ReturnsShellComponent,
+              ),
+          },
+          {
+            path: 'reviews',
+            loadComponent: () =>
+              import('./features/account/coming-soon-shells').then(
+                (m) => m.ReviewsShellComponent,
+              ),
+          },
+          {
+            path: 'referrals',
+            loadComponent: () =>
+              import('./features/account/coming-soon-shells').then(
+                (m) => m.ReferralsShellComponent,
+              ),
+          },
+        ],
       },
-      {
-        path: 'account/notifications',
-        loadComponent: () =>
-          import('./features/account/notifications.component').then(
-            (m) => m.AccountNotificationsComponent,
-          ),
-      },
-      {
-        path: 'account/profile',
-        loadComponent: () =>
-          import('./features/account/profile.component').then((m) => m.AccountProfileComponent),
-      },
-      {
-        path: 'account/security',
-        loadComponent: () =>
-          import('./features/account/security.component').then((m) => m.AccountSecurityComponent),
-      },
-      {
-        path: 'my-bookings',
-        loadComponent: () =>
-          import('./features/account/my-bookings.component').then((m) => m.MyBookingsComponent),
-      },
-      {
-        path: 'my-bookings/saved-cars',
-        loadComponent: () =>
-          import('./features/account/saved-listings.component').then(
-            (m) => m.SavedListingsComponent,
-          ),
-      },
+      /* ── Legacy URL redirects (preserve old bookmarks/emails) ── */
+      { path: 'my-bookings', redirectTo: 'account/inspections', pathMatch: 'full' },
+      { path: 'my-bookings/saved-cars', redirectTo: 'account/favorites', pathMatch: 'full' },
       {
         path: 'auth/sign-in',
         canActivate: [openSignInModalGuard],
         /* Never actually rendered — the guard always returns a UrlTree. */
         component: HomeComponent,
-      },
-      /* ── v1.3 Coming-Soon feature routes ── */
-      {
-        path: 'account/saved-searches',
-        loadComponent: () =>
-          import('./features/account/coming-soon-shells').then((m) => m.SavedSearchesShellComponent),
-      },
-      {
-        path: 'account/orders',
-        loadComponent: () =>
-          import('./features/account/orders-page.component').then((m) => m.OrdersPageComponent),
-      },
-      {
-        path: 'account/orders/:id',
-        loadComponent: () =>
-          import('./features/account/order-detail-page.component').then((m) => m.OrderDetailPageComponent),
-      },
-      {
-        path: 'account/documents',
-        loadComponent: () =>
-          import('./features/account/documents-page.component').then((m) => m.DocumentsPageComponent),
-      },
-      {
-        path: 'account/maintenance',
-        loadComponent: () =>
-          import('./features/account/coming-soon-shells').then((m) => m.MaintenanceShellComponent),
-      },
-      {
-        path: 'account/financing',
-        loadComponent: () =>
-          import('./features/account/coming-soon-shells').then((m) => m.FinancingShellComponent),
-      },
-      {
-        path: 'account/returns',
-        loadComponent: () =>
-          import('./features/account/coming-soon-shells').then((m) => m.ReturnsShellComponent),
-      },
-      {
-        path: 'account/reviews',
-        loadComponent: () =>
-          import('./features/account/coming-soon-shells').then((m) => m.ReviewsShellComponent),
-      },
-      {
-        path: 'account/referrals',
-        loadComponent: () =>
-          import('./features/account/coming-soon-shells').then((m) => m.ReferralsShellComponent),
       },
       /* ── Checkout return / cancel callback pages ── */
       {
@@ -223,9 +292,6 @@ export const appRoutes: Route[] = [
             (m) => m.CheckoutReturnPageComponent,
           ),
       },
-      /* ── v1.3 Route renames — redirect old URLs to existing components ── */
-      { path: 'account/inspections', redirectTo: 'my-bookings', pathMatch: 'full' },
-      { path: 'account/favorites', redirectTo: 'my-bookings/saved-cars', pathMatch: 'full' },
     ],
   },
 ];

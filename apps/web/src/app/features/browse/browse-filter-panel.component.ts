@@ -1,16 +1,24 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  PLATFORM_ID,
   computed,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
 import type { PublicCatalogBrand, PublicCatalogBodyType } from '@behbehani-cpo/shared-types';
 import { RangeSliderComponent } from '../../shared/range-slider.component';
+
+/** Local option shape — kept after v1.5-D8 revert from the dropdown component. */
+interface MultiSelectOption {
+  value: string;
+  label: string;
+}
 
 /**
  * Filter state powering the Browse page. Sub-ranges are stored as [min, max].
@@ -175,7 +183,15 @@ const FUEL_VALUES = ['petrol', 'diesel', 'hybrid', 'electric'];
                 <label class="flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-[13px] hover:bg-surface-soft">
                   <input type="checkbox" class="size-4 accent-brand-700" [checked]="filters().brands.includes(b.slug)" (change)="toggleSlug('brands', b.slug)" />
                   <span class="inline-grid size-[22px] place-items-center rounded-full border border-line-2 bg-surface-soft p-0.5">
-                    <img [src]="b.logoUrl ?? brandFavicon(b.slug)" alt="" loading="lazy" class="size-3.5 object-contain" />
+                    <span class="relative inline-block">
+                      <img
+                        [src]="b.logoUrl ?? brandFavicon(b.slug)"
+                        [alt]="language.current() === 'ar' ? b.nameAr : b.nameEn"
+                        loading="lazy"
+                        class="size-3.5 object-contain"
+                        (error)="onLogoError($event)"
+                      />
+                    </span>
                   </span>
                   <span class="flex-1 text-ink-2">{{ language.current() === 'ar' ? b.nameAr : b.nameEn }}</span>
                   <em class="text-[11px] not-italic text-muted-2">{{ b.listingCount }}</em>
@@ -189,7 +205,7 @@ const FUEL_VALUES = ['petrol', 'diesel', 'hybrid', 'electric'];
         }
       </section>
 
-      <!-- BODY STYLE -->
+      <!-- BODY STYLE (chip-style, REVERTED in v1.5-D8 per user feedback) -->
       <section class="border-b border-line-2">
         <button type="button" class="flex w-full items-center gap-1.5 px-3.5 py-3.5 text-start hover:bg-surface-soft" (click)="toggle('body')">
           <span class="flex-1 text-sm font-semibold text-ink">{{ 'browse.sections.body' | translate }}</span>
@@ -200,22 +216,18 @@ const FUEL_VALUES = ['petrol', 'diesel', 'hybrid', 'electric'];
         </button>
         @if (isOpen('body')) {
           <div class="px-3.5 pb-4">
-            <div class="grid grid-cols-2 gap-1.5">
-              @for (tile of bodyTiles(); track tile.slug) {
-                <button
-                  type="button"
-                  class="flex flex-col items-center gap-1 rounded-[10px] border-[1.5px] bg-white px-2 py-3 text-[11px] font-semibold transition-all hover:-translate-y-0.5 hover:border-brand-700"
-                  [class.border-line]="!filters().bodies.includes(tile.slug)"
-                  [class.border-brand-700]="filters().bodies.includes(tile.slug)"
-                  [class.bg-brand-50]="filters().bodies.includes(tile.slug)"
-                  (click)="toggleSlug('bodies', tile.slug)"
-                >
-                  <svg viewBox="0 0 86 40" class="h-[26px] w-[56px] text-brand-700">
-                    <path [attr.d]="tile.pathSvg" fill="currentColor" />
-                    <circle cx="22" cy="34" r="4" fill="#0b1220" />
-                    <circle cx="60" cy="34" r="4" fill="#0b1220" />
-                  </svg>
-                  <span class="text-ink">{{ bodyLabel(tile.slug) }}</span>
+            <div class="flex flex-wrap gap-2">
+              @for (opt of bodyOptions(); track opt.value) {
+                <button type="button" (click)="toggleBody(opt.value)"
+                  class="inline-flex items-center rounded-pill border px-3 py-1.5 text-[12px] font-semibold transition-colors min-h-[36px]"
+                  [class.bg-brand-700]="filters().bodies.includes(opt.value)"
+                  [class.text-white]="filters().bodies.includes(opt.value)"
+                  [class.border-brand-700]="filters().bodies.includes(opt.value)"
+                  [class.bg-white]="!filters().bodies.includes(opt.value)"
+                  [class.border-line]="!filters().bodies.includes(opt.value)"
+                  [class.text-ink-2]="!filters().bodies.includes(opt.value)"
+                  [class.hover:bg-surface-soft]="!filters().bodies.includes(opt.value)">
+                  {{ opt.label }}
                 </button>
               }
             </div>
@@ -223,7 +235,7 @@ const FUEL_VALUES = ['petrol', 'diesel', 'hybrid', 'electric'];
         }
       </section>
 
-      <!-- TRANSMISSION -->
+      <!-- TRANSMISSION (chip-style, REVERTED in v1.5-D8) -->
       <section class="border-b border-line-2">
         <button type="button" class="flex w-full items-center gap-1.5 px-3.5 py-3.5 text-start hover:bg-surface-soft" (click)="toggle('transmission')">
           <span class="flex-1 text-sm font-semibold text-ink">{{ 'browse.sections.transmission' | translate }}</span>
@@ -234,18 +246,18 @@ const FUEL_VALUES = ['petrol', 'diesel', 'hybrid', 'electric'];
         </button>
         @if (isOpen('transmission')) {
           <div class="px-3.5 pb-4">
-            <div class="flex flex-wrap gap-1">
-              @for (t of transmissions; track t) {
-                <button type="button" class="rounded-pill px-3 py-1.5 text-[12px] font-semibold transition-colors"
-                  [class.border]="true"
-                  [class.border-line-2]="!filters().transmission.includes(t)"
-                  [class.bg-surface-soft]="!filters().transmission.includes(t)"
-                  [class.text-ink-2]="!filters().transmission.includes(t)"
-                  [class.border-brand-700]="filters().transmission.includes(t)"
-                  [class.bg-brand-50]="filters().transmission.includes(t)"
-                  [class.text-brand-700]="filters().transmission.includes(t)"
-                  (click)="toggleSlug('transmission', t)">
-                  {{ 'browse.transmissions.' + t | translate }}
+            <div class="flex flex-wrap gap-2">
+              @for (opt of transmissionOptions(); track opt.value) {
+                <button type="button" (click)="toggleTransmission(opt.value)"
+                  class="inline-flex items-center rounded-pill border px-3 py-1.5 text-[12px] font-semibold transition-colors min-h-[36px]"
+                  [class.bg-brand-700]="filters().transmission.includes(opt.value)"
+                  [class.text-white]="filters().transmission.includes(opt.value)"
+                  [class.border-brand-700]="filters().transmission.includes(opt.value)"
+                  [class.bg-white]="!filters().transmission.includes(opt.value)"
+                  [class.border-line]="!filters().transmission.includes(opt.value)"
+                  [class.text-ink-2]="!filters().transmission.includes(opt.value)"
+                  [class.hover:bg-surface-soft]="!filters().transmission.includes(opt.value)">
+                  {{ opt.label }}
                 </button>
               }
             </div>
@@ -253,7 +265,7 @@ const FUEL_VALUES = ['petrol', 'diesel', 'hybrid', 'electric'];
         }
       </section>
 
-      <!-- FUEL -->
+      <!-- FUEL (chip-style, REVERTED in v1.5-D8) -->
       <section class="border-b border-line-2">
         <button type="button" class="flex w-full items-center gap-1.5 px-3.5 py-3.5 text-start hover:bg-surface-soft" (click)="toggle('fuel')">
           <span class="flex-1 text-sm font-semibold text-ink">{{ 'browse.sections.fuel' | translate }}</span>
@@ -264,18 +276,18 @@ const FUEL_VALUES = ['petrol', 'diesel', 'hybrid', 'electric'];
         </button>
         @if (isOpen('fuel')) {
           <div class="px-3.5 pb-4">
-            <div class="flex flex-wrap gap-1">
-              @for (f of fuels; track f) {
-                <button type="button" class="rounded-pill px-3 py-1.5 text-[12px] font-semibold transition-colors"
-                  [class.border]="true"
-                  [class.border-line-2]="!filters().fuel.includes(f)"
-                  [class.bg-surface-soft]="!filters().fuel.includes(f)"
-                  [class.text-ink-2]="!filters().fuel.includes(f)"
-                  [class.border-brand-700]="filters().fuel.includes(f)"
-                  [class.bg-brand-50]="filters().fuel.includes(f)"
-                  [class.text-brand-700]="filters().fuel.includes(f)"
-                  (click)="toggleSlug('fuel', f)">
-                  {{ 'browse.fuels.' + f | translate }}
+            <div class="flex flex-wrap gap-2">
+              @for (opt of fuelOptions(); track opt.value) {
+                <button type="button" (click)="toggleFuel(opt.value)"
+                  class="inline-flex items-center rounded-pill border px-3 py-1.5 text-[12px] font-semibold transition-colors min-h-[36px]"
+                  [class.bg-brand-700]="filters().fuel.includes(opt.value)"
+                  [class.text-white]="filters().fuel.includes(opt.value)"
+                  [class.border-brand-700]="filters().fuel.includes(opt.value)"
+                  [class.bg-white]="!filters().fuel.includes(opt.value)"
+                  [class.border-line]="!filters().fuel.includes(opt.value)"
+                  [class.text-ink-2]="!filters().fuel.includes(opt.value)"
+                  [class.hover:bg-surface-soft]="!filters().fuel.includes(opt.value)">
+                  {{ opt.label }}
                 </button>
               }
             </div>
@@ -326,6 +338,7 @@ export class BrowseFilterPanelComponent {
 
   readonly language = inject(LanguageService);
   private readonly translate = inject(TranslateService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   readonly bounds = BROWSE_BOUNDS;
   readonly transmissions = TRANSMISSION_VALUES;
@@ -354,6 +367,66 @@ export class BrowseFilterPanelComponent {
       .filter((b) => BODY_PATHS[b.slug])
       .map((b) => ({ slug: b.slug, pathSvg: BODY_PATHS[b.slug] ?? BODY_PATHS['sedan']! }))
   );
+
+  // ── Multi-select option lists (translated, locale-aware) ───────────────────
+
+  readonly bodyOptions = computed<ReadonlyArray<MultiSelectOption>>(() => {
+    const isAr = this.language.current() === 'ar';
+    return this.bodyTypes().map((b) => ({
+      value: b.slug,
+      label: isAr ? b.nameAr : b.nameEn,
+    }));
+  });
+
+  readonly transmissionOptions = computed<ReadonlyArray<MultiSelectOption>>(() => {
+    // Triggers re-translation on language change
+    this.language.current();
+    return this.transmissions.map((t) => ({
+      value: t,
+      label: this.translate.instant(`browse.transmissions.${t}`),
+    }));
+  });
+
+  readonly fuelOptions = computed<ReadonlyArray<MultiSelectOption>>(() => {
+    this.language.current();
+    return this.fuels.map((f) => ({
+      value: f,
+      label: this.translate.instant(`browse.fuels.${f}`),
+    }));
+  });
+
+  onBodiesChange(next: ReadonlyArray<string>): void {
+    this.patch({ bodies: [...next] });
+  }
+
+  onTransmissionChange(next: ReadonlyArray<string>): void {
+    this.patch({ transmission: [...next] });
+  }
+
+  onFuelChange(next: ReadonlyArray<string>): void {
+    this.patch({ fuel: [...next] });
+  }
+
+  /* v1.5-D8 chip-style toggle helpers (replaced the dropdown component
+     after user clarified the dropdown pattern was for /account/* pages only,
+     not the /browse product filter). */
+  toggleBody(value: string): void {
+    const cur = this.filters().bodies;
+    const next = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
+    this.patch({ bodies: next });
+  }
+
+  toggleTransmission(value: string): void {
+    const cur = this.filters().transmission;
+    const next = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
+    this.patch({ transmission: next });
+  }
+
+  toggleFuel(value: string): void {
+    const cur = this.filters().fuel;
+    const next = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
+    this.patch({ fuel: next });
+  }
 
   readonly filteredBrands = computed(() => {
     const q = this.brandSearch().trim().toLowerCase();
@@ -386,6 +459,21 @@ export class BrowseFilterPanelComponent {
 
   brandFavicon(slug: string): string {
     return `https://www.google.com/s2/favicons?domain=${slug}.com&sz=64`;
+  }
+
+  onLogoError(event: Event): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const img = event.target as HTMLImageElement | null;
+    if (!img) return;
+    const wrapper = img.parentElement;
+    if (!wrapper || wrapper.querySelector('.brand-logo-fallback')) return;
+    img.style.display = 'none';
+    const initial = (img.alt || '?').trim().charAt(0).toUpperCase();
+    const fallback = document.createElement('span');
+    fallback.className = 'brand-logo-fallback inline-grid place-items-center w-3.5 h-3.5 rounded-full bg-brand-100 text-brand-700 text-[8px] font-bold';
+    fallback.textContent = initial;
+    fallback.setAttribute('aria-hidden', 'true');
+    wrapper.appendChild(fallback);
   }
 
   bodyLabel(slug: string): string {

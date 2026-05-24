@@ -5,6 +5,7 @@ import { API_CONFIG } from '@behbehani-cpo/data-access';
 import type {
   CustomerOfferResponseDto,
   OfferStatus,
+  PublicInspectionSummary,
   PublicOfferView,
 } from '@behbehani-cpo/shared-types';
 
@@ -36,6 +37,12 @@ export type GetOfferResult =
  * The accepted flow returns a `listingStockNumber` so the success card can
  * surface "Your vehicle is logged as BMC-XXXX".
  */
+export type GetInspectionReportResult =
+  | { kind: 'ok'; data: PublicInspectionSummary }
+  | { kind: 'not_found' }
+  | { kind: 'expired' }
+  | { kind: 'network_error' };
+
 export type SubmitOfferResult =
   | {
       kind: 'ok';
@@ -71,6 +78,28 @@ export class OffersService {
         return of({ kind: 'not_found' as const });
       }),
     );
+  }
+
+  /**
+   * GET /v1/public/concierge/offers/:token/inspection-report
+   *
+   * Returns the signed-off PublicInspectionSummary tied to this offer.
+   * The token already identifies the offer + inspection — no second credential needed.
+   * Endpoint status codes mirror GET /offer/:token (NOT_FOUND / TOKEN_EXPIRED / OFFER_WITHDRAWN).
+   * `not_found` is also returned when the inspection hasn't been signed off yet.
+   */
+  getInspectionReport$(token: string): Observable<GetInspectionReportResult> {
+    return this.http
+      .get<PublicInspectionSummary>(this.url(token, '/inspection-report'))
+      .pipe(
+        map((data) => ({ kind: 'ok' as const, data })),
+        catchError((err: HttpErrorResponse) => {
+          const code = err.error?.code as string | undefined;
+          if (code === 'TOKEN_EXPIRED') return of({ kind: 'expired' as const });
+          if (err.status === 0) return of({ kind: 'network_error' as const });
+          return of({ kind: 'not_found' as const });
+        }),
+      );
   }
 
   submit$(token: string, body: CustomerOfferResponseDto): Observable<SubmitOfferResult> {

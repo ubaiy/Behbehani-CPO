@@ -458,6 +458,30 @@ export class MediaGalleryComponent implements OnInit, OnDestroy {
       });
   }
 
+  // ── Image fallback ────────────────────────────────────────────────────────
+
+  /**
+   * Swap a broken CDN image to a branded SVG placeholder.
+   * Guard flag prevents an infinite loop if the data-URI itself fails.
+   */
+  onImgError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img.dataset['fallbackApplied'] === 'true') return;
+    img.dataset['fallbackApplied'] = 'true';
+    img.src =
+      'data:image/svg+xml;utf8,' +
+      encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 40">' +
+        '<rect width="64" height="40" fill="#dbeafe"/>' +
+        '<path d="M10 28 L16 18 Q17 16 19 16 L45 16 Q47 16 48 18 L54 28 Q55 30 53 30 L11 30 Q9 30 10 28Z" fill="#93c5fd"/>' +
+        '<rect x="14" y="30" width="6" height="4" rx="2" fill="#1d4ed8"/>' +
+        '<rect x="44" y="30" width="6" height="4" rx="2" fill="#1d4ed8"/>' +
+        '<rect x="20" y="18" width="10" height="8" rx="1" fill="#bfdbfe"/>' +
+        '<rect x="34" y="18" width="10" height="8" rx="1" fill="#bfdbfe"/>' +
+        '</svg>',
+      );
+  }
+
   // ── Template helpers ──────────────────────────────────────────────────────
   protected readonly formatBytes = formatBytes;
   protected readonly formatDuration = formatDuration;

@@ -177,8 +177,8 @@ export function FilterSheet({
             {/* Vehicle assurance */}
             <View style={ss.section}>
               <ToggleRow
-                label={t('filter.alDamanInspectedLabel')}
-                sublabel={t('filter.alDamanInspectedSub')}
+                label={t('filter.behbehaniInspectedLabel')}
+                sublabel={t('filter.behbehaniInspectedSub')}
                 value={inspectedOnly}
                 onToggle={setInspectedOnly}
               />

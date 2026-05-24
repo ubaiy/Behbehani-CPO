@@ -28,6 +28,7 @@ import {
   I18nManager,
   StatusBar,
   Image,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -44,6 +45,7 @@ import { SortDropdown, SORT_OPTIONS, type SortOption } from '../../src/component
 import { ViewToggle, VIEW_MODE_KEY, type ViewMode } from '../../src/components/browse/ViewToggle';
 import { BrowseEmptyState } from '../../src/components/browse/BrowseEmptyState';
 import { BrowseErrorRetry } from '../../src/components/browse/BrowseErrorRetry';
+import { SaveCurrentSearchModal } from '../../src/components/saved-searches';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -115,6 +117,7 @@ export default function BrowseScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
   const [sortModalVisible, setSortModalVisible] = useState(false);
+  const [saveSearchModalVisible, setSaveSearchModalVisible] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(VIEW_MODE_KEY).then(v => {
@@ -263,6 +266,17 @@ export default function BrowseScreen() {
           {isLoading ? t('browse.carsMatchLoading') : t('browse.carsMatch', { count: totalCount })}
         </Text>
         <View style={cs.sortViewRow}>
+          {activeFilterCount > 0 ? (
+            <TouchableOpacity
+              style={cs.saveSearchBtn}
+              onPress={() => setSaveSearchModalVisible(true)}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={t('savedSearches.save.cta')}
+            >
+              <Text style={cs.saveSearchBtnText}>{t('savedSearches.save.cta')}</Text>
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity style={cs.sortBtn} onPress={() => setSortModalVisible(true)} activeOpacity={0.8}>
             <Text style={cs.sortBtnText} numberOfLines={1}>{currentSortLabel}</Text>
             <Text style={cs.sortChevron}>{'▾'}</Text>
@@ -320,6 +334,16 @@ export default function BrowseScreen() {
         onClose={() => setFilterSheetVisible(false)}
         matchCount={totalCount}
       />
+
+      <SaveCurrentSearchModal
+        visible={saveSearchModalVisible}
+        currentFilters={filters}
+        onSuccess={() => {
+          setSaveSearchModalVisible(false);
+          Alert.alert(t('savedSearches.save.successToast'));
+        }}
+        onDismiss={() => setSaveSearchModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -346,6 +370,22 @@ const cs = StyleSheet.create({
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     alignItems: 'center',
     gap: spacing[2],
+  },
+  saveSearchBtn: {
+    height: 36,
+    paddingHorizontal: 12,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: palette.royalBlue700,
+    backgroundColor: palette.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44,
+  },
+  saveSearchBtnText: {
+    fontSize: 11,
+    fontFamily: fontFamily.semiBold,
+    color: palette.royalBlue700,
   },
   sortBtn: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',

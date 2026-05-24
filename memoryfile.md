@@ -657,7 +657,7 @@ Decision: customer-facing storefront work is parked. Resume after the current ad
   - `02-home-ar.html` — Arabic RTL mirror; proves layout flips with only `<html dir="rtl">` + Tajawal font + a single `rotate-180` on directional SVG chevrons. Zero physical-direction Tailwind classes anywhere.
   - `03-listings-grid.html` — `/browse` grid view with 9 collapsible filter sections, active-chip strip, sticky sort bar with grid/list toggle, 3/2/1 responsive grid, mobile bottom-sheet filters, FR-BUY-015 Socket.IO live-count annotation
   - `04-listings-list.html` — horizontal-row variant; 240px photo + thumb strip / dual 2×4 spec table / 180px sticky price block; Reserved + Best-deal state cards
-  - `05-vdp.html` — Vehicle Detail Page with gallery + sticky buy block + Al Daman 200-pt inspection grid + monthly calculator + JSON-LD comment + related-cars rail. Carries explicit deferral annotations: 360° viewer (Sprint 4), reservation flow KWD 100 + 48-hr hold (Sprint 5), real Al Ahli pre-qual (Sprint 7).
+  - `05-vdp.html` — Vehicle Detail Page with gallery + sticky buy block + Behbehani 200-pt inspection grid + monthly calculator + JSON-LD comment + related-cars rail. Carries explicit deferral annotations: 360° viewer (Sprint 4), reservation flow KWD 100 + 48-hr hold (Sprint 5), real Al Ahli pre-qual (Sprint 7).
 
 **Carry-forward decisions locked into the mockups (apply when work resumes):**
 - Card photo hard-pin **16:10 aspect ratio** on the `<img>` container to prevent CLS during SSR hydration (Sprint 12 target: CLS ≤ 0.1).
@@ -826,7 +826,7 @@ Sidebar nav: the previously-disabled `<span>` placeholder for "Brands & Models" 
 | Sprint | Theme | Headline deliverables |
 |---|---|---|
 | **1–2** | Inventory + Admin shell | Prisma schema + migrations, vehicle CRUD, S3 presigned uploads (photos, 360, video), admin shell with RBAC for 12 roles (FR-ADM-002), 10-stage pipeline tracker (FR-ADM-005), aging-discount engine (FR-ADM-006). |
-| **3–4** | Browse + VDP | Homepage rails, search/filters/sort with live count <300 ms (FR-BUY-015), listings grid+list, VDP with Pannellum 360 viewer + hotspots, monthly calc, price-band classifier, Al Daman embed, `schema.org/Vehicle` JSON-LD, p95 search <800 ms (FR-BUY-023). |
+| **3–4** | Browse + VDP | Homepage rails, search/filters/sort with live count <300 ms (FR-BUY-015), listings grid+list, VDP with Pannellum 360 viewer + hotspots, monthly calc, price-band classifier, Behbehani inspection embed, `schema.org/Vehicle` JSON-LD, p95 search <800 ms (FR-BUY-023). |
 | **5** | Reservation + KNET | KWD 100 deposit, 48-hr hold timer, BullMQ expiry → auto-refund + listing release, KNET hosted-page integration + callback handler. |
 | **6** | 7-step purchase wizard | Exact step order from FR-RES-004: Payment → Trade-in → Add-ons → Documents (Civil ID front/back, license, salary cert if financing) → Digital contract → Delivery slot → Confirmation. Pause/resume within hold. |
 | **7** | Financing + Insurance | Al Ahli adapter (calc + pre-qual soft check + application + status webhooks → state machine FR-FIN-010), Kuwait Insurance adapter (quote + bind on delivery, renewal reminders 30d/7d). Document vault with KMS encryption. |
@@ -844,11 +844,11 @@ Sidebar nav: the previously-disabled `<span>` placeholder for "Brands & Models" 
 
 These are non-blockers for Sprint 0 but gate later sprints:
 
-1. **Vendor agreements / API access** — KNET, Al Ahli Bank, Kuwait Insurance, e-signature provider, Al Daman. Start procurement immediately.
+1. **Vendor agreements / API access** — KNET, Al Ahli Bank, Kuwait Insurance, e-signature provider. Start procurement immediately. (Inspection is in-house — Behbehani's own team, no third-party vendor.)
 2. **WhatsApp Business + SMS sender ID** — Meta business verification + Kuwait sender ID approval lead times can run weeks.
 3. **360° photography process** — who shoots, what rig, storage path, hotspot tagging workflow. Need owner + SOP.
 4. **Delivery fleet** — own drivers vs 3rd-party; GPS device or driver PWA?
-5. **Al Daman integration mode** — webhook push vs API pull, PDF + structured JSON.
+5. **In-house inspection report format** — PDF + structured JSON, schema versioning, tablet capture → admin sync flow.
 6. **Maintenance workshop integration** — in-house workshop? How does status flow back?
 7. **Civil ID / KYC residency** — confirm CITRA Reg 26/2024 permits AWS `me-south-1` for Kuwait PII.
 8. **Payment milestones** — internal budgeting tied to sprint plan.
@@ -862,7 +862,7 @@ Per the reconciliation in the master plan, **dropped from both phases**:
 - Marketplace model (third-party listings)
 - §3.4 Concierge Sell Service
 - §3.5 Self-Service Classified Listings
-- §3.6 Inspection capture app (we only render Al Daman reports)
+- §3.6 (historical scope note — superseded; inspection capture is now in-house per project_inspection_internal.md)
 - §3.8 Car Services Marketplace
 - §3.9 Consumer-facing dealer/showroom module
 - §3.11 In-app chat / masked-number calls / leads CRM (CS uses WhatsApp Business only)

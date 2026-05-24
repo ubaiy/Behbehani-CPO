@@ -3,6 +3,7 @@ import {
   HeadBucketCommand,
   CreateBucketCommand,
   PutBucketPolicyCommand,
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -52,6 +53,26 @@ export async function presignPutUrl(
   });
 
   const expiresAt = new Date(Date.now() + env.S3_PRESIGN_TTL_SEC * 1000);
+  return { url, key, expiresAt };
+}
+
+// ─── Presigned GET URL ──────────────────────────────────────────────────────
+
+/**
+ * Server-side presigned GET URL for client-side direct downloads (e.g. report
+ * PDFs). Mirrors presignPutUrl but for read-only access. Default 15-min TTL
+ * matches admin Documents download-link pattern (env.S3_PRESIGN_TTL_SEC).
+ *
+ * v1.5.14: used by toBookingStatus() to surface inspectionReportPdfUrl on the
+ * ConciergeBookingStatus DTO (closes [ASK A→B-2]).
+ */
+export async function presignGetUrl(
+  key: string,
+  expiresInSec: number = env.S3_PRESIGN_TTL_SEC,
+): Promise<PresignResult> {
+  const command = new GetObjectCommand({ Bucket: env.S3_BUCKET, Key: key });
+  const url = await getSignedUrl(s3Client(), command, { expiresIn: expiresInSec });
+  const expiresAt = new Date(Date.now() + expiresInSec * 1000);
   return { url, key, expiresAt };
 }
 

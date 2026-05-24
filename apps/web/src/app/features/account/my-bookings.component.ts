@@ -69,28 +69,24 @@ const STATUS_PILL: Record<InspectionStatus, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, TranslateModule],
   template: `
-    <!-- Back link — inside max-w-4xl to align with hero column -->
-    <div class="container-page pt-6">
-      <div class="mx-auto max-w-4xl">
-        <a [routerLink]="['/', locale(), 'account']" class="inline-flex items-center text-[13px] font-medium text-brand-700 hover:text-brand-900 hover:underline">
-          {{ 'account.backToHub' | translate }}
-        </a>
-      </div>
-    </div>
-
-    <!-- Hero — rounded-3xl framed card -->
-    <div class="container-page py-8 mx-auto max-w-4xl">
-      <div class="rounded-3xl p-6 sm:p-8 text-white" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 60%, #2563EB 100%);">
-        <h1 class="font-display text-[clamp(24px,3vw,38px)] font-extrabold leading-tight tracking-[-0.025em] text-white">
-          {{ 'account.myBookings.title' | translate }}
+    <!-- Compact hero header (Part C.4) -->
+    <header class="mb-6 rounded-3xl bg-gradient-to-br from-brand-50 via-white to-brand-50/40 border border-brand-100 px-6 py-5 flex items-center gap-4">
+      <span class="inline-grid h-14 w-14 flex-shrink-0 place-items-center rounded-2xl bg-brand-700 text-white shadow-brand-sm" aria-hidden="true">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+      </span>
+      <div class="min-w-0">
+        <h1 class="font-display text-[22px] sm:text-[26px] font-bold text-ink mb-0.5 tracking-[-0.02em]">
+          {{ 'account.shell.page.inspections.title' | translate }}
         </h1>
-        <p class="mt-2 text-[14px] text-white/80">
-          {{ 'account.myBookings.sub' | translate }}
+        <p class="text-[13px] text-muted">
+          {{ 'account.shell.page.inspections.sub' | translate }}
         </p>
       </div>
-    </div>
+    </header>
 
-    <main class="container-page py-8 sm:py-10 mx-auto max-w-4xl">
+    <main>
 
       <!-- Loading -->
       @if (state().kind === 'loading') {
@@ -153,24 +149,24 @@ const STATUS_PILL: Record<InspectionStatus, string> = {
         </div>
       }
 
-      <!-- Empty state -->
+      <!-- Empty state (illustrated SVG: calendar) -->
       @if (state().kind === 'empty') {
-        <div class="rounded-3xl border border-line bg-white p-8 text-center shadow-brand-sm">
-          <div class="mx-auto inline-grid h-16 w-16 place-items-center rounded-full bg-brand-50 text-brand-700">
-            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <div class="rounded-3xl border border-line bg-gradient-to-br from-white to-surface-soft/40 p-12 text-center shadow-brand-sm">
+          <div class="mx-auto mb-5 w-20 h-20 rounded-3xl bg-brand-100 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" class="text-brand-700" aria-hidden="true">
               <rect x="3" y="4" width="18" height="18" rx="3" />
               <path d="M16 2v4M8 2v4M3 10h18" />
             </svg>
           </div>
-          <h2 class="mt-4 font-display text-[22px] font-bold tracking-[-0.025em] text-ink">
+          <h2 class="font-display text-[18px] font-bold text-ink mb-2">
             {{ 'account.myBookings.empty.title' | translate }}
           </h2>
-          <p class="mt-2 text-[14px] text-muted">
+          <p class="text-[14px] text-muted max-w-md mx-auto mb-6">
             {{ 'account.myBookings.empty.body' | translate }}
           </p>
           <a
             [routerLink]="['/', locale(), 'sell', 'concierge']"
-            class="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-pill bg-brand-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
+            class="inline-flex min-h-[48px] items-center gap-2 rounded-pill bg-brand-700 px-7 py-3 text-sm font-semibold text-white hover:bg-brand-800 transition-colors duration-150 active:scale-[0.98] active:transition-transform shadow-brand-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
           >
             {{ 'account.myBookings.empty.cta' | translate }}
           </a>
@@ -181,7 +177,7 @@ const STATUS_PILL: Record<InspectionStatus, string> = {
       @if (okState(); as ok) {
         <ul class="space-y-4" role="list">
           @for (item of ok.items; track item.id) {
-            <li class="rounded-3xl border border-line bg-white p-5 sm:p-6 shadow-brand-sm">
+            <li class="rounded-3xl border border-line bg-white p-5 sm:p-6 shadow-brand-sm hover:shadow-brand hover:border-brand-200 transition-all duration-200">
 
               <!-- Vehicle + ref row -->
               <div class="flex items-start gap-3">

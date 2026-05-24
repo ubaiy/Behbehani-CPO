@@ -53,6 +53,22 @@ export class AuthService {
   readonly isSignedIn = computed(() => this._user() !== null);
 
   /**
+   * v1.5-D9: SSR-safe hydration marker. `false` in SSR (where localStorage is
+   * undefined → we can't tell who the user is), `true` on the browser as soon
+   * as the constructor runs (because localStorage is available synchronously).
+   *
+   * Components / route guards use this to AVOID rendering the guest-gate UI
+   * during SSR — otherwise the server ships HTML showing "Sign in" and the
+   * client then flashes to the real authenticated content on hydration.
+   *
+   * Why a separate signal (not just `typeof localStorage`) — keeps the SSR /
+   * client distinction explicit in templates and route guards. Reads like
+   * `@if (!auth.isHydrated()) {` are obvious about intent.
+   */
+  private readonly _hydrated = signal<boolean>(typeof localStorage !== 'undefined');
+  readonly isHydrated = this._hydrated.asReadonly();
+
+  /**
    * ISO-8601 expiry timestamp of the current access token, or null when signed
    * out. Persisted across page loads via localStorage.
    */

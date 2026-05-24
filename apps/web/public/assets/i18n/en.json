@@ -31,6 +31,7 @@
     "breadcrumb": "Breadcrumb",
     "filters": "Filters",
     "clearAll": "Clear all",
+    "saveSearchCta": "Save this search",
     "clearSearch": "Clear search",
     "close": "Close",
     "previous": "Previous",
@@ -90,6 +91,11 @@
       "priceDesc": "Price: high → low",
       "mileageAsc": "Lowest mileage",
       "year": "Year: newest first"
+    },
+    "filter": {
+      "clearGroup": "Clear",
+      "doneGroup": "Done",
+      "selectedCount": "{{count}} selected"
     }
   },
   "auth": {
@@ -334,9 +340,13 @@
         "localeLabel": "Language preference",
         "photoLabel": "Profile photo",
         "uploadCta": "Upload new photo",
-        "uploadHint": "JPG or PNG, max 2 MB",
+        "uploadingCta": "Uploading…",
+        "uploadHint": "JPG, PNG, or WebP, max 5 MB",
         "removeCta": "Remove photo",
-        "uploadComingSoon": "Photo upload is coming soon"
+        "uploadSuccess": "Photo updated",
+        "uploadMimeError": "Use a JPG, PNG, or WebP image.",
+        "uploadTooLargeError": "Image must be 1 KB–5 MB.",
+        "uploadFailedError": "Upload failed. Please try again."
       },
       "email": {
         "title": "Email address",
@@ -347,6 +357,7 @@
         "changeCta": "Change email",
         "newEmailLabel": "New email",
         "newEmailPlaceholder": "you@example.com",
+        "formatHint": "Enter a valid email address (e.g. you@example.com).",
         "sendCodeCta": "Send code",
         "sendingCta": "Sending…",
         "codeCaption": "We sent a 6-digit code to {{email}}",
@@ -361,6 +372,7 @@
         "changeCta": "Change mobile",
         "newMobileLabel": "New mobile",
         "newMobilePlaceholder": "5XXX XXXX",
+        "formatHint": "Enter a valid Kuwait mobile (8 digits starting with 5, 6, or 9).",
         "sendCodeCta": "Send code",
         "sendingCta": "Sending…",
         "codeCaption": "We sent a code to {{mobile}}",
@@ -395,7 +407,7 @@
       "title": "Addresses",
       "sub": "Manage delivery and pickup addresses",
       "tab": "Addresses",
-      "addCta": "+ Add address",
+      "addCta": "Add address",
       "signInRequired": {
         "title": "Please sign in",
         "body": "Sign in to manage your addresses."
@@ -664,6 +676,46 @@
         "modalConfirm": "Yes, cancel"
       }
     },
+    "savedSearches": {
+      "title": "Saved Searches",
+      "sub": "Get alerts when new matches arrive",
+      "signInRequired": "Sign in to view your saved searches",
+      "empty": {
+        "title": "No saved searches yet",
+        "body": "Save your filters from the browse page to track new matches",
+        "browseCta": "Browse cars"
+      },
+      "error": {
+        "body": "Something went wrong loading your saved searches.",
+        "retry": "Try again"
+      },
+      "card": {
+        "matchesWhenSaved": "matches when saved",
+        "lastChecked": "last checked",
+        "viewResults": "View results",
+        "rename": "Rename",
+        "delete": "Delete",
+        "notifyOn": "Notifications on",
+        "notifyOff": "Notifications off"
+      },
+      "rename": {
+        "title": "Rename saved search",
+        "save": "Save",
+        "cancel": "Cancel",
+        "placeholder": "Search name"
+      },
+      "delete": {
+        "title": "Delete this saved search?",
+        "body": "This action cannot be undone.",
+        "cancel": "Cancel",
+        "confirm": "Delete"
+      },
+      "pagination": {
+        "prev": "Previous",
+        "next": "Next",
+        "pageOf": "Page {{page}} of {{total}}"
+      }
+    },
     "orders": {
       "title": "My Orders",
       "sub": "Track reservations, payments, and deliveries.",
@@ -786,6 +838,38 @@
         "reviews": { "title": "Reviews", "desc": "Rate cars & services" },
         "referrals": { "title": "Referrals", "desc": "Refer a friend, earn rewards" }
       }
+    },
+    "shell": {
+      "nav": {
+        "ariaLabel": "Account navigation",
+        "profile": "Profile",
+        "addresses": "Addresses",
+        "notifications": "Notifications",
+        "security": "Security",
+        "documents": "Documents",
+        "orders": "Orders",
+        "savedCars": "Saved cars",
+        "savedSearches": "Saved searches",
+        "inspections": "My bookings",
+        "maintenance": "Maintenance",
+        "financing": "Financing",
+        "returns": "Returns",
+        "reviews": "Reviews",
+        "referrals": "Referrals",
+        "signOut": "Sign out",
+        "comingSoon": "Soon"
+      },
+      "page": {
+        "profile": { "title": "Profile", "sub": "Manage your personal information" },
+        "addresses": { "title": "Addresses", "sub": "Delivery and pickup spots" },
+        "notifications": { "title": "Notifications", "sub": "Email, SMS, and push preferences" },
+        "security": { "title": "Security", "sub": "Sessions and account protection" },
+        "documents": { "title": "Documents", "sub": "Contracts, reports, and insurance" },
+        "orders": { "title": "Orders", "sub": "Track reservations, payments, and deliveries" },
+        "savedCars": { "title": "Saved cars", "sub": "Cars you've hearted from listings" },
+        "savedSearches": { "title": "Saved searches", "sub": "Get alerts when new matches arrive" },
+        "inspections": { "title": "My bookings", "sub": "Inspection requests and reports" }
+      }
     }
   },
   "checkout": {
@@ -861,6 +945,28 @@
       }
     }
   },
+  "savedSearches": {
+    "modal": {
+      "title": "Save Search",
+      "nameLabel": "Search name",
+      "namePlaceholder": "e.g. Toyota SUVs under KWD 15K",
+      "notifyLabel": "Notify me on new matches",
+      "notifyHelp": "We'll send an alert when new cars match this filter",
+      "saveCta": "Save search",
+      "cancelCta": "Cancel",
+      "savingCta": "Saving…",
+      "successTitle": "Search saved!",
+      "successBody": "Saved as '{{name}}'",
+      "viewListCta": "View saved searches",
+      "errors": {
+        "nameRequired": "Please enter a name for this search",
+        "nameTooLong": "Name must be 120 characters or less",
+        "network": "Network error — please check your connection and try again",
+        "validation": "The filter combination isn't valid. Please adjust and retry.",
+        "generic": "Something went wrong"
+      }
+    }
+  },
   "common": {
     "language": "العربية",
     "currency": "KWD",
@@ -913,7 +1019,16 @@
         "inspection": "inspection",
         "delivery": "delivery",
         "return": "return"
-      }
+      },
+      "trustInspectionTitle": "71-pt inspection",
+      "trustInspectionSub": "Every car certified",
+      "trustDeliveryTitle": "48-hour delivery",
+      "trustDeliverySub": "Straight to your door",
+      "trustReturnTitle": "3-day return",
+      "trustReturnSub": "Full refund, no questions",
+      "statCarsSold": "1,200+ cars sold last month",
+      "statSatisfaction": "97% customer satisfaction",
+      "statInspections": "200,000+ inspections completed"
     },
     "featured": {
       "eyebrow": "Featured cars",
@@ -928,6 +1043,8 @@
       "viewAll": "View all",
       "empty": "No cars match this filter.",
       "clear": "Clear filters",
+      "clearAll": "Clear all",
+      "removeFilter": "Remove filter",
       "permonth": "/month"
     },
     "brands": {
@@ -1034,7 +1151,28 @@
       "video": "Walkaround video",
       "prev": "Previous photo",
       "next": "Next photo",
-      "viewPhoto": "View photo"
+      "viewPhoto": "View photo",
+      "jumpToVideo": "Jump to walk-around video",
+      "jumpTo360": "Jump to 360° view"
+    },
+    "media": {
+      "tabs": {
+        "photos": "Photos",
+        "spin": "360° View",
+        "video": "Video"
+      },
+      "viewAll": "View All"
+    },
+    "walkaround": {
+      "title": "Walk-Around",
+      "sub": "Take a closer look from every angle"
+    },
+    "spin360": {
+      "title": "360° Exterior View",
+      "hint": "Drag horizontally to rotate",
+      "frames": "frames",
+      "dragHint": "Drag to rotate",
+      "zipComingSoon": "360° view available — coming soon"
     },
     "specs": {
       "title": "Specifications"
@@ -1432,12 +1570,26 @@
       "yourCar": "Your car",
       "editCar": "Edit",
       "stepCount": "Step {{ current }} of {{ total }}",
+      "hero": {
+        "trustFree": "Completely free",
+        "trustInspect": "71-point inspection at your door",
+        "trustOffer": "Guaranteed cash offer in 24h"
+      },
+      "address": {
+        "searchPh": "Search your address (Block, Street, House)",
+        "useLocation": "Use my current location",
+        "locating": "Finding your location…",
+        "mapCaption": "Map · OpenStreetMap",
+        "change": "Change",
+        "noResults": "No matching addresses. Keep typing or use my location."
+      },
+      "continueReview": "Continue to review",
       "steps": {
-        "location": "Location & when",
+        "location": "Where + When",
         "contact": "Contact",
         "review": "Review",
         "locationReassurance": "Our inspector will contact you within 24 hours to confirm.",
-        "preferenceNote": "If you skip date/time, our team will call to arrange."
+        "preferenceNote": "Not sure yet? Skip this and our team will call to arrange."
       },
       "suggestedShort": "Suggested",
       "step1": "Your car",
@@ -1474,19 +1626,25 @@
       },
       "location": {
         "title": "Where should we come?",
-        "sub": "We come to your home or workplace anywhere in Kuwait.",
+        "sub": "Your inspector arrives at your address.",
         "address": "Full address",
         "addressPh": "e.g. Salmiya, Block 4, Street 1, House 12",
         "governorate": "Governorate",
         "notes": "Access / parking notes (optional)",
-        "notesPh": "e.g. gated community, call at gate; use side entrance after 4 PM",
+        "notesPh": "e.g. Gated compound, call at the gate. Parking inside.",
+        "notesDetailsLabel": "Add parking instructions or gate code",
+        "notesOptional": "(optional)",
         "when": "When works for you?",
-        "whenSub": "Pick a preferred date — we'll confirm the exact time within 2 hours.",
+        "whenSub": "Pick a day and rough window. Our team confirms the exact time within 24h.",
         "date": "Preferred date",
+        "dateStripLabel": "Pick a day",
+        "todayLabel": "Today",
+        "tomorrowLabel": "Tomorrow",
+        "windowSection": "Pick a window",
         "window": "Preferred window",
-        "windowMorning": "Morning · 9 AM – 12 PM",
-        "windowAfternoon": "Afternoon · 12 PM – 5 PM",
-        "windowEvening": "Evening · 5 PM – 9 PM"
+        "windowMorning": "Morning",
+        "windowAfternoon": "Afternoon",
+        "windowEvening": "Evening"
       },
       "governorates": {
         "capital": "Capital",
@@ -1499,6 +1657,10 @@
       "contact": {
         "title": "How can we reach you?",
         "sub": "We'll text + email you the time confirmation and signing link.",
+        "title2": "Where can we reach you?",
+        "sub2": "We'll WhatsApp the confirmation. We never share your number.",
+        "privacyHeader": "Private and secure.",
+        "privacyBody": "Used only to confirm your booking. We never sell or share your contact.",
         "fullName": "Full name",
         "fullNamePh": "As on your Civil ID",
         "mobile": "Mobile number",
@@ -1510,12 +1672,19 @@
       "reviewStep": {
         "title": "Review your booking",
         "sub": "Confirm the details below — we'll be in touch within 2 hours.",
+        "title2": "One last check",
+        "sub2": "Make sure everything looks right, then we'll send your inspector.",
+        "promiseHeader": "When you confirm, here's what happens",
+        "promise1": "An advisor calls or WhatsApps within 2 hours",
+        "promise2": "Inspector arrives at your address — no cost, no obligation",
+        "promise3": "You get a guaranteed cash offer within 24 hours",
+        "footnote": "Free · No obligation · Cancel anytime",
         "vehicleSection": "Your car",
         "locationSection": "Inspection address",
         "whenSection": "When",
         "contactSection": "Contact",
         "edit": "Edit",
-        "submit": "Confirm booking",
+        "submit": "Confirm my booking",
         "submitting": "Submitting…",
         "submitError": "Couldn't reach the booking service. Please try again or call us on +965 22 282 282.",
         "endpointPending": "Booking endpoint is still being built. Please call us on +965 22 282 282."
@@ -1578,6 +1747,52 @@
             "cta": "Try again"
           }
         }
+      }
+    },
+    "conciergeTracker": {
+      "bookingRefLabel": "Booking ref",
+      "progressLabel": "PROGRESS",
+      "autoRefresh": "Auto-refreshes every 30 seconds.",
+      "timeline": {
+        "received": "Booking received",
+        "assigned": "Inspector assigned",
+        "assignedSub": "{{name}} will be in touch by {{time}}",
+        "assignedSubFallback": "11 AM",
+        "inspection": "Inspection (~60 min on-site)",
+        "signOffer": "Sign report + receive offer",
+        "signOfferSub": "Within 24 hours of signoff",
+        "inProgress": "IN PROGRESS"
+      },
+      "inspector": {
+        "title": "YOUR INSPECTOR",
+        "completed": "{{count}} inspections completed",
+        "whatsapp": "WhatsApp {{firstName}}",
+        "call": "Call concierge"
+      },
+      "actions": {
+        "addCalendar": "Add to calendar",
+        "reschedule": "Reschedule",
+        "cancel": "Cancel booking"
+      },
+      "copy": {
+        "aria": "Copy booking reference"
+      },
+      "signed": {
+        "badge": "Signed & complete",
+        "title": "Your offer is on the way",
+        "sub": "Our valuation team will WhatsApp you a guaranteed cash offer within 24 hours.",
+        "scoreLabel": "OVERALL SCORE",
+        "inspectedByLabel": "INSPECTED BY",
+        "viewReport": "View full report (PDF)",
+        "viewReportPending": "Report available with your offer",
+        "share": "Forward to a friend",
+        "brandFooter": "Behbehani Motors · Trusted since 1935 · 200,000+ inspections · ★ 4.8 Google rating"
+      },
+      "cancel": {
+        "confirmTitle": "Cancel this booking?",
+        "confirmBody": "This will release your slot. You can rebook anytime.",
+        "confirmYes": "Yes, cancel",
+        "confirmNo": "Keep booking"
       }
     },
     "conciergeSuccess": {
@@ -1693,6 +1908,51 @@
         "backToOffer": "Back to offer",
         "errors": {
           "invalidAmount": "Enter a valid positive amount in KWD."
+        }
+      },
+      "viewInspectionReport": "View inspection report",
+      "inspectionReport": {
+        "metaTitle": "Inspection Report — Behbehani CPO",
+        "title": "CPO Inspection Report",
+        "sub": "71-point certified inspection",
+        "certifiedBadge": "Behbehani Certified Pre-Owned",
+        "backToOffer": "Back to offer",
+        "overallScore": "CPO Inspection Score",
+        "scoreExcellent": "Excellent",
+        "scoreGood": "Good",
+        "scoreFair": "Fair",
+        "scorePoor": "Needs attention",
+        "countPass": "Pass",
+        "countAdvisory": "Advisory",
+        "countFail": "Fail",
+        "inspectedOn": "Inspected on",
+        "certifiedInspector": "Certified CPO Inspector",
+        "categories": {
+          "exterior": "Exterior",
+          "interior": "Interior",
+          "engineDrivetrain": "Engine & Drivetrain",
+          "electrical": "Electrical",
+          "safety": "Safety",
+          "documentation": "Documentation"
+        },
+        "attentionTitle": "Items needing attention",
+        "attentionSub": "Advisory and fail items from the 71-point check",
+        "statusAdvisory": "ADVISORY",
+        "statusFail": "FAIL",
+        "thresholdNote": "Score of {{score}}/100 vs. the 80-point Behbehani Certified threshold.",
+        "loading": "Loading inspection report…",
+        "retry": "Try again",
+        "not_found": {
+          "title": "Report not available",
+          "sub": "The inspection report is not yet available for this offer."
+        },
+        "expired": {
+          "title": "Link expired",
+          "sub": "This offer link has expired. Please contact Behbehani Motors."
+        },
+        "network_error": {
+          "title": "Connection error",
+          "sub": "Could not load the inspection report. Please check your connection."
         }
       }
     },
@@ -1884,5 +2144,23 @@
       "terms": "Terms",
       "citra": "CITRA compliance"
     }
+  },
+  "financeComingSoon": {
+    "title": "Financing options",
+    "bullet1": "Pre-qualify with 5+ Kuwait banks in minutes",
+    "bullet2": "Compare APRs, monthly payments, and tenures side by side",
+    "bullet3": "E-sign your loan contract online with bank-grade security"
+  },
+  "servicesComingSoon": {
+    "title": "Car services",
+    "bullet1": "Book maintenance, detailing, and roadside assistance in-app",
+    "bullet2": "Door-to-door pickup and delivery — track your car in real time",
+    "bullet3": "Transparent service estimates with photo approvals before any work begins"
+  },
+  "dealersComingSoon": {
+    "title": "Partner dealers",
+    "bullet1": "Browse Behbehani's network of certified Kuwait dealers",
+    "bullet2": "Compare showroom inventory, ratings, and service hours at a glance",
+    "bullet3": "Book a test drive or trade-in appraisal directly with any dealer"
   }
 }

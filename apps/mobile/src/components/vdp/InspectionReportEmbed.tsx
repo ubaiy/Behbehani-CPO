@@ -66,7 +66,7 @@ export function InspectionReportEmbed({
               <ShieldIcon size={20} color="#FFFFFF" />
             </View>
             <View>
-              <Text style={styles.inspTitle}>{t('vdp.alDamanInspectionTitle')}</Text>
+              <Text style={styles.inspTitle}>{t('vdp.behbehaniInspectionTitle')}</Text>
               <Text style={styles.inspDate}>
                 {inspectionDate ? t('vdp.completedDate', { date: inspectionDate }) : t('vdp.completed')}
               </Text>

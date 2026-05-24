@@ -41,11 +41,13 @@ export const palette = {
   gray900: '#111827',
   black: '#000000',
 
-  // Semantic
-  successGreen: '#16A34A',
-  warningAmber: '#D97706',
+  // Semantic — destructive only. Per CLAUDE.md brand-lock rule:
+  // white + Royal Blue + slate only; NO amber/yellow/gold/emerald/green;
+  // red ONLY for destructive. The legacy successGreen/warningAmber/infoBlue
+  // constants were removed by the brand-lock-mobile guard cleanup — they were
+  // never referenced by any component, but their presence would have invited
+  // off-brand drift. Use `red[*]` from theme/colors.ts for destructive states.
   errorRed: '#DC2626',
-  infoBlue: '#0284C7',
 } as const;
 
 export type PaletteKey = keyof typeof palette;
@@ -82,11 +84,11 @@ export const colors = {
   interactiveHover: palette.royalBlue700,
   interactiveDisabled: palette.gray300,
 
-  // Status
-  success: palette.successGreen,
-  warning: palette.warningAmber,
+  // Status — destructive only (brand-lock: no success/warning/info colors).
+  // Use `error` for destructive states. Use `brand[700]`/`slate[*]` for
+  // success/info-like cues (e.g. confirmation pill shading) — there is no
+  // separate "success green" or "info blue" per the brand palette rule.
   error: palette.errorRed,
-  info: palette.infoBlue,
 
   // Cards / shadows
   cardBackground: palette.white,
