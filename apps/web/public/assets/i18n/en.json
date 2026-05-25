@@ -2113,6 +2113,15 @@
       "automatic": "Automatic",
       "manual": "Manual",
       "cvt": "CVT"
+    },
+    "signInPrompt": {
+      "title": "Sign in to sell your car",
+      "body": "We use your account to keep all your bookings, offers, and inspection reports in one place.",
+      "cta": "Sign in to continue",
+      "signupHint": "New here? Sign-up takes 30 seconds."
+    },
+    "wizard": {
+      "usingAccount": "Using your account details — edit if different"
     }
   },
   "inspectionSign": {

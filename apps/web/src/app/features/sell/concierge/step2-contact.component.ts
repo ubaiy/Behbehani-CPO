@@ -26,6 +26,17 @@ interface ContactFields {
   imports: [CommonModule, FormsModule, TranslateModule],
   template: `
     <div class="rounded-3xl border border-line bg-white p-5 sm:p-7 shadow-brand-sm mb-5">
+      @if (prefilledFromAccount()) {
+        <!-- v1.5-D21: subtle hint shown when fields are pre-filled from the
+             signed-in user's profile. Inline, non-dismissible, neutral tone. -->
+        <div
+          class="mb-4 flex items-center gap-2 rounded-lg border border-brand-100 bg-brand-50/60 px-3 py-2 text-[12px] text-brand-800"
+          role="status"
+        >
+          <svg viewBox="0 0 20 20" width="14" height="14" fill="currentColor" class="text-brand-700 flex-shrink-0" aria-hidden="true"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/></svg>
+          <span>{{ 'sell.wizard.usingAccount' | translate }}</span>
+        </div>
+      }
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label class="flex flex-col gap-1.5 sm:col-span-2">
           <span class="text-[12px] font-semibold text-ink-3">{{ 'sell.concierge.contact.fullName' | translate }} *</span>
@@ -119,6 +130,8 @@ export class ConciergeStep2ContactComponent {
     email: false,
     consent: false,
   });
+  /** v1.5-D21: when true, show the "Using your account details" hint above the form. */
+  readonly prefilledFromAccount = input<boolean>(false);
 
   readonly patch = output<Partial<ContactFields>>();
 }

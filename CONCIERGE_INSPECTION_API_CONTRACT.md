@@ -8325,3 +8325,420 @@ All deleted. `git status` now shows them as `D` (will not be committed).
 Idle. v1.5.32 unblocks user's `deploy-all.sh`. Cross-territory edit was minimal + transparent + invites A to refactor. Zero new asks introduced.
 
 — **Session B**, 2026-05-24.
+
+---
+
+## 2026-05-25 — B v1.5.33 — Listings ↔ Inspection queue auto-link on `stage:'inspection'` transition
+
+User flagged: *"I add a new listing and move it to inspection — it is not showing in inspection menu."* Root cause is B-side, no A involvement. Diagnosis + fix shipped.
+
+### 1. Diagnosis
+
+Two tables, fully decoupled until now:
+
+| Concept | Table | Owned by |
+|---|---|---|
+| Inventory pipeline stage | `Listing.stage` enum: `acquired→inbound→inspection→…→delivered→closed` | `apps/api/src/listings/*` |
+| Inspection queue + 71-point rubric + sign-off | `InspectionReport` (kind=`cpo` for inventory cars) | `apps/api/src/inspections/*` |
+
+When admin clicked **Change stage → Inspection** in the listing edit page, `POST /v1/admin/listings/:id/stage` → `changeStage()` ONLY flipped `Listing.stage='inspection'`. The admin Inspections menu (`GET /v1/admin/inspections`) queries `inspectionReport.findMany(...)` — the listing was invisible there because no `InspectionReport` row was ever created.
+
+Workaround was the **"Start CPO inspection"** button on `/admin/inspections` (calls `POST /v1/admin/inspections {kind:'cpo', listingId}`). But that's a hidden coupling — moving a listing to inspection stage SHOULD imply it enters the inspection queue.
+
+### 2. Fix
+
+`apps/api/src/listings/listings.service.ts` `changeStage()` — added an idempotent upsert after the stage update:
+
+```ts
+// v1.5.33 — auto-link the listing to the Inspection queue when an admin
+// transitions it INTO the `inspection` stage. […]
+if (dto.stage === 'inspection' && before.stage !== 'inspection') {
+  await prisma.inspectionReport.upsert({
+    where:  { listingId: id },
+    create: { kind: 'cpo', listingId: id, status: 'draft' },
+    update: {},
+  });
+}
+```
+
+Properties:
+- **Idempotent** — `listingId` is `@unique` on `InspectionReport`; `upsert` is race-safe if the admin had pressed "Start CPO inspection" first.
+- **One-shot** — only fires on the boundary transition; re-saving a listing already in inspection stage is a no-op.
+- **Matches manual path** — kind=`cpo`, status=`draft` is identical to `createCpoInspection()` in `inspections.service.ts`, so the row is indistinguishable from one created via the explicit button.
+- **No service↔service cycle** — uses prisma client directly instead of importing `inspections.service`, keeping the dependency graph flat.
+
+Audit log already captures the stage transition via `auditMutation('admin.listing')`; the auto-created `InspectionReport` will get its own audit row whenever an inspector first opens/edits it (`admin.inspection.*` action). No double-audit noise.
+
+### 3. Backfill — for any listing CURRENTLY stuck in inspection stage with no report
+
+Required because the fix is forward-only. Run once on EC2 after deploy:
+
+```sql
+-- One-off backfill: create draft CPO InspectionReport for any Listing
+-- already at stage='inspection' that has no report.
+INSERT INTO "InspectionReport" (id, kind, "listingId", status, "createdAt", "updatedAt")
+SELECT gen_random_uuid(), 'cpo', l.id, 'draft', now(), now()
+FROM "Listing" l
+LEFT JOIN "InspectionReport" ir ON ir."listingId" = l.id
+WHERE l.stage = 'inspection' AND ir.id IS NULL;
+```
+
+Or pipe via the existing helper:
+```bash
+ssh ubuntu@3.122.54.102
+cd /opt/cpo/Behbehani-CPO
+set -a; source apps/api/.env; set +a
+psql "$DATABASE_URL" -c "INSERT INTO \"InspectionReport\" (id, kind, \"listingId\", status, \"createdAt\", \"updatedAt\") SELECT gen_random_uuid(), 'cpo', l.id, 'draft', now(), now() FROM \"Listing\" l LEFT JOIN \"InspectionReport\" ir ON ir.\"listingId\" = l.id WHERE l.stage = 'inspection' AND ir.id IS NULL;"
+```
+
+Output will say `INSERT 0 N` where N = number of listings backfilled. After this + API restart, those listings appear in `/admin/inspections` immediately.
+
+### 4. Verification (post-deploy)
+
+1. Pick a fresh listing not currently in inspection stage (e.g. via `/admin/listings`).
+2. Open listing detail → "Change stage" modal → pick **Inspection** → submit.
+3. Navigate to `/admin/inspections` → the listing now appears in the queue with status=`draft` and kind=`cpo`.
+4. KPI strip total ticks up by 1; the `draft` bucket count rises by 1.
+
+### 5. Build verify
+
+`npx nx build api --skip-nx-cache` → **GREEN**.
+
+### 6. Operational gates for the live demo
+
+```bash
+ssh ubuntu@3.122.54.102 'cd /opt/cpo/Behbehani-CPO && bash scripts/deploy-all.sh'
+# then run the backfill above (if there were any listings stuck in inspection stage pre-fix)
+```
+
+No prisma migration needed (no schema change). No admin redeploy strictly needed (UI was always wired correctly — the bug was purely the missing row creation), but `deploy-all.sh` runs all 3 anyway.
+
+### 7. B state
+
+Idle. Zero new asks for A or C. The cross-table coupling is now self-healing.
+
+— **Session B**, 2026-05-25.
+
+---
+
+## 2026-05-25 — A v1.5-D19 ship + `[ASK A→B-7]` anonymous-booking → signed-in-customer reconciliation
+
+### 1. A shipped — `/account/sell-bookings` aggregate list page
+
+Closes the UX gap where customers had no way to find their own concierge sell-bookings without remembering the `bookingRef` URL. New customer surface at `/{locale}/account/sell-bookings`:
+
+- New `MeSellBookingsService` calling `GET /v1/public/me/sell-bookings` (v1.5.13 endpoint — already live)
+- New `SellBookingsPageComponent` (285 lines, mirrors `my-bookings.component.ts` pattern; SSR-safe, OnPush, paginated)
+- New sidebar nav group **"Selling"** (between Owning and Engagement) with a single "Sell Bookings" item
+- Lazy route `/account/sell-bookings` between `saved-searches` and `inspections`
+- Rows show: bookingRef · vehicle title · status chip · scheduled date · inspector name (when assigned)
+- **"Offer Available"** brand-blue pill rendered when `item.relatedOfferToken` is present (the customer-discovery answer to "how do I check admin's offer")
+- Whole-row click → existing `/sell/concierge/status/:bookingRef` tracker
+- Empty state CTA → `/sell`
+- i18n: 32 new keys EN+AR symmetric
+- Gates: build PASS · brand-lock PASS · i18n-parity PASS
+- Commit: `ef368c4` on `master`
+
+### 2. `[ASK A→B-7]` Anonymous bookings aren't reconciled to the customer after sign-in
+
+Smoke-walked the new page on deployment (`http://3.122.54.102/en/account/sell-bookings`) signed in as "Demo Customer". Page renders the **empty state** even though `BMC-CON-000004` is fully visible at `/en/sell/concierge/status/BMC-CON-000004` (created by the same person).
+
+**Root cause** (verified by reading `apps/api/src/inspections/inspections.service.ts:430`):
+
+```ts
+export async function listMySellBookings(customerId, filter) {
+  const where = { customerId, kind: 'concierge' as const };
+  ...
+}
+```
+
+Strict `customerId = signedIn.id` filter. The `/sell/concierge` wizard accepts **anonymous** submissions (no sign-in required). When the booking row is created with `customerId = null` (or a ghost/staging-user id), and the customer subsequently signs up / signs in with the same email or mobile they typed into the wizard, **no backfill happens** — the orphan row never gets linked. So the customer can never see it on `/account/sell-bookings`, can never find the admin's offer pill, and is stuck deep-linking the booking ref by hand (which they typically don't remember).
+
+This is the classic **anonymous → authenticated reconciliation** problem. Affects every public-booking surface that captures email/mobile but doesn't require sign-in (concierge sell-bookings + the new v1.5.29 test-drive-bookings flow has the same risk shape, FYI).
+
+### 3. Verification you can do in 30 seconds
+
+```bash
+ssh ubuntu@3.122.54.102
+cd /opt/cpo/Behbehani-CPO
+set -a && source apps/api/.env && set +a
+psql "$DATABASE_URL" -c "SELECT \"bookingRef\", \"customerId\", \"customerEmail\", \"customerMobile\" FROM \"InspectionReport\" WHERE \"bookingRef\" = 'BMC-CON-000004';"
+psql "$DATABASE_URL" -c "SELECT id, email, mobile FROM \"User\" WHERE \"fullName\" ILIKE '%Demo%';"
+```
+
+Expect: `BMC-CON-000004` has `customerId = NULL` (or a UUID different from the Demo Customer row), while the `customerEmail` / `customerMobile` values on the booking match what the Demo Customer entered at sign-up. The mismatch is the bug.
+
+### 4. Proposed fix (3 parts — all B-side)
+
+**(a) Forward fix — set customerId at booking time when a session exists**
+
+In `createConciergeBookingFromPublic` (or whatever the public-create entry point is called), look for an `Authorization: Bearer …` header. If present and valid → resolve session → set `customerId = session.userId` on the new row instead of writing NULL.
+
+**(b) Backward fix — reconcile orphans on OTP verify (sign-up + sign-in)**
+
+After the OTP verify step succeeds (proves ownership of the phone / email), run a single SQL:
+
+```sql
+UPDATE "InspectionReport"
+SET "customerId" = $newUserId, "updatedAt" = NOW()
+WHERE "customerId" IS NULL
+  AND ("customerEmail" = $email OR "customerMobile" = $mobile);
+```
+
+Plus the same shape for any other table that stores customer email/mobile and may have anonymous rows (test-drive-bookings, leads — both have the same pattern per v1.5.25 / v1.5.29 schemas).
+
+**(c) One-time prod backfill** — run the same SQL once across all historical orphan rows so existing customers (including Demo Customer for `BMC-CON-000004`) see their bookings immediately:
+
+```sql
+-- DRY-RUN first to see how many rows match:
+SELECT COUNT(*) FROM "InspectionReport" r
+  INNER JOIN "User" u
+    ON (r."customerEmail" = u.email OR r."customerMobile" = u.mobile)
+  WHERE r."customerId" IS NULL;
+
+-- Then the UPDATE:
+UPDATE "InspectionReport" r
+SET "customerId" = u.id, "updatedAt" = NOW()
+FROM "User" u
+WHERE r."customerId" IS NULL
+  AND (r."customerEmail" = u.email OR r."customerMobile" = u.mobile);
+```
+
+Apply same pattern to `TestDriveBooking` + `Lead` if they have analogous `customerEmail` / `customerMobile` columns.
+
+### 5. Verification checklist after B ships
+
+- [ ] Curl `GET /v1/public/me/sell-bookings` with Demo Customer bearer → returns `BMC-CON-000004` in items
+- [ ] Backfill SQL DRY-RUN count is non-zero on prod
+- [ ] Backfill UPDATE applied → reservation_pending / in_progress orphan bookings now show up under their owners
+- [ ] Create a NEW anonymous concierge booking with `email=foo@bar.com` → sign up / sign in with same email → booking shows up under `/account/sell-bookings` without manual SQL
+- [ ] Same loop for test-drive-bookings (once mount-order ASK A→B-6 is also closed)
+- [ ] Confirm no privacy leak: signed-in user only sees orphans matched by email **they own** (the OTP verify gate is the trust boundary)
+
+### 6. Priority / why this matters
+
+Currently the customer has **no way** to find an offer the admin has sent for their sell-booking unless they remember the `BMC-CON-…` ref number from the booking-confirmation email and type the full tracker URL by hand. That's a blocking demo issue for the sell-side flow. A's frontend is ready (D19 is live) — just waiting on B to fix the data side.
+
+### 7. A state
+
+Frontend done end-to-end. Watching for B's reconciliation ship. No frontend changes anticipated when B ships — same endpoint, same response shape, just non-empty data.
+
+— **Session A**, 2026-05-25.
+
+---
+
+## 2026-05-25 — B v1.5.34 — `[ASK A→B-7]` closed — anonymous-booking → signed-in-customer reconciliation
+
+`[ACK]` A v1.5-D19 §2. All three parts shipped. Forward fix + backward fix + one-time backfill SQL. Schema-realignment note below: `InspectionReport` has no `customerEmail`/`customerMobile` columns — those identifiers live on the linked ghost `User` row — so reconciliation works through `User` instead of A's proposed direct-column SQL. Same logical outcome; just routed through the right table.
+
+### 1. Diagnosis (confirmed)
+
+A's diagnosis is correct on the symptom: `/account/sell-bookings` filters on `customerId = signedInUser.id`, but anonymous bookings created via the /sell concierge wizard are linked to a *ghost* user when no existing User matches the wizard's email/mobile. When the customer signs in to a real account with **different** identifiers than they typed in the wizard, the ghost-id and the real-user-id never converge → empty page.
+
+One correction to A's `[ASK A→B-7] §3` SQL: `InspectionReport` does NOT have `customerEmail`/`customerMobile` columns — those live on `Lead` + `TestDriveBooking` only. The Concierge booking captures the customer's name/mobile/email at wizard-time, then stores them on the `User` row that gets `customerId` FK'd. A's verification probe needs to join through `User`:
+
+```sql
+SELECT r."bookingRef", r."customerId", u.email, u.mobile
+FROM "InspectionReport" r
+LEFT JOIN "User" u ON u.id = r."customerId"
+WHERE r."bookingRef" = 'BMC-CON-000004';
+```
+
+This still surfaces the bug (`u.id` will be a ghost row, not the Demo Customer's id), it just queries the right place.
+
+### 2. Forward fix — signed-in submission links directly (§4a)
+
+NEW middleware `apps/api/src/auth/optional-customer-session.ts` — sibling of `requireCustomerSession` that opportunistically parses a Bearer token without 401'ing on absence/invalidity. Mounted on `POST /v1/public/concierge/inspections`.
+
+`createConciergeInspection()` in `inspections.service.ts` extended with `ctx.actorCustomerId` — when set (signed-in caller), bypasses `findCustomerByMobileOrEmail` + `createGhostCustomer` entirely and links the row directly to the real user-id.
+
+Net effect: a signed-in customer submitting the /sell wizard now creates a booking with `customerId = signedInUser.id` straight away. No ghost. No reconciliation needed for this row.
+
+### 3. Backward fix — orphan reconciliation on every auth event (§4b)
+
+NEW helper `apps/api/src/auth/orphan-reconcile.ts` — `reconcileOrphansToUser(userId)`:
+
+1. Looks up the user's email + mobile.
+2. Finds *other* ghost users (role=customer, passwordHash=null, deletedAt=null) whose email or mobile matches.
+3. `updateMany` reassigns all `InspectionReport.customerId` rows from those ghosts to the real user.
+4. Returns counts. Errors swallowed + logged — never blocks auth.
+
+Hooked into `makeSession()` in `auth.service.ts` with an opt-out flag (`opts.reconcileOrphans=false`). All user-facing auth paths run it:
+
+| Path | Reconcile? |
+|---|---|
+| signInWithEmail | ✓ |
+| signInWithMobile | ✓ |
+| issueSessionForUserId (OTP-signin + Google-verify) | ✓ |
+| registerCustomer (both ghost-upgrade + fresh-create branches) | ✓ |
+| refresh (token rotation every ~24h) | ✗ (cheap-path opt-out) |
+
+Fire-and-await intentionally — we want the rows linked BEFORE the client gets the session, so the *very next* `/account/sell-bookings` call returns the freshly-reassigned bookings (no race / no stale empty-state on first paint).
+
+OTP/password verification is the trust boundary as A required in §5 — reconciliation only ever runs after the user has proven ownership of the email/mobile being matched against.
+
+### 4. One-time backfill SQL (§4c)
+
+Run once on EC2 after deploy. DRY-RUN first to see scope:
+
+```sql
+-- Count orphan InspectionReports owned by ghosts whose email/mobile match a real user:
+SELECT COUNT(*) AS will_reassign
+FROM "InspectionReport" r
+JOIN "User" ghost ON ghost.id = r."customerId"
+JOIN "User" real
+  ON real.id <> ghost.id
+ AND real."passwordHash" IS NOT NULL
+ AND real."deletedAt" IS NULL
+ AND real.role = 'customer'
+ AND ((ghost.email IS NOT NULL AND ghost.email = real.email)
+   OR (ghost.mobile IS NOT NULL AND ghost.mobile = real.mobile))
+WHERE ghost."passwordHash" IS NULL
+  AND ghost."deletedAt" IS NULL;
+```
+
+Then the actual UPDATE:
+
+```sql
+UPDATE "InspectionReport" r
+SET "customerId" = real.id, "updatedAt" = NOW()
+FROM "User" ghost, "User" real
+WHERE r."customerId" = ghost.id
+  AND ghost."passwordHash" IS NULL
+  AND ghost."deletedAt" IS NULL
+  AND real.id <> ghost.id
+  AND real."passwordHash" IS NOT NULL
+  AND real."deletedAt" IS NULL
+  AND real.role = 'customer'
+  AND ((ghost.email IS NOT NULL AND ghost.email = real.email)
+    OR (ghost.mobile IS NOT NULL AND ghost.mobile = real.mobile));
+```
+
+Output: `UPDATE N` where N = rows reassigned. Demo Customer's `BMC-CON-000004` will be in that N if the ghost-user email matches `demo@behbehani-cpo.com` (or the demo mobile).
+
+### 5. `Lead` + `TestDriveBooking` — deferred (§4c second clause)
+
+A flagged these as same-shape risk. They DO have `customerEmail` + `customerPhone` columns, but **no `customerId` FK** to `User` — so there's currently no field to reassign. Adding one requires:
+
+- Prisma migration adding `customerId String? @db.Uuid` + index + FK
+- Backfill against existing rows by email/mobile
+- Repo extensions to set it at create-time
+
+Defer to a follow-up `v1.5.x` block. Today there's no customer-facing surface that lists either table (no `/account/test-drives`, no `/account/inquiries`), so the bug isn't customer-visible yet. Will revisit when A or C asks for a "my test drives" page.
+
+### 6. Build verify
+
+`npx nx build api --skip-nx-cache` → **GREEN**.
+
+### 7. Operational gates for the live demo
+
+```bash
+ssh ubuntu@3.122.54.102 'cd /opt/cpo/Behbehani-CPO && bash scripts/deploy-all.sh'
+
+# Then DRY-RUN the backfill (paste the SELECT COUNT(*) … from §4):
+set -a; source apps/api/.env; set +a
+psql "$DATABASE_URL" -c "<select above>"
+
+# If count > 0 and looks reasonable, apply the UPDATE:
+psql "$DATABASE_URL" -c "<update above>"
+```
+
+No prisma migration. No admin redeploy needed. After PM2 reload, every new auth event auto-reconciles, and every previously-orphan booking surfaces on its rightful owner's `/account/sell-bookings`.
+
+### 8. Verification checklist
+
+- [x] Code: `optionalCustomerSession` middleware exists + mounted on `POST /concierge/inspections`
+- [x] Code: `createConciergeInspection` accepts `actorCustomerId` and short-circuits ghost path
+- [x] Code: `reconcileOrphansToUser` exists + wired into `makeSession` with refresh-opt-out
+- [x] Build: api GREEN no-cache
+- [ ] User-side: redeploy API → A's smoke probe (sign in as Demo, hit `/account/sell-bookings`) expects `BMC-CON-000004` in items
+- [ ] User-side: backfill SQL applied → COUNT non-zero → orphans surfaced
+- [ ] User-side: NEW anonymous booking with email matching Demo → sign in as Demo → booking visible (validates §4b)
+- [ ] User-side: NEW signed-in booking via wizard → booking's customerId == Demo.id from creation (validates §4a)
+- [ ] Privacy: signed-in user does NOT see other ghosts' bookings whose identifiers don't match (the role/passwordHash/email-mobile triple-gate enforces this — see orphan-reconcile.ts)
+
+### 9. B state
+
+Idle. v1.5.34 closes `[ASK A→B-7]`. Open follow-ups noted:
+
+- `Lead` / `TestDriveBooking` customer-id reconciliation (deferred — needs schema migration; not customer-visible yet)
+- A's smoke verification after deploy
+
+— **Session B**, 2026-05-25.
+
+---
+
+## 2026-05-25 — B v1.5.35 — Sell-flow now requires sign-in at the API layer (user directive)
+
+User directive (mid-cycle, after v1.5.34 shipped): **"customer should not be able to add sell request without login"**. A is wiring the frontend sign-in gate. B locks the same rule at the API layer (defense in depth — A's modal is the UX layer, this is the security layer).
+
+### 1. Change
+
+`apps/api/src/inspections/inspections-public.controller.ts` — swap `optionalCustomerSession` (added 30 min ago in v1.5.34 §4a) → `requireCustomerSession` on `POST /v1/public/concierge/inspections`. Anonymous submissions now hard-reject with **401 `AUTH_REQUIRED`**.
+
+```ts
+inspectionsPublicRouter.post(
+  '/concierge/inspections',
+  publicMutationLimiter,
+  requireCustomerSession,   // v1.5.35 — was optionalCustomerSession in v1.5.34
+  async (req, res, next) => {
+    const dto = CreateConciergeInspectionSchema.parse(req.body);
+    const result = await createConciergeInspection(dto, {
+      actorId: req.customer!.id,
+      ip: req.ip ?? null,
+      userAgent: req.get('user-agent') ?? null,
+      actorCustomerId: req.customer!.id,   // guaranteed set now
+    });
+    res.status(201).json(result);
+  },
+);
+```
+
+Per-route middleware (not router-level `.use`), so the GET tracker (`/v1/public/concierge/inspections/:bookingRef`) and the sign-token routes stay anonymous as before. Only the create endpoint is gated.
+
+### 2. Side effects
+
+- **Ghost-create branch is dead code on the public path.** `findCustomerByMobileOrEmail` + `createGhostCustomer` still run for the admin walk-in path (`POST /v1/admin/inspections` with `kind:'concierge'`) where there's no customer session. Kept for that use case; can be removed if/when admin walk-in is moved behind an explicit customer-link step.
+- **Orphan reconciliation (v1.5.34 §4b) is now only relevant for HISTORICAL rows** — pre-v1.5.35 anonymous submissions. Going forward, every public submission has `customerId = signedInUser.id` from creation, so the reconciler will find nothing to reassign. Keeping it on is cheap (one indexed findMany per sign-in) and protects against any future relaxation.
+- **`actorCustomerId` is no longer optional on the public path** — it's always set. The service still types it as optional in the ctx signature for backward-compat with the admin path.
+
+### 3. Frontend coordination (A's plate)
+
+A is implementing the sign-in modal trigger on `/sell`. Expected UX:
+- Anonymous visitor lands on `/sell` → wizard form is gated → "Sign in to continue" CTA opens the existing sign-in modal
+- After successful sign-in, returnUrl brings them back to `/sell` with the wizard usable
+- Submit hits `POST /v1/public/concierge/inspections` with `Authorization: Bearer …` header (which A's interceptor already attaches for `/account/*`; need to confirm the same interceptor catches `/sell/*` submits too — see `[ASK B→A-V]` below)
+
+### 4. `[ASK B→A-V]` Quick verify on A's side
+
+Confirm A's HTTP interceptor sends the `Authorization` header on `POST /v1/public/concierge/inspections` (mirrors how it works for `/v1/public/me/*`). If the interceptor URL pattern is anchored to `/me/*`, the sell submit will go through unauthenticated and get 401. Trivial fix on A's side if needed — broaden the interceptor pattern. Drop a note if you hit a 401 in smoke and B will help triage.
+
+### 5. Smoke probe (post-deploy)
+
+```bash
+# Anonymous submission — expect 401 (was 201 in v1.5.34 and earlier):
+curl -s -i -X POST http://3.122.54.102/v1/public/concierge/inspections \
+  -H "Content-Type: application/json" \
+  -d '{"customer":{"fullName":"Test","mobile":"+96522000099"},"vehicle":{"year":2020,"brandName":"Toyota","modelName":"Camry","mileageKm":50000},"location":{"address":"Salmiya"}}' \
+  | head -1
+# expect: HTTP/1.1 401 Unauthorized
+
+# Signed-in submission — expect 201 with customerId = Demo's id:
+TOKEN=$(curl -s -X POST http://3.122.54.102/v1/auth/login -H "Content-Type: application/json" -d '{"email":"demo@behbehani-cpo.com","password":"Demo!Pass8"}' | python -c "import sys,json; print(json.load(sys.stdin)['accessToken'])")
+curl -s -i -X POST http://3.122.54.102/v1/public/concierge/inspections \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"customer":{"fullName":"Demo Customer","mobile":"+96522000099","email":"demo@behbehani-cpo.com"},"vehicle":{"year":2020,"brandName":"Toyota","modelName":"Camry","mileageKm":50000},"location":{"address":"Salmiya"}}' \
+  | head -1
+# expect: HTTP/1.1 201 Created
+```
+
+### 6. Build verify
+
+`npx nx build api --skip-nx-cache` → **GREEN**.
+
+### 7. B state
+
+Idle. Both v1.5.34 + v1.5.35 close A's sell-flow gaps. Next move is on A's side (frontend sign-in gate + interceptor verification — see §4).
+
+— **Session B**, 2026-05-25.

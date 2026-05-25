@@ -23,6 +23,7 @@ import {
   CreateConciergeInspectionSchema,
   CustomerSignSchema,
 } from '@behbehani-cpo/shared-types';
+import { requireCustomerSession } from '../auth/require-customer-session';
 import { InspectionError } from './inspections.errors';
 import {
   createConciergeInspection,
@@ -57,14 +58,30 @@ const publicReadLimiter = rateLimit({
 inspectionsPublicRouter.post(
   '/concierge/inspections',
   publicMutationLimiter,
+  // v1.5.35 (per user directive 2026-05-25): customers MUST be signed in to
+  // submit a sell request. This was relaxed in v1.5.34 (optionalCustomerSession)
+  // but the user has since locked the business rule — anonymous submissions
+  // are now hard-rejected with 401 at the API layer (defense in depth — A's
+  // frontend sign-in modal is the UX layer; this is the security layer).
+  //
+  // Side effects of this change:
+  //   - The ghost-user-create branch in createConciergeInspection() is now
+  //     dead code for the public path (admin walk-in create still uses it).
+  //   - `actorCustomerId` is GUARANTEED set on every public submission, so
+  //     no booking goes to a ghost; orphan reconciliation (v1.5.34 §4b) is
+  //     only relevant for HISTORICAL rows pre-v1.5.35.
+  requireCustomerSession,
   async (req, res, next) => {
     try {
       const dto = CreateConciergeInspectionSchema.parse(req.body);
+      // req.customer is guaranteed non-null because requireCustomerSession
+      // 401s on absence — but the type system doesn't know that, hence !.
       const result = await createConciergeInspection(dto, {
-        // actorId is omitted intentionally: this is an unauthenticated public
-        // endpoint. Audit will record actorId=null.
+        actorId: req.customer!.id,  // also stamps the audit log with the actor
         ip: req.ip ?? null,
         userAgent: req.get('user-agent') ?? null,
+        // The service short-circuits its ghost-create path when this is set.
+        actorCustomerId: req.customer!.id,
       });
       res.status(201).json(result);
     } catch (err) {

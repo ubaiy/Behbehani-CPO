@@ -266,7 +266,7 @@ export class SignInModalComponent {
       ? this.auth.signInWithMobile({ mobile: `+965${this.mobile().replace(/\s+/g, '')}`, password: this.password() })
       : this.auth.signInWithEmail({ email: this.email().trim(), password: this.password() });
     obs.subscribe({
-      next: () => { this.submitting.set(false); this.modal.close(); void this.router.navigate(['/', this.language.current(), 'account']); },
+      next: () => { this.submitting.set(false); this.navigateAfterSignIn(); this.modal.close(); },
       error: (err: { message?: string }) => { this.submitting.set(false); this.error.set(err.message ?? 'Sign-in failed.'); },
     });
   }
@@ -286,7 +286,23 @@ export class SignInModalComponent {
   cancelOtpStep(): void { this.showOtpStep.set(false); this.error.set(null); }
 
   onOtpSuccess(_result: { session: AuthSession; user: PublicUser }): void {
+    this.navigateAfterSignIn();
     this.modal.close();
+  }
+
+  /**
+   * v1.5-D21: honour the returnUrl captured by `SignInModalService.open(returnUrl)`
+   * — populated by shell from `?returnUrl=...` (which `authGuard` sets on
+   * protected routes like `/sell/concierge`). Falls back to `/{locale}/account`
+   * if no/invalid returnUrl is present. The returnUrl must be a same-origin
+   * path starting with `/` (but not `//`) to prevent open-redirect.
+   */
+  private navigateAfterSignIn(): void {
+    const ret = this.modal.returnUrl();
+    if (ret && ret.startsWith('/') && !ret.startsWith('//')) {
+      void this.router.navigateByUrl(ret);
+      return;
+    }
     void this.router.navigate(['/', this.language.current(), 'account']);
   }
 

@@ -336,7 +336,12 @@ export class ShellComponent implements OnInit {
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const wantsSignIn = params.get('signin') === '1' || params.has('returnUrl');
       if (wantsSignIn) {
-        this.signInModal.open();
+        /* v1.5-D21: carry returnUrl through to the modal so it can navigate
+           back to the gated page (e.g. /sell/concierge) after sign-in. We
+           strip it from the URL below to avoid re-triggering the modal on
+           back/forward. */
+        const returnUrl = params.get('returnUrl');
+        this.signInModal.open(returnUrl);
         /* Clean the URL so back/forward doesn't re-trigger the modal. */
         void this.router.navigate([], {
           queryParams: { signin: null, returnUrl: null },

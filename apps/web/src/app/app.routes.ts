@@ -73,7 +73,11 @@ export const appRoutes: Route[] = [
           import('./features/sell/sell-landing.component').then((m) => m.SellLandingComponent),
       },
       {
+        /* v1.5-D21: sell submit endpoints are auth-gated server-side
+           (B v1.5.35). Guard the wizard entry too so users sign in BEFORE
+           filling the form — otherwise their POST 401s after the last step. */
         path: 'sell/details',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/sell/details-wizard.component').then(
             (m) => m.SellDetailsWizardComponent,
@@ -87,7 +91,9 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        /* v1.5-D21: see sell/details note above. */
         path: 'sell/concierge',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/sell/concierge-page.component').then(
             (m) => m.SellConciergePageComponent,
@@ -129,7 +135,9 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        /* v1.5-D21: see sell/details note above. */
         path: 'sell/self-service',
+        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/sell/self-service-page.component').then(
             (m) => m.SellSelfServicePageComponent,

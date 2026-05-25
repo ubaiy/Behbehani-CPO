@@ -12,6 +12,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
+import { AuthService } from '@behbehani-cpo/data-access';
 import {
   CreateConciergeInspectionSchema,
   type CreateConciergeInspectionDto,
@@ -179,6 +180,7 @@ const EMPTY: FormState = {
               <app-concierge-step2-contact
                 [fields]="contactFields()"
                 [errors]="contactErrors()"
+                [prefilledFromAccount]="prefilledFromAccount()"
                 (patch)="patch($event)"
               />
             }
@@ -241,6 +243,10 @@ export class SellConciergePageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly bookings = inject(SellBookingsService);
   private readonly state = inject(SellWizardStateService);
+  private readonly auth = inject(AuthService);
+
+  /** v1.5-D21: true when account details pre-filled step 2 → show hint copy. */
+  readonly prefilledFromAccount = signal(false);
 
   readonly currentLocale = computed(() => this.language.current() as 'en' | 'ar');
   readonly arrowPath = computed(() => (this.currentLocale() === 'ar' ? 'M14 6l-6 6 6 6' : 'M10 6l6 6-6 6'));
@@ -292,6 +298,26 @@ export class SellConciergePageComponent implements OnInit {
     if (!this.state.hasVehicle()) {
       this.router.navigate(['/', this.currentLocale(), 'sell', 'details']);
       return;
+    }
+    /* v1.5-D21: route is auth-gated, so any user reaching this page is signed
+       in. Pre-fill the contact step from their account profile — fields stay
+       editable so they can override for THIS booking (e.g. spouse picking up
+       the car). `mobile` is stored as `+96522XXXXXX`; strip the country code
+       since the form has a separate +965 prefix span. SSR-safe via the auth
+       service's user signal (null on server before hydration). */
+    const user = this.auth.user();
+    if (user) {
+      const localMobile = user.mobile ? user.mobile.replace(/^\+965/, '').trim() : '';
+      const anyPrefilled = !!(user.fullName || localMobile || user.email);
+      if (anyPrefilled) {
+        this.form.update((f) => ({
+          ...f,
+          fullName: f.fullName || user.fullName || '',
+          mobile: f.mobile || localMobile,
+          email: f.email || user.email || '',
+        }));
+        this.prefilledFromAccount.set(true);
+      }
     }
     const set = () => {
       const t = this.translate.instant('sell.concierge.metaTitle');

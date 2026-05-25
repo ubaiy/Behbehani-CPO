@@ -1,7 +1,9 @@
 import { ChangeDetectionStrategy, Component, Input, computed, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { LanguageService } from '@behbehani-cpo/shared-i18n';
+import { AuthService } from '@behbehani-cpo/data-access';
 import { CheckoutModalService } from '../checkout/checkout-modal.service';
+import { SignInModalService } from '../auth/sign-in-modal.service';
 import { VdpLeadActionsComponent } from './vdp-lead-actions.component';
 import { VdpTestDriveModalService } from './vdp-test-drive-modal.service';
 
@@ -98,6 +100,8 @@ export class VdpPricingCardComponent {
   private readonly language = inject(LanguageService);
   private readonly checkoutModal = inject(CheckoutModalService);
   private readonly testDriveModal = inject(VdpTestDriveModalService);
+  private readonly signInModal = inject(SignInModalService);
+  private readonly auth = inject(AuthService);
 
   readonly locale = computed(() => this.language.current());
   readonly avatarChar = computed(() => (this.brandName() || '·').charAt(0));
@@ -108,7 +112,19 @@ export class VdpPricingCardComponent {
     }
   }
 
+  /**
+   * v1.5-D21: test-drive submission is auth-gated (POST returns 401 for anon).
+   * Gate the modal open behind sign-in so anonymous users see the sign-in
+   * sheet instead of filling out the form and getting a 401 at submit.
+   * For v1.5-D21 the user re-clicks the button after signing in — acceptable
+   * one-extra-click friction. A future iteration can pass a returnUrl and
+   * auto-reopen the test-drive modal post-auth.
+   */
   onTestDrive(): void {
-    this.testDriveModal.open(this.listingId || undefined);
+    if (this.auth.isSignedIn()) {
+      this.testDriveModal.open(this.listingId || undefined);
+    } else {
+      this.signInModal.open();
+    }
   }
 }

@@ -321,15 +321,40 @@ async function toBookingStatus(row: repo.InspectionDetailRow): Promise<Concierge
  */
 export async function createConciergeInspection(
   input: CreateConciergeInspectionDto,
-  ctx: { actorId?: string; ip?: string | null; userAgent?: string | null },
+  ctx: {
+    actorId?: string;
+    ip?: string | null;
+    userAgent?: string | null;
+    /**
+     * v1.5.34 (closes A v1.5-D19 [ASK A→B-7] §4a forward fix): when set, the
+     * caller has already proven their customer identity via a Bearer token
+     * (see `optionalCustomerSession` middleware in inspections-public.controller).
+     * In that case we link the booking directly to this userId and skip the
+     * mobile/email reconciliation + ghost-create dance — eliminating the
+     * orphan-row class entirely for signed-in submissions.
+     */
+    actorCustomerId?: string;
+  },
 ): Promise<CreateConciergeInspectionResponse> {
   // 1. Reconcile customer by mobile-or-email (Q4 in contract).
   const mobile = normalizeKwMobile(input.customer.mobile);
   const email = input.customer.email ?? null;
-  const existingCustomer = await repo.findCustomerByMobileOrEmail(mobile, email);
-  const customer = existingCustomer
-    ? { id: existingCustomer.id }
-    : await repo.createGhostCustomer({ fullName: input.customer.fullName, mobile, email });
+
+  // v1.5.34 forward-fix branch: a signed-in caller short-circuits the
+  // ghost/lookup path. We still record the wizard-entered name/mobile/email
+  // on the booking via the audit + return payload, but the row's customerId
+  // points to the real authenticated user — so the customer's
+  // /account/sell-bookings page (which filters on customerId) sees it
+  // immediately, with no follow-up reconciliation needed.
+  let customer: { id: string };
+  if (ctx.actorCustomerId) {
+    customer = { id: ctx.actorCustomerId };
+  } else {
+    const existingCustomer = await repo.findCustomerByMobileOrEmail(mobile, email);
+    customer = existingCustomer
+      ? { id: existingCustomer.id }
+      : await repo.createGhostCustomer({ fullName: input.customer.fullName, mobile, email });
+  }
 
   // 2. Generate booking ref (Postgres sequence — concurrency-safe).
   const bookingRef = await repo.nextBookingRef();

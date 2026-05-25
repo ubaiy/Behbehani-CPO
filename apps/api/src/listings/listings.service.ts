@@ -263,6 +263,30 @@ export async function changeStage(id: string, dto: ChangeStageDto, actorId: stri
   if (dto.stage === 'sold' && !before.soldAt) patch.soldAt = new Date();
 
   const next = await repoUpdate(id, { stage: dto.stage, ...patch });
+
+  // v1.5.33 — auto-link the listing to the Inspection queue when an admin
+  // transitions it INTO the `inspection` stage. Before this hook the two
+  // tables were fully decoupled: the listings pipeline only flipped
+  // `Listing.stage`, while the /admin/inspections menu reads `InspectionReport`
+  // rows. So a listing moved to `stage='inspection'` was invisible until the
+  // admin separately pressed "Start CPO inspection" on the inspections page.
+  //
+  // Behaviour:
+  //   - Only fires on the boundary transition (skip no-op `inspection→inspection`).
+  //   - Race-safe via `upsert` on the `listingId` @unique column — if the admin
+  //     already created the report manually we just touch it (no-op update).
+  //   - kind='cpo', status='draft' matches `createCpoInspection()` in
+  //     inspections.service.ts so the row is identical to the manual path.
+  //   - Cross-module via the prisma client (we deliberately don't import from
+  //     inspections.service.ts to avoid a service↔service cycle).
+  if (dto.stage === 'inspection' && before.stage !== 'inspection') {
+    await prisma.inspectionReport.upsert({
+      where:  { listingId: id },
+      create: { kind: 'cpo', listingId: id, status: 'draft' },
+      update: {},
+    });
+  }
+
   await recordPriceHistory({
     listingId: id,
     fromFils: before.priceFils,

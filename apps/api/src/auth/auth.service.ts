@@ -3,6 +3,7 @@ import type { AdminRole, PublicUser, RegisterWithEmailDto, UserRole } from '@beh
 import { prisma } from '../db/prisma';
 import { env } from '../config/env';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from './jwt';
+import { reconcileOrphansToUser } from './orphan-reconcile';
 import {
   createUser,
   findById,
@@ -48,7 +49,11 @@ export interface SessionCtx {
  * `ctx` is optional for backward compat — callers that have not yet been
  * updated to pass ctx will get a session row with NULL device fields.
  */
-async function makeSession(user: UserRecord, ctx: SessionCtx = {}): Promise<AuthSession> {
+async function makeSession(
+  user: UserRecord,
+  ctx: SessionCtx = {},
+  opts: { reconcileOrphans?: boolean } = {},
+): Promise<AuthSession> {
   const jti = randomUUID();
   const accessToken = signAccessToken({
     sub: user.id,
@@ -69,6 +74,21 @@ async function makeSession(user: UserRecord, ctx: SessionCtx = {}): Promise<Auth
       ipLastSeen: ctx.ip ?? null,
     },
   });
+
+  // v1.5.34 (closes A v1.5-D19 [ASK A→B-7] §4b): reconcile orphan
+  // InspectionReport rows whose ghost-user customerId matches this real
+  // user's email/mobile. Runs only on user-facing auth events
+  // (sign-in/sign-up/OTP-signin/Google-verify) — refresh() opts out via
+  // opts.reconcileOrphans=false to keep token-rotation cheap.
+  //
+  // Fire-and-await intentionally: we want the data linked BEFORE the
+  // client gets the session back, so the very next /account/sell-bookings
+  // call returns the freshly reassigned rows (no race / stale empty
+  // state). The reconcile is bounded to one indexed findMany + one
+  // updateMany so it adds <50ms in the typical case.
+  if (opts.reconcileOrphans !== false) {
+    await reconcileOrphansToUser(user.id);
+  }
 
   return {
     accessToken,
@@ -200,7 +220,10 @@ export async function refresh(
     ip: ctx.ip ?? session.ipLastSeen ?? null,
   };
 
-  return makeSession(user, rotationCtx);
+  // v1.5.34: skip orphan-reconcile on the refresh path. The user's first
+  // sign-in already ran it; rotating a refresh token every ~24h doesn't
+  // need to re-scan for ghost matches.
+  return makeSession(user, rotationCtx, { reconcileOrphans: false });
 }
 
 /**
