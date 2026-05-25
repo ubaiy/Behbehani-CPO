@@ -32,6 +32,7 @@ export interface AccountNavGroup {
  */
 const ICON = {
   userCircle: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+  car: 'M5 16l1.5-4h11L19 16M5 16h14v3H5zM7 19v2M17 19v2',
   mapPin:
     'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z',
   bell:
@@ -91,6 +92,12 @@ export const ACCOUNT_NAV_GROUPS: readonly AccountNavGroup[] = [
       { path: 'inspections', labelKey: 'account.shell.nav.inspections', iconPath: ICON.calendar },
       { path: 'maintenance', labelKey: 'account.shell.nav.maintenance', iconPath: ICON.wrench, comingSoon: true },
       { path: 'financing',   labelKey: 'account.shell.nav.financing',   iconPath: ICON.bank,   comingSoon: true },
+    ],
+  },
+  {
+    labelKey: 'account.hub.groups.selling',
+    items: [
+      { path: 'sell-bookings', labelKey: 'account.shell.nav.sellBookings', iconPath: ICON.car },
     ],
   },
   {

@@ -819,6 +819,7 @@
         "profileSettings": "الملف الشخصي والإعدادات",
         "buying": "الشراء",
         "owning": "التملك",
+        "selling": "البيع",
         "engagement": "التفاعل"
       },
       "tiles": {
@@ -851,6 +852,7 @@
         "savedCars": "السيارات المحفوظة",
         "savedSearches": "عمليات البحث المحفوظة",
         "inspections": "حجوزاتي",
+        "sellBookings": "حجوزات البيع",
         "maintenance": "الصيانة",
         "financing": "التمويل",
         "returns": "الإرجاع",
@@ -869,6 +871,32 @@
         "savedCars": { "title": "السيارات المحفوظة", "sub": "السيارات التي حفظتها من الإعلانات" },
         "savedSearches": { "title": "عمليات البحث المحفوظة", "sub": "تنبيهات عند وصول تطابقات جديدة" },
         "inspections": { "title": "حجوزاتي", "sub": "طلبات الفحص والتقارير" }
+      }
+    },
+    "sellBookings": {
+      "title": "حجوزات البيع",
+      "sub": "تتبع فحوصات الكونسيرج والعروض",
+      "empty": {
+        "title": "لا توجد حجوزات بعد",
+        "body": "احجز فحصاً بالكونسيرج للحصول على عرض عادل لسيارتك خلال 24 ساعة.",
+        "cta": "بِع سيارتك"
+      },
+      "error": {
+        "network": "تعذّر تحميل حجوزاتك. يرجى المحاولة مجدداً.",
+        "unauthenticated": "يرجى تسجيل الدخول لعرض حجوزات البيع."
+      },
+      "row": {
+        "viewTracker": "عرض التقدم",
+        "offerAvailable": "عرض متاح",
+        "bookedOn": "محجوز {{date}}",
+        "scheduled": "مجدول {{date}}"
+      },
+      "status": {
+        "draft": "مسودة",
+        "in_progress": "جارٍ",
+        "awaiting_inspector_signoff": "بانتظار توقيع المفتش",
+        "awaiting_customer_signature": "بانتظار توقيع العميل",
+        "signed_off": "موقّع"
       }
     }
   },

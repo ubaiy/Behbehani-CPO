@@ -819,6 +819,7 @@
         "profileSettings": "Profile & Settings",
         "buying": "Buying",
         "owning": "Owning",
+        "selling": "Selling",
         "engagement": "Engagement"
       },
       "tiles": {
@@ -851,6 +852,7 @@
         "savedCars": "Saved cars",
         "savedSearches": "Saved searches",
         "inspections": "My bookings",
+        "sellBookings": "Sell Bookings",
         "maintenance": "Maintenance",
         "financing": "Financing",
         "returns": "Returns",
@@ -869,6 +871,32 @@
         "savedCars": { "title": "Saved cars", "sub": "Cars you've hearted from listings" },
         "savedSearches": { "title": "Saved searches", "sub": "Get alerts when new matches arrive" },
         "inspections": { "title": "My bookings", "sub": "Inspection requests and reports" }
+      }
+    },
+    "sellBookings": {
+      "title": "Sell Bookings",
+      "sub": "Track concierge inspections and offers",
+      "empty": {
+        "title": "No bookings yet",
+        "body": "Book a concierge inspection to get a fair offer for your car within 24 hours.",
+        "cta": "Sell your car"
+      },
+      "error": {
+        "network": "Couldn't load your bookings. Please try again.",
+        "unauthenticated": "Please sign in to view your sell bookings."
+      },
+      "row": {
+        "viewTracker": "View progress",
+        "offerAvailable": "Offer Available",
+        "bookedOn": "Booked {{date}}",
+        "scheduled": "Scheduled {{date}}"
+      },
+      "status": {
+        "draft": "Draft",
+        "in_progress": "In Progress",
+        "awaiting_inspector_signoff": "Awaiting Signoff",
+        "awaiting_customer_signature": "Awaiting Signature",
+        "signed_off": "Signed Off"
       }
     }
   },

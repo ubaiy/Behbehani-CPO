@@ -226,6 +226,13 @@ export const appRoutes: Route[] = [
                 (m) => m.SavedSearchesPageComponent,
               ),
           },
+          {
+            path: 'sell-bookings',
+            loadComponent: () =>
+              import('./features/account/sell-bookings-page.component').then(
+                (m) => m.SellBookingsPageComponent,
+              ),
+          },
           /* Previously /my-bookings — now nested as /account/inspections */
           {
             path: 'inspections',
