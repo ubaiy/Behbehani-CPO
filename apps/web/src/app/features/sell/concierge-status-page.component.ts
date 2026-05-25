@@ -383,19 +383,21 @@ export class SellConciergeStatusPageComponent implements OnInit {
   }
 
   /**
-   * Returns the routerLink array for the inspection report, OR null when no
-   * accessible report URL is known. Currently always null because:
-   * - The slim public ConciergeBookingStatusSchema does NOT include a PDF URL
-   *   or the related offer token.
-   * - The shipped report page lives at `/offer/:token/inspection-report` (v1.5-D3)
-   *   and needs the offer token — not available at signed_off until BMC creates
-   *   the offer.
-   * When B extends the DTO with `inspectionReportPdfUrl` or `relatedOfferToken`,
-   * return the corresponding route array here and the live "View report" button
-   * lights up automatically (see template @if branch). See v1.5-D5 ASK A→B.
+   * Returns the routerLink array for the customer-facing offer page, OR null
+   * when no offer has been published yet.
+   *
+   * v1.5-D22 fix: B's `ConciergeBookingStatusSchema` has carried
+   * `relatedOfferToken: string | null` since v1.5.14 (populated from the most-
+   * recent non-withdrawn offer's `publicToken`). This stub was previously
+   * returning null unconditionally — the result was that every customer whose
+   * admin had sent them an offer still saw the disabled "Report available
+   * with your offer" button on this tracker. Now we route them to the offer
+   * page (which itself has the inspection-report CTA at /offer/:token/inspection-report).
    */
   reportLink(): unknown[] | null {
-    return null;
+    const d = this.bookingData();
+    if (!d?.relatedOfferToken) return null;
+    return ['/', this.currentLocale(), 'sell', 'concierge', 'offer', d.relatedOfferToken];
   }
 
   refreshNow(): void {
