@@ -145,6 +145,15 @@ function vinMasked(row: repo.InspectionSummaryRow | repo.InspectionDetailRow): s
 function toSummary(row: repo.InspectionSummaryRow): InspectionSummaryDto {
   const reportJson = repo.readReportJson(row);
   const isConcierge = row.kind === 'concierge';
+  // v1.5.36 — latest non-withdrawn offer (added to SUMMARY_INCLUDE in this
+  // ship). Used by admin edit + sign-off pages to swap "Create buy offer"
+  // for "View existing offer" when an offer is already on the inspection.
+  // The `offers` array is at most length-1 by include's `take: 1`. Optional
+  // chain guards against the row coming from a legacy code path that
+  // didn't include offers.
+  const latestOfferRow = (row as repo.InspectionSummaryRow & {
+    offers?: Array<{ id: string; status: string; offerAmountFils: bigint }>;
+  }).offers?.[0];
   return {
     id: row.id,
     kind: row.kind,
@@ -181,6 +190,13 @@ function toSummary(row: repo.InspectionSummaryRow): InspectionSummaryDto {
       ? row.scheduledFor.toISOString()
       : row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
+    latestOffer: latestOfferRow
+      ? {
+          id: latestOfferRow.id,
+          status: latestOfferRow.status,
+          amountFils: latestOfferRow.offerAmountFils.toString(),
+        }
+      : null,
   };
 }
 

@@ -299,6 +299,27 @@ export const InspectionSummaryDtoSchema = z.object({
    */
   startedAt: z.string().datetime().nullable(),
   updatedAt: z.string().datetime(),
+  /**
+   * v1.5.36 — latest non-withdrawn Offer for this Concierge inspection
+   * (Concierge-only; null for CPO and for inspections without an offer).
+   * The admin Inspection edit + sign-off pages use this to swap the
+   * "Create buy offer →" banner for a "View existing offer →" link when a
+   * non-final offer is already on the row. `amountFils` is the BigInt
+   * serialised as string (mirrors PaymentSummary's amountFils).
+   *
+   * Final offer statuses (`declined`, `expired`) still let admin create a
+   * new offer — those surface as latestOffer set + the FE renders an
+   * informational "Previous offer was declined/expired — create another?"
+   * variant. `withdrawn` rows are filtered server-side so they don't block
+   * re-issuance.
+   */
+  latestOffer: z
+    .object({
+      id: z.string().uuid(),
+      status: z.string(),    // OfferStatus enum
+      amountFils: z.string(), // BigInt serialised as string
+    })
+    .nullable(),
 });
 export type InspectionSummaryDto = z.infer<typeof InspectionSummaryDtoSchema>;
 

@@ -122,23 +122,61 @@ type AllowedContentType = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/hei
       <!-- Concierge post-signoff CTA — surfaces the offer step when the user
            opens a signed-off Concierge inspection via the queue's "Create
            offer" or "View report" link. Same banner appears on /signoff for
-           the just-signed case; this one covers later returns. -->
+           the just-signed case; this one covers later returns.
+
+           v1.5.36 (closes user bug: already offered a price, why is it
+           still showing create offer): three variants now:
+             1. No offer yet                       → Create buy offer
+             2. Offer active (drafted/sent/...)    → Offer already issued, View
+             3. Offer terminated (declined/expired)→ Previous offer X, create another
+           A latestOffer field landed on InspectionSummaryDto in v1.5.36;
+           withdrawn offers are filtered server-side (see SUMMARY_INCLUDE in
+           inspections.repo.ts), so a null here means no active offer. -->
       @if (d.kind === 'concierge' && d.status === 'signed_off') {
-        <div class="bg-brand-50 rounded-xl border border-brand-200 p-5 mb-5 flex items-start gap-4 flex-wrap">
-          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
+        @let offer = d.latestOffer;
+        @let offerEnded = offer && (offer.status === 'declined' || offer.status === 'expired');
+        @if (!offer || offerEnded) {
+          <!-- Variant 1 + 3: no offer OR previous offer terminated → invite create. -->
+          <div class="bg-brand-50 rounded-xl border border-brand-200 p-5 mb-5 flex items-start gap-4 flex-wrap">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              @if (offerEnded) {
+                <p class="text-sm font-semibold text-brand-900">Previous offer was {{ offer!.status }} — issue a new one?</p>
+                <p class="text-xs text-slate-700 mt-0.5">Last amount KWD {{ formatFils(offer!.amountFils) }}. Send {{ d.customer?.fullName || 'the customer' }} a revised offer.</p>
+              } @else {
+                <p class="text-sm font-semibold text-brand-900">Inspection signed off — ready to make an offer</p>
+                <p class="text-xs text-slate-700 mt-0.5">Send {{ d.customer?.fullName || 'the customer' }} a purchase offer based on this {{ d.overallScore || '—' }}/100 inspection score.</p>
+              }
+            </div>
+            <a [routerLink]="['/operations/inspections', inspectionId, 'offer', 'new']"
+               class="rounded-md bg-brand-600 text-white px-4 py-2 text-sm font-semibold hover:bg-brand-700 min-h-[44px] inline-flex items-center flex-shrink-0">
+              {{ offerEnded ? 'Create new offer →' : 'Create buy offer →' }}
+            </a>
           </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-semibold text-brand-900">Inspection signed off — ready to make an offer</p>
-            <p class="text-xs text-slate-700 mt-0.5">Send {{ d.customer?.fullName || 'the customer' }} a purchase offer based on this {{ d.overallScore || '—' }}/100 inspection score.</p>
+        } @else {
+          <!-- Variant 2: an active (non-terminated) offer already exists.
+               Don't tempt the admin into duplicating it — link to the existing
+               offer's detail page instead. -->
+          <div class="bg-emerald-50 rounded-xl border border-emerald-200 p-5 mb-5 flex items-start gap-4 flex-wrap">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold text-emerald-900">Offer already issued · status: {{ offer.status }}</p>
+              <p class="text-xs text-slate-700 mt-0.5">KWD {{ formatFils(offer.amountFils) }} sent to {{ d.customer?.fullName || 'the customer' }}. Open the offer to track customer response, send a counter, or withdraw.</p>
+            </div>
+            <a [routerLink]="['/operations/offers', offer.id]"
+               class="rounded-md bg-emerald-600 text-white px-4 py-2 text-sm font-semibold hover:bg-emerald-700 min-h-[44px] inline-flex items-center flex-shrink-0">
+              View offer →
+            </a>
           </div>
-          <a [routerLink]="['/operations/inspections', inspectionId, 'offer', 'new']"
-             class="rounded-md bg-brand-600 text-white px-4 py-2 text-sm font-semibold hover:bg-brand-700 min-h-[44px] inline-flex items-center flex-shrink-0">
-            Create buy offer →
-          </a>
-        </div>
+        }
       }
       @if (d.kind === 'concierge') { <admin-concierge-prelude [inspection]="d" /> }
       <div class="bg-white rounded-xl border border-slate-200 p-4 mb-5 flex items-center gap-4 flex-wrap">
@@ -520,5 +558,20 @@ export class InspectionEditComponent implements OnInit, OnDestroy {
     return Object.values(this.itemsByIdSig()).every(
       (it) => it.status !== 'fail' || (it.notes ?? '').trim().length > 0,
     );
+  }
+
+  /**
+   * v1.5.36 — Format InspectionSummaryDto.latestOffer.amountFils (BigInt-as-string
+   * over the wire) for KWD display. 1 KWD = 1000 fils → 3-decimal place
+   * convention. Returns "—" on parse failure so a corrupt value can't crash
+   * the banner.
+   */
+  formatFils(fils: string): string {
+    try {
+      const n = Number(BigInt(fils)) / 1000;
+      return n.toLocaleString('en-KW', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    } catch {
+      return '—';
+    }
   }
 }

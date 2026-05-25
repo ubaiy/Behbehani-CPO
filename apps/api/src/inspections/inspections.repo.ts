@@ -21,6 +21,22 @@ const SUMMARY_INCLUDE = {
   // to the customer (per [ASK C→B] inspector-fields-on-tracker-dto). PII-light:
   // only mobile + fullName — no email / role / personal address.
   inspector: { select: { id: true, fullName: true, mobile: true } },
+  // v1.5.36 — same `offers` select as DETAIL_INCLUDE so the admin queue list
+  // AND edit page can both render "View existing offer" instead of "Create
+  // buy offer" when an inspection already has an active offer. take:1 keeps
+  // the queue list cheap (one extra LEFT JOIN per row, bounded by 1 offer).
+  offers: {
+    where: { status: { not: 'withdrawn' } },
+    orderBy: { createdAt: 'desc' as const },
+    take: 1,
+    select: {
+      id: true,
+      status: true,
+      offerAmountFils: true,
+      publicToken: true,
+      publicTokenExpiresAt: true,
+    },
+  },
 } satisfies Prisma.InspectionReportInclude;
 
 const DETAIL_INCLUDE = {
@@ -31,11 +47,21 @@ const DETAIL_INCLUDE = {
   // can populate relatedOfferToken for the deep-link to /offer/:token/inspection-report.
   // `take: 1` + `orderBy: createdAt desc` ensures we get the most-recent offer.
   // `status: { not: 'withdrawn' }` prevents surfacing retracted offers.
+  // v1.5.36: extended `select` with id + offerAmountFils so toSummary() can
+  // populate the new `latestOffer` field on InspectionSummaryDto (closes the
+  // bug where the admin edit page showed "Create buy offer" even after one
+  // was already issued).
   offers: {
     where: { status: { not: 'withdrawn' } },
     orderBy: { createdAt: 'desc' as const },
     take: 1,
-    select: { publicToken: true, publicTokenExpiresAt: true, status: true },
+    select: {
+      id: true,
+      status: true,
+      offerAmountFils: true,
+      publicToken: true,
+      publicTokenExpiresAt: true,
+    },
   },
 } satisfies Prisma.InspectionReportInclude;
 

@@ -8742,3 +8742,71 @@ curl -s -i -X POST http://3.122.54.102/v1/public/concierge/inspections \
 Idle. Both v1.5.34 + v1.5.35 close A's sell-flow gaps. Next move is on A's side (frontend sign-in gate + interceptor verification — see §4).
 
 — **Session B**, 2026-05-25.
+
+---
+
+## 2026-05-25 — B v1.5.36 — Admin inspection-detail surfaces existing offer (no more dup-create CTA)
+
+User flagged: *"I have already offered a price for this then why it is again showing me create offer?"* — admin opens the signed-off inspection detail page for a Concierge booking that already has an offer, but the page still prompts "Create buy offer →" with a link to the create-offer form, inviting a duplicate.
+
+### 1. Root cause
+
+`InspectionSummaryDto` (the shape returned by `GET /v1/admin/inspections/:id`) carries no offer-related fields. The admin edit page (`inspection-edit.component.ts:126`) and signoff page (`inspection-signoff.component.ts:130`) rendered the "Create buy offer" banner based ONLY on `d.kind === 'concierge' && d.status === 'signed_off'`, with zero check against existing offers. Result: the banner is unconditional once the inspection is signed off, regardless of whether an offer is already drafted/sent/countered/accepted.
+
+### 2. Backend changes — DTO extension (no migration)
+
+**`libs/shared/types/src/lib/inspection.schemas.ts`** — added a nullable `latestOffer` block to `InspectionSummaryDtoSchema`:
+
+```ts
+latestOffer: z
+  .object({
+    id: z.string().uuid(),
+    status: z.string(),    // OfferStatus enum
+    amountFils: z.string(), // BigInt serialised as string
+  })
+  .nullable(),
+```
+
+**`apps/api/src/inspections/inspections.repo.ts`** — `offers` include now lives on BOTH `SUMMARY_INCLUDE` and `DETAIL_INCLUDE` (so list + detail both surface it), and the `select` is widened to include `id` + `offerAmountFils` (was only `publicToken/publicTokenExpiresAt/status` for the v1.5.14 customer-tracker use). Existing `where: { status: { not: 'withdrawn' } }` filter is preserved — withdrawn offers don't block re-issuance.
+
+**`apps/api/src/inspections/inspections.service.ts`** — `toSummary()` populates `latestOffer` from `row.offers[0]` (null when the array is empty). All consumers of `inspectionToSummary` now carry the field automatically.
+
+### 3. Frontend changes — 3-variant banner
+
+`inspection-edit.component.ts` + `inspection-signoff.component.ts` — same banner block replaced in both:
+
+| `d.latestOffer` | Banner |
+|---|---|
+| **null** | Brand-blue "Inspection signed off — ready to make an offer · Create buy offer →" (unchanged) |
+| status = `declined` or `expired` | Brand-blue "Previous offer was <status> — issue a new one? · KWD X.XXX last amount · Create new offer →" |
+| status = `drafted` / `sent` / `countered_by_*` / `accepted` | **Emerald** "Offer already issued · status: <status> · KWD X.XXX sent · View offer →" linking to `/operations/offers/:id` |
+
+Color shift to emerald is intentional — different palette signals "no action needed here, the offer is in flight". Add helper `formatFils(string)` on both components for the KWD display (3-decimal, en-KW locale).
+
+### 4. Side effects
+
+- **Inspection queue list rows** now also carry `latestOffer` (since the field lives on the same DTO). Future UI work could show a status pill on the row itself — out of scope for this ship.
+- **`take: 1` on the include** keeps the query cheap. One extra LEFT JOIN per row in the queue list, bounded.
+- **`relatedOfferToken` consumers unchanged** — that derived field still picks from `row.offers[0].publicToken` via the same `take:1, orderBy:createdAt desc, where:{not withdrawn}` shape.
+
+### 5. Verification (post-deploy)
+
+1. Open `/admin/inspections/<2024-audi-a4-id>` — the inspection that triggered the bug report
+2. Expect EMERALD banner: "Offer already issued · status: sent (or drafted) · KWD X.XXX sent · View offer →"
+3. Click "View offer →" — should land on `/operations/offers/<offer-id>` with the existing offer
+4. Pick a different signed-off Concierge inspection that has NO offer yet — confirm the brand-blue "Create buy offer" banner still appears
+5. If any inspection has a declined or expired offer in DB, confirm the "Previous offer was X" variant renders
+
+### 6. Build verify
+
+`npx nx run-many -t build -p shared-types api admin --skip-nx-cache` → **GREEN** (3/3 projects + 3 deps).
+
+### 7. Operational gates
+
+Bundles into the same `bash scripts/deploy-all.sh` flow as v1.5.33-35. No prisma migration. Admin needs the redeploy (UI changed); API needs the redeploy (DTO changed). The script does both.
+
+### 8. B state
+
+Idle. v1.5.36 closes the user-flagged dup-create-offer bug. No new asks for A or C.
+
+— **Session B**, 2026-05-25.
