@@ -45,9 +45,9 @@ const BANKS: ReadonlyArray<Bank> = [
         </div>
       </header>
 
-      <div class="grid gap-6 lg:grid-cols-[1fr_1fr]">
+      <div class="grid gap-5 lg:grid-cols-[1.05fr_1fr] lg:gap-8">
         <!-- Controls -->
-        <div class="space-y-5">
+        <div class="space-y-6 rounded-xl bg-surface-soft p-5 lg:p-6">
           <div>
             <div class="mb-2 flex items-baseline justify-between">
               <label for="vdp-down" class="text-sm font-semibold text-ink">{{ 'vdp.finance.downPayment' | translate }}</label>
@@ -62,6 +62,7 @@ const BANKS: ReadonlyArray<Bank> = [
               [value]="down()"
               (input)="down.set(+$any($event.target).value)"
               class="vdp-slider w-full"
+              [style.--fill-pct]="downFillPct() + '%'"
             />
             <div class="mt-1.5 text-xs text-muted">{{ downKwd() }}</div>
           </div>
@@ -82,6 +83,7 @@ const BANKS: ReadonlyArray<Bank> = [
               [value]="tenure()"
               (input)="tenure.set(+$any($event.target).value)"
               class="vdp-slider w-full"
+              [style.--fill-pct]="tenureFillPct() + '%'"
             />
             <div class="mt-1.5 text-xs text-muted">{{ tenureYears() }} {{ 'vdp.finance.years' | translate }}</div>
           </div>
@@ -111,7 +113,7 @@ const BANKS: ReadonlyArray<Bank> = [
         </div>
 
         <!-- Result -->
-        <div class="rounded-xl bg-surface-soft p-5">
+        <div class="rounded-xl border border-brand-100 bg-gradient-to-br from-brand-50 to-white p-5 lg:p-6">
           <div class="mb-1 text-xs font-semibold uppercase tracking-wider text-muted">
             {{ 'vdp.finance.estMonthly' | translate }}
           </div>
@@ -148,33 +150,77 @@ const BANKS: ReadonlyArray<Bank> = [
     </section>
   `,
   styles: [`
+    /* v1.5-D21 polish: filled-track + bigger thumb so the slider feels
+       like a real control. Track uses a CSS variable --fill-pct set
+       inline from the component (0%-100%) so the brand-blue portion
+       grows/shrinks live as user drags. RTL flips automatically because
+       we use the logical 'right' direction via the gradient stops. */
     .vdp-slider {
       -webkit-appearance: none;
       appearance: none;
-      height: 6px;
-      background: rgb(226 232 240);
+      width: 100%;
+      height: 8px;
+      background: linear-gradient(
+        to right,
+        rgb(29 78 216) 0%,
+        rgb(29 78 216) var(--fill-pct, 0%),
+        rgb(226 232 240) var(--fill-pct, 0%),
+        rgb(226 232 240) 100%
+      );
       border-radius: 9999px;
       outline: none;
+      transition: background 0.1s ease-out;
+    }
+    [dir='rtl'] .vdp-slider {
+      background: linear-gradient(
+        to left,
+        rgb(29 78 216) 0%,
+        rgb(29 78 216) var(--fill-pct, 0%),
+        rgb(226 232 240) var(--fill-pct, 0%),
+        rgb(226 232 240) 100%
+      );
     }
     .vdp-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       background: #ffffff;
-      border: 2px solid rgb(30 58 138);
+      border: 3px solid rgb(29 78 216);
       border-radius: 9999px;
       cursor: grab;
-      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.22);
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+    }
+    .vdp-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.08);
+      box-shadow: 0 3px 10px rgba(29, 78, 216, 0.32);
+    }
+    .vdp-slider::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.12);
+    }
+    .vdp-slider:focus-visible::-webkit-slider-thumb {
+      outline: 3px solid rgb(147 197 253);
+      outline-offset: 2px;
     }
     .vdp-slider::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       background: #ffffff;
-      border: 2px solid rgb(30 58 138);
+      border: 3px solid rgb(29 78 216);
       border-radius: 9999px;
       cursor: grab;
-      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.22);
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+    }
+    .vdp-slider::-moz-range-thumb:hover {
+      transform: scale(1.08);
+      box-shadow: 0 3px 10px rgba(29, 78, 216, 0.32);
+    }
+    .vdp-slider::-moz-range-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.12);
     }
   `],
 })
@@ -216,4 +262,10 @@ export class VdpFinanceCalcComponent {
   readonly totalLabel = computed(() => fmtKwd(Math.round(this.total()), this.locale()));
   readonly downKwd = computed(() => fmtKwd(Math.round(this.priceKwd() * this.down() / 100), this.locale()));
   readonly tenureYears = computed(() => Math.round(this.tenure() / 12));
+
+  // v1.5-D21: live fill-percentage for the slider track gradient. CSS reads
+  // these via the --fill-pct CSS variable bound in the template. Min/max
+  // mirror the <input type="range"> attributes (down: 0-60, tenure: 12-84).
+  readonly downFillPct = computed(() => Math.round((this.down() / 60) * 100));
+  readonly tenureFillPct = computed(() => Math.round(((this.tenure() - 12) / (84 - 12)) * 100));
 }
