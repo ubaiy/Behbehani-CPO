@@ -504,7 +504,26 @@ export class SellOfferPageComponent implements OnInit {
       .subscribe((res: GetOfferResult) => {
         switch (res.kind) {
           case 'ok':
-            this.state.set({ kind: 'ok', data: res.data });
+            // v1.5-D23 fix: route accepted/declined offers into their
+            // dedicated terminal states on REVISIT (page refresh after
+            // the user already responded). Previously this branch always
+            // set { kind: 'ok' }, so the success "Accepted!" hero would
+            // never render on a fresh page load — instead the template
+            // fell through to the misleading "offer is on the way"
+            // history copy. The submit handler already does this routing
+            // for the same-session post-click path; we just mirror it
+            // here for the post-refresh path.
+            // PublicOfferView does NOT include listingStockNumber (only
+            // the submit response does), so accepted-on-revisit shows the
+            // success hero without the stock number — better UX than the
+            // misleading awaiting state.
+            if (res.data.status === 'accepted') {
+              this.state.set({ kind: 'accepted', data: res.data });
+            } else if (res.data.status === 'declined') {
+              this.state.set({ kind: 'declined', data: res.data });
+            } else {
+              this.state.set({ kind: 'ok', data: res.data });
+            }
             break;
           case 'not_found':
           case 'expired':
