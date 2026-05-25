@@ -43,7 +43,10 @@ export type DeleteSavedSearchState =
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function newIdempotencyKey(): string {
-  return globalThis.crypto?.randomUUID() ?? Math.random().toString(36).slice(2);
+  // v1.5-D20 hot fix: same secure-context bug as orders.service.ts — see
+  // its newIdempotencyKey() block for the full explanation. The `?.()`
+  // on the call short-circuits when `randomUUID` is missing on HTTP.
+  return globalThis.crypto?.randomUUID?.() ?? `idem-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function idempotencyHeaders(): HttpHeaders {

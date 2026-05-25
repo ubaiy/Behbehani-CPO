@@ -47,7 +47,12 @@ export type CancelOrderState =
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function newIdempotencyKey(): string {
-  return globalThis.crypto?.randomUUID() ?? Math.random().toString(36).slice(2);
+  // v1.5-D20 hot fix: `crypto.randomUUID()` requires a SECURE CONTEXT (HTTPS).
+  // On plain HTTP deployments (e.g. http://3.122.54.102), `crypto` is defined
+  // but `randomUUID` is NOT — so `crypto?.randomUUID()` would call undefined()
+  // and throw TypeError. Use the optional-call form `?.()` to short-circuit
+  // when the method itself is absent, then fall back to a Math.random key.
+  return globalThis.crypto?.randomUUID?.() ?? `idem-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function idempotencyHeaders(): HttpHeaders {
